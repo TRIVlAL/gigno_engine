@@ -1,16 +1,12 @@
 # Third Party Credits
 
-##The Following Open-Source Libraries and Packages are used by the engine :
-
------------------------------------------------------------------------
-
-
+## The Following Open-Source Libraries and Packages are used by the engine :
 
 ### glfw
 A Platform agnostic I/O and window service 
 
-GLFW LICENSE:
------------------------------------------------------------------------
+#### GLFW LICENSE:
+<pre>-----------------------------------------------------------------------
 Copyright (c) 2002-2006 Marcus Geelnard
 
 Copyright (c) 2006-2019 Camilla Löwy
@@ -33,15 +29,14 @@ freely, subject to the following restrictions:
 
 3. This notice may not be removed or altered from any source
    distribution.
+-------------------------------------------------------------------------</pre>
 -------------------------------------------------------------------------
-
-
 
 ### glm
 A C++ Open-Source Math Library
 
-GLM LICENSE :
--------------------------------------------------------------------------
+#### GLM LICENSE :
+<pre>-------------------------------------------------------------------------
 ================================================================================
 OpenGL Mathematics (GLM)
 --------------------------------------------------------------------------------
@@ -96,16 +91,16 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+---------------------------------------------------------------------------------</pre>
 ---------------------------------------------------------------------------------
-
 
 
 ### Vulkan SDK
 A Cross-Platform Rendering API. 
 The Vulkan API Code is not distributed on this repository and must be downloaded from the LunarG official website on your machine.
 
-VULKAN SDK LICENSE :
-----------------------------------------------------------------------------------
+#### VULKAN SDK LICENSE :
+<pre>----------------------------------------------------------------------------------
 Copyright 2016-2024 LunarG Inc.
 
 
@@ -115,15 +110,15 @@ The Vulkan SDK is comprised of 100% open-source components. The majority of the 
 
 
 ALL INFORMATION HERE IS PROVIDED "AS IS." LUNARG MAKES NO REPRESENTATIONS OR WARRANTIES, EXPRESS OR IMPLIED, WITH REGARD TO THIS LIST OR ITS ACCURACY OR COMPLETENESS, OR WITH RESPECT TO ANY RESULTS TO BE OBTAINED FROM USE OR DISTRIBUTION OF THE LIST. BY USING OR DISTRIBUTING THIS LIST, YOU AGREE THAT IN NO EVENT SHALL LUNARG BE HELD LIABLE FOR ANY DAMAGES WHATSOEVER RESULTING FROM ANY USE OR DISTRIBUTION OF THIS LIST, INCLUDING, WITHOUT LIMITATION, ANY SPECIAL, CONSEQUENTIAL, INCIDENTAL OR OTHER DIRECT OR INDIRECT DAMAGES.
+----------------------------------------------------------------------------------</pre>
 ----------------------------------------------------------------------------------
-
 
 
 ### Tiny Object Loader
 A parser for .obj 3D model files.
 
-TINY OBJECT LOADER LICENSE:
--------------------------------------------------------------------------
+#### TINY OBJECT LOADER LICENSE:
+<pre>-------------------------------------------------------------------------
 The MIT License (MIT)
 
 Copyright (c) 2012-Present, Syoyo Fujita and many contributors.
@@ -145,4 +140,4 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
--------------------------------------------------------------------------
+-------------------------------------------------------------------------</pre>
