@@ -1,0 +1,29 @@
+cmake_minimum_required(VERSION 3.25)
+project(Gigno LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(VULKAN_SDK_PATH C:/dev_libraries/VulkanSDK)
+set(GLFW_PATH C:/dev_libraries/glfw/glfw-3.4.bin.WIN64)
+
+set (EXCLUDE_DIR "/vendor/")
+file (GLOB_RECURSE SOURCES "src/*.cpp")
+foreach (TMP_PATH ${SOURCES})
+    string (FIND ${TMP_PATH} ${EXCLUDE_DIR} EXCLUDE_DIR_FOUND)
+    if (NOT ${EXCLUDE_DIR_FOUND} EQUAL -1)
+        list (REMOVE_ITEM SOURCES ${TMP_PATH})
+    endif ()
+endforeach(TMP_PATH)
+
+
+add_executable(gigno ${SOURCES})
+target_include_directories(gigno PUBLIC
+    ${PROJECT_SOURCE_DIR}/src 
+    ${PROJECT_SOURCE_DIR}/src/vendor/glm
+    ${GLFW_PATH}/include
+    ${VULKAN_SDK_PATH}/Include)
+target_link_directories(gigno PUBLIC 
+    ${VULKAN_SDK_PATH}/Lib
+    ${GLFW_PATH}/lib-mingw-w64)
+target_link_libraries(gigno glfw3 vulkan-1)
