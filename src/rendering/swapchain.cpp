@@ -109,8 +109,6 @@ namespace gigno {
 
 		uint32_t queueFamilyIndices[] = { physicalDeviceQueueFamilyIndices.graphicFamily.value(), physicalDeviceQueueFamilyIndices.presentFamily.value() };
 
-		VkSwapchainKHR oldSwapChain = isFirstCreation ? VK_NULL_HANDLE : m_VkSwapChain;
-
 		VkSwapchainCreateInfoKHR createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 		createInfo.pNext = nullptr;
