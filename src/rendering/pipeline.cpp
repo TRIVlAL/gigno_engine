@@ -94,7 +94,8 @@ namespace gigno {
 
 		VkResult result = vkCreateShaderModule(device, &createInfo, nullptr, shaderModule);
 		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to create ShaderModule ! Vulkan error code : " << (int)result);
+			ERR_MSG("Failed to create ShaderModule ! Vulkan error code : " << (int)result <<"." << std::endl << 
+			"If the error code is -13, make sure the shader files are present in the running directory (from which the executable is ran) in the folder 'shader/'.");
 		}
 	}
 
