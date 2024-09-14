@@ -7,6 +7,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(VULKAN_SDK_PATH C:/dev_libraries/VulkanSDK)
 set(GLFW_PATH C:/dev_libraries/glfw/glfw-3.4.bin.WIN64)
 
+#Copy shaders
+file(GLOB_RECURSE SPV_FILES "${PROJECT_SOURCE_DIR}/shaders/*.spv")
+
+foreach(SHADER ${SPV_FILES})
+    cmake_path(GET SHADER FILENAME SHADER_FILE_NAME)
+    configure_file(${SHADER} ${CMAKE_CURRENT_BINARY_DIR}/shaders/${SHADER_FILE_NAME} COPYONLY)
+endforeach(SHADER ${SHADER_FILES})
+
 set (EXCLUDE_DIR "/vendor/")
 file (GLOB_RECURSE SOURCES "src/*.cpp")
 foreach (TMP_PATH ${SOURCES})
@@ -18,6 +26,7 @@ endforeach(TMP_PATH)
 
 
 add_executable(gigno ${SOURCES})
+
 target_include_directories(gigno PUBLIC
     ${PROJECT_SOURCE_DIR}/src 
     ${PROJECT_SOURCE_DIR}/src/vendor/glm
