@@ -69,11 +69,8 @@ namespace gigno {
 			auto currentTime = std::chrono::steady_clock::now();
 			std::chrono::duration<double> deltaTime = currentTime - lastUpdateTime;
 			deltaTime = std::chrono::duration<double>{ glm::min(deltaTime.count(), MAX_FRAME_TIME) };
-			std::cout << "before " << deltaTime.count() << std::endl;
 			deltaTime = std::chrono::duration_cast<std::chrono::nanoseconds>(deltaTime);
-			std::cout << "after " << deltaTime.count() << std::endl;
 			lastUpdateTime = currentTime;
-			std::cout << "convert " << deltaTime.count() * 10e-9 << std::endl;
 			
 			m_EntityServer.Tick(deltaTime.count() * 10e-9);
 
@@ -81,8 +78,6 @@ namespace gigno {
 
 			m_RenderingServer.Render();
 		}
-
-		std::cout << "aggreg : " << aggreg << std::endl;
 
 		m_RenderingServer.Finalize();
 
