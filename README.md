@@ -29,7 +29,7 @@ set(GLFW_PATH C:/path_to_glfw/glfw-x.x.bin.PLATFORM) # Change the path to reflec
 
 ...
 ```
-Once you have done that, check the glfw files you have just downloaded. There should be inside a list of folders starting with ```lib-``` and comtaining dll files. 
+Once you have done that, check the glfw files you have just downloaded. There should be inside a list of folders starting with ```lib-``` and containing dll files. 
 Each of them correspond to a specific compiler used. Copy the name of the folder which correspond to the compiler you are going to use and <b>paste it in where ```GLFW_LIBRARY_FOLDER``` is defined, at line 9</b>.
 ```cmake 
 ...
