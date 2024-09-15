@@ -21,11 +21,20 @@ set(VULKAN_SDK_PATH C:/path_to_the_vulkan_sdk/VulkanSDK) # Change the path to re
 You must also install a copy of the glfw library. The glfw library is used to interface with the os, for Input/Output and window creation.
 You can download the glfw library binaries at [this adress](https://www.glfw.org/download.html)
 Once you have the glfw binaries, you must once again modify a path value in the CMakeLists.txt file.
-This time, <b>replace the ```GLFW_PATH``` value at line 8</b>
+This time, <b>replace the ```GLFW_PATH``` value at line 8</b>.
 ```cmake
 ...
 
 set(GLFW_PATH C:/path_to_glfw/glfw-x.x.bin.PLATFORM) # Change the path to reflect the one on your machine.
+
+...
+```
+Once you have done that, check the glfw files you have just downloaded. There should be inside a list of folders starting with ```lib-``` and comtaining dll files. 
+Each of them correspond to a specific compiler used. Copy the name of the folder which correspond to the compiler you are going to use and <b>paste it in where ```GLFW_LIBRARY_FOLDER``` is defined, at line 9</b>.
+```cmake 
+...
+
+set(GLFW_LIBRARY_FOLDER lib-compiler-platform) # This name reflects the compiler you are using.
 
 ...
 ```

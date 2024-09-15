@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(VULKAN_SDK_PATH C:/dev_libraries/VulkanSDK)
 set(GLFW_PATH C:/dev_libraries/glfw/glfw-3.4.bin.WIN64)
+set(GLFW_LIBRARY_FOLDER lib-mingw-w64)
 
 #Copy shaders
 file(GLOB_RECURSE SPV_FILES "${PROJECT_SOURCE_DIR}/shaders/*.spv")
@@ -35,6 +36,6 @@ target_include_directories(gigno PUBLIC
     ${GLFW_PATH}/include
     ${VULKAN_SDK_PATH}/Include)
 target_link_directories(gigno PUBLIC 
-    C:/dev_libraries/VulkanSDK/Lib
-    C:/dev_libraries/glfw/glfw-3.4.bin.WIN64/lib-mingw-w64)
+    ${VULKAN_SDK_PATH}/Lib
+    ${GLFW_PATH}/${GLFW_LIBRARY_FOLDER})
 target_link_libraries(gigno glfw3 vulkan-1)
