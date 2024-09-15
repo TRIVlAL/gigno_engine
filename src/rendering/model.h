@@ -3,29 +3,63 @@
 
 #include "vulkan/vulkan.h"
 #include "glm/glm.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/hash.hpp"
 
 #include <vector>
 #include <array>
 
 namespace gigno {
+	typedef uint32_t indice_t;
 	class giDevice;
 
 	struct Vertex {
+		Vertex(){};
 		Vertex(glm::vec3 pos, glm::vec3 col) :
 			position{ pos }, color{ col } {}
-		glm::vec3 position;
-		glm::vec3 color;
+		glm::vec3 position{};
+		glm::vec3 color{};
+		glm::vec3 normal{};
+		glm::vec2 uv{};
 
 		static VkVertexInputBindingDescription GetBindingDescription();
 		static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions();
+
+		// Need Equal operator for unordered map
+		bool operator==(const Vertex &other) const {
+			return other.position == position && other.color == color && other.normal == normal && other.uv == uv;
+		}
+	};
+}
+
+namespace std {
+
+	//Need Vertex to be hashable for unordered map
+	template<>
+	struct hash<gigno::Vertex> {
+		size_t operator()(const gigno::Vertex &key) const {
+			return hash<glm::vec3>()(key.position) ^ hash<glm::vec3>()(key.color) ^ 
+			hash<glm::vec3>()(key.normal) ^ hash<glm::vec2>()(key.uv);
+		}
+	};
+
+}
+
+namespace gigno{
+
+	struct ModelData_t {
+		std::vector<Vertex> Vertices;
+		std::vector<indice_t> Indices;
+
+		static ModelData_t FromObjFile(const char *path);
 	};
 
 	class giModel {
 	public:
-		typedef uint16_t indice_t;
+		static VkIndexType GetIndexType() {return VK_INDEX_TYPE_UINT32;} 
 
 		giModel();
-		giModel(const giDevice &device, const std::vector<Vertex> &vertices, const std::vector<indice_t> &indices, VkCommandPool commandPool);
+		giModel(const giDevice &device, const ModelData_t &data, VkCommandPool commandPool);
 		~giModel();
 
 		void CleanUp(VkDevice device);

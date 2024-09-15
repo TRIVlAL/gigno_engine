@@ -17,6 +17,53 @@ namespace gigno
 		return description;
 	}
 
+	ModelData_t ModelData_t::FromObjFile(const char *path) {
+		tinyobj::attrib_t attrib;
+		std::vector<tinyobj::shape_t> shapes;
+		std::vector<tinyobj::material_t> materials;
+		
+		std::string warn;
+		std::string err;
+
+		if(!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path)) {
+			ERR_MSG_V("Tiny Object Loader Error :" << warn << " " << err, ModelData_t{});
+		}
+
+		ModelData_t data{};
+		std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+		for(const tinyobj::shape_t &shape : shapes) {
+			for(const tinyobj::index_t& index : shape.mesh.indices) {
+				Vertex vertex{};
+
+				vertex.position = { attrib.vertices[3 * index.vertex_index + 0],
+									attrib.vertices[3 * index.vertex_index + 1],
+									attrib.vertices[3 * index.vertex_index + 2]};
+				
+				uint32_t colorIndex = 3 * index.vertex_index + 2;
+				if(colorIndex < attrib.colors.size()) {
+					vertex.color = {attrib.colors[colorIndex - 0],
+									attrib.colors[colorIndex - 1],
+									attrib.colors[colorIndex - 2]};
+				}
+
+				vertex.normal = {attrib.normals[3 * index.vertex_index + 0],
+								attrib.normals[3 * index.vertex_index + 1],
+								attrib.normals[3 * index.vertex_index + 2]};
+				vertex.uv = {attrib.texcoords[2 * index.texcoord_index + 0],
+							 1.0f - attrib.texcoords[2 * index.texcoord_index + 1]}; //subtract : Invert coordinate to follow texture orientation.
+
+				if(uniqueVertices.count(vertex) == 0) {
+					uniqueVertices[vertex] = static_cast<uint32_t>(data.Vertices.size());
+					data.Vertices.push_back(vertex);
+				}
+
+				data.Indices.push_back(uniqueVertices[vertex]);
+			}
+		}
+
+		return data;
+	}
+
 	std::array<VkVertexInputAttributeDescription, 2> Vertex::GetAttributeDescriptions() {
 		std::array<VkVertexInputAttributeDescription, 2> descriptions{};
 
@@ -33,9 +80,9 @@ namespace gigno
 		return descriptions;
 	}
 
-	giModel::giModel(const giDevice &device, const std::vector<Vertex> &vertices, const std::vector<indice_t> &indices, VkCommandPool commandPool) :
-		m_Vertices{ vertices }, 
-		m_Indices{ indices } {
+	giModel::giModel(const giDevice &device, const ModelData_t &data, VkCommandPool commandPool) :
+		m_Vertices{ data.Vertices }, 
+		m_Indices{ data.Indices } {
 		CreateVertexBuffer(device.GetDevice(), device.GetPhysicalDevice(), commandPool, device.GetGraphicsQueue());
 		CreateIndexBuffer(device.GetDevice(), device.GetPhysicalDevice(), commandPool, device.GetGraphicsQueue());
 	}
@@ -57,7 +104,7 @@ namespace gigno
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(buffer, 0, 1, buffers, offsets);
 
-		vkCmdBindIndexBuffer(buffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+		vkCmdBindIndexBuffer(buffer, m_IndexBuffer, 0, GetIndexType());
 	}
 
 	void giModel::Draw(VkCommandBuffer buffer) {
@@ -87,7 +134,7 @@ namespace gigno
 	}
 
 	void giModel::CreateIndexBuffer(VkDevice device, VkPhysicalDevice physDevice, VkCommandPool commandPool, VkQueue queue) {
-		VkDeviceSize bufferSize = sizeof(m_Indices) * m_Indices.size();
+		VkDeviceSize bufferSize = sizeof(indice_t) * m_Indices.size();
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;

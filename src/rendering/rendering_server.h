@@ -37,7 +37,7 @@ namespace gigno {
 
 		float GetAspectRatio() { return static_cast<float>(m_SwapChain.GetWidth()) / static_cast<float>(m_SwapChain.GetHeight()); }
 
-		void CreateModel(std::shared_ptr<giModel> &model, const std::vector<Vertex> &vertices, const std::vector<giModel::indice_t> &indices);
+		void CreateModel(std::shared_ptr<giModel> &model, const ModelData_t &modelData);
 
 	private:
 		void CreateSyncObjects();

@@ -35,8 +35,8 @@ namespace gigno {
 		m_RenderedEntities.erase(std::remove(m_RenderedEntities.begin(), m_RenderedEntities.end(), entity), m_RenderedEntities.end());
 	}
 
-	void giRenderingServer::CreateModel(std::shared_ptr<giModel> &model, const std::vector<Vertex> &vertices, const std::vector<giModel::indice_t> &indices) {
-		model = std::make_shared<giModel>(giModel{ m_Device, vertices, indices, m_SwapChain.GetCommandPool() });
+	void giRenderingServer::CreateModel(std::shared_ptr<giModel> &model, const ModelData_t &modelData) {
+		model = std::make_shared<giModel>(giModel{ m_Device, modelData, m_SwapChain.GetCommandPool() });
 	}
 
 	void giRenderingServer::CreateSyncObjects() {

@@ -470,7 +470,6 @@ namespace gigno {
 		for (const RenderedEntity *entity : entities) {
 			PushConstantData_t push{};
 			push.transform = proView * entity->Transform.TransformationMatrix();
-			push.color = entity->Color;
 
 			vkCmdPushConstants(buffer, m_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstantData_t), &push);
 			entity->pModel->Bind(buffer);
