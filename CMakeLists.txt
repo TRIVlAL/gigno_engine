@@ -16,6 +16,14 @@ foreach(SHADER ${SPV_FILES})
     configure_file(${SHADER} ${CMAKE_CURRENT_BINARY_DIR}/shaders/${SHADER_FILE_NAME} COPYONLY)
 endforeach(SHADER ${SHADER_FILES})
 
+#Copy models
+file(GLOB_RECURSE OBJ_FILES "${PROJECT_SOURCE_DIR}/models/*.obj")
+foreach(OBJ ${OBJ_FILES})
+    cmake_path(GET OBJ FILENAME OBJ_NAME)
+    configure_file(${OBJ} ${CMAKE_CURRENT_BINARY_DIR}/models/${OBJ_NAME} COPYONLY)
+endforeach(OBJ ${OBJ_FILES})
+
+
 set (EXCLUDE_DIR "/vendor/")
 file (GLOB_RECURSE SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
 foreach (TMP_PATH ${SOURCES})
