@@ -55,3 +55,8 @@ cd BUILD
 cmake ..
 ```
 If everything goes well, all of the CMake files will be generated in the BUILD directory, as well as a /shaders folder containing the required .spv files and a gigno executable.
+
+#### Note
+The executable requires two folders to be placed in the same dir as it to work : /models, which contains the .OBJ models used by the program, and /shaders, which contains the .SPV shader files used by the program.
+The CMake compile process should copy these folders to the binary directory automatically but, in case it doesn't, you can do it mannualy.
+Said /models and /shaders folders are in the main directory of the project.
