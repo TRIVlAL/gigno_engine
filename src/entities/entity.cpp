@@ -35,6 +35,29 @@ namespace  gigno {
 		};
 	}
 
+	glm::mat3 Transform_t::NormalMatrix() const {
+		float ca = glm::cos(rotation.y);
+		float sa = glm::sin(rotation.y);
+		float cb = glm::cos(rotation.x);
+		float sb = glm::sin(rotation.x);
+		float cc = glm::cos(rotation.z);
+		float sc = glm::sin(rotation.z);
+		return glm::mat3{
+			{(1.0f / scale.x) * (ca * cc + sa * sb * sc),
+			 (1.0f / scale.x) * (cb * sc),
+			 (1.0f / scale.x) * (ca * sb * sc - cc * sa)},
+
+			{(1.0f / scale.y) * (cc * sa * sb - ca * sc),
+			 (1.0f / scale.y) * (cb * cc),
+			 (1.0f / scale.y) * (ca * cc * sb + sa * sc)},
+
+			{(1.0f / scale.z) * (cb * sa),
+			 (1.0f / scale.z) * (-sb),
+			 (1.0f / scale.z) * (ca * cb)},
+		};
+		//return glm::transpose(glm::inverse(glm::mat3(TransformationMatrix())));
+	}
+
 	giApplication *Entity::GetApp() const{
 		return giApplication::Singleton();
 	}

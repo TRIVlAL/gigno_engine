@@ -422,7 +422,7 @@ namespace gigno {
 		}
 
 		std::array<VkClearValue, 2> clearValues = {};
-		clearValues[0].color = { {0.1f, 0.1f, 0.1f, 1.0f} };
+		clearValues[0].color = { {0.15f, 0.15f, 0.15f, 1.0f} };
 		clearValues[1].depthStencil = { 1.0f, 0 };
 
 		VkRenderPassBeginInfo passBeginInfo{};
@@ -470,6 +470,7 @@ namespace gigno {
 		for (const RenderedEntity *entity : entities) {
 			PushConstantData_t push{};
 			push.transform = proView * entity->Transform.TransformationMatrix();
+			push.normalsMatrix = entity->Transform.NormalMatrix();
 
 			vkCmdPushConstants(buffer, m_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstantData_t), &push);
 			entity->pModel->Bind(buffer);

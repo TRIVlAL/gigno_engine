@@ -17,6 +17,18 @@ namespace gigno
 		return description;
 	}
 
+	std::array<VkVertexInputAttributeDescription, 4> Vertex::GetAttributeDescriptions()
+	{
+		std::array<VkVertexInputAttributeDescription, 4> descriptions{};
+
+		descriptions[0] = {0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position)};
+		descriptions[1] = {1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color)};
+		descriptions[2] = {2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal)};
+		descriptions[3] = {3, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv)};
+
+		return descriptions;
+	}
+
 	ModelData_t ModelData_t::FromObjFile(const char *path) {
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
@@ -46,11 +58,11 @@ namespace gigno
 									attrib.colors[colorIndex - 2]};
 				}
 
-				vertex.normal = {attrib.normals[3 * index.vertex_index + 0],
-								attrib.normals[3 * index.vertex_index + 1],
-								attrib.normals[3 * index.vertex_index + 2]};
+				vertex.normal = {attrib.normals[3 * index.normal_index + 0],
+								attrib.normals[3 * index.normal_index + 1],
+								attrib.normals[3 * index.normal_index + 2]};
 				vertex.uv = {attrib.texcoords[2 * index.texcoord_index + 0],
-							 1.0f - attrib.texcoords[2 * index.texcoord_index + 1]}; //subtract : Invert coordinate to follow texture orientation.
+							 attrib.texcoords[2 * index.texcoord_index + 1]};
 
 				if(uniqueVertices.count(vertex) == 0) {
 					uniqueVertices[vertex] = static_cast<uint32_t>(data.Vertices.size());
@@ -62,22 +74,6 @@ namespace gigno
 		}
 
 		return data;
-	}
-
-	std::array<VkVertexInputAttributeDescription, 2> Vertex::GetAttributeDescriptions() {
-		std::array<VkVertexInputAttributeDescription, 2> descriptions{};
-
-		descriptions[0].location = 0;
-		descriptions[0].binding = 0;
-		descriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-		descriptions[0].offset = offsetof(Vertex, position);
-
-		descriptions[1].location = 1;
-		descriptions[1].binding = 0;
-		descriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-		descriptions[1].offset = offsetof(Vertex, color);
-
-		return descriptions;
 	}
 
 	giModel::giModel(const giDevice &device, const ModelData_t &data, VkCommandPool commandPool) :

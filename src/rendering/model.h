@@ -23,7 +23,7 @@ namespace gigno {
 		glm::vec2 uv{};
 
 		static VkVertexInputBindingDescription GetBindingDescription();
-		static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions();
+		static std::array<VkVertexInputAttributeDescription, 4> GetAttributeDescriptions();
 
 		// Need Equal operator for unordered map
 		bool operator==(const Vertex &other) const {

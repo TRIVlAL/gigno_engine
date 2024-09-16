@@ -37,28 +37,32 @@ namespace gigno {
 
 		RenderedEntity first{ModelData_t::FromObjFile("models/smooth_vase.obj")};
 		first.Transform.translation = glm::vec3{ 0.0f, 0.0f, 0.0f };
-		first.Transform.scale = glm::vec3{ 3.0f, -3.0f, 3.0f };
+		first.Transform.scale = glm::vec3{ 3.0f, -1.5f, 3.0f };
 		first.Transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 		float rot = 0;
 		float y = -5.0f;
 
-		Spinner second{ModelData_t::FromObjFile("models/colored_cube.obj")};
-		second.Transform.translation = glm::vec3{ 2.0f, 0.5f, 1.0f };
-		second.Transform.scale = glm::vec3{0.5f, 0.5f, 0.5f};
-		second.Transform.rotation = glm::vec3(0.0f, glm::radians(30.0f), 0.0f);
-		second.Speed = 1e10;
+		RenderedEntity second{ModelData_t::FromObjFile("models/flat_vase.obj")};
+		second.Transform.translation = glm::vec3{ 1.0f, 0.5f, 1.0f };
+		second.Transform.scale = glm::vec3{3.0f, 3.0f, 3.0f};
+		second.Transform.rotation = glm::vec3(glm::radians(-90.0f), glm::radians(180.0f), glm::radians(-50.0f));
 
-		Spinner third{ModelData_t::FromObjFile("models/colored_cube.obj")};
-		third.Transform.translation = glm::vec3{-1.5f, 0.75f, -0.5f};
-		third.Transform.scale = glm::vec3{0.25f, 0.5f, 0.25f};
+		Spinner third{ModelData_t::FromObjFile("models/flat_vase.obj")};
+		third.Transform.translation = glm::vec3{-0.5f, 0.75f, -0.5f};
+		third.Transform.scale = glm::vec3{3.0f, 3.0f, 3.0f};
 		third.Transform.rotation = glm::vec3(0.0f, glm::radians(55.0f), 0.0f);
 		third.Speed = -2e10f;
 
+		RenderedEntity fourth{ModelData_t::FromObjFile("models/smooth_vase.obj")};
+		fourth.Transform.translation = glm::vec3{0.5f, 0.0f, 0.5f};
+		fourth.Transform.scale = glm::vec3{3.0f, -2.0f, 3.0f};
+		fourth.Transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+
 		DomeCamera camera(1000000000.0f);
 		camera.SetPerspectiveProjection(glm::radians(50.0f), m_RenderingServer.GetAspectRatio(), -0.05f, 1.0f);
-		camera.Transform.translation = { 0.0f, 0.0f, -6.0f };
+		camera.Transform.translation = { 0.0f, 0.0f, -3.0f };
 		camera.Transform.rotation.y = 0;
-		camera.SetTarget( (first.Transform.translation + second.Transform.translation + third.Transform.translation) * 0.5f );
+		camera.SetTarget( (first.Transform.translation + second.Transform.translation + third.Transform.translation + fourth.Transform.translation) * 0.25f );
 
 		auto lastUpdateTime = std::chrono::steady_clock::now();
 		double aggreg = 0.0;

@@ -47,7 +47,7 @@ namespace gigno {
 		shaderStageCreateInfos[1].pSpecializationInfo = nullptr;
 
 		VkVertexInputBindingDescription bindingDescription = Vertex::GetBindingDescription();
-		std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = Vertex::GetAttributeDescriptions();
+		std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions = Vertex::GetAttributeDescriptions();
 
 		VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo;
 		vertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;

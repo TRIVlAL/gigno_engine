@@ -15,6 +15,7 @@ namespace gigno {
 
 	struct PushConstantData_t {
 		glm::mat4 transform{ 1.f };
+		glm::mat3 normalsMatrix{ 1.0f };
 	};
 
 	class giDevice;

@@ -15,6 +15,7 @@ namespace gigno {
 		glm::vec3 rotation{};
 
 		glm::mat4 TransformationMatrix() const;
+		glm::mat3 NormalMatrix() const;
 	};
 
 	class Entity {
