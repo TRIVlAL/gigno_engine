@@ -60,3 +60,6 @@ If everything goes well, all of the CMake files will be generated in the BUILD d
 The executable requires two folders to be placed in the same dir as it to work : /models, which contains the .OBJ models used by the program, and /shaders, which contains the .SPV shader files used by the program.
 The CMake compile process should copy these folders to the binary directory automatically but, in case it doesn't, you can do it mannualy.
 Said /models and /shaders folders are in the main directory of the project.
+
+#### Note
+Shader must be recompiled using ```compile_shaders.bat``` every time one is modified. 
