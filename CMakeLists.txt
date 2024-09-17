@@ -33,7 +33,7 @@ foreach (TMP_PATH ${SOURCES})
     endif ()
 endforeach(TMP_PATH)
 
-add_link_options(-static-libgcc -static-libstdc++) # Required for program to work outside of IDE.
+add_link_options(--static -static-libgcc -static-libstdc++) # Required for program to work outside of IDE.
 
 add_executable(gigno ${SOURCES})
 
