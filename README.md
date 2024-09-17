@@ -5,19 +5,22 @@
 This project is a real-time renderer / Engine using the Vulkan Rendering API and glfw. 
 The rendering architercture inspired by the amazing tutorial series by [vulkan-tutorial](https://vulkan-tutorial.com/Introduction) and [video series](https://www.youtube.com/playlist?list=PL8327DO66nu9qYVKLDmdLW_84-yE4auCR) by Brendan Galea.
 
-### Compiling
+## Compiling
 
 Download the code of this repository or clone it. if you do clone it, do it recursively with the ```--recursive``` parameter, as there are submodules that must be included.
 
+### Vulkan SDK
 A copy of the Vulkan SDK is required on your machine. You can download the Vulkan SDK at [this adress](https://vulkan.lunarg.com/).
 Once you have downloaded the Vulkan SDK, open the CMakeLists.txt file and <b>replace the ```VULKAN_SDK_PATH``` value at line 7</b> :
 ```cmake
 ...
 
-set(VULKAN_SDK_PATH C:/path_to_the_vulkan_sdk/VulkanSDK) # Change the path to reflect the one on your machine.
+set(VULKAN_SDK_PATH C:/path_to_vulkan_sdk/VulkanSDK) # Change the path to reflect the one on your machine.
 
 ...
 ```
+
+### GLFW
 You must also install a copy of the glfw library. The glfw library is used to interface with the os, for Input/Output and window creation.
 You can download the glfw library binaries at [this adress](https://www.glfw.org/download.html)
 Once you have the glfw binaries, you must once again modify a path value in the CMakeLists.txt file.
@@ -38,11 +41,20 @@ set(GLFW_LIBRARY_FOLDER lib-compiler-platform) # This name reflects the compiler
 
 ...
 ```
+### Shaders
 
-The last step before code compilation is to compile the shaders. Go to the ```./shaders``` foler and run compile_shaders.bat. 
+The last step before code compilation is to compile the shaders. Go to the ```./shaders``` directory and open compile_shaders.bat in your edior of choice. 
+In it, replace the adress of the Vulkan SDK to reflect the one on your machine : 
+```bat
+C:\path_to_vulkan_sdk\VulkanSDK\Bin\glslc.exe simple_shader.vert -o simple_shader.vert.spv
+C:\dev_libraries\VulkanSDK\Bin\glslc.exe simple_shader.frag -o simple_shader.frag.spv
+```
+Then, run the file or, if not on windows, copy each commands and run them through the terminal.
 If everything works as expected, one .spv file will have been created for every other shader files that were present.
 If it is the case, you are all set to begin compilling the code.
 
+
+### Compile
 The process for compiling the code follows the usual cmake process. If you do not have cmake installed, you can do so on [their website](https://cmake.org/download/).
 As usual, open a command line interface in the directory of the engine and run the cmake initialisation commands :
 ```
@@ -62,4 +74,4 @@ The CMake compile process should copy these folders to the binary directory auto
 Said /models and /shaders folders are in the main directory of the project.
 
 #### Note
-Shader must be recompiled using ```compile_shaders.bat``` every time one is modified. 
+Shader must be recompiled using ```compile_shaders.bat``` or the commands every time one is modified. 
