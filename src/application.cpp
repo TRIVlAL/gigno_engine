@@ -33,7 +33,7 @@ namespace gigno {
 
 	int giApplication::run() {
 
-#if ENABLE_IMGUI
+#if USE_IMGUI
 		m_EntityServer.EntityInspectorEnable = true;
 #endif
 
