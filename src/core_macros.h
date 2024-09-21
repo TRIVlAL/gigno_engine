@@ -3,3 +3,6 @@
 //LOGGING PREFERENCES
 #define VERBOSE 0
 #define LOG_VULKAN_INFOS 0
+
+//IMGUI
+#define USE_IMGUI 1

@@ -25,7 +25,7 @@ namespace gigno {
 		void Finalize();
 
 		bool WindowShouldClose() { return m_Window.ShouldClose(); }
-		void WindowPollEvents() { return m_Window.PollEvents(); }
+		void PollEvents();
 
 		void Render();
 
@@ -60,6 +60,8 @@ namespace gigno {
 
 		std::string m_VertShaderFilePath;
 		std::string m_FragShaderFilePath;
+
+		bool m_WasLastRenderAborted = false;
 	};
 
 }

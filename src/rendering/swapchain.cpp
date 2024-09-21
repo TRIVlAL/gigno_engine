@@ -7,6 +7,12 @@
 #include <array>
 #include <cstring>
 
+#include "../core_macros.h"
+
+#if USE_IMGUI
+	#include "gui.h"
+#endif
+
 #include "rendering_utils.h"
 
 #include "../entities/rendered_entity.h"
@@ -552,6 +558,10 @@ namespace gigno {
 			UpdateUniformBuffer(buffer, camera, currentFrame);
 			RenderEntities(buffer, renderedEntities, currentFrame);
 		}
+
+#if USE_IMGUI
+		RenderImGui(buffer);
+#endif
 
 		vkCmdEndRenderPass(buffer);
 

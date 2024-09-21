@@ -31,6 +31,8 @@ namespace gigno {
 
 		void GetFrameBufferSize(int *width, int *height) const;
 
+		GLFWwindow *GetGLFWwindow() const  { return m_pWindow; };
+
 		bool HasResized();
 
 	private:

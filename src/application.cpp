@@ -68,7 +68,7 @@ namespace gigno {
 		double aggreg = 0.0;
 
 		while (!m_RenderingServer.WindowShouldClose()) {
-			m_RenderingServer.WindowPollEvents();
+			m_RenderingServer.PollEvents();
 
 			auto currentTime = std::chrono::steady_clock::now();
 			std::chrono::duration<double> deltaTime = currentTime - lastUpdateTime;

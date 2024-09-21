@@ -1,6 +1,11 @@
 #include "rendering_server.h"
 #include "../error_macros.h"
 
+#include "../core_macros.h"
+#if USE_IMGUI
+	#include "gui.h"
+#endif
+
 namespace gigno {
 
 	giRenderingServer::giRenderingServer(int winw, int winh, const char *winTitle, giInputServer *inputServer, const std::string &vertShaderFilePath, const std::string &fragShaderFilePath) :
@@ -11,9 +16,22 @@ namespace gigno {
 		m_SwapChain{ m_Device, &m_Window, vertShaderFilePath, fragShaderFilePath }
 	{
 		CreateSyncObjects();
+
+#if USE_IMGUI
+		GLFWwindow *glfwWindow = m_Window.GetGLFWwindow();
+		if(glfwWindow){
+
+			InitImGui(glfwWindow, m_Device, m_SwapChain);
+		}
+#endif
 	}
 
 	giRenderingServer::~giRenderingServer() {
+
+#if USE_IMGUI
+		ShutdownImGui();
+#endif
+
 		m_SwapChain.CleanUp(m_Device.GetDevice());
 
 		for(rsize_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -25,6 +43,16 @@ namespace gigno {
 
 	void giRenderingServer::Finalize() {
 		vkDeviceWaitIdle(m_Device.GetDevice());
+	}
+
+	void giRenderingServer::PollEvents() {
+		m_Window.PollEvents();
+
+#if USE_IMGUI
+		if(!m_WasLastRenderAborted){
+			ProcessImGuiEvent();
+		}
+#endif
 	}
 
 	void giRenderingServer::SubscribeRenderedEntity(RenderedEntity *entity) {
@@ -72,15 +100,19 @@ namespace gigno {
 		VkResult result = vkAcquireNextImageKHR(m_Device.GetDevice(), m_SwapChain.GetSwapChain(), UINT64_MAX, m_ImageAvaliableSemaphores[m_CurrentFrame], VK_NULL_HANDLE, &imageIndex);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_Window.HasResized()) {
 			m_SwapChain.Recreate(m_Device, &m_Window, m_VertShaderFilePath, m_FragShaderFilePath);
+			m_WasLastRenderAborted = true;
 			return;
 		}
 		else if (result != VK_SUCCESS) {
 			ERR_MSG("Failed to Acquire Swap Chain Image ! Vulkan Error Code : " << (int) result);
 		}
 
+		m_WasLastRenderAborted = false;
+
 		vkResetFences(m_Device.GetDevice(), 1, &m_InFlightFences[m_CurrentFrame]);
 
 		vkResetCommandBuffer(m_SwapChain.GetCommandBuffer(m_CurrentFrame), 0);
+
 		m_SwapChain.RecordCommandBuffer(m_CurrentFrame, imageIndex, m_RenderedEntities, m_pCamera);
 
 		VkSemaphore waitSemaphores[] = { m_ImageAvaliableSemaphores[m_CurrentFrame]};

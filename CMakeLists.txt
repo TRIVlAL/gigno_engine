@@ -24,7 +24,7 @@ foreach(OBJ ${OBJ_FILES})
 endforeach(OBJ ${OBJ_FILES})
 
 
-set (EXCLUDE_DIR "/vendor/")
+set (EXCLUDE_DIR "/vendor/glm/")
 file (GLOB_RECURSE SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
 foreach (TMP_PATH ${SOURCES})
     string (FIND ${TMP_PATH} ${EXCLUDE_DIR} EXCLUDE_DIR_FOUND)
@@ -42,7 +42,8 @@ target_include_directories(gigno PUBLIC
     ${PROJECT_SOURCE_DIR}/src 
     ${PROJECT_SOURCE_DIR}/src/vendor/glm
     ${GLFW_PATH}/include
-    ${VULKAN_SDK_PATH}/Include)
+    ${VULKAN_SDK_PATH}/Include
+    ${PROJECT_SOURCE_DIR}/src/vendor/imgui)
 target_link_directories(gigno PUBLIC 
     ${VULKAN_SDK_PATH}/Lib
     ${GLFW_PATH}/${GLFW_LIBRARY_FOLDER})

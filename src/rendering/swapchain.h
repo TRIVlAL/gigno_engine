@@ -51,6 +51,7 @@ namespace gigno {
 		VkCommandPool GetCommandPool() const { return m_CommandPool; }
 		void RecordCommandBuffer(uint32_t currentFrame, uint32_t imageIndex, const std::vector<const RenderedEntity *> &renderedEntities, const Camera *camera);
 
+		
 	private:
 		void CreateDescriptorSetLayout(VkDevice device); 
 		void CreateDescriptorPool(VkDevice device);
