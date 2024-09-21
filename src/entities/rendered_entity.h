@@ -8,6 +8,7 @@
 namespace gigno {
 
 	class RenderedEntity : public Entity {
+		ENABLE_SERIALIZE(RenderedEntity, Entity);
 	public:
 		RenderedEntity(ModelData_t modelData);
 		~RenderedEntity();

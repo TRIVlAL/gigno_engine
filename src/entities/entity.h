@@ -5,11 +5,17 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/constants.hpp"
+#include <string>
+#include "iostream"
+
+#include "serialization.h"
 
 namespace gigno {
 	class giApplication;
+	struct PropertySerializationData_t;
 
-	struct Transform_t {
+	struct Transform_t
+	{
 		glm::vec3 translation{};
 		glm::vec3 scale{1.0f, 1.0f, 1.0f};
 		glm::vec3 rotation{};
@@ -19,6 +25,7 @@ namespace gigno {
 	};
 
 	class Entity {
+		friend class Serialization;
 	public:
 		Entity(const Entity &) = delete;
 		Entity &operator=(const Entity &) = delete;
@@ -28,14 +35,20 @@ namespace gigno {
 		Entity();
 		~Entity();
 
+		virtual void Start() { AddSerializedProperties(); };
 		// Called Every Tick by the Entity Server
 		virtual void Think(double dt) {};
 
+		std::string Name{};
 		Transform_t Transform{};
+
+		virtual std::string GetTypeName() { return std::string{"Entity"}; };
 	protected:
 		giApplication *GetApp() const;
+
+		std::vector<PropertySerializationData_t> serializedProps;
+		virtual void AddSerializedProperties();
 	};
 
 }
-
 #endif

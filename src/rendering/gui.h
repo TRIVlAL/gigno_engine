@@ -66,6 +66,8 @@ namespace gigno {
         ImGui_ImplVulkan_Init(&vulkanInfo);
         ImGui_ImplVulkan_CreateFontsTexture();
 
+        ImGui::StyleColorsLight();
+
         return true;
     }
 
@@ -73,8 +75,6 @@ namespace gigno {
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        
-        // ImGui::ShowDemoWindow();
     }
 
     static void RenderImGui(VkCommandBuffer commandBuffer) {

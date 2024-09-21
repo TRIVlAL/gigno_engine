@@ -1,6 +1,7 @@
 #include "entity.h"
 #include "../application.h"
 #include "entity_server.h"
+#include <string.h>
 
 namespace  gigno {
 
@@ -68,5 +69,11 @@ namespace  gigno {
 
 	Entity::~Entity() {
 		GetApp()->GetEntityServer()->RemoveEntity(this);
+	}
+
+	void Entity::AddSerializedProperties() {
+		SERIALIZE(glm::vec3, Transform.translation);
+		SERIALIZE(glm::vec3, Transform.scale);
+		SERIALIZE(glm::vec3, Transform.rotation);
 	}
 }

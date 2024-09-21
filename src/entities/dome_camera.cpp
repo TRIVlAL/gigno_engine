@@ -39,7 +39,7 @@ namespace gigno {
 		if (input->GetKey(GLFW_KEY_W)) upMove++;
 		if (input->GetKey(GLFW_KEY_S)) upMove--;
 
-		glm::vec3 parralel = glm::vec3{ m_Target.z-Transform.translation.z, m_Target.y, -(m_Target.x-Transform.translation.x) } / m_DistanceToTarget;
+		glm::vec3 parralel = glm::vec3{ m_Target.z-Transform.translation.z, 0, -(m_Target.x-Transform.translation.x) } / m_DistanceToTarget;
 
 		if (glm::sqrt(parralel.x * parralel.x + parralel.z * parralel.z) < 0.15f) {
 			upMove-= glm::sign(Transform.translation.y - m_Target.y);

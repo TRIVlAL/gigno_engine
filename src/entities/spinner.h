@@ -3,6 +3,9 @@
 namespace gigno {
 
     class Spinner : public RenderedEntity {
+        BEGIN_SERIALIZE(Spinner, RenderedEntity)
+        SERIALIZE(float, Speed);
+        END_SERIALIZE
     public:
         Spinner(ModelData_t modelData) : RenderedEntity(modelData) {}
 

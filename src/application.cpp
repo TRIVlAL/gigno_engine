@@ -4,6 +4,7 @@
 #include <chrono>
 #include "entities/dome_camera.h"
 #include "entities/spinner.h"
+#include "core_macros.h"
 
 namespace gigno {
 
@@ -31,6 +32,11 @@ namespace gigno {
 	}
 
 	int giApplication::run() {
+
+#if ENABLE_IMGUI
+		m_EntityServer.EntityInspectorEnable = true;
+#endif
+
 		if (!glfwInit()) {
 			return 1;
 		}
@@ -63,9 +69,12 @@ namespace gigno {
 		camera.Transform.translation = { 0.0f, 0.0f, -3.0f };
 		camera.Transform.rotation.y = 0;
 		camera.SetTarget( (first.Transform.translation + second.Transform.translation + third.Transform.translation + fourth.Transform.translation) * 0.25f );
+		camera.Name = "My Camera";
 
 		auto lastUpdateTime = std::chrono::steady_clock::now();
 		double aggreg = 0.0;
+
+		m_EntityServer.Start();
 
 		while (!m_RenderingServer.WindowShouldClose()) {
 			m_RenderingServer.PollEvents();

@@ -24,6 +24,10 @@ namespace gigno {
 	};
 
 	class Camera : public Entity {
+		BEGIN_SERIALIZE(Camera, Entity)
+		SERIALIZE(float, m_CurrentFovy);
+		SERIALIZE(int, m_LookMode);
+		END_SERIALIZE
 	public:
 		Camera();
 		Camera(float left, float right, float top, float bottom, float near, float far);

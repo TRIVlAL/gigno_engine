@@ -6,6 +6,7 @@
 namespace gigno {
 
 	class DomeCamera : public Camera {
+		ENABLE_SERIALIZE(DomeCamera, Camera)
 	public:
 		DomeCamera(float moveSpeed);
 		DomeCamera(float moveSpeed, CAMERA_ORTHOGRAPHIC_ARGUMENTS_TYPED);
