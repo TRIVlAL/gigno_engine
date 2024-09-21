@@ -75,3 +75,14 @@ Said /models and /shaders folders are in the main directory of the project.
 
 #### Note
 Shader must be recompiled using ```compile_shaders.bat``` or the commands every time one is modified. 
+
+## Libraries
+
+This Engine uses the following low-level open-source, mostly MIT-Licensed libraries:
+  - Vulkan as graphics API
+  - GLFW for I/O with the OS, and window creation
+  - ImGui for Immediate Mode User Interface
+  - TinyObjectLoader for parsing 3D model files
+  - GLM for math
+
+See more information, including their license, in the file [third_party_credits.md](src/vendor/third_party_credits.md) in the src/vendor directory.
