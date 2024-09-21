@@ -14,8 +14,14 @@ namespace gigno {
 	const int MAX_FRAMES_IN_FLIGHT = 2;
 
 	struct PushConstantData_t {
-		glm::mat4 transform{ 1.f };
-		glm::mat3 normalsMatrix{ 1.0f };
+		glm::mat4 modelMatrix;
+		glm::mat3 normalsMatrix;
+	};
+
+	struct UniformBufferData_t {
+		glm::mat4 view{ 1.f };
+		glm::mat4 projection{ 1.f };
+		//glm::mat3 normals{ 1.f };
 	};
 
 	class giDevice;
@@ -43,9 +49,13 @@ namespace gigno {
 		VkCommandBuffer GetCommandBuffer(uint32_t index) const { return m_CommandBuffers[index]; }
 		VkCommandBuffer const *GetCommandBufferPtr(uint32_t index) const { return &m_CommandBuffers[index]; }
 		VkCommandPool GetCommandPool() const { return m_CommandPool; }
-		void RecordCommandBuffer(uint32_t index, uint32_t imageIndex, const std::vector<const RenderedEntity *> &renderedEntities, const Camera *camera);
+		void RecordCommandBuffer(uint32_t currentFrame, uint32_t imageIndex, const std::vector<const RenderedEntity *> &renderedEntities, const Camera *camera);
 
 	private:
+		void CreateDescriptorSetLayout(VkDevice device); 
+		void CreateDescriptorPool(VkDevice device);
+		void CreateDescriptorSets(VkDevice device);
+		void CreateUniformBuffers(VkDevice device, VkPhysicalDevice physDevice);
 		void CreatePipelineLayout(VkDevice device);
 		void CreatePipeline(VkDevice device, const std::string &vertShaderPath, const std::string &fragShaderPath);
 		void CreateVkSwapChain(VkDevice device, const SwapChainSupportDetails &supportDetails, const QueueFamilyIndices &physicalDeviceQueueFamilyIndices, 
@@ -67,10 +77,12 @@ namespace gigno {
 							VkMemoryPropertyFlags props, VkImage &image, VkDeviceMemory &imageMemory);
 		VkImageView CreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 
-		void RecordCommandBuffer(VkCommandBuffer buffer, uint32_t imageIndex, const std::vector<const RenderedEntity *> &renderedEntities, const Camera *camera);
+		void RecordCommandBuffer(VkCommandBuffer buffer, uint32_t currentFrame, uint32_t imageIndex, const std::vector<const RenderedEntity *> &renderedEntities, const Camera *camera);
 
-		void RenderEntities(VkCommandBuffer buffer, const std::vector<const RenderedEntity *> &entities, const Camera *camera);
+		void RenderEntities(VkCommandBuffer buffer, const std::vector<const RenderedEntity *> &entities, uint32_t currentFrame);
+		void EntitiesUpdateUniformBuffer(const std::vector<const RenderedEntity *> &entities, uint32_t currentFrame);
 
+		void UpdateUniformBuffer(VkCommandBuffer commandBuffer, const Camera *camera, uint32_t currentFrame);
 
 		VkFormat m_Format;
 		VkExtent2D m_Extent;
@@ -86,6 +98,15 @@ namespace gigno {
 
 		VkCommandPool m_CommandPool;
 		std::vector<VkCommandBuffer> m_CommandBuffers;
+
+		VkDescriptorSetLayout m_DescriptorSetLayout;
+		VkDescriptorPool m_DescriptorPool;
+		std::vector<VkDescriptorSet> m_DescriptorSets;
+
+		std::vector<VkBuffer> m_UniformBuffers;
+		std::vector<VkDeviceMemory> m_UniformBuffersMemories;
+		std::vector<void *> m_UniformBuffersMapped;
+
 
 		std::unique_ptr<giPipeline> m_Pipeline;
 		VkPipelineLayout m_PipelineLayout;

@@ -47,7 +47,7 @@ namespace gigno {
 		second.Transform.scale = glm::vec3{3.0f, 3.0f, 3.0f};
 		second.Transform.rotation = glm::vec3(glm::radians(-90.0f), glm::radians(180.0f), glm::radians(-50.0f));
 
-		Spinner third{ModelData_t::FromObjFile("models/flat_vase.obj")};
+		Spinner third{ModelData_t::FromObjFile("models/smooth_vase.obj")};
 		third.Transform.translation = glm::vec3{-0.5f, 0.75f, -0.5f};
 		third.Transform.scale = glm::vec3{3.0f, 3.0f, 3.0f};
 		third.Transform.rotation = glm::vec3(0.0f, glm::radians(55.0f), 0.0f);

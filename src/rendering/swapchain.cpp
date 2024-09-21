@@ -5,6 +5,9 @@
 #include "device.h"
 #include "model.h"
 #include <array>
+#include <cstring>
+
+#include "rendering_utils.h"
 
 #include "../entities/rendered_entity.h"
 #include "../entities/camera.h"
@@ -18,6 +21,10 @@ namespace gigno {
 		CreateRenderPass(device.GetDevice(), device.GetPhysicalDevice());
 		CreateCommandPool(device.GetDevice(), device.GetPhysicalDeviceQueueFamilyIndices());
 		CreateDepthResources(device.GetDevice(), device.GetPhysicalDevice());
+		CreateDescriptorSetLayout(device.GetDevice());
+		CreateUniformBuffers(device.GetDevice(), device.GetPhysicalDevice());
+		CreateDescriptorPool(device.GetDevice());
+		CreateDescriptorSets(device.GetDevice());
 		CreateFrameBuffers(device.GetDevice());
 		CreateCommandBuffers(device.GetDevice());
 		CreatePipelineLayout(device.GetDevice());
@@ -39,6 +46,13 @@ namespace gigno {
 		vkDestroyCommandPool(device, m_CommandPool, nullptr);
 		vkDestroySwapchainKHR(device, m_VkSwapChain, nullptr);
 		vkDestroyRenderPass(device, m_RenderPass, nullptr);
+
+		for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+			vkDestroyBuffer(device, m_UniformBuffers[i], nullptr);
+			vkFreeMemory(device, m_UniformBuffersMemories[i], nullptr);
+		}
+		vkDestroyDescriptorPool(device, m_DescriptorPool, nullptr);
+		vkDestroyDescriptorSetLayout(device, m_DescriptorSetLayout, nullptr);
 	}
 
 	void giSwapChain::Recreate(const giDevice &device, const giWindow *window, const std::string &vertShaderPath, const std::string &fragShaderPath) {
@@ -66,6 +80,90 @@ namespace gigno {
 		CreatePipeline(device.GetDevice(), vertShaderPath, fragShaderPath);
 	}
 
+	void giSwapChain::CreateUniformBuffers(VkDevice device, VkPhysicalDevice physDevice) {
+		VkDeviceSize size = sizeof(UniformBufferData_t);
+
+		m_UniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+		m_UniformBuffersMemories.resize(MAX_FRAMES_IN_FLIGHT);
+		m_UniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
+
+		for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+			CreateBuffer(device, physDevice, size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+									m_UniformBuffers[i], m_UniformBuffersMemories[i]);
+			vkMapMemory(device, m_UniformBuffersMemories[i], 0, size, 0, &m_UniformBuffersMapped[i]);
+		}
+	}
+
+	void giSwapChain::CreateDescriptorPool(VkDevice device) {
+		VkDescriptorPoolSize size{};
+		size.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		size.descriptorCount = MAX_FRAMES_IN_FLIGHT;
+
+		VkDescriptorPoolCreateInfo createinfo{};
+		createinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		createinfo.maxSets = MAX_FRAMES_IN_FLIGHT;
+		createinfo.poolSizeCount = 1;
+		createinfo.pPoolSizes = &size;
+
+		VkResult result = vkCreateDescriptorPool(device, &createinfo, nullptr, &m_DescriptorPool);
+		if(result != VK_SUCCESS) {
+			ERR_MSG("Failed to create Descriptor Pool ! Vulkan Error Code : " << (int)result);
+		}
+	}
+
+	void giSwapChain::CreateDescriptorSets(VkDevice device) {
+		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, m_DescriptorSetLayout);
+		VkDescriptorSetAllocateInfo allocinfo{};
+		allocinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocinfo.descriptorPool = m_DescriptorPool;
+		allocinfo.descriptorSetCount = static_cast<uint32_t>(layouts.size());
+		allocinfo.pSetLayouts = layouts.data();
+
+		m_DescriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
+		VkResult result = vkAllocateDescriptorSets(device, &allocinfo, m_DescriptorSets.data());
+		if(result != VK_SUCCESS) {
+			ERR_MSG("Failed to Allocate Descriptor Sets ! Vulkan Error Codes : " << (int)result);
+		}
+
+		for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+			VkDescriptorBufferInfo info{};
+			info.buffer = m_UniformBuffers[i];
+			info.offset = 0;
+			info.range = sizeof(UniformBufferData_t);
+
+			VkWriteDescriptorSet descWrite{};
+			descWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descWrite.dstSet = m_DescriptorSets[i];
+			descWrite.dstBinding = 0;
+			descWrite.dstArrayElement = 0;
+			descWrite.descriptorCount = 1;
+			descWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descWrite.pBufferInfo = &info;
+
+			vkUpdateDescriptorSets(device, 1, &descWrite, 0, nullptr);
+		}
+	}
+
+	void giSwapChain::CreateDescriptorSetLayout(VkDevice device) {
+		VkDescriptorSetLayoutBinding uboLayoutBinding{};
+		uboLayoutBinding.binding = 0;
+		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		uboLayoutBinding.descriptorCount = 1;
+		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+		VkDescriptorSetLayoutCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		createInfo.pNext = nullptr;
+		createInfo.flags = 0;
+		createInfo.bindingCount = 1;
+		createInfo.pBindings = &uboLayoutBinding;
+
+		VkResult result = vkCreateDescriptorSetLayout(device, &createInfo, nullptr, &m_DescriptorSetLayout);
+		if(result != VK_SUCCESS) {
+			ERR_MSG("Failed to create Descriptor Set Layout ! Vulkan Error Code : " << (int)result);
+		}
+	}
+
 	void giSwapChain::CreatePipelineLayout(VkDevice device) {
 		VkPushConstantRange pushConstantRange{};
 		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -75,8 +173,8 @@ namespace gigno {
 		VkPipelineLayoutCreateInfo createInfo;
 		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		createInfo.pNext = nullptr;
-		createInfo.setLayoutCount = 0;
-		createInfo.pSetLayouts = nullptr;
+		createInfo.setLayoutCount = 1;
+		createInfo.pSetLayouts = &m_DescriptorSetLayout;
 		createInfo.pushConstantRangeCount = 1;
 		createInfo.pPushConstantRanges = &pushConstantRange;
 
@@ -405,12 +503,12 @@ namespace gigno {
 		return ret;
 	}
 
-	void giSwapChain::RecordCommandBuffer(uint32_t index, uint32_t imageIndex, const std::vector<const RenderedEntity *> &renderedEntities, const Camera *camera) {
-		ASSERT(index < MAX_FRAMES_IN_FLIGHT);
-		RecordCommandBuffer(m_CommandBuffers[index], imageIndex, renderedEntities, camera);
+	void giSwapChain::RecordCommandBuffer(uint32_t currentFrame, uint32_t imageIndex, const std::vector<const RenderedEntity *> &renderedEntities, const Camera *camera) {
+		ASSERT(currentFrame < MAX_FRAMES_IN_FLIGHT);
+		RecordCommandBuffer(m_CommandBuffers[currentFrame], currentFrame, imageIndex, renderedEntities, camera);
 	}
 
-	void giSwapChain::RecordCommandBuffer(VkCommandBuffer buffer, uint32_t imageIndex, const std::vector<const RenderedEntity *> &renderedEntities, const Camera *camera) {
+	void giSwapChain::RecordCommandBuffer(VkCommandBuffer buffer, uint32_t currentFrame, uint32_t imageIndex, const std::vector<const RenderedEntity *> &renderedEntities, const Camera *camera) {
 		VkCommandBufferBeginInfo bufferBeginInfo{};
 		bufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		bufferBeginInfo.flags = 0;
@@ -451,7 +549,8 @@ namespace gigno {
 		vkCmdSetScissor(buffer, 0, 1, &scissor);
 
 		if (camera) {
-			RenderEntities(buffer, renderedEntities, camera);
+			UpdateUniformBuffer(buffer, camera, currentFrame);
+			RenderEntities(buffer, renderedEntities, currentFrame);
 		}
 
 		vkCmdEndRenderPass(buffer);
@@ -462,20 +561,33 @@ namespace gigno {
 		}
 	}
 
-	void giSwapChain::RenderEntities(VkCommandBuffer buffer, const std::vector<const RenderedEntity *> &entities, const Camera *camera) {
+	void giSwapChain::RenderEntities(VkCommandBuffer buffer, const std::vector<const RenderedEntity *> &entities, uint32_t currentFrame) {
 		vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline.get()->GetVkPipeline());
-
-		glm::mat4 proView = camera->GetProjection() * camera->GetViewMatrix();
 
 		for (const RenderedEntity *entity : entities) {
 			PushConstantData_t push{};
-			push.transform = proView * entity->Transform.TransformationMatrix();
+			push.modelMatrix = entity->Transform.TransformationMatrix();
 			push.normalsMatrix = entity->Transform.NormalMatrix();
-
 			vkCmdPushConstants(buffer, m_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstantData_t), &push);
+
 			entity->pModel->Bind(buffer);
 			entity->pModel->Draw(buffer);
 		}
+	}
+
+	void giSwapChain::UpdateUniformBuffer(VkCommandBuffer commandBuffer, const Camera *camera, uint32_t currentFrame) {
+		ASSERT(currentFrame < MAX_FRAMES_IN_FLIGHT);
+
+		const glm::mat4 proj = camera->GetProjection();
+		const glm::mat4 view = camera->GetViewMatrix();
+
+		UniformBufferData_t ub{};
+		ub.projection = proj;
+		ub.view = view;
+
+		std::memcpy(m_UniformBuffersMapped[currentFrame], &ub, sizeof(ub));
+
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescriptorSets[currentFrame], 0, nullptr);
 	}
 
 }

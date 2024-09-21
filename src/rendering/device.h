@@ -31,8 +31,11 @@ namespace gigno {
 	public:
 		giDevice(const giWindow *window);
 		~giDevice();
+		giDevice(const giDevice &) = delete;
+		giDevice & operator=(const giDevice &) = delete;
 
 		VkDevice GetDevice() const { return m_VkDevice; }
+		VkInstance GetInstance() const { return m_VkInstance; }
 		VkPhysicalDevice GetPhysicalDevice() const { return m_PhysicalDevice; }
 		VkSurfaceKHR GetSurface() const { return m_Surface; }
 		SwapChainSupportDetails GetPhysicalSwapChainSupport() const { return QuerySwapChainSupport(m_PhysicalDevice); }
