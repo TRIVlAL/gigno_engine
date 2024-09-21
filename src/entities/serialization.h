@@ -28,8 +28,8 @@ private:
 
 #define SERIALIZE(type, name) serializedProps.push_back(PropertySerializationData_t{std::string{#name}, (void *)&name, std::string{#type}});
 
-#define SERIALIZATION_LINE_SKIP serializedProps.push_back(PropertySerializationData_t{std::string{"##LINE_SKIP##"}, nullptr, std::string{""}});
-#define SERIALIZATION_SEPARATOR serializedProps.push_back(PropertySerializationData_t{std::string{"##SEPARATOR##"}, nullptr, std::string{""}});
+#define SERIALIZATION_LINE_SKIP serializedProps.push_back(PropertySerializationData_t{std::string{"#LINE_SKIP"}, nullptr, std::string{""}});
+#define SERIALIZATION_SEPARATOR serializedProps.push_back(PropertySerializationData_t{std::string{"#SEPARATOR"}, nullptr, std::string{""}});
 
 namespace gigno {
     class Entity;
