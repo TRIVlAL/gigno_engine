@@ -74,12 +74,22 @@ private:
 namespace gigno {
     class Entity;
 
+    /*
+    Represents an Entity property (variable) that has been serialized.
+
+    Implementation:
+        * If you wish to add a new type to be serializable, modify ToString( ... )
+    */
     struct PropertySerializationData_t
     {
         const std::string Name;
         const void *Value;
+        /// @brief The type of the value, as a string (i.e "int" or "float" or "vec3")
         const std::string Type;
 
+        /// @brief to get the Value of a Property, as a string.
+        /// @param to will be set to the string value of the property
+        /// @return was it a success ?
         bool ToString(std::string &to);
     };
 
