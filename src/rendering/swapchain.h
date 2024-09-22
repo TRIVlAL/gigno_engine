@@ -13,11 +13,23 @@ namespace gigno {
 
 	const int MAX_FRAMES_IN_FLIGHT = 2;
 
+	/*
+	Per-Entity data pushed to the shader.
+	
+	Implementation :
+		* Must follow the Vulkan alignment rules : (From vulkan-tutorial) https://vulkan-tutorial.com/Uniform_buffers/Descriptor_pool_and_sets#page_Alignment-requirements
+	*/
 	struct PushConstantData_t {
 		glm::mat4 modelMatrix;
 		glm::mat3 normalsMatrix;
 	};
 
+	/*
+	Constant-during-the-frame data pushed to the shader.
+
+	Implementation :
+		* Must follow the Vulkan alignment rules : (From vulkan-tutorial) https://vulkan-tutorial.com/Uniform_buffers/Descriptor_pool_and_sets#page_Alignment-requirements
+	*/
 	struct UniformBufferData_t {
 		glm::mat4 view{ 1.f };
 		glm::mat4 projection{ 1.f };
@@ -33,14 +45,24 @@ namespace gigno {
 	class RenderedEntity;
 	class Camera;
 
+	/*
+	Creates/Holds/Destroys Vulkan structs necessary for rendering.
+	
+	Usage :
+
+		* Initialisation : Initialized by constructor.
+		* Clean Up : Must Call CleanUp() with the same device as the one used for construction as parameter.
+		* Key Funcitons : 
+		  * void RecordCommandBuffer( ... )
+		  * void Recreate( ... )
+		* Lifetime : Must outlive the device used for initialization/clean up.
+	*/
 	class giSwapChain
 	{
 	public:
 		giSwapChain(const giDevice &device, const giWindow *window, const std::string &vertShaderPath, const std::string &fragShaderPath);
 
 		void CleanUp(VkDevice device);
-
-		void Recreate(const giDevice &device, const giWindow *window, const std::string &vertShaderPath, const std::string &fragShaderPath);
 
 		uint32_t GetWidth() const { return m_Extent.width; }
 		uint32_t GetHeight() const { return m_Extent.height; }
@@ -49,6 +71,17 @@ namespace gigno {
 		VkCommandBuffer GetCommandBuffer(uint32_t index) const { return m_CommandBuffers[index]; }
 		VkCommandBuffer const *GetCommandBufferPtr(uint32_t index) const { return &m_CommandBuffers[index]; }
 		VkCommandPool GetCommandPool() const { return m_CommandPool; }
+
+		/* 
+		@brief Recreates the Vulkan structs needed. To be called if the window size changed.
+		@param device same device as the one used on initialization/clean up 
+		*/
+		void Recreate(const giDevice &device, const giWindow *window, const std::string &vertShaderPath, const std::string &fragShaderPath);
+
+		/* 
+		@brief Fills the command buffer so that it is ready to be Submitted to vulkan. Updates the data pushed to the shader (Push Constants, Uniform Buffer)
+		@param currentFrame smaller than MAX_FRAMES_IN_FLIGHT 
+		*/
 		void RecordCommandBuffer(uint32_t currentFrame, uint32_t imageIndex, const std::vector<const RenderedEntity *> &renderedEntities, const Camera *camera);
 
 		
@@ -107,7 +140,6 @@ namespace gigno {
 		std::vector<VkBuffer> m_UniformBuffers;
 		std::vector<VkDeviceMemory> m_UniformBuffersMemories;
 		std::vector<void *> m_UniformBuffersMapped;
-
 
 		std::unique_ptr<giPipeline> m_Pipeline;
 		VkPipelineLayout m_PipelineLayout;

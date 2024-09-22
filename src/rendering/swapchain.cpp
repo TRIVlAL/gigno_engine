@@ -86,6 +86,97 @@ namespace gigno {
 		CreatePipeline(device.GetDevice(), vertShaderPath, fragShaderPath);
 	}
 
+	void giSwapChain::RecordCommandBuffer(uint32_t currentFrame, uint32_t imageIndex, const std::vector<const RenderedEntity *> &renderedEntities, const Camera *camera) {
+		ASSERT(currentFrame < MAX_FRAMES_IN_FLIGHT);
+		RecordCommandBuffer(m_CommandBuffers[currentFrame], currentFrame, imageIndex, renderedEntities, camera);
+	}
+
+	void giSwapChain::RecordCommandBuffer(VkCommandBuffer buffer, uint32_t currentFrame, uint32_t imageIndex, const std::vector<const RenderedEntity *> &renderedEntities, const Camera *camera) {
+		VkCommandBufferBeginInfo bufferBeginInfo{};
+		bufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		bufferBeginInfo.flags = 0;
+		bufferBeginInfo.pInheritanceInfo = nullptr;
+
+		VkResult result = vkBeginCommandBuffer(buffer, &bufferBeginInfo);
+		if (result != VK_SUCCESS) {
+			ERR_MSG("Failed to Begin Command Buffer ! Vulkan Error Code : " << (int)result);
+		}
+
+		std::array<VkClearValue, 2> clearValues = {};
+		clearValues[0].color = { {0.15f, 0.15f, 0.15f, 1.0f} };
+		clearValues[1].depthStencil = { 1.0f, 0 };
+
+		VkRenderPassBeginInfo passBeginInfo{};
+		passBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		passBeginInfo.renderPass = m_RenderPass;
+		passBeginInfo.framebuffer = m_FrameBuffers[imageIndex];
+		passBeginInfo.renderArea.offset = { 0, 0 };
+		passBeginInfo.renderArea.extent = m_Extent;
+		passBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+		passBeginInfo.pClearValues = clearValues.data();
+
+		vkCmdBeginRenderPass(buffer, &passBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+		VkViewport viewport{};
+		viewport.x = 0.0f;
+		viewport.y = 0.0f;
+		viewport.width = static_cast<float>(m_Extent.width);
+		viewport.height = static_cast<float>(m_Extent.height);
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f;
+		vkCmdSetViewport(buffer, 0, 1, &viewport);
+
+		VkRect2D scissor{};
+		scissor.extent = m_Extent;
+		scissor.offset = { 0, 0 };
+		vkCmdSetScissor(buffer, 0, 1, &scissor);
+
+		if (camera) {
+			UpdateUniformBuffer(buffer, camera, currentFrame);
+			RenderEntities(buffer, renderedEntities, currentFrame);
+		}
+
+#if USE_IMGUI
+		RenderImGui(buffer);
+#endif
+
+		vkCmdEndRenderPass(buffer);
+
+		result = vkEndCommandBuffer(buffer);
+		if (result != VK_SUCCESS) {
+			ERR_MSG("Failed to end Command Buffer ! Vulkan Error Code : " << (int)result);
+		}
+	}
+
+	void giSwapChain::RenderEntities(VkCommandBuffer buffer, const std::vector<const RenderedEntity *> &entities, uint32_t currentFrame) {
+		vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline.get()->GetVkPipeline());
+
+		for (const RenderedEntity *entity : entities) {
+			PushConstantData_t push{};
+			push.modelMatrix = entity->Transform.TransformationMatrix();
+			push.normalsMatrix = entity->Transform.NormalMatrix();
+			vkCmdPushConstants(buffer, m_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstantData_t), &push);
+
+			entity->pModel->Bind(buffer);
+			entity->pModel->Draw(buffer);
+		}
+	}
+
+	void giSwapChain::UpdateUniformBuffer(VkCommandBuffer commandBuffer, const Camera *camera, uint32_t currentFrame) {
+		ASSERT(currentFrame < MAX_FRAMES_IN_FLIGHT);
+
+		const glm::mat4 proj = camera->GetProjection();
+		const glm::mat4 view = camera->GetViewMatrix();
+
+		UniformBufferData_t ub{};
+		ub.projection = proj;
+		ub.view = view;
+
+		std::memcpy(m_UniformBuffersMapped[currentFrame], &ub, sizeof(ub));
+
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescriptorSets[currentFrame], 0, nullptr);
+	}
+	
 	void giSwapChain::CreateUniformBuffers(VkDevice device, VkPhysicalDevice physDevice) {
 		VkDeviceSize size = sizeof(UniformBufferData_t);
 
@@ -509,95 +600,5 @@ namespace gigno {
 		return ret;
 	}
 
-	void giSwapChain::RecordCommandBuffer(uint32_t currentFrame, uint32_t imageIndex, const std::vector<const RenderedEntity *> &renderedEntities, const Camera *camera) {
-		ASSERT(currentFrame < MAX_FRAMES_IN_FLIGHT);
-		RecordCommandBuffer(m_CommandBuffers[currentFrame], currentFrame, imageIndex, renderedEntities, camera);
-	}
-
-	void giSwapChain::RecordCommandBuffer(VkCommandBuffer buffer, uint32_t currentFrame, uint32_t imageIndex, const std::vector<const RenderedEntity *> &renderedEntities, const Camera *camera) {
-		VkCommandBufferBeginInfo bufferBeginInfo{};
-		bufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		bufferBeginInfo.flags = 0;
-		bufferBeginInfo.pInheritanceInfo = nullptr;
-
-		VkResult result = vkBeginCommandBuffer(buffer, &bufferBeginInfo);
-		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to Begin Command Buffer ! Vulkan Error Code : " << (int)result);
-		}
-
-		std::array<VkClearValue, 2> clearValues = {};
-		clearValues[0].color = { {0.15f, 0.15f, 0.15f, 1.0f} };
-		clearValues[1].depthStencil = { 1.0f, 0 };
-
-		VkRenderPassBeginInfo passBeginInfo{};
-		passBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		passBeginInfo.renderPass = m_RenderPass;
-		passBeginInfo.framebuffer = m_FrameBuffers[imageIndex];
-		passBeginInfo.renderArea.offset = { 0, 0 };
-		passBeginInfo.renderArea.extent = m_Extent;
-		passBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-		passBeginInfo.pClearValues = clearValues.data();
-
-		vkCmdBeginRenderPass(buffer, &passBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-		VkViewport viewport{};
-		viewport.x = 0.0f;
-		viewport.y = 0.0f;
-		viewport.width = static_cast<float>(m_Extent.width);
-		viewport.height = static_cast<float>(m_Extent.height);
-		viewport.minDepth = 0.0f;
-		viewport.maxDepth = 1.0f;
-		vkCmdSetViewport(buffer, 0, 1, &viewport);
-
-		VkRect2D scissor{};
-		scissor.extent = m_Extent;
-		scissor.offset = { 0, 0 };
-		vkCmdSetScissor(buffer, 0, 1, &scissor);
-
-		if (camera) {
-			UpdateUniformBuffer(buffer, camera, currentFrame);
-			RenderEntities(buffer, renderedEntities, currentFrame);
-		}
-
-#if USE_IMGUI
-		RenderImGui(buffer);
-#endif
-
-		vkCmdEndRenderPass(buffer);
-
-		result = vkEndCommandBuffer(buffer);
-		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to end Command Buffer ! Vulkan Error Code : " << (int)result);
-		}
-	}
-
-	void giSwapChain::RenderEntities(VkCommandBuffer buffer, const std::vector<const RenderedEntity *> &entities, uint32_t currentFrame) {
-		vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline.get()->GetVkPipeline());
-
-		for (const RenderedEntity *entity : entities) {
-			PushConstantData_t push{};
-			push.modelMatrix = entity->Transform.TransformationMatrix();
-			push.normalsMatrix = entity->Transform.NormalMatrix();
-			vkCmdPushConstants(buffer, m_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstantData_t), &push);
-
-			entity->pModel->Bind(buffer);
-			entity->pModel->Draw(buffer);
-		}
-	}
-
-	void giSwapChain::UpdateUniformBuffer(VkCommandBuffer commandBuffer, const Camera *camera, uint32_t currentFrame) {
-		ASSERT(currentFrame < MAX_FRAMES_IN_FLIGHT);
-
-		const glm::mat4 proj = camera->GetProjection();
-		const glm::mat4 view = camera->GetViewMatrix();
-
-		UniformBufferData_t ub{};
-		ub.projection = proj;
-		ub.view = view;
-
-		std::memcpy(m_UniformBuffersMapped[currentFrame], &ub, sizeof(ub));
-
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescriptorSets[currentFrame], 0, nullptr);
-	}
 
 }

@@ -24,6 +24,31 @@ namespace gigno {
 		glm::mat3 NormalMatrix() const;
 	};
 
+	/*
+	Base object. Updated every frames by the giEnityServer.
+	Meant to be derived by any ojbect that needs to update.
+
+	Usage:
+
+		* Inheriting: 
+			* Any class inheriting Entity should have, at the top of their declaration, the following macros:
+				``` BEGIN_SERIALIZE( Class, BaseClass )
+					SERIALIZE( type, value ) // If you want to serialize data, as many as you want
+					END_SERIALIZE()
+				```
+				----/OR/----
+				```
+					ENABLE_SERIALIZE( Class, BaseClass )
+				```
+				See top of the file serialization.h for more info.
+			* Any class inheriting Entity that overrides the constructor should call the base constructor.
+			* Any class inheriting Entity that overrides Start() should call the base start.
+		*Key Functions:
+			* Start() called before the main loop begins, after the constructor.
+			* Think( ... ) called every frame with the frame time as parameter.
+			* GetApp() returns the current app. Should be used if you need a reference to any core App
+			  System ( RenderingServer, InputServer, ...)
+	*/
 	class Entity {
 		friend class Serialization;
 	public:
@@ -42,12 +67,14 @@ namespace gigno {
 		std::string Name{};
 		Transform_t Transform{};
 
-		virtual std::string GetTypeName() { return std::string{"Entity"}; };
 	protected:
 		giApplication *GetApp() const;
 
+		//SERIALIZATION--------------------------------------------------------------
+
 		std::vector<PropertySerializationData_t> serializedProps;
 		virtual void AddSerializedProperties();
+		public: virtual std::string GetTypeName() { return std::string{"Entity"}; };
 	};
 
 }
