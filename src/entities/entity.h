@@ -32,7 +32,8 @@ namespace gigno {
 
 		* Inheriting: 
 			* Any class inheriting Entity should have, at the top of their declaration, the following macros:
-				``` BEGIN_SERIALIZE( Class, BaseClass )
+				``` 
+					BEGIN_SERIALIZE( Class, BaseClass )
 					SERIALIZE( type, value ) // If you want to serialize data, as many as you want
 					END_SERIALIZE()
 				```
@@ -48,6 +49,10 @@ namespace gigno {
 			* Think( ... ) called every frame with the frame time as parameter.
 			* GetApp() returns the current app. Should be used if you need a reference to any core App
 			  System ( RenderingServer, InputServer, ...)
+	
+	Implementation:
+		* The Entity base class (here), unlike any class inheriting it, defines its serialized data with the base 
+		  function definition of AddSerializedProperties() ( See entity.cpp ).
 	*/
 	class Entity {
 		friend class Serialization;
@@ -74,7 +79,7 @@ namespace gigno {
 
 		std::vector<PropertySerializationData_t> serializedProps;
 		virtual void AddSerializedProperties();
-		public: virtual std::string GetTypeName() { return std::string{"Entity"}; };
+		public: virtual std::string GetTypeName() { return std::string{"Entity"}; }; protected:
 	};
 
 }
