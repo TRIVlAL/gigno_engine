@@ -1,5 +1,6 @@
 #include "rendering_server.h"
 #include "../error_macros.h"
+#include "../entities/lights/light.h"
 
 #include "../core_macros.h"
 #if USE_IMGUI
@@ -63,6 +64,16 @@ namespace gigno {
 		m_RenderedEntities.erase(std::remove(m_RenderedEntities.begin(), m_RenderedEntities.end(), entity), m_RenderedEntities.end());
 	}
 
+	void giRenderingServer::SubscribeLightEntity(Light *light)
+	{
+		m_LightEntities.push_back(light);
+	}
+
+	void giRenderingServer::UnsubscribeLightEntity(Light *light)
+	{
+		m_LightEntities.erase(std::remove(m_LightEntities.begin(), m_LightEntities.end(), light), m_LightEntities.end());
+	}
+
 	void giRenderingServer::CreateModel(std::shared_ptr<giModel> &model, const ModelData_t &modelData) {
 		model = std::make_shared<giModel>(giModel{ m_Device, modelData, m_SwapChain.GetCommandPool() });
 	}
@@ -113,7 +124,8 @@ namespace gigno {
 
 		vkResetCommandBuffer(m_SwapChain.GetCommandBuffer(m_CurrentFrame), 0);
 
-		m_SwapChain.RecordCommandBuffer(m_CurrentFrame, imageIndex, m_RenderedEntities, m_pCamera);
+		SceneRenderingData_t sceneData{m_RenderedEntities, m_LightEntities, m_pCamera};
+		m_SwapChain.RecordCommandBuffer(m_CurrentFrame, imageIndex, sceneData);
 
 		VkSemaphore waitSemaphores[] = { m_ImageAvaliableSemaphores[m_CurrentFrame]};
 		VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphores[m_CurrentFrame]};

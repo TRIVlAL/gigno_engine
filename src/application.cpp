@@ -4,6 +4,7 @@
 #include <chrono>
 #include "entities/dome_camera.h"
 #include "entities/spinner.h"
+#include "entities/lights/directional_light.h"
 #include "core_macros.h"
 
 namespace gigno {
@@ -61,7 +62,7 @@ namespace gigno {
 
 		RenderedEntity fourth{ModelData_t::FromObjFile("models/smooth_vase.obj")};
 		fourth.Transform.translation = glm::vec3{0.5f, 0.0f, 0.5f};
-		fourth.Transform.scale = glm::vec3{3.0f, -2.0f, 3.0f};
+		fourth.Transform.scale = glm::vec3{3.0f, 2.0f, 3.0f};
 		fourth.Transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
 		DomeCamera camera(1000000000.0f);
@@ -71,8 +72,15 @@ namespace gigno {
 		camera.SetTarget( (first.Transform.translation + second.Transform.translation + third.Transform.translation + fourth.Transform.translation) * 0.25f );
 		camera.Name = "My Camera";
 
+		DirectionalLight sun;
+		sun.Intensity = 0.5f;
+		sun.Direction = glm::normalize(glm::vec3{2.0f, -1.0f, 2.0f});
+
+		DirectionalLight sun2;
+		sun2.Intensity = 0.5f;
+		sun2.Direction = glm::normalize(glm::vec3{-1.0f, 0.0f, 2.0f});
+
 		auto lastUpdateTime = std::chrono::steady_clock::now();
-		double aggreg = 0.0;
 
 		m_EntityServer.Start();
 
@@ -86,8 +94,6 @@ namespace gigno {
 			lastUpdateTime = currentTime;
 			
 			m_EntityServer.Tick(deltaTime.count() * 10e-9);
-
-			aggreg += deltaTime.count();
 
 			m_RenderingServer.Render();
 		}

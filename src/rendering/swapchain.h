@@ -21,8 +21,10 @@ namespace gigno {
 	*/
 	struct PushConstantData_t {
 		glm::mat4 modelMatrix;
-		glm::mat3 normalsMatrix;
+		glm::mat4 normalsMatrix;
 	};
+
+	const int MAX_LIGHT_DATA_COUNT = 10;
 
 	/*
 	Constant-during-the-frame data pushed to the shader.
@@ -33,16 +35,18 @@ namespace gigno {
 	struct UniformBufferData_t {
 		glm::mat4 view{ 1.f };
 		glm::mat4 projection{ 1.f };
-		//glm::mat3 normals{ 1.f };
+		glm::vec4 lightDatas[MAX_LIGHT_DATA_COUNT];
 	};
 
 	class giDevice;
 	struct SwapChainSupportDetails;
 	struct QueueFamilyIndices;
+	struct SceneRenderingData_t;
 	class giWindow;
 	class giPipeline;
 	class giModel;
 	class RenderedEntity;
+	class Light;
 	class Camera;
 
 	/*
@@ -82,7 +86,7 @@ namespace gigno {
 		@brief Fills the command buffer so that it is ready to be Submitted to vulkan. Updates the data pushed to the shader (Push Constants, Uniform Buffer)
 		@param currentFrame smaller than MAX_FRAMES_IN_FLIGHT 
 		*/
-		void RecordCommandBuffer(uint32_t currentFrame, uint32_t imageIndex, const std::vector<const RenderedEntity *> &renderedEntities, const Camera *camera);
+		void RecordCommandBuffer(uint32_t currentFrame, uint32_t imageIndex, const SceneRenderingData_t &sceneData);
 
 		
 	private:
@@ -111,12 +115,11 @@ namespace gigno {
 							VkMemoryPropertyFlags props, VkImage &image, VkDeviceMemory &imageMemory);
 		VkImageView CreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 
-		void RecordCommandBuffer(VkCommandBuffer buffer, uint32_t currentFrame, uint32_t imageIndex, const std::vector<const RenderedEntity *> &renderedEntities, const Camera *camera);
+		void RecordCommandBuffer(VkCommandBuffer buffer, uint32_t currentFrame, uint32_t imageIndex, const SceneRenderingData_t &sceneData);
 
 		void RenderEntities(VkCommandBuffer buffer, const std::vector<const RenderedEntity *> &entities, uint32_t currentFrame);
-		void EntitiesUpdateUniformBuffer(const std::vector<const RenderedEntity *> &entities, uint32_t currentFrame);
 
-		void UpdateUniformBuffer(VkCommandBuffer commandBuffer, const Camera *camera, uint32_t currentFrame);
+		void UpdateUniformBuffer(VkCommandBuffer commandBuffer, const Camera *camera, const std::vector<const Light *> &lights, uint32_t currentFrame);
 
 		VkFormat m_Format;
 		VkExtent2D m_Extent;

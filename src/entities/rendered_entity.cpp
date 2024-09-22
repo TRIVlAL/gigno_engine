@@ -10,7 +10,7 @@ namespace gigno {
 	}
 
 	RenderedEntity::~RenderedEntity() {
-		giApplication::Singleton()->GetRenderer()->UnsubscribeRenderedEntity(this);
+		GetApp()->GetRenderer()->UnsubscribeRenderedEntity(this);
 
 		Entity::~Entity();
 	}

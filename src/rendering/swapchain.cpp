@@ -17,6 +17,8 @@
 
 #include "../entities/rendered_entity.h"
 #include "../entities/camera.h"
+#include "../entities/lights/light.h"
+#include "rendering_server.h"
 
 namespace gigno {
 
@@ -86,12 +88,12 @@ namespace gigno {
 		CreatePipeline(device.GetDevice(), vertShaderPath, fragShaderPath);
 	}
 
-	void giSwapChain::RecordCommandBuffer(uint32_t currentFrame, uint32_t imageIndex, const std::vector<const RenderedEntity *> &renderedEntities, const Camera *camera) {
+	void giSwapChain::RecordCommandBuffer(uint32_t currentFrame, uint32_t imageIndex, const SceneRenderingData_t &sceneData) {
 		ASSERT(currentFrame < MAX_FRAMES_IN_FLIGHT);
-		RecordCommandBuffer(m_CommandBuffers[currentFrame], currentFrame, imageIndex, renderedEntities, camera);
+		RecordCommandBuffer(m_CommandBuffers[currentFrame], currentFrame, imageIndex, sceneData);
 	}
 
-	void giSwapChain::RecordCommandBuffer(VkCommandBuffer buffer, uint32_t currentFrame, uint32_t imageIndex, const std::vector<const RenderedEntity *> &renderedEntities, const Camera *camera) {
+	void giSwapChain::RecordCommandBuffer(VkCommandBuffer buffer, uint32_t currentFrame, uint32_t imageIndex, const SceneRenderingData_t &sceneData) {
 		VkCommandBufferBeginInfo bufferBeginInfo{};
 		bufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		bufferBeginInfo.flags = 0;
@@ -131,9 +133,9 @@ namespace gigno {
 		scissor.offset = { 0, 0 };
 		vkCmdSetScissor(buffer, 0, 1, &scissor);
 
-		if (camera) {
-			UpdateUniformBuffer(buffer, camera, currentFrame);
-			RenderEntities(buffer, renderedEntities, currentFrame);
+		if (sceneData.pCamera) {
+			UpdateUniformBuffer(buffer, sceneData.pCamera, sceneData.LightEntities, currentFrame);
+			RenderEntities(buffer, sceneData.RenderedEntities, currentFrame);
 		}
 
 #if USE_IMGUI
@@ -154,7 +156,7 @@ namespace gigno {
 		for (const RenderedEntity *entity : entities) {
 			PushConstantData_t push{};
 			push.modelMatrix = entity->Transform.TransformationMatrix();
-			push.normalsMatrix = entity->Transform.NormalMatrix();
+			push.normalsMatrix = glm::mat4{entity->Transform.NormalMatrix()};
 			vkCmdPushConstants(buffer, m_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstantData_t), &push);
 
 			entity->pModel->Bind(buffer);
@@ -162,7 +164,8 @@ namespace gigno {
 		}
 	}
 
-	void giSwapChain::UpdateUniformBuffer(VkCommandBuffer commandBuffer, const Camera *camera, uint32_t currentFrame) {
+	void giSwapChain::UpdateUniformBuffer(VkCommandBuffer commandBuffer, const Camera *camera, const std::vector<const Light *> &lights, uint32_t currentFrame)
+	{
 		ASSERT(currentFrame < MAX_FRAMES_IN_FLIGHT);
 
 		const glm::mat4 proj = camera->GetProjection();
@@ -172,11 +175,21 @@ namespace gigno {
 		ub.projection = proj;
 		ub.view = view;
 
+		uint32_t i = 0;
+		for(const Light *light : lights) {
+			const uint32_t advance = light->DataSlotsCount();
+			if(i + advance > MAX_LIGHT_DATA_COUNT) {
+				break;
+			}
+			light->FillDataSlots(&ub.lightDatas[i]);
+			i += advance;
+		}
+
 		std::memcpy(m_UniformBuffersMapped[currentFrame], &ub, sizeof(ub));
 
 		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescriptorSets[currentFrame], 0, nullptr);
 	}
-	
+
 	void giSwapChain::CreateUniformBuffers(VkDevice device, VkPhysicalDevice physDevice) {
 		VkDeviceSize size = sizeof(UniformBufferData_t);
 

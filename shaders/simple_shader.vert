@@ -12,17 +12,27 @@ layout(push_constant) uniform Push {
 	mat4 normalMatrix;
 } push;
 
+const int MAX_LIGHT_DATA_COUNT = 10; //MAX_LIGHT_DATA_COUNT hard-coded for now to reflect the one in swapchain.h
+
 layout(binding=0) uniform UniformBufferObject {
 	mat4 view;
 	mat4 projection;
+	vec4 lightDatas[MAX_LIGHT_DATA_COUNT]; 
 } ubo;
 
-vec3 lightDir = normalize(vec3(-1.0, 3.0, -1.0));
 float environment = 0.02;
 
 void main() {
 	gl_Position = ubo.projection * ubo.view * push.model * vec4(inPosition, 1.0);
 
-	outColor = inColor * (environment + max(dot(mat3(push.normalMatrix) * inNormal, lightDir), 0));
-	//outColor = mat3(push.normalMatrix) * inNormal;
+	float lightPower = 0.0f;
+	for(int i = 0; i < MAX_LIGHT_DATA_COUNT; i++) {
+		if(ubo.lightDatas[i].w == 1.0f) {
+			lightPower += max(dot(mat3(push.normalMatrix) * inNormal, vec3(ubo.lightDatas[i])), 0);
+		} else{ //As more light types get introduces, we will check for them here and handle them accordingly.
+			break;
+		}
+	}
+
+	outColor = inColor * (environment + lightPower);
 }

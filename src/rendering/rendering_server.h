@@ -14,7 +14,14 @@
 #include "../entities/rendered_entity.h"
 
 namespace gigno {
+	class Light;
 	class giInputServer;
+
+	struct SceneRenderingData_t {
+		const std::vector<const RenderedEntity *> &RenderedEntities;
+		const std::vector<const Light *> &LightEntities;
+		const Camera *pCamera;
+	};
 
 	class giRenderingServer {
 
@@ -31,6 +38,9 @@ namespace gigno {
 
 		void SubscribeRenderedEntity(RenderedEntity *entity);
 		void UnsubscribeRenderedEntity(RenderedEntity *entity);
+
+		void SubscribeLightEntity(Light *light);
+		void UnsubscribeLightEntity(Light *light);
 
 		void SetCurrentCamera(const Camera *camera) { m_pCamera = camera; }
 		bool HasCamera() const { return m_pCamera != nullptr; }
@@ -51,6 +61,7 @@ namespace gigno {
 		giSwapChain m_SwapChain;
 		
 		std::vector<const RenderedEntity *> m_RenderedEntities;
+		std::vector<const Light *> m_LightEntities;
 
 		const Camera *m_pCamera = nullptr;
 
