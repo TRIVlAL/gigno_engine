@@ -104,22 +104,6 @@ namespace gigno {
 			
 			m_EntityServer.Tick(deltaTime.count() * 10e-9);
 
-			if(m_InputServer.GetKey(GLFW_KEY_UP)) {
-				bulb.Transform.translation += glm::vec3{0.0f, deltaTime.count(), 0.0f};
-			}
-			if(m_InputServer.GetKey(GLFW_KEY_DOWN)) {
-				bulb.Transform.translation += glm::vec3{0.0f, -deltaTime.count(), 0.0f};
-			} 
-			if(m_InputServer.GetKey(GLFW_KEY_RIGHT)) {
-				glm::vec3 d = (float)deltaTime.count() * glm::normalize(third.Transform.translation - first.Transform.translation);
-				bulb.Transform.translation += glm::vec3{d.x, 0.0f, d.z};
-			}
-			if(m_InputServer.GetKey(GLFW_KEY_LEFT)) {
-				glm::vec3 d = (float)deltaTime.count() * glm::normalize(third.Transform.translation - first.Transform.translation);
-				bulb.Transform.translation -= glm::vec3{d.x, 0.0f, d.z};
-			}
-
-
 			m_RenderingServer.Render();
 		}
 
