@@ -5,6 +5,7 @@
 #include "entities/dome_camera.h"
 #include "entities/spinner.h"
 #include "entities/lights/directional_light.h"
+#include "entities/lights/point_light.h"
 #include "core_macros.h"
 
 namespace gigno {
@@ -64,6 +65,13 @@ namespace gigno {
 		fourth.Transform.translation = glm::vec3{0.5f, 0.0f, 0.5f};
 		fourth.Transform.scale = glm::vec3{3.0f, 2.0f, 3.0f};
 		fourth.Transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+		second.Name = "Upside-down";
+
+		RenderedEntity fifth{ModelData_t::FromObjFile("models/smooth_vase.obj")};
+		fifth.Transform.translation = glm::vec3{0.5f, 2.0f, 0.5f};
+		fifth.Transform.scale = glm::vec3{3.0f, 2.0f, 3.0f};
+		fifth.Transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+		second.Name = "Upside-down above";
 
 		DomeCamera camera(1000000000.0f);
 		camera.SetPerspectiveProjection(glm::radians(50.0f), m_RenderingServer.GetAspectRatio(), -0.05f, 1.0f);
@@ -72,13 +80,14 @@ namespace gigno {
 		camera.SetTarget( (first.Transform.translation + second.Transform.translation + third.Transform.translation + fourth.Transform.translation) * 0.25f );
 		camera.Name = "My Camera";
 
-		DirectionalLight sun;
-		sun.Intensity = 0.5f;
-		sun.Direction = glm::normalize(glm::vec3{2.0f, -1.0f, 2.0f});
 
 		DirectionalLight sun2;
 		sun2.Intensity = 0.5f;
 		sun2.Direction = glm::normalize(glm::vec3{-1.0f, 0.0f, 2.0f});
+
+		PointLight bulb;
+		bulb.Transform.translation = glm::vec3{0.5f,0.5f, 0.5f};
+		bulb.Intensity = .5f;
 
 		auto lastUpdateTime = std::chrono::steady_clock::now();
 
@@ -94,6 +103,22 @@ namespace gigno {
 			lastUpdateTime = currentTime;
 			
 			m_EntityServer.Tick(deltaTime.count() * 10e-9);
+
+			if(m_InputServer.GetKey(GLFW_KEY_UP)) {
+				bulb.Transform.translation += glm::vec3{0.0f, deltaTime.count(), 0.0f};
+			}
+			if(m_InputServer.GetKey(GLFW_KEY_DOWN)) {
+				bulb.Transform.translation += glm::vec3{0.0f, -deltaTime.count(), 0.0f};
+			} 
+			if(m_InputServer.GetKey(GLFW_KEY_RIGHT)) {
+				glm::vec3 d = (float)deltaTime.count() * glm::normalize(third.Transform.translation - first.Transform.translation);
+				bulb.Transform.translation += glm::vec3{d.x, 0.0f, d.z};
+			}
+			if(m_InputServer.GetKey(GLFW_KEY_LEFT)) {
+				glm::vec3 d = (float)deltaTime.count() * glm::normalize(third.Transform.translation - first.Transform.translation);
+				bulb.Transform.translation -= glm::vec3{d.x, 0.0f, d.z};
+			}
+
 
 			m_RenderingServer.Render();
 		}

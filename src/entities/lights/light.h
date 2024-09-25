@@ -6,6 +6,7 @@
 namespace gigno {
 
     const float LIGHT_DATA_DIRECTIONAL = 1.0f;
+    const float LIGHT_DATA_POINT = 2.0f;
 
     class Light : public Entity {
         ENABLE_SERIALIZE(Light, Entity)
