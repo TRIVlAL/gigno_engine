@@ -7,6 +7,7 @@
 #include "entities/lights/directional_light.h"
 #include "entities/lights/point_light.h"
 #include "core_macros.h"
+#include <thread>
 
 namespace gigno {
 
@@ -55,11 +56,11 @@ namespace gigno {
 		second.Transform.scale = glm::vec3{3.0f, 3.0f, 3.0f};
 		second.Transform.rotation = glm::vec3(glm::radians(-90.0f), glm::radians(180.0f), glm::radians(-50.0f));
 
-		Spinner third{ModelData_t::FromObjFile("models/smooth_vase.obj")};
+		Spinner third{ModelData_t::FromObjFile("models/colored_cube.obj")};
 		third.Transform.translation = glm::vec3{-0.5f, 0.75f, -0.5f};
-		third.Transform.scale = glm::vec3{3.0f, 3.0f, 3.0f};
+		third.Transform.scale = glm::vec3{.2f, .2f, .2f};
 		third.Transform.rotation = glm::vec3(0.0f, glm::radians(55.0f), 0.0f);
-		third.Speed = -2e10f;
+		third.Speed = glm::two_pi<float>();
 
 		RenderedEntity fourth{ModelData_t::FromObjFile("models/smooth_vase.obj")};
 		fourth.Transform.translation = glm::vec3{0.5f, 0.0f, 0.5f};
@@ -73,7 +74,7 @@ namespace gigno {
 		fifth.Transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 		second.Name = "Upside-down above";
 
-		DomeCamera camera(1000000000.0f);
+		DomeCamera camera(10.0f);
 		camera.SetPerspectiveProjection(glm::radians(50.0f), m_RenderingServer.GetAspectRatio(), -0.05f, 1.0f);
 		camera.Transform.translation = { 0.0f, 0.0f, -3.0f };
 		camera.Transform.rotation.y = 0;
@@ -97,12 +98,16 @@ namespace gigno {
 			m_RenderingServer.PollEvents();
 
 			auto currentTime = std::chrono::steady_clock::now();
-			std::chrono::duration<double> deltaTime = currentTime - lastUpdateTime;
-			deltaTime = std::chrono::duration<double>{ glm::min(deltaTime.count(), MAX_FRAME_TIME) };
-			deltaTime = std::chrono::duration_cast<std::chrono::nanoseconds>(deltaTime);
+			
+			std::chrono::duration<float> deltaTime = currentTime - lastUpdateTime;
+			deltaTime = std::chrono::duration<float>{ glm::min(deltaTime.count(), MAX_FRAME_TIME) };
+			deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(deltaTime);
+			
 			lastUpdateTime = currentTime;
 			
-			m_EntityServer.Tick(deltaTime.count() * 10e-9);
+			m_EntityServer.Tick(deltaTime.count() * 10e-1f); //For some reason, it seems that to get second we need
+															 // to multiply by 10e-1f and not the expected 10e-6f !
+															 // Related to issue #2
 
 			m_RenderingServer.Render();
 		}

@@ -29,7 +29,7 @@ namespace gigno {
 		giApplication(int winw, int winh, const char *title, const std::string &vertShaderPath, const std::string &fragShaderPath);
 		~giApplication();
 
-        const double MAX_FRAME_TIME = 1000.0;
+        const float MAX_FRAME_TIME = 1000.0f;
 
 		static inline giApplication *s_Instance = nullptr;
 

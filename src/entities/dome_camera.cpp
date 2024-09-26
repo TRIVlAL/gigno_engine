@@ -26,7 +26,7 @@ namespace gigno {
 		SetLookAtPoint(target);
 	}
 
-	void DomeCamera::Think(double dt) {
+	void DomeCamera::Think(float dt) {
 		Camera::Think(dt);
 
 		float rightMove = 0;
@@ -45,8 +45,8 @@ namespace gigno {
 			upMove-= glm::sign(Transform.translation.y - m_Target.y);
 		}
 
-		Transform.translation += parralel * rightMove * Speed * static_cast<float>(dt);
-		Transform.translation.y += upMove * Speed * static_cast<float>(dt);
+		Transform.translation += parralel * rightMove * Speed * dt;
+		Transform.translation.y += upMove * Speed * dt;
 
 		glm::vec3 targetToMe = Transform.translation - m_Target;
 		Transform.translation = m_Target + ( glm::normalize(targetToMe) * m_DistanceToTarget);

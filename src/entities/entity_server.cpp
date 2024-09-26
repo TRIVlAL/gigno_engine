@@ -10,7 +10,7 @@ namespace gigno {
 		}
 	}
 
-	void giEntityServer::Tick(double dt) {
+	void giEntityServer::Tick(float dt) {
 		for (Entity *entity : m_Entities) {
 			entity->Think(dt);
 		}

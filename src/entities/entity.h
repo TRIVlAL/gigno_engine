@@ -67,7 +67,7 @@ namespace gigno {
 
 		virtual void Start() { AddSerializedProperties(); };
 		// Called Every Tick by the Entity Server
-		virtual void Think(double dt) {};
+		virtual void Think(float dt) {};
 
 		std::string Name{};
 		Transform_t Transform{};

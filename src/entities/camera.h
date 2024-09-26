@@ -44,7 +44,7 @@ namespace gigno {
 
 		void SetAsCurrentCamera();
 
-		virtual void Think(double dt) override;
+		virtual void Think(float dt) override;
 
 	private:
 		ProjectionMode_t m_ProjMode = PROJECTION_MODE_NONE;

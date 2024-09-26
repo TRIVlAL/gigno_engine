@@ -17,7 +17,7 @@ namespace gigno {
 		~giEntityServer() {};
 
 		void Start();
-		void Tick(double dt);
+		void Tick(float dt);
 
 #if USE_IMGUI
 		bool EntityInspectorEnable = false;

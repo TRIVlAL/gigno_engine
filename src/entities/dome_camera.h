@@ -16,7 +16,7 @@ namespace gigno {
 
 		float Speed;
 
-		virtual void Think(double dt) override;
+		virtual void Think(float dt) override;
 	private:
 		glm::vec3 m_Target{};
 		float m_DistanceToTarget{};

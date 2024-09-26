@@ -106,7 +106,7 @@ namespace gigno {
 		}
 	}
 
-	void Camera::Think(double dt) {
+	void Camera::Think(float dt) {
 		Entity::Think(dt);
 
 		// Partial rebuild of the Projection matrix to account for the change of aspect ratio
