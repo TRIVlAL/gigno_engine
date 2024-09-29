@@ -29,6 +29,9 @@ namespace gigno {
 		giApplication(int winw, int winh, const char *title, const std::string &vertShaderPath, const std::string &fragShaderPath);
 		~giApplication();
 
+		bool m_ShowMainUIWindow = true;
+		void DrawMainUIWindow();
+
         const float MAX_FRAME_TIME = 1000.0f;
 
 		static inline giApplication *s_Instance = nullptr;

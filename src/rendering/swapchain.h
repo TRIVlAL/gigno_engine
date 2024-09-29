@@ -7,6 +7,10 @@
 #include <memory>
 #include <string>
 
+#include "model.h"
+
+#include "../core_macros.h"
+
 #include "glm/glm.hpp"
 
 namespace gigno {
@@ -22,6 +26,7 @@ namespace gigno {
 	struct PushConstantData_t {
 		glm::mat4 modelMatrix;
 		glm::mat4 normalsMatrix;
+		alignas(4) bool fullbright = false;
 	};
 
 	const int MAX_LIGHT_DATA_COUNT = 10;
@@ -88,6 +93,14 @@ namespace gigno {
 		*/
 		void RecordCommandBuffer(uint32_t currentFrame, uint32_t imageIndex, const SceneRenderingData_t &sceneData);
 
+		#if USE_DEBUG_DRAWING
+		void UpdateDebugDrawings(VkDevice device, VkPhysicalDevice physDevice, VkQueue graphicsQueue);
+
+		void DrawPoint(glm::vec3 position, glm::vec3 color, uint32_t drawCallHash);
+		void DrawLine(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 startColor, glm::vec3 endColor, uint32_t drawCallHash);
+		#endif
+
+		bool Fullbright = false;
 		
 	private:
 		void CreateDescriptorSetLayout(VkDevice device); 
@@ -119,6 +132,10 @@ namespace gigno {
 
 		void RenderEntities(VkCommandBuffer buffer, const std::vector<const RenderedEntity *> &entities, uint32_t currentFrame);
 
+		#if USE_DEBUG_DRAWING
+		void RenderDebugDrawings(VkCommandBuffer buffer, const Camera *camera, uint32_t currentFrame);
+		#endif
+
 		void UpdateUniformBuffer(VkCommandBuffer commandBuffer, const Camera *camera, const std::vector<const Light *> &lights, uint32_t currentFrame);
 
 		VkFormat m_Format;
@@ -149,7 +166,25 @@ namespace gigno {
 
 		VkSwapchainKHR m_VkSwapChain;
 
+		#if USE_DEBUG_DRAWING
+		uint32_t m_DDLastFramePointsDrawCallHash;
+		uint32_t m_DDCurrentFramePointsDrawCallHash;
 
+		uint32_t m_DDLastFrameLinesDrawCallHash;
+		uint32_t m_DDCurrentFrameLinesDrawCallHash;
+
+		uint32_t m_DDPointsCount = 0;
+		std::vector<Vertex> m_DDPoints { };
+
+		uint32_t m_DDLinesCount = 0;
+		std::vector<Vertex> m_DDLines{ };
+
+		VkBuffer m_DDPointsBuffer;
+		VkDeviceMemory m_DDPointsMemory;
+
+		VkBuffer m_DDLinesBuffer;
+		VkDeviceMemory m_DDLinesMemory;
+		#endif
 	};
 
 }

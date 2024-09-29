@@ -131,7 +131,7 @@ namespace gigno {
 		configInfo.rasterizationInfo.depthClampEnable = VK_FALSE;
 		configInfo.rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;
 		configInfo.rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL;
-		configInfo.rasterizationInfo.lineWidth = 1.0f;
+		configInfo.rasterizationInfo.lineWidth = 4.0f;
 		configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
 		configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
 		configInfo.rasterizationInfo.depthBiasEnable = VK_FALSE;
@@ -179,7 +179,7 @@ namespace gigno {
 		configInfo.depthStencilInfo.front = {};
 		configInfo.depthStencilInfo.back = {};
 
-		configInfo.dynamicStatesEnables = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+		configInfo.dynamicStatesEnables = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY };
 
 		configInfo.dynamicStatesCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 		configInfo.dynamicStatesCreateInfo.flags = 0;

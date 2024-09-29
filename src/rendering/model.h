@@ -19,7 +19,7 @@ namespace gigno {
 			position{ pos }, color{ col } {}
 		glm::vec3 position{};
 		glm::vec3 color{};
-		glm::vec3 normal{};
+		glm::vec3 normal{glm::sqrt(3.0f)};
 		glm::vec2 uv{};
 
 		static VkVertexInputBindingDescription GetBindingDescription();
@@ -70,8 +70,6 @@ namespace gigno{
 	private:
 		void CreateVertexBuffer(VkDevice device, VkPhysicalDevice physDevice, VkCommandPool commandPool, VkQueue queue);
 		void CreateIndexBuffer(VkDevice device, VkPhysicalDevice physDevice, VkCommandPool commandPool, VkQueue queue);
-
-		void CopyBuffer(VkDevice device, VkBuffer src, VkBuffer dst, VkDeviceSize size, VkCommandPool commandPool, VkQueue queue);
 
 
 		std::vector<Vertex> m_Vertices;

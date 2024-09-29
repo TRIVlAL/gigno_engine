@@ -78,6 +78,26 @@ namespace gigno {
 		model = std::make_shared<giModel>(giModel{ m_Device, modelData, m_SwapChain.GetCommandPool() });
 	}
 
+	//Debug Drawing
+	void giRenderingServer::DrawPoint(glm::vec3 pos, glm::vec3 color, const std::string &uniqueName) {
+#if USE_DEBUG_DRAWING
+		if(!m_ShowDD || !m_ShowDDPoints) { return; }
+		m_SwapChain.DrawPoint(pos, color, std::hash<std::string>{}(uniqueName));
+#endif
+	}
+	void giRenderingServer::DrawLine(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 color, const std::string &uniqueName) {
+#if USE_DEBUG_DRAWING
+		if (!m_ShowDD || !m_ShowDDLines) { return; }
+		m_SwapChain.DrawLine(startPos, endPos, color, color, std::hash<std::string>{}(uniqueName));
+#endif
+	}
+	void giRenderingServer::DrawLineGradient(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 startColor, glm::vec3 endColor, const std::string &uniqueName) {
+#if USE_DEBUG_DRAWING
+		if (!m_ShowDD || !m_ShowDDLines) { return; }
+		m_SwapChain.DrawLine(startPos, endPos, startColor, endColor, std::hash<std::string>{}(uniqueName));
+#endif
+	}
+
 	void giRenderingServer::CreateSyncObjects() {
 		m_ImageAvaliableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 		m_RenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -105,6 +125,10 @@ namespace gigno {
 	}
 
 	void giRenderingServer::DrawFrame() {
+		#if USE_IMGUI
+		ShowDebugWindow();
+		#endif
+
 		vkWaitForFences(m_Device.GetDevice(), 1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT64_MAX);
 
 		uint32_t imageIndex = 0;
@@ -123,6 +147,10 @@ namespace gigno {
 		vkResetFences(m_Device.GetDevice(), 1, &m_InFlightFences[m_CurrentFrame]);
 
 		vkResetCommandBuffer(m_SwapChain.GetCommandBuffer(m_CurrentFrame), 0);
+
+		#if USE_DEBUG_DRAWING
+		m_SwapChain.UpdateDebugDrawings(m_Device.GetDevice(), m_Device.GetPhysicalDevice(), m_Device.GetGraphicsQueue());
+		#endif
 
 		SceneRenderingData_t sceneData{m_RenderedEntities, m_LightEntities, m_pCamera};
 		m_SwapChain.RecordCommandBuffer(m_CurrentFrame, imageIndex, sceneData);
@@ -169,4 +197,34 @@ namespace gigno {
 
 		m_CurrentFrame = (m_CurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
+
+	#if USE_IMGUI
+	void giRenderingServer::ShowDebugWindow() {
+		if(!m_ShowDebugWindow) {
+			return;
+		}
+
+		
+		if(!ImGui::Begin("Rendering Server Debug", &m_ShowDebugWindow)) {
+			ImGui::End();
+			return;
+		}
+
+		if(ImGui::Checkbox("Fullbright", &m_SwapChain.Fullbright));
+
+		ImGui::SeparatorText("Debug Drawings");
+		#if !USE_DEBUG_DRAWING
+		ImGui::Text("Debug Drawing is disabled !");
+		ImGui::Text("Enable Debug Drawing in core_macros.h.");
+		#else
+		ImGui::Checkbox("Show Debug Drawings", &m_ShowDD);
+		ImGui::BeginDisabled(!m_ShowDD);
+			ImGui::Checkbox("Show Points", &m_ShowDDPoints); ImGui::SameLine(); ImGui::Checkbox("Show Lines", &m_ShowDDLines);
+		ImGui::EndDisabled();
+		#endif
+
+
+		ImGui::End();
+	}
+	#endif
 }

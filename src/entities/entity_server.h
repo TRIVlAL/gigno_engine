@@ -20,7 +20,9 @@ namespace gigno {
 		void Tick(float dt);
 
 #if USE_IMGUI
-		bool EntityInspectorEnable = false;
+		void OpenDebugWindow() { m_EntityInspectorOpen = true; }
+		void CloseDebugWindow() { m_EntityInspectorOpen = false; }
+		void ToggleDebugWindow() { m_EntityInspectorOpen = !m_EntityInspectorOpen; }
 #endif
 
 	private:
@@ -29,7 +31,7 @@ namespace gigno {
 		void RemoveEntity(Entity *entity);
 
 #if USE_IMGUI
-		bool m_EntityInspectorOpen = true; 
+		bool m_EntityInspectorOpen = false; 
 		void DrawEntityInspector();
 #endif
 

@@ -6,6 +6,7 @@
 #include "entities/spinner.h"
 #include "entities/lights/directional_light.h"
 #include "entities/lights/point_light.h"
+#include "entities/lights/environment_light.h"
 #include "core_macros.h"
 #include <thread>
 
@@ -35,10 +36,6 @@ namespace gigno {
 	}
 
 	int giApplication::run() {
-
-#if USE_IMGUI
-		m_EntityServer.EntityInspectorEnable = true;
-#endif
 
 		if (!glfwInit()) {
 			return 1;
@@ -90,12 +87,20 @@ namespace gigno {
 		bulb.Transform.translation = glm::vec3{0.5f,0.5f, 0.5f};
 		bulb.Intensity = .5f;
 
+		EnvironmentLight env;
+		env.intensity = 0.02f;
+
 		auto lastUpdateTime = std::chrono::steady_clock::now();
 
 		m_EntityServer.Start();
 
 		while (!m_RenderingServer.WindowShouldClose()) {
 			m_RenderingServer.PollEvents();
+
+			if(m_InputServer.GetKey(GLFW_KEY_M)) {
+				m_ShowMainUIWindow = true;
+			}
+			DrawMainUIWindow();
 
 			auto currentTime = std::chrono::steady_clock::now();
 			
@@ -104,6 +109,12 @@ namespace gigno {
 			deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(deltaTime);
 			
 			lastUpdateTime = currentTime;
+
+			m_RenderingServer.DrawLineGradient(glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 1.0f}, glm::vec3{1.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, 1.0f}, UNIQUE_NAME);
+			m_RenderingServer.DrawLineGradient(glm::vec3{0.0f, 1.0f, 1.0f}, glm::vec3{0.5f, 1.0f, 0.5f}, glm::vec3{0.0f, 0.0f, 1.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, UNIQUE_NAME);
+			m_RenderingServer.DrawLineGradient(glm::vec3{0.5f, 1.0f, 0.5f}, glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{1.0f, 0.0f, 0.0f}, UNIQUE_NAME);
+
+			m_RenderingServer.DrawPoint(bulb.Transform.translation, glm::vec3{1.0f, 1.0f, 1.0f}, UNIQUE_NAME);
 			
 			m_EntityServer.Tick(deltaTime.count() * 10e-1f); //For some reason, it seems that to get second we need
 															 // to multiply by 10e-1f and not the expected 10e-6f !
@@ -121,5 +132,32 @@ namespace gigno {
 		giApplication *app = s_Instance;
 		s_Instance = nullptr;
 		delete(app);
+	}
+
+	void giApplication::DrawMainUIWindow() {
+		if(!m_ShowMainUIWindow) {
+			return;
+		}
+	#if USE_IMGUI
+			ImGui::Begin("Gigno Engine", &m_ShowMainUIWindow);
+			if(m_InputServer.GetKey(GLFW_KEY_M)) {
+				if(ImGui::IsWindowCollapsed()) {
+					ImGui::SetWindowCollapsed(false);
+				}
+			}
+
+			ImGui::Text("Welcome to the Gigno Engine !");
+
+			ImGui::SeparatorText("Debuging");
+				if(ImGui::Button("Open Entity Debug Window")) {
+					m_EntityServer.OpenDebugWindow();
+				}
+				if(ImGui::Button("Open Rendering Debug Window")) {
+					m_RenderingServer.OpenDebugWindow();
+				}
+
+
+		ImGui::End();
+	#endif
 	}
 }

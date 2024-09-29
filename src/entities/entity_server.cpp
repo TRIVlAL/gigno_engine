@@ -16,9 +16,7 @@ namespace gigno {
 		}
 
 	#if USE_IMGUI
-		if(EntityInspectorEnable) {
-			DrawEntityInspector();
-		}
+		DrawEntityInspector();
 	#endif
 	}
 

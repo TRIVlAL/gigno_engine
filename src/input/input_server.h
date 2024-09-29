@@ -15,7 +15,6 @@ namespace gigno {
 		void BindWindow(GLFWwindow *window);
 		void UnbindWindow(GLFWwindow *window);
 
-		bool GetKeyDown(int keyCode);
 		bool GetKeyUp(int keyCode);
 		bool GetKey(int keyCode);
 

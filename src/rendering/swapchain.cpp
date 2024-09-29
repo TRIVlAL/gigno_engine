@@ -136,11 +136,15 @@ namespace gigno {
 		if (sceneData.pCamera) {
 			UpdateUniformBuffer(buffer, sceneData.pCamera, sceneData.LightEntities, currentFrame);
 			RenderEntities(buffer, sceneData.RenderedEntities, currentFrame);
+			#if USE_DEBUG_DRAWING
+			RenderDebugDrawings(buffer, sceneData.pCamera, currentFrame);
+			#endif
 		}
 
-#if USE_IMGUI
+
+		#if USE_IMGUI
 		RenderImGui(buffer);
-#endif
+		#endif
 
 		vkCmdEndRenderPass(buffer);
 
@@ -151,18 +155,122 @@ namespace gigno {
 	}
 
 	void giSwapChain::RenderEntities(VkCommandBuffer buffer, const std::vector<const RenderedEntity *> &entities, uint32_t currentFrame) {
+		vkCmdSetPrimitiveTopology(buffer, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+
 		vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline.get()->GetVkPipeline());
 
 		for (const RenderedEntity *entity : entities) {
+
 			PushConstantData_t push{};
 			push.modelMatrix = entity->Transform.TransformationMatrix();
 			push.normalsMatrix = glm::mat4{entity->Transform.NormalMatrix()};
+			push.fullbright = Fullbright;
 			vkCmdPushConstants(buffer, m_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstantData_t), &push);
 
 			entity->pModel->Bind(buffer);
 			entity->pModel->Draw(buffer);
 		}
 	}
+
+	
+	#if USE_DEBUG_DRAWING
+	void giSwapChain::UpdateDebugDrawings(VkDevice device, VkPhysicalDevice physDevice, VkQueue graphicsQueue) {
+		// Recreate Buffers.
+		//Points
+		if(m_DDPoints.size() > 0 && m_DDCurrentFramePointsDrawCallHash != m_DDLastFramePointsDrawCallHash) {
+
+			VkDeviceSize bufferSize = sizeof(m_DDPoints[0]) * m_DDPoints.size();
+
+			VkBuffer stagingBuffer;
+			VkDeviceMemory stagingBufferMemory;
+
+			CreateBuffer(device, physDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+						 stagingBuffer, stagingBufferMemory);
+
+			void *data;
+			vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+			memcpy(data, m_DDPoints.data(), (size_t)bufferSize);
+			vkUnmapMemory(device, stagingBufferMemory);
+
+			CreateBuffer(device, physDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+						VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_DDPointsBuffer, m_DDPointsMemory);
+
+			CopyBuffer(device, stagingBuffer, m_DDPointsBuffer, bufferSize, m_CommandPool, graphicsQueue);
+
+			vkDestroyBuffer(device, stagingBuffer, nullptr);
+			vkFreeMemory(device, stagingBufferMemory, nullptr);
+
+		}
+		m_DDPointsCount = m_DDPoints.size();
+		m_DDPoints.clear();
+		m_DDPoints.reserve(m_DDPointsCount);
+		m_DDLastFramePointsDrawCallHash = m_DDCurrentFramePointsDrawCallHash;
+		m_DDCurrentFramePointsDrawCallHash = 0;
+		// Lines
+		if(m_DDLines.size() > 0 && m_DDCurrentFrameLinesDrawCallHash != m_DDLastFrameLinesDrawCallHash) {
+
+			VkDeviceSize bufferSize = sizeof(m_DDLines[0]) * m_DDLines.size();
+
+			VkBuffer stagingBuffer;
+			VkDeviceMemory stagingBufferMemory;
+
+			CreateBuffer(device, physDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+						 stagingBuffer, stagingBufferMemory);
+
+			void *data;
+			vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+			memcpy(data, m_DDLines.data(), (size_t)bufferSize);
+			vkUnmapMemory(device, stagingBufferMemory);
+
+			CreateBuffer(device, physDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+						 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_DDLinesBuffer, m_DDLinesMemory);
+
+			CopyBuffer(device, stagingBuffer, m_DDLinesBuffer, bufferSize, m_CommandPool, graphicsQueue);
+
+			vkDestroyBuffer(device, stagingBuffer, nullptr);
+			vkFreeMemory(device, stagingBufferMemory, nullptr);
+
+		}
+		m_DDLinesCount = m_DDLines.size();
+		m_DDLines.clear();
+		m_DDLines.reserve(m_DDLinesCount);
+		m_DDLastFrameLinesDrawCallHash = m_DDCurrentFrameLinesDrawCallHash;
+		m_DDCurrentFrameLinesDrawCallHash = 0;
+	}
+
+	void giSwapChain::DrawPoint(glm::vec3 position, glm::vec3 color, uint32_t drawCallHash) {
+		m_DDCurrentFramePointsDrawCallHash += drawCallHash;
+		m_DDPoints.push_back(Vertex{position, color});
+	}
+
+	void giSwapChain::DrawLine(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 startColor, glm::vec3 endColor, uint32_t drawCallHash) {
+		m_DDCurrentFrameLinesDrawCallHash += drawCallHash;
+		m_DDLines.push_back(Vertex{startPos, startColor});
+		m_DDLines.push_back(Vertex{endPos, endColor});
+	}
+	
+	void giSwapChain::RenderDebugDrawings(VkCommandBuffer buffer, const Camera *camera, uint32_t currentFrame) {
+		PushConstantData_t push{};
+		push.modelMatrix = {1.0f};
+		push.normalsMatrix = {1.0f};
+		push.fullbright = true;
+		vkCmdPushConstants(buffer, m_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstantData_t), &push);
+
+		VkDeviceSize offset = 0;
+		
+		if(m_DDPointsCount > 0) {
+			vkCmdSetPrimitiveTopology(buffer, VK_PRIMITIVE_TOPOLOGY_POINT_LIST);
+			vkCmdBindVertexBuffers(buffer, 0, 1, &m_DDPointsBuffer, &offset);
+			vkCmdDraw(buffer, m_DDPointsCount, 1, 0, 0);
+		}
+
+		if(m_DDLinesCount > 0) {
+		vkCmdSetPrimitiveTopology(buffer, VK_PRIMITIVE_TOPOLOGY_LINE_LIST);
+		vkCmdBindVertexBuffers(buffer, 0, 1, &m_DDLinesBuffer, &offset);
+		vkCmdDraw(buffer, m_DDLinesCount, 1, 0, 0);
+		}
+	}
+	#endif
 
 	void giSwapChain::UpdateUniformBuffer(VkCommandBuffer commandBuffer, const Camera *camera, const std::vector<const Light *> &lights, uint32_t currentFrame)
 	{

@@ -49,6 +49,17 @@ namespace gigno {
 
 		void CreateModel(std::shared_ptr<giModel> &model, const ModelData_t &modelData);
 
+		//Debug Drawing ( need to active USE_DEBUG_DRAWING in core_macros.h )
+		void DrawPoint(glm::vec3 pos, glm::vec3 color, const std::string &uniqueName );
+		void DrawLine(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 color, const std::string &uniqueName);
+		void DrawLineGradient(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 startColor, glm::vec3 endColor, const std::string &uniqueName);
+
+		#if USE_IMGUI
+		void OpenDebugWindow() { m_ShowDebugWindow = true; }
+		void CloseDebugWindow() { m_ShowDebugWindow = false; }
+		void ToggleDebugWindow() { m_ShowDebugWindow = !m_ShowDebugWindow; }
+		#endif
+
 	private:
 		void CreateSyncObjects();
 
@@ -73,8 +84,24 @@ namespace gigno {
 		std::string m_FragShaderFilePath;
 
 		bool m_WasLastRenderAborted = false;
+
+		float m_RenderTime = 0.0f;
+
+		#if USE_IMGUI
+		bool m_ShowDebugWindow = false;
+		void ShowDebugWindow();
+		#endif
+
+		#if USE_DEBUG_DRAWING
+		bool m_ShowDD = true;
+		bool m_ShowDDPoints = true;
+		bool m_ShowDDLines = true;
+		#endif
 	};
 
-}
+	#define STRINGIFY1(a) STRINGIFY2(a)
+	#define STRINGIFY2(a) #a
+	#define UNIQUE_NAME STRINGIFY1( __LINE__ ) __FILE__
 
+}
 #endif

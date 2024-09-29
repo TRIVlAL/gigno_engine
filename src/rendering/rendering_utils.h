@@ -32,7 +32,7 @@ namespace gigno {
         VkResult result = vkCreateBuffer(device, &createInfo, nullptr, &buffer);
         if (result != VK_SUCCESS)
         {
-            ERR_MSG("Failed to create Vertex Buffer ! Vulkan Error Code : " << (int)result);
+            ERR_MSG("Failed to create Buffer ! Vulkan Error Code : " << (int)result);
         }
 
         VkMemoryRequirements memRequirement{};
@@ -47,10 +47,43 @@ namespace gigno {
         result = vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory);
         if (result != VK_SUCCESS)
         {
-            ERR_MSG("Failed to allocate memory for Vertex Buffer ! Vulkan Error Code : " << (int)result);
+            ERR_MSG("Failed to allocate memory for Buffer ! Vulkan Error Code : " << (int)result);
         }
 
         vkBindBufferMemory(device, buffer, bufferMemory, 0);
+    }
+
+    static void CopyBuffer(VkDevice device, VkBuffer src, VkBuffer dst, VkDeviceSize size, VkCommandPool commandPool, VkQueue queue) {
+        VkCommandBufferAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocInfo.commandPool = commandPool;
+        allocInfo.commandBufferCount = 1;
+
+        VkCommandBuffer commandBuffer;
+        vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
+
+        VkCommandBufferBeginInfo info{};
+        info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+        vkBeginCommandBuffer(commandBuffer, &info);
+
+        VkBufferCopy copyRegion{};
+        copyRegion.size = size;
+        vkCmdCopyBuffer(commandBuffer, src, dst, 1, &copyRegion);
+
+        vkEndCommandBuffer(commandBuffer);
+
+        VkSubmitInfo submit{};
+        submit.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submit.commandBufferCount = 1;
+        submit.pCommandBuffers = &commandBuffer;
+
+        vkQueueSubmit(queue, 1, &submit, VK_NULL_HANDLE);
+        vkQueueWaitIdle(queue);
+
+        vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
     }
 }
 

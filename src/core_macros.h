@@ -6,3 +6,5 @@
 
 //IMGUI
 #define USE_IMGUI 1
+
+#define USE_DEBUG_DRAWING 1
