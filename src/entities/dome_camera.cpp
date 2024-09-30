@@ -34,10 +34,10 @@ namespace gigno {
 
 		giInputServer *input = GetApp()->GetInputServer();
 
-		if (input->GetKey(GLFW_KEY_D)) rightMove++;
-		if (input->GetKey(GLFW_KEY_A)) rightMove--;
-		if (input->GetKey(GLFW_KEY_W)) upMove++;
-		if (input->GetKey(GLFW_KEY_S)) upMove--;
+		if (input->GetKey(KEY_D)) rightMove++;
+		if (input->GetKey(KEY_A)) rightMove--;
+		if (input->GetKey(KEY_W)) upMove++;
+		if (input->GetKey(KEY_S)) upMove--;
 
 		glm::vec3 parralel = glm::vec3{ m_Target.z-Transform.translation.z, 0, -(m_Target.x-Transform.translation.x) } / m_DistanceToTarget;
 

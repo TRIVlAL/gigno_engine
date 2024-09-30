@@ -6,31 +6,44 @@
 namespace gigno {
 
 	void giInputServer::BindWindow(GLFWwindow *window) {
-		m_BoundWindow.push_back(window);
+		m_pWindow = window;
 	}
 
-	void giInputServer::UnbindWindow(GLFWwindow *window) {
-		m_BoundWindow.erase(std::remove(m_BoundWindow.begin(), m_BoundWindow.end(), window), m_BoundWindow.end());
+	void giInputServer::UnbindWindow() {
+		m_pWindow = nullptr;
 	}
 
-	bool giInputServer::GetKeyUp(int keyCode) {
-		for (GLFWwindow *window : m_BoundWindow) {
-			int state = glfwGetKey(window, keyCode);
-			if (state == GLFW_RELEASE) {
-				return true;
+	void giInputServer::UpdateInput() {
+		for(int i = 0; i < KEY_MAX_ENUM; i++) {
+			int new_state = glfwGetKey(m_pWindow, i);
+			if(new_state == GLFW_PRESS) {
+				KeyState_t& state = m_KeyStates[i];
+				if(state == KEY_STATE_JUST_PRESSED) {
+					state = KEY_STATE_PRESSED;
+				} else if(state != KEY_STATE_PRESSED) {
+					state = KEY_STATE_JUST_PRESSED;
+				}
+			} else { //state == GLFW_RELEASED
+				KeyState_t& state = m_KeyStates[i];
+				if(state == KEY_STATE_JUST_RELEASED) {
+					state = KEY_STATE_RELEASED;
+				} else if(state != KEY_STATE_RELEASED) {
+					state = KEY_STATE_JUST_RELEASED;
+				}
 			}
 		}
-		return false;
 	}
 
-	bool giInputServer::GetKey(int keyCode) {
-		for (GLFWwindow *window : m_BoundWindow) {
-			int state = glfwGetKey(window, keyCode);
-			if (state == GLFW_PRESS || state == GLFW_REPEAT) {
-				return true;
-			}
-		}
-		return false;
+	bool giInputServer::GetKey(Key_t key) {
+		return (m_KeyStates[key] >> 1) == 1;
+	}
+
+	bool giInputServer::GetKeyDown(Key_t key) {
+		return m_KeyStates[key] == KEY_STATE_JUST_PRESSED;
+	}
+
+	bool giInputServer::GetKeyUp(Key_t key) {
+		return m_KeyStates[key] == KEY_STATE_JUST_RELEASED;
 	}
  
 }

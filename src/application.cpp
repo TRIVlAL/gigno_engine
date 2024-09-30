@@ -96,8 +96,9 @@ namespace gigno {
 
 		while (!m_RenderingServer.WindowShouldClose()) {
 			m_RenderingServer.PollEvents();
+			m_InputServer.UpdateInput();
 
-			if(m_InputServer.GetKey(GLFW_KEY_M)) {
+			if(m_InputServer.GetKeyDown(KEY_M)) {
 				m_ShowMainUIWindow = true;
 			}
 			DrawMainUIWindow();
@@ -140,7 +141,7 @@ namespace gigno {
 		}
 	#if USE_IMGUI
 			ImGui::Begin("Gigno Engine", &m_ShowMainUIWindow);
-			if(m_InputServer.GetKey(GLFW_KEY_M)) {
+			if(m_InputServer.GetKeyDown(KEY_M)) {
 				if(ImGui::IsWindowCollapsed()) {
 					ImGui::SetWindowCollapsed(false);
 				}

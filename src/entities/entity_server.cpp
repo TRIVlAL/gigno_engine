@@ -55,7 +55,7 @@ namespace gigno {
 			}
 
 			std::string typeName = entity->GetTypeName();
-			if(typeName == "##Noname") {
+			if(typeName == "#Noname") {
 				continue;
 			}
 			if(ImGui::CollapsingHeader((std::to_string(i) + ". " + (entity->Name == "" ? "No name" : entity->Name) + " (" + typeName + ")").data())) {

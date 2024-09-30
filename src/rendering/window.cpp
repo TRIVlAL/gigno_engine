@@ -24,7 +24,7 @@ namespace gigno {
 
 	giWindow::~giWindow() {
 		if (m_InputServerBoundTo) {
-			m_InputServerBoundTo->UnbindWindow(m_pWindow);
+			m_InputServerBoundTo->UnbindWindow();
 		}
 		glfwDestroyWindow(m_pWindow);
 		glfwTerminate();
