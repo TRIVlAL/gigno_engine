@@ -45,6 +45,7 @@ namespace gigno
 		ModelData_t data{};
 		std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 		for(const tinyobj::shape_t &shape : shapes) {
+			data.Indices.reserve(shape.mesh.indices.size());
 			for(const tinyobj::index_t& index : shape.mesh.indices) {
 				Vertex vertex{};
 

@@ -240,13 +240,13 @@ namespace gigno {
 
 	void giSwapChain::DrawPoint(glm::vec3 position, glm::vec3 color, uint32_t drawCallHash) {
 		m_DDCurrentFramePointsDrawCallHash += drawCallHash;
-		m_DDPoints.push_back(Vertex{position, color});
+		m_DDPoints.emplace_back(Vertex{position, color});
 	}
 
 	void giSwapChain::DrawLine(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 startColor, glm::vec3 endColor, uint32_t drawCallHash) {
 		m_DDCurrentFrameLinesDrawCallHash += drawCallHash;
-		m_DDLines.push_back(Vertex{startPos, startColor});
-		m_DDLines.push_back(Vertex{endPos, endColor});
+		m_DDLines.emplace_back(Vertex{startPos, startColor});
+		m_DDLines.emplace_back(Vertex{endPos, endColor});
 	}
 	
 	void giSwapChain::RenderDebugDrawings(VkCommandBuffer buffer, const Camera *camera, uint32_t currentFrame) {
