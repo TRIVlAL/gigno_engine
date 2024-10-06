@@ -13,8 +13,8 @@ namespace gigno {
 
     }
 
-#if USE_IMGUI
     void ProfilingServer::Begin(const std::string &name) {
+        #if USE_IMGUI
         if (m_pActiveScope) {
             m_pActiveScope = m_pActiveScope->BeginChild(name);
         } else {
@@ -30,15 +30,19 @@ namespace gigno {
             m_pActiveScope = &m_RootScopes.emplace_back(name);
             m_pActiveScope->Start();
         }
+        #endif
     }
 
     void ProfilingServer::End() {
+        #if USE_IMGUI
         ASSERT(m_pActiveScope);
 
         m_pActiveScope->Stop();
         m_pActiveScope = m_pActiveScope->End();
+        #endif
     }
 
+#if USE_IMGUI
     void ProfilingServer::EndFrame() {
         for(ProfileScope &scope : m_RootScopes) {
             scope.EndFrame();

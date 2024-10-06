@@ -12,10 +12,10 @@ namespace gigno {
     public:
         ProfilingServer();
         ~ProfilingServer();
-    #if USE_IMGUI
 
         void Begin(const std::string &uniqueName);
         void End();
+    #if USE_IMGUI
 
         void EndFrame();
 

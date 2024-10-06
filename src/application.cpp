@@ -134,7 +134,9 @@ namespace gigno {
 
 			m_ProfilingServer.End(); //Main Loop
 
+			#if USE_IMGUI
 			m_ProfilingServer.EndFrame();
+			#endif
 		}
 
 		m_RenderingServer.Finalize();
