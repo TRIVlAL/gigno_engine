@@ -13,9 +13,12 @@
 namespace gigno {
 
 	giApplication::giApplication(int winw, int winh, const char *title, const std::string &vertShaderPath, const std::string &fragShaderPath) :
+		m_ProfilingServer{},
 		m_InputServer{},
 		m_RenderingServer{ winw, winh, title, &m_InputServer, vertShaderPath, fragShaderPath },
-		m_EntityServer{} {}
+		m_EntityServer{} {
+
+		}
 
 	giApplication::~giApplication() {}
 
@@ -59,11 +62,12 @@ namespace gigno {
 		third.Transform.rotation = glm::vec3(0.0f, glm::radians(55.0f), 0.0f);
 		third.Speed = glm::two_pi<float>();
 
-		RenderedEntity fourth{ModelData_t::FromObjFile("models/smooth_vase.obj")};
+		Spinner fourth{ModelData_t::FromObjFile("models/smooth_vase.obj")};
 		fourth.Transform.translation = glm::vec3{0.5f, 0.0f, 0.5f};
 		fourth.Transform.scale = glm::vec3{3.0f, 2.0f, 3.0f};
 		fourth.Transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 		second.Name = "Upside-down";
+		fourth.Speed = 0.5f * glm::two_pi<float>();
 
 		RenderedEntity fifth{ModelData_t::FromObjFile("models/smooth_vase.obj")};
 		fifth.Transform.translation = glm::vec3{0.5f, 2.0f, 0.5f};
@@ -95,6 +99,8 @@ namespace gigno {
 		m_EntityServer.Start();
 
 		while (!m_RenderingServer.WindowShouldClose()) {
+			m_ProfilingServer.Begin("Main Loop");
+
 			m_RenderingServer.PollEvents();
 			m_InputServer.UpdateInput();
 
@@ -108,20 +114,27 @@ namespace gigno {
 			std::chrono::duration<float> deltaTime = currentTime - lastUpdateTime;
 			deltaTime = std::chrono::duration<float>{ glm::min(deltaTime.count(), MAX_FRAME_TIME) };
 			deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(deltaTime);
-			
+
 			lastUpdateTime = currentTime;
 
 			m_RenderingServer.DrawLineGradient(glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 1.0f}, glm::vec3{1.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, 1.0f}, UNIQUE_NAME);
 			m_RenderingServer.DrawLineGradient(glm::vec3{0.0f, 1.0f, 1.0f}, glm::vec3{0.5f, 1.0f, 0.5f}, glm::vec3{0.0f, 0.0f, 1.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, UNIQUE_NAME);
 			m_RenderingServer.DrawLineGradient(glm::vec3{0.5f, 1.0f, 0.5f}, glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{1.0f, 0.0f, 0.0f}, UNIQUE_NAME);
-
 			m_RenderingServer.DrawPoint(bulb.Transform.translation, glm::vec3{1.0f, 1.0f, 1.0f}, UNIQUE_NAME);
 			
+			m_ProfilingServer.Begin("Update Entities");
 			m_EntityServer.Tick(deltaTime.count() * 10e-1f); //For some reason, it seems that to get second we need
 															 // to multiply by 10e-1f and not the expected 10e-6f !
 															 // Related to issue #2
-
+			m_ProfilingServer.End();
+			
+			m_ProfilingServer.Begin("Render Frame");
 			m_RenderingServer.Render();
+			m_ProfilingServer.End();
+
+			m_ProfilingServer.End(); //Main Loop
+
+			m_ProfilingServer.EndFrame();
 		}
 
 		m_RenderingServer.Finalize();
@@ -150,11 +163,14 @@ namespace gigno {
 			ImGui::Text("Welcome to the Gigno Engine !");
 
 			ImGui::SeparatorText("Debuging");
-				if(ImGui::Button("Open Entity Debug Window")) {
+				if(ImGui::Button("Entity Debug Window")) {
 					m_EntityServer.OpenDebugWindow();
 				}
-				if(ImGui::Button("Open Rendering Debug Window")) {
+				if(ImGui::Button("Rendering Debug Window")) {
 					m_RenderingServer.OpenDebugWindow();
+				}
+				if(ImGui::Button("Profiler")) {
+					m_ProfilingServer.OpenWindow();
 				}
 
 

@@ -77,7 +77,7 @@ namespace gigno {
 
 		//SERIALIZATION--------------------------------------------------------------
 
-		std::vector<PropertySerializationData_t> serializedProps;
+		std::vector<PropertySerializationData_t> serializedProps{};
 		virtual void AddSerializedProperties();
 		public: virtual std::string GetTypeName() { return std::string{"Entity"}; }; protected:
 	};

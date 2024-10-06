@@ -1,4 +1,5 @@
 #include "directional_light.h"
+#include "../../application.h"
 
 namespace gigno {
 

@@ -19,7 +19,7 @@ namespace gigno {
 	}
 
 	Camera::~Camera() {
-		Entity::~Entity();
+		
 	}
 
 	void Camera::SetOrthographicProjection(float left, float right, float top, float bottom, float near, float far) {

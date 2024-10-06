@@ -21,7 +21,6 @@ namespace gigno {
 #if USE_IMGUI
 		GLFWwindow *glfwWindow = m_Window.GetGLFWwindow();
 		if(glfwWindow){
-
 			InitImGui(glfwWindow, m_Device, m_SwapChain);
 		}
 #endif
@@ -48,12 +47,6 @@ namespace gigno {
 
 	void giRenderingServer::PollEvents() {
 		m_Window.PollEvents();
-
-#if USE_IMGUI
-		if(!m_WasLastRenderAborted){
-			ProcessImGuiEvent();
-		}
-#endif
 	}
 
 	void giRenderingServer::SubscribeRenderedEntity(RenderedEntity *entity) {
@@ -135,14 +128,11 @@ namespace gigno {
 		VkResult result = vkAcquireNextImageKHR(m_Device.GetDevice(), m_SwapChain.GetSwapChain(), UINT64_MAX, m_ImageAvaliableSemaphores[m_CurrentFrame], VK_NULL_HANDLE, &imageIndex);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_Window.HasResized()) {
 			m_SwapChain.Recreate(m_Device, &m_Window, m_VertShaderFilePath, m_FragShaderFilePath);
-			m_WasLastRenderAborted = true;
 			return;
 		}
 		else if (result != VK_SUCCESS) {
 			ERR_MSG("Failed to Acquire Swap Chain Image ! Vulkan Error Code : " << (int) result);
 		}
-
-		m_WasLastRenderAborted = false;
 
 		vkResetFences(m_Device.GetDevice(), 1, &m_InFlightFences[m_CurrentFrame]);
 
@@ -196,6 +186,10 @@ namespace gigno {
 		} 
 
 		m_CurrentFrame = (m_CurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+
+	#if USE_IMGUI
+		NewFrameImGui();
+	#endif
 	}
 
 	#if USE_IMGUI

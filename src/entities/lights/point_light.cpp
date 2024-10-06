@@ -6,9 +6,7 @@ namespace gigno {
 
     }
 
-    PointLight::~PointLight() {
-        Light::~Light();
-    }
+    PointLight::~PointLight() { }
 
     void PointLight::FillDataSlots(glm::vec4 *data) const {
         data[0] = {Transform.translation, LIGHT_DATA_POINT};

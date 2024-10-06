@@ -83,8 +83,6 @@ namespace gigno {
 		std::string m_VertShaderFilePath;
 		std::string m_FragShaderFilePath;
 
-		bool m_WasLastRenderAborted = false;
-
 		float m_RenderTime = 0.0f;
 
 		#if USE_IMGUI

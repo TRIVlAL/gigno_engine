@@ -53,6 +53,7 @@ namespace  gigno {
 	}
 
 	void Entity::AddSerializedProperties() {
+		serializedProps.reserve(3);
 		SERIALIZE(glm::vec3, Transform.translation);
 		SERIALIZE(glm::vec3, Transform.scale);
 		SERIALIZE(glm::vec3, Transform.rotation);

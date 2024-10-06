@@ -15,6 +15,12 @@
 
 namespace gigno {
 
+    static void NewFrameImGui() {
+        ImGui_ImplVulkan_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+    }
+    
     static bool InitImGui(GLFWwindow *window, const giDevice &device, const giSwapChain &swapchain) {
         IMGUI_CHECKVERSION();
 
@@ -68,14 +74,11 @@ namespace gigno {
 
         ImGui::StyleColorsLight();
 
+        NewFrameImGui();
+
         return true;
     }
 
-    static void ProcessImGuiEvent() {
-        ImGui_ImplVulkan_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-    }
 
     static void RenderImGui(VkCommandBuffer commandBuffer) {
         ImGui::Render();

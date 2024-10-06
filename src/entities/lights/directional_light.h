@@ -9,6 +9,7 @@ namespace gigno {
         ENABLE_SERIALIZE(DirectionalLight, Light)
     public:
         DirectionalLight() : Light() {};
+        ~DirectionalLight() {}
 
         float Intensity;
         glm::vec3 Direction{0.0f, -1.0f, 0.0f};

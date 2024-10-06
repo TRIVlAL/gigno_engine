@@ -82,10 +82,10 @@ namespace gigno {
     */
     struct PropertySerializationData_t
     {
-        const std::string Name;
-        const void *Value;
+        const std::string Name{};
+        const void *Value{};
         /// @brief The type of the value, as a string (i.e "int" or "float" or "vec3")
-        const std::string Type;
+        const std::string Type{};
 
         /// @brief to get the Value of a Property, as a string.
         /// @param to will be set to the string value of the property

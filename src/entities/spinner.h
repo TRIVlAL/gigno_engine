@@ -16,8 +16,12 @@ namespace gigno {
 
     private:
         virtual void Think(float dt) override {
+            GetApp()->GetProfiler()->Begin("Spinner think");
+
             RenderedEntity::Think(dt);
             Transform.rotation.y = glm::mod<float>(Transform.rotation.y + (Speed * dt), glm::two_pi<float>());
+            
+            GetApp()->GetProfiler()->End();
         }
     };
 

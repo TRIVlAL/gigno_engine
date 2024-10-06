@@ -9,6 +9,7 @@ namespace gigno {
         ENABLE_SERIALIZE(EnvironmentLight, Light);
     public:
         EnvironmentLight() : Light() {}
+        ~EnvironmentLight() {}
 
         float intensity = 0.1f;
 

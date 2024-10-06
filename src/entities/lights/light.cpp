@@ -9,8 +9,6 @@ namespace gigno {
 
     Light::~Light() {
         GetApp()->GetRenderer()->UnsubscribeLightEntity(this);
-        
-        Entity::~Entity();
     }
 
 }

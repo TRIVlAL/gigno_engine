@@ -79,12 +79,18 @@ namespace gigno {
 		for (auto frameBuffer : m_FrameBuffers) {
 			vkDestroyFramebuffer(device.GetDevice(), frameBuffer, nullptr);
 		}
+
+		vkDestroyImageView(device.GetDevice(), m_DepthImageView, nullptr);
+		vkDestroyImage(device.GetDevice(), m_DepthImage, nullptr);
+		vkFreeMemory(device.GetDevice(), m_DepthImageMemory, nullptr);
+		vkDestroyPipelineLayout(device.GetDevice(), m_PipelineLayout, nullptr);
 		
 		CreateVkSwapChain(device.GetDevice(), device.GetPhysicalSwapChainSupport(), device.GetPhysicalDeviceQueueFamilyIndices(), device.GetSurface(), window, false);
 		CreateImageViews(device.GetDevice());
 		CreateDepthResources(device.GetDevice(), device.GetPhysicalDevice());
-		CreateFrameBuffers(device.GetDevice());CreatePipelineLayout(device.GetDevice());
+		CreateFrameBuffers(device.GetDevice());
 		CreatePipelineLayout(device.GetDevice());
+		m_Pipeline.reset();
 		CreatePipeline(device.GetDevice(), vertShaderPath, fragShaderPath);
 	}
 
@@ -425,6 +431,8 @@ namespace gigno {
 
 		uint32_t queueFamilyIndices[] = { physicalDeviceQueueFamilyIndices.graphicFamily.value(), physicalDeviceQueueFamilyIndices.presentFamily.value() };
 
+		VkSwapchainKHR existingSwapChain = isFirstCreation ? VK_NULL_HANDLE : m_VkSwapChain;
+
 		VkSwapchainCreateInfoKHR createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 		createInfo.pNext = nullptr;
@@ -449,11 +457,15 @@ namespace gigno {
 		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 		createInfo.presentMode = presentMode;
 		createInfo.clipped = VK_TRUE;
-		createInfo.oldSwapchain = isFirstCreation ? VK_NULL_HANDLE : m_VkSwapChain;
+		createInfo.oldSwapchain = existingSwapChain;
 
 		VkResult result = vkCreateSwapchainKHR(device, &createInfo, nullptr, &m_VkSwapChain);
 		if (result != VK_SUCCESS) {
 			ERR_MSG("Failed to create Vulkan Swapchain ! Vulkan error code : " << (int)result);
+		}
+
+		if(existingSwapChain) {
+			vkDestroySwapchainKHR(device, existingSwapChain, nullptr);
 		}
 
 		uint32_t imagesCount = 0;
