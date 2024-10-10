@@ -42,29 +42,35 @@ namespace gigno {
         #endif
     }
 
-#if USE_IMGUI
     void ProfilingServer::EndFrame() {
+#if USE_IMGUI
         for(ProfileScope &scope : m_RootScopes) {
             scope.EndFrame();
         }
 
-        ImGui::ShowDemoWindow();
 
-        if(!m_ShowProfilerWindow) {
-            return;
-        }
-        if(!ImGui::Begin("Profiler", &m_ShowProfilerWindow, ImGuiWindowFlags_::ImGuiWindowFlags_NoResize)) {
+        if(m_ShowProfilerWindow) {
+            if(!ImGui::Begin("Profiler", &m_ShowProfilerWindow, ImGuiWindowFlags_::ImGuiWindowFlags_NoResize)) {
+                ImGui::End();
+                return;
+            }
+            ImGui::SetWindowSize(ImVec2{650.0f, 500.0f});
+
+            ImGui::Text("The profiler allows you to monitor the timing and performance of\n"
+                        "core parts of your code.");
+
+
+            for(ProfileScope scope : m_RootScopes) {
+                scope.DrawUI();
+            }
+
             ImGui::End();
-            return;
-        }
-        ImGui::SetWindowSize(ImVec2{650.0f, 500.0f});
-
-        for(ProfileScope scope : m_RootScopes) {
-            scope.DrawUI();
         }
 
-        ImGui::End();
-    }
+        for(ProfileScope& scope : m_RootScopes) {
+            scope.StartFrame();
+        }
 #endif
+    }
 
 }
