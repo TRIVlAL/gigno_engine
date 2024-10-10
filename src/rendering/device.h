@@ -29,7 +29,7 @@ namespace gigno {
 	class giDevice {
 
 	public:
-		giDevice(const giWindow *window);
+		giDevice(const Window *window);
 		~giDevice();
 		giDevice(const giDevice &) = delete;
 		giDevice & operator=(const giDevice &) = delete;
@@ -48,7 +48,7 @@ namespace gigno {
 		void CreateDebugMessenger();
 		void PickPhysicalDevice();
 		void CreateVulkanDevice();
-		void CreateSurface(const giWindow *window);
+		void CreateSurface(const Window *window);
 
 //--------------------------------------------------------------------------------------------------------------
 		

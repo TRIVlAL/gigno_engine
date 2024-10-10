@@ -15,7 +15,7 @@
 
 namespace gigno {
 	class Light;
-	class giInputServer;
+	class InputServer;
 
 	struct SceneRenderingData_t {
 		const std::vector<const RenderedEntity *> &RenderedEntities;
@@ -23,11 +23,11 @@ namespace gigno {
 		const Camera *pCamera;
 	};
 
-	class giRenderingServer {
+	class RenderingServer {
 
 	public:
-		giRenderingServer(int winw, int winh, const char *winTitle, giInputServer *inputServer, const std::string &vertShaderFilePath, const std::string &fragShaderFilePath);
-		~giRenderingServer();
+		RenderingServer(int winw, int winh, const char *winTitle, InputServer *inputServer, const std::string &vertShaderFilePath, const std::string &fragShaderFilePath);
+		~RenderingServer();
 
 		void Finalize();
 
@@ -67,7 +67,7 @@ namespace gigno {
 
 		uint32_t m_CurrentFrame = 0;
 
-		giWindow m_Window;
+		Window m_Window;
 		giDevice m_Device;
 		giSwapChain m_SwapChain;
 		

@@ -4,13 +4,13 @@
 
 namespace gigno {
 
-	void giEntityServer::Start() {
+	void EntityServer::Start() {
 		for(Entity *entity : m_Entities) {
 			entity->Start();
 		}
 	}
 
-	void giEntityServer::Tick(float dt) {
+	void EntityServer::Tick(float dt) {
 		for (Entity *entity : m_Entities) {
 			entity->Think(dt);
 		}
@@ -20,16 +20,16 @@ namespace gigno {
 	#endif
 	}
 
-	void giEntityServer::AddEntity(Entity *entity) {
+	void EntityServer::AddEntity(Entity *entity) {
 		m_Entities.push_back(entity);
 	}
 
-	void giEntityServer::RemoveEntity(Entity *entity) {
+	void EntityServer::RemoveEntity(Entity *entity) {
 		m_Entities.erase(std::remove(m_Entities.begin(), m_Entities.end(), entity), m_Entities.end());
 	}
 
 #if USE_IMGUI
-	void giEntityServer::DrawEntityInspector() {
+	void EntityServer::DrawEntityInspector() {
 		if(!m_EntityInspectorOpen) {
 			return;
 		}

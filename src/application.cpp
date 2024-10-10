@@ -22,7 +22,7 @@ namespace gigno {
 
 	giApplication::~giApplication() {}
 
-	giEntityServer *giApplication::GetEntityServer() {
+	EntityServer *giApplication::GetEntityServer() {
 		return &m_EntityServer;
 	}
 

@@ -7,7 +7,7 @@
 
 namespace gigno {
 
-	giDevice::giDevice(const giWindow *window) {
+	giDevice::giDevice(const Window *window) {
 		CreateInstance();
 		if (m_EnableValidationLayer) {
 			CreateDebugMessenger();
@@ -164,7 +164,7 @@ namespace gigno {
 		vkGetDeviceQueue(m_VkDevice, indices.presentFamily.value(), 0, &m_PresentQueue);
 	}
 
-	void giDevice::CreateSurface(const giWindow *window) {
+	void giDevice::CreateSurface(const Window *window) {
 		window->CreateWindowSurface(m_VkInstance, &m_Surface);
 	}
 

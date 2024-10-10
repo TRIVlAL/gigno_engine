@@ -21,9 +21,9 @@ namespace gigno {
 	public:
 		int run();
 
-		giRenderingServer *GetRenderer() { return &m_RenderingServer; }
-        giEntityServer *GetEntityServer();
-        giInputServer *GetInputServer() { return &m_InputServer; }
+		RenderingServer *GetRenderer() { return &m_RenderingServer; }
+        EntityServer *GetEntityServer();
+        InputServer *GetInputServer() { return &m_InputServer; }
 		ProfilingServer *GetProfiler() { return &m_ProfilingServer; }
 
 	private:
@@ -39,9 +39,9 @@ namespace gigno {
 		static inline giApplication *s_Instance = nullptr;
 
 		ProfilingServer m_ProfilingServer;
-        giInputServer m_InputServer; // Must be init before rendering server !
-		giRenderingServer m_RenderingServer;
-        giEntityServer m_EntityServer;
+        InputServer m_InputServer; // Must be init before rendering server !
+		RenderingServer m_RenderingServer;
+        EntityServer m_EntityServer;
 	};
 
 }

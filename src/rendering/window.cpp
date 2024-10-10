@@ -4,7 +4,7 @@
 
 namespace gigno {
 
-	giWindow::giWindow(int w, int h, const char *pTitle, giInputServer *inputServer) : m_Width(w), m_Height(h) {
+	Window::Window(int w, int h, const char *pTitle, InputServer *inputServer) : m_Width(w), m_Height(h) {
 		glfwInit();
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -12,7 +12,7 @@ namespace gigno {
 
 		m_pWindow = glfwCreateWindow(m_Width, m_Height, pTitle, nullptr, nullptr);
 
-		m_UserPointerData.giwindow = this;
+		m_UserPointerData.Window = this;
 
 		glfwSetWindowUserPointer(m_pWindow, &m_UserPointerData);
 
@@ -22,7 +22,7 @@ namespace gigno {
 		m_InputServerBoundTo = inputServer;
 	}
 
-	giWindow::~giWindow() {
+	Window::~Window() {
 		if (m_InputServerBoundTo) {
 			m_InputServerBoundTo->UnbindWindow();
 		}
@@ -30,36 +30,36 @@ namespace gigno {
 		glfwTerminate();
 	}
 
-	bool giWindow::ShouldClose() {
+	bool Window::ShouldClose() {
 		return glfwWindowShouldClose(m_pWindow);
 	}
 
-	void giWindow::PollEvents() {
+	void Window::PollEvents() {
 		glfwPollEvents();
 	}
 
-	void giWindow::CreateWindowSurface(VkInstance instance, VkSurfaceKHR *surface) const {
+	void Window::CreateWindowSurface(VkInstance instance, VkSurfaceKHR *surface) const {
 		VkResult result = glfwCreateWindowSurface(instance, m_pWindow, nullptr, surface);
 		if (result != VK_SUCCESS) {
 			ERR_MSG("Failed to create Window Surface ! Vullkan error code : " << (int)result);
 		}
 	}
 
-	void giWindow::GetFrameBufferSize(int *width, int *height) const {
+	void Window::GetFrameBufferSize(int *width, int *height) const {
 		glfwGetFramebufferSize(m_pWindow, width, height);
 	}
 
-	bool giWindow::HasResized() {
+	bool Window::HasResized() {
 		bool ret = resized;
 		resized = false;
 		return ret;
 	}
 
-	void giWindow::ResizeCallback(GLFWwindow *window, int width, int height) {
+	void Window::ResizeCallback(GLFWwindow *window, int width, int height) {
 		WindowUserPointerData_t *data = reinterpret_cast<WindowUserPointerData_t *>(glfwGetWindowUserPointer(window));
-		giWindow *giwindow = data->giwindow;
-		giwindow->resized = true;
-		giwindow->m_Width = width;
-		giwindow->m_Height = height;
+		Window *Window = data->Window;
+		Window->resized = true;
+		Window->m_Width = width;
+		Window->m_Height = height;
 	}
 }

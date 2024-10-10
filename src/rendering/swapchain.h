@@ -47,7 +47,7 @@ namespace gigno {
 	struct SwapChainSupportDetails;
 	struct QueueFamilyIndices;
 	struct SceneRenderingData_t;
-	class giWindow;
+	class Window;
 	class giPipeline;
 	class giModel;
 	class RenderedEntity;
@@ -69,7 +69,7 @@ namespace gigno {
 	class giSwapChain
 	{
 	public:
-		giSwapChain(const giDevice &device, const giWindow *window, const std::string &vertShaderPath, const std::string &fragShaderPath);
+		giSwapChain(const giDevice &device, const Window *window, const std::string &vertShaderPath, const std::string &fragShaderPath);
 
 		void CleanUp(VkDevice device);
 
@@ -85,7 +85,7 @@ namespace gigno {
 		@brief Recreates the Vulkan structs needed. To be called if the window size changed.
 		@param device same device as the one used on initialization/clean up 
 		*/
-		void Recreate(const giDevice &device, const giWindow *window, const std::string &vertShaderPath, const std::string &fragShaderPath);
+		void Recreate(const giDevice &device, const Window *window, const std::string &vertShaderPath, const std::string &fragShaderPath);
 
 		/* 
 		@brief Fills the command buffer so that it is ready to be Submitted to vulkan. Updates the data pushed to the shader (Push Constants, Uniform Buffer)
@@ -110,7 +110,7 @@ namespace gigno {
 		void CreatePipelineLayout(VkDevice device);
 		void CreatePipeline(VkDevice device, const std::string &vertShaderPath, const std::string &fragShaderPath);
 		void CreateVkSwapChain(VkDevice device, const SwapChainSupportDetails &supportDetails, const QueueFamilyIndices &physicalDeviceQueueFamilyIndices, 
-								VkSurfaceKHR surface, const giWindow *window, bool isFirstCreation);
+								VkSurfaceKHR surface, const Window *window, bool isFirstCreation);
 		void CreateImageViews(VkDevice device);
 		void CreateRenderPass(const VkDevice &device, const VkPhysicalDevice &physDevice);
 		void CreateFrameBuffers(VkDevice device);
@@ -120,7 +120,7 @@ namespace gigno {
 
 		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &avaliableFormats);
 		VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR> &avaliablePresentModes);
-		VkExtent2D ChooseSwapExtent(const giWindow *window, const VkSurfaceCapabilitiesKHR &capabilities);
+		VkExtent2D ChooseSwapExtent(const Window *window, const VkSurfaceCapabilitiesKHR &capabilities);
 		VkFormat FindSupportedFormat(VkPhysicalDevice physDevice, const std::vector<VkFormat> &candidates, VkImageTiling targetTiling, VkFormatFeatureFlags targetFeatures);
 		VkFormat FindDepthFormat(VkPhysicalDevice physDevice);
 		uint32_t FindMemoryTypeIndex(VkPhysicalDevice device, uint32_t typeFilter, VkMemoryPropertyFlags properties) const;

@@ -10,11 +10,11 @@ namespace gigno {
 
 	class Entity;
 
-	class giEntityServer {
+	class EntityServer {
 		friend class Entity;
 	public:
-		giEntityServer() {};
-		~giEntityServer() {};
+		EntityServer() {};
+		~EntityServer() {};
 
 		void Start();
 		void Tick(float dt);

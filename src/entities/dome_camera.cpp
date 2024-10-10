@@ -32,7 +32,7 @@ namespace gigno {
 		float rightMove = 0;
 		float upMove = 0;
 
-		giInputServer *input = GetApp()->GetInputServer();
+		InputServer *input = GetApp()->GetInputServer();
 
 		if (input->GetKey(KEY_D)) rightMove++;
 		if (input->GetKey(KEY_A)) rightMove--;

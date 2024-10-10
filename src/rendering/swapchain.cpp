@@ -22,7 +22,7 @@
 
 namespace gigno {
 
-	giSwapChain::giSwapChain(const giDevice &device, const giWindow *window, const std::string &vertShaderPath, const std::string &fragShaderPath)
+	giSwapChain::giSwapChain(const giDevice &device, const Window *window, const std::string &vertShaderPath, const std::string &fragShaderPath)
 	{
 		CreateVkSwapChain(device.GetDevice(), device.GetPhysicalSwapChainSupport(), device.GetPhysicalDeviceQueueFamilyIndices(), device.GetSurface(), window, true);
 		CreateImageViews(device.GetDevice());
@@ -63,7 +63,7 @@ namespace gigno {
 		vkDestroyDescriptorSetLayout(device, m_DescriptorSetLayout, nullptr);
 	}
 
-	void giSwapChain::Recreate(const giDevice &device, const giWindow *window, const std::string &vertShaderPath, const std::string &fragShaderPath) {
+	void giSwapChain::Recreate(const giDevice &device, const Window *window, const std::string &vertShaderPath, const std::string &fragShaderPath) {
 		int width = 0, height = 0;
 		window->GetFrameBufferSize(&width, &height);
 		while (width == 0 || height == 0) {
@@ -416,7 +416,7 @@ namespace gigno {
 		m_Pipeline = std::make_unique<giPipeline>(device, vertShaderFilePath, fragShaderFilePath, info);
 	}
 
-	void giSwapChain::CreateVkSwapChain(VkDevice device, const SwapChainSupportDetails &supportDetails, const QueueFamilyIndices &physicalDeviceQueueFamilyIndices, VkSurfaceKHR surface, const giWindow *window, bool isFirstCreation) {
+	void giSwapChain::CreateVkSwapChain(VkDevice device, const SwapChainSupportDetails &supportDetails, const QueueFamilyIndices &physicalDeviceQueueFamilyIndices, VkSurfaceKHR surface, const Window *window, bool isFirstCreation) {
 		VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(supportDetails.formats);
 		VkPresentModeKHR presentMode = ChooseSwapPresentMode(supportDetails.presentModes);
 		VkExtent2D extent = ChooseSwapExtent(window, supportDetails.surfaceCapabilities);
@@ -616,7 +616,7 @@ namespace gigno {
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}
 
-	VkExtent2D giSwapChain::ChooseSwapExtent(const giWindow * window, const VkSurfaceCapabilitiesKHR &capabilities) {
+	VkExtent2D giSwapChain::ChooseSwapExtent(const Window * window, const VkSurfaceCapabilitiesKHR &capabilities) {
 		if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
 			return capabilities.currentExtent;
 		}

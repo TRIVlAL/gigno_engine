@@ -8,21 +8,21 @@
 #include <string>
 
 namespace gigno {
-	class giInputServer;
-	class giWindow;
+	class InputServer;
+	class Window;
 
 	struct WindowUserPointerData_t {
-		giWindow *giwindow;
+		Window *Window;
 	};
 
-	class giWindow {
+	class Window {
 
 	public:
-		giWindow(int w, int h, const char *pTitle, giInputServer *inputServer);
-		~giWindow();
+		Window(int w, int h, const char *pTitle, InputServer *inputServer);
+		~Window();
 
-		giWindow(const giWindow &) = delete;
-		giWindow& operator=(const giWindow &) = delete;
+		Window(const Window &) = delete;
+		Window& operator=(const Window &) = delete;
 
 		bool ShouldClose();
 		void PollEvents();
@@ -47,7 +47,7 @@ namespace gigno {
 
 		WindowUserPointerData_t m_UserPointerData;
 
-		giInputServer *m_InputServerBoundTo;
+		InputServer *m_InputServerBoundTo;
 	};
 
 }

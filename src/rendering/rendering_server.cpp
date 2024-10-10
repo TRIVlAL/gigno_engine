@@ -9,7 +9,7 @@
 
 namespace gigno {
 
-	giRenderingServer::giRenderingServer(int winw, int winh, const char *winTitle, giInputServer *inputServer, const std::string &vertShaderFilePath, const std::string &fragShaderFilePath) :
+	RenderingServer::RenderingServer(int winw, int winh, const char *winTitle, InputServer *inputServer, const std::string &vertShaderFilePath, const std::string &fragShaderFilePath) :
 		m_VertShaderFilePath{vertShaderFilePath},
 		m_FragShaderFilePath{fragShaderFilePath},
 		m_Window{ winw, winh, winTitle, inputServer },
@@ -26,7 +26,7 @@ namespace gigno {
 #endif
 	}
 
-	giRenderingServer::~giRenderingServer() {
+	RenderingServer::~RenderingServer() {
 
 #if USE_IMGUI
 		ShutdownImGui();
@@ -41,57 +41,57 @@ namespace gigno {
 		}
 	}
 
-	void giRenderingServer::Finalize() {
+	void RenderingServer::Finalize() {
 		vkDeviceWaitIdle(m_Device.GetDevice());
 	}
 
-	void giRenderingServer::PollEvents() {
+	void RenderingServer::PollEvents() {
 		m_Window.PollEvents();
 	}
 
-	void giRenderingServer::SubscribeRenderedEntity(RenderedEntity *entity) {
+	void RenderingServer::SubscribeRenderedEntity(RenderedEntity *entity) {
 		m_RenderedEntities.push_back(entity);
 	}
 
-	void giRenderingServer::UnsubscribeRenderedEntity(RenderedEntity *entity) {
+	void RenderingServer::UnsubscribeRenderedEntity(RenderedEntity *entity) {
 		m_RenderedEntities.erase(std::remove(m_RenderedEntities.begin(), m_RenderedEntities.end(), entity), m_RenderedEntities.end());
 	}
 
-	void giRenderingServer::SubscribeLightEntity(Light *light)
+	void RenderingServer::SubscribeLightEntity(Light *light)
 	{
 		m_LightEntities.push_back(light);
 	}
 
-	void giRenderingServer::UnsubscribeLightEntity(Light *light)
+	void RenderingServer::UnsubscribeLightEntity(Light *light)
 	{
 		m_LightEntities.erase(std::remove(m_LightEntities.begin(), m_LightEntities.end(), light), m_LightEntities.end());
 	}
 
-	void giRenderingServer::CreateModel(std::shared_ptr<giModel> &model, const ModelData_t &modelData) {
+	void RenderingServer::CreateModel(std::shared_ptr<giModel> &model, const ModelData_t &modelData) {
 		model = std::make_shared<giModel>(giModel{ m_Device, modelData, m_SwapChain.GetCommandPool() });
 	}
 
 	//Debug Drawing
-	void giRenderingServer::DrawPoint(glm::vec3 pos, glm::vec3 color, const std::string &uniqueName) {
+	void RenderingServer::DrawPoint(glm::vec3 pos, glm::vec3 color, const std::string &uniqueName) {
 #if USE_DEBUG_DRAWING
 		if(!m_ShowDD || !m_ShowDDPoints) { return; }
 		m_SwapChain.DrawPoint(pos, color, std::hash<std::string>{}(uniqueName));
 #endif
 	}
-	void giRenderingServer::DrawLine(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 color, const std::string &uniqueName) {
+	void RenderingServer::DrawLine(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 color, const std::string &uniqueName) {
 #if USE_DEBUG_DRAWING
 		if (!m_ShowDD || !m_ShowDDLines) { return; }
 		m_SwapChain.DrawLine(startPos, endPos, color, color, std::hash<std::string>{}(uniqueName));
 #endif
 	}
-	void giRenderingServer::DrawLineGradient(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 startColor, glm::vec3 endColor, const std::string &uniqueName) {
+	void RenderingServer::DrawLineGradient(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 startColor, glm::vec3 endColor, const std::string &uniqueName) {
 #if USE_DEBUG_DRAWING
 		if (!m_ShowDD || !m_ShowDDLines) { return; }
 		m_SwapChain.DrawLine(startPos, endPos, startColor, endColor, std::hash<std::string>{}(uniqueName));
 #endif
 	}
 
-	void giRenderingServer::CreateSyncObjects() {
+	void RenderingServer::CreateSyncObjects() {
 		m_ImageAvaliableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 		m_RenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 		m_InFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
@@ -113,11 +113,11 @@ namespace gigno {
 	}
 
 
-	void giRenderingServer::Render() {
+	void RenderingServer::Render() {
 		DrawFrame();
 	}
 
-	void giRenderingServer::DrawFrame() {
+	void RenderingServer::DrawFrame() {
 		#if USE_IMGUI
 		ShowDebugWindow();
 		#endif
@@ -193,7 +193,7 @@ namespace gigno {
 	}
 
 	#if USE_IMGUI
-	void giRenderingServer::ShowDebugWindow() {
+	void RenderingServer::ShowDebugWindow() {
 		if(!m_ShowDebugWindow) {
 			return;
 		}

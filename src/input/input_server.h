@@ -16,10 +16,10 @@ namespace gigno {
 		KEY_STATE_JUST_PRESSED = 0b11
 	};
 
-	class giInputServer {
+	class InputServer {
 	public:
-		giInputServer() {};
-		~giInputServer() {};
+		InputServer() {};
+		~InputServer() {};
 
 		void UpdateInput();
 

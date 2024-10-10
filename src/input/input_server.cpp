@@ -5,15 +5,15 @@
 
 namespace gigno {
 
-	void giInputServer::BindWindow(GLFWwindow *window) {
+	void InputServer::BindWindow(GLFWwindow *window) {
 		m_pWindow = window;
 	}
 
-	void giInputServer::UnbindWindow() {
+	void InputServer::UnbindWindow() {
 		m_pWindow = nullptr;
 	}
 
-	void giInputServer::UpdateInput() {
+	void InputServer::UpdateInput() {
 		for(int i = 0; i < KEY_MAX_ENUM; i++) {
 			int new_state = glfwGetKey(m_pWindow, i);
 			if(new_state == GLFW_PRESS) {
@@ -34,15 +34,15 @@ namespace gigno {
 		}
 	}
 
-	bool giInputServer::GetKey(Key_t key) {
+	bool InputServer::GetKey(Key_t key) {
 		return (m_KeyStates[key] >> 1) == 1;
 	}
 
-	bool giInputServer::GetKeyDown(Key_t key) {
+	bool InputServer::GetKeyDown(Key_t key) {
 		return m_KeyStates[key] == KEY_STATE_JUST_PRESSED;
 	}
 
-	bool giInputServer::GetKeyUp(Key_t key) {
+	bool InputServer::GetKeyUp(Key_t key) {
 		return m_KeyStates[key] == KEY_STATE_JUST_RELEASED;
 	}
  
