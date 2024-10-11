@@ -4,7 +4,7 @@
 
 int main() {
  
-	gigno::giApplication *app = gigno::giApplication::MakeApp();
+	gigno::Application *app = gigno::Application::MakeApp();
 
 	int result = app->run();
 
@@ -12,7 +12,7 @@ int main() {
 		std::cout << "Gigno Application exited with code " << (int)result << " (not sccess)";
 	}
 
-	gigno::giApplication::ShutdownApp();
+	gigno::Application::ShutdownApp();
 
 	return result;
 }

@@ -40,8 +40,8 @@ namespace  gigno {
 		return glm::transpose(glm::inverse(glm::mat3(TransformationMatrix())));
 	}
 
-	giApplication *Entity::GetApp() const{
-		return giApplication::Singleton();
+	Application *Entity::GetApp() const{
+		return Application::Singleton();
 	}
 
 	Entity::Entity() {
