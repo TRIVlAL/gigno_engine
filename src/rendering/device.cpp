@@ -7,7 +7,7 @@
 
 namespace gigno {
 
-	giDevice::giDevice(const Window *window) {
+	Device::Device(const Window *window) {
 		CreateInstance();
 		if (m_EnableValidationLayer) {
 			CreateDebugMessenger();
@@ -18,7 +18,7 @@ namespace gigno {
 	}
 
 
-	giDevice::~giDevice() {
+	Device::~Device() {
 		vkDestroyDevice(m_VkDevice, nullptr);
 
 		//Destroy Debug Messenger
@@ -35,7 +35,7 @@ namespace gigno {
 
 	
 
-	void giDevice::CreateInstance() {
+	void Device::CreateInstance() {
 		if (m_EnableValidationLayer && !CheckValidationLayerSupport()) {
 			std::cerr << "ERROR ! VULKAN Validation layer requested, but not avaliable !\n";
 		}
@@ -79,7 +79,7 @@ namespace gigno {
 		}
 	}
 
-	void giDevice::CreateDebugMessenger() {
+	void Device::CreateDebugMessenger() {
 		if (!m_EnableValidationLayer) return;
 
 		VkDebugUtilsMessengerCreateInfoEXT createinfo;
@@ -99,7 +99,7 @@ namespace gigno {
 		}
 	}
 
-	void giDevice::PickPhysicalDevice() {
+	void Device::PickPhysicalDevice() {
 
 		uint32_t deviceCount = 0;
 		vkEnumeratePhysicalDevices(m_VkInstance, &deviceCount, nullptr);
@@ -119,7 +119,7 @@ namespace gigno {
 		ASSERT_MSG((m_PhysicalDevice != VK_NULL_HANDLE), "No Suitable GPU Found !");
 	}
 
-	void giDevice::CreateVulkanDevice() {
+	void Device::CreateVulkanDevice() {
 		QueueFamilyIndices indices = FindQueueFamiliyIndices(m_PhysicalDevice);
 		
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -164,12 +164,12 @@ namespace gigno {
 		vkGetDeviceQueue(m_VkDevice, indices.presentFamily.value(), 0, &m_PresentQueue);
 	}
 
-	void giDevice::CreateSurface(const Window *window) {
+	void Device::CreateSurface(const Window *window) {
 		window->CreateWindowSurface(m_VkInstance, &m_Surface);
 	}
 
 #ifndef NDEBUG
-	bool giDevice::CheckValidationLayerSupport() {
+	bool Device::CheckValidationLayerSupport() {
 		uint32_t layerCount = 0;
 		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
@@ -194,7 +194,7 @@ namespace gigno {
 	}
 #endif
 
-	VKAPI_ATTR VkBool32 VKAPI_CALL giDevice::ValidationLayerDebugCallback(
+	VKAPI_ATTR VkBool32 VKAPI_CALL Device::ValidationLayerDebugCallback(
 		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 		VkDebugUtilsMessageTypeFlagsEXT messageType,
 		const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
@@ -214,7 +214,7 @@ namespace gigno {
 		return VK_FALSE;
 	}
 
-	std::vector<const char *> giDevice::GetRequiredExtensions() {
+	std::vector<const char *> Device::GetRequiredExtensions() {
 		uint32_t glfwExtensionCount = 0;
 		const char **glfwExtensions;
 		glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -228,7 +228,7 @@ namespace gigno {
 		return extensions;
 	}
 
-	void giDevice::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &info) {
+	void Device::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &info) {
 		info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 		info.pNext = nullptr;
 		info.messageSeverity =
@@ -245,7 +245,7 @@ namespace gigno {
 		info.pUserData = nullptr;
 	}
 
-	bool giDevice::IsPhysicalDeviceSuitable(const VkPhysicalDevice& device) {
+	bool Device::IsPhysicalDeviceSuitable(const VkPhysicalDevice& device) {
 		bool extensionsSupported = CheckDeviceExtensionSupport(device);
 
 		bool swapChainAdequate = false;
@@ -257,7 +257,7 @@ namespace gigno {
 		return FindQueueFamiliyIndices(device).IsComplete() && extensionsSupported && swapChainAdequate;
 	}
 
-	QueueFamilyIndices giDevice::FindQueueFamiliyIndices(const VkPhysicalDevice &device) const {
+	QueueFamilyIndices Device::FindQueueFamiliyIndices(const VkPhysicalDevice &device) const {
 		uint32_t queueFamilyCount = 0;
 		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
@@ -286,7 +286,7 @@ namespace gigno {
 		return indices;
 	}
 
-	bool giDevice::CheckDeviceExtensionSupport(const VkPhysicalDevice &device) {
+	bool Device::CheckDeviceExtensionSupport(const VkPhysicalDevice &device) {
 		uint32_t extensionCount = 0;
 		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
@@ -301,7 +301,7 @@ namespace gigno {
 		return uniqueRequiredExtensions.empty();
 	}
 
-	SwapChainSupportDetails giDevice::QuerySwapChainSupport(const VkPhysicalDevice &device) const {
+	SwapChainSupportDetails Device::QuerySwapChainSupport(const VkPhysicalDevice &device) const {
 		SwapChainSupportDetails details{};
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_Surface, &details.surfaceCapabilities);
 

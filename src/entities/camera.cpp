@@ -112,7 +112,7 @@ namespace gigno {
 		// Partial rebuild of the Projection matrix to account for the change of aspect ratio
 
 		if (m_ProjMode == PROJECTION_MODE_ORTHOGRAPHIC) {
-			giApplication *app = GetApp();
+			Application *app = GetApp();
 			const float aspect = app->GetRenderer()->GetAspectRatio();
 			m_ProjectionMatrix[0][0] = 2.f / (2 * aspect);
 			m_ProjectionMatrix[3][0] = 0;

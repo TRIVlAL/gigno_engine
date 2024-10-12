@@ -78,7 +78,7 @@ namespace gigno
 		return data;
 	}
 
-	giModel::giModel(const giDevice &device, const ModelData_t &data, VkCommandPool commandPool) :
+	giModel::giModel(const Device &device, const ModelData_t &data, VkCommandPool commandPool) :
 		m_Vertices{ data.Vertices }, 
 		m_Indices{ data.Indices } {
 		CreateVertexBuffer(device.GetDevice(), device.GetPhysicalDevice(), commandPool, device.GetGraphicsQueue());

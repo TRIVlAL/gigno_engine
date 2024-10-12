@@ -68,8 +68,8 @@ namespace gigno {
 		uint32_t m_CurrentFrame = 0;
 
 		Window m_Window;
-		giDevice m_Device;
-		giSwapChain m_SwapChain;
+		Device m_Device;
+		SwapChain m_SwapChain;
 		
 		std::vector<const RenderedEntity *> m_RenderedEntities;
 		std::vector<const Light *> m_LightEntities;

@@ -11,12 +11,12 @@
 
 namespace gigno {
 
-	class giApplication {
+	class Application {
 	public:
-		static giApplication *MakeApp();
+		static Application *MakeApp();
 		static void ShutdownApp();
 
-		static giApplication *Singleton();
+		static Application *Singleton();
 
 	public:
 		int run();
@@ -28,15 +28,15 @@ namespace gigno {
 
 	private:
 
-		giApplication(int winw, int winh, const char *title, const std::string &vertShaderPath, const std::string &fragShaderPath);
-		~giApplication();
+		Application(int winw, int winh, const char *title, const std::string &vertShaderPath, const std::string &fragShaderPath);
+		~Application();
 
 		bool m_ShowMainUIWindow = true;
 		void DrawMainUIWindow();
 
         const float MAX_FRAME_TIME = 1000.0f;
 
-		static inline giApplication *s_Instance = nullptr;
+		static inline Application *s_Instance = nullptr;
 
 		ProfilingServer m_ProfilingServer;
         InputServer m_InputServer; // Must be init before rendering server !

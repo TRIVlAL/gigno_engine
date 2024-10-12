@@ -11,7 +11,7 @@
 #include "serialization.h"
 
 namespace gigno {
-	class giApplication;
+	class Application;
 	struct PropertySerializationData_t;
 
 	struct Transform_t
@@ -73,7 +73,7 @@ namespace gigno {
 		Transform_t Transform{};
 
 	protected:
-		giApplication *GetApp() const;
+		Application *GetApp() const;
 
 		//SERIALIZATION--------------------------------------------------------------
 

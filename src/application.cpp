@@ -12,7 +12,7 @@
 
 namespace gigno {
 
-	giApplication::giApplication(int winw, int winh, const char *title, const std::string &vertShaderPath, const std::string &fragShaderPath) :
+	Application::Application(int winw, int winh, const char *title, const std::string &vertShaderPath, const std::string &fragShaderPath) :
 		m_ProfilingServer{},
 		m_InputServer{},
 		m_RenderingServer{ winw, winh, title, &m_InputServer, vertShaderPath, fragShaderPath },
@@ -20,25 +20,25 @@ namespace gigno {
 
 		}
 
-	giApplication::~giApplication() {}
+	Application::~Application() {}
 
-	EntityServer *giApplication::GetEntityServer() {
+	EntityServer *Application::GetEntityServer() {
 		return &m_EntityServer;
 	}
 
-	giApplication *giApplication::MakeApp() {
-		giApplication *app = new giApplication(1000, 1000, "Gigno Engine Demo", "shaders/simple_shader.vert.spv", "shaders/simple_shader.frag.spv");
+	Application *Application::MakeApp() {
+		Application *app = new Application(1000, 1000, "Gigno Engine Demo", "shaders/simple_shader.vert.spv", "shaders/simple_shader.frag.spv");
 		std::cout << "Created App !" << std::endl;
 		s_Instance = app;
 		return app;
 	}
 
-	giApplication *giApplication::Singleton() {
-		ASSERT_MSG_V(s_Instance, "Calling giApplication::Singleton but s_Instance has not been assigned !", nullptr);
+	Application *Application::Singleton() {
+		ASSERT_MSG_V(s_Instance, "Calling Application::Singleton but s_Instance has not been assigned !", nullptr);
 		return s_Instance;
 	}
 
-	int giApplication::run() {
+	int Application::run() {
 
 		if (!glfwInit()) {
 			return 1;
@@ -142,13 +142,13 @@ namespace gigno {
 		return 0;
 	}
 
-	void giApplication::ShutdownApp() {
-		giApplication *app = s_Instance;
+	void Application::ShutdownApp() {
+		Application *app = s_Instance;
 		s_Instance = nullptr;
 		delete(app);
 	}
 
-	void giApplication::DrawMainUIWindow() {
+	void Application::DrawMainUIWindow() {
 		if(!m_ShowMainUIWindow) {
 			return;
 		}

@@ -11,7 +11,7 @@
 
 namespace gigno {
 	typedef uint32_t indice_t;
-	class giDevice;
+	class Device;
 
 	struct Vertex {
 		Vertex(){};
@@ -59,7 +59,7 @@ namespace gigno{
 		static VkIndexType GetIndexType() {return VK_INDEX_TYPE_UINT32;} 
 
 		giModel();
-		giModel(const giDevice &device, const ModelData_t &data, VkCommandPool commandPool);
+		giModel(const Device &device, const ModelData_t &data, VkCommandPool commandPool);
 		~giModel();
 
 		void CleanUp(VkDevice device);

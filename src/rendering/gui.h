@@ -21,7 +21,7 @@ namespace gigno {
         ImGui::NewFrame();
     }
     
-    static bool InitImGui(GLFWwindow *window, const giDevice &device, const giSwapChain &swapchain) {
+    static bool InitImGui(GLFWwindow *window, const Device &device, const SwapChain &swapchain) {
         IMGUI_CHECKVERSION();
 
         ImGui::CreateContext();

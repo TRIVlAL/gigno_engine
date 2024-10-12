@@ -26,13 +26,13 @@ namespace gigno {
 		}
 	};
 
-	class giDevice {
+	class Device {
 
 	public:
-		giDevice(const Window *window);
-		~giDevice();
-		giDevice(const giDevice &) = delete;
-		giDevice & operator=(const giDevice &) = delete;
+		Device(const Window *window);
+		~Device();
+		Device(const Device &) = delete;
+		Device & operator=(const Device &) = delete;
 
 		VkDevice GetDevice() const { return m_VkDevice; }
 		VkInstance GetInstance() const { return m_VkInstance; }

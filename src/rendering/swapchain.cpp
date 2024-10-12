@@ -22,7 +22,7 @@
 
 namespace gigno {
 
-	giSwapChain::giSwapChain(const giDevice &device, const Window *window, const std::string &vertShaderPath, const std::string &fragShaderPath)
+	SwapChain::SwapChain(const Device &device, const Window *window, const std::string &vertShaderPath, const std::string &fragShaderPath)
 	{
 		CreateVkSwapChain(device.GetDevice(), device.GetPhysicalSwapChainSupport(), device.GetPhysicalDeviceQueueFamilyIndices(), device.GetSurface(), window, true);
 		CreateImageViews(device.GetDevice());
@@ -39,7 +39,7 @@ namespace gigno {
 		CreatePipeline(device.GetDevice(), vertShaderPath, fragShaderPath);
 	}
 
-	void giSwapChain::CleanUp(VkDevice device) {
+	void SwapChain::CleanUp(VkDevice device) {
 		for (auto imageView : m_ImageViews) {
 			vkDestroyImageView(device, imageView, nullptr);
 		}
@@ -63,7 +63,7 @@ namespace gigno {
 		vkDestroyDescriptorSetLayout(device, m_DescriptorSetLayout, nullptr);
 	}
 
-	void giSwapChain::Recreate(const giDevice &device, const Window *window, const std::string &vertShaderPath, const std::string &fragShaderPath) {
+	void SwapChain::Recreate(const Device &device, const Window *window, const std::string &vertShaderPath, const std::string &fragShaderPath) {
 		int width = 0, height = 0;
 		window->GetFrameBufferSize(&width, &height);
 		while (width == 0 || height == 0) {
@@ -94,12 +94,12 @@ namespace gigno {
 		CreatePipeline(device.GetDevice(), vertShaderPath, fragShaderPath);
 	}
 
-	void giSwapChain::RecordCommandBuffer(uint32_t currentFrame, uint32_t imageIndex, const SceneRenderingData_t &sceneData) {
+	void SwapChain::RecordCommandBuffer(uint32_t currentFrame, uint32_t imageIndex, const SceneRenderingData_t &sceneData) {
 		ASSERT(currentFrame < MAX_FRAMES_IN_FLIGHT);
 		RecordCommandBuffer(m_CommandBuffers[currentFrame], currentFrame, imageIndex, sceneData);
 	}
 
-	void giSwapChain::RecordCommandBuffer(VkCommandBuffer buffer, uint32_t currentFrame, uint32_t imageIndex, const SceneRenderingData_t &sceneData) {
+	void SwapChain::RecordCommandBuffer(VkCommandBuffer buffer, uint32_t currentFrame, uint32_t imageIndex, const SceneRenderingData_t &sceneData) {
 		VkCommandBufferBeginInfo bufferBeginInfo{};
 		bufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		bufferBeginInfo.flags = 0;
@@ -160,7 +160,7 @@ namespace gigno {
 		}
 	}
 
-	void giSwapChain::RenderEntities(VkCommandBuffer buffer, const std::vector<const RenderedEntity *> &entities, uint32_t currentFrame) {
+	void SwapChain::RenderEntities(VkCommandBuffer buffer, const std::vector<const RenderedEntity *> &entities, uint32_t currentFrame) {
 		vkCmdSetPrimitiveTopology(buffer, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 
 		vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline.get()->GetVkPipeline());
@@ -180,7 +180,7 @@ namespace gigno {
 
 	
 	#if USE_DEBUG_DRAWING
-	void giSwapChain::UpdateDebugDrawings(VkDevice device, VkPhysicalDevice physDevice, VkQueue graphicsQueue) {
+	void SwapChain::UpdateDebugDrawings(VkDevice device, VkPhysicalDevice physDevice, VkQueue graphicsQueue) {
 		// Recreate Buffers.
 		//Points
 		if(m_DDPoints.size() > 0 && m_DDCurrentFramePointsDrawCallHash != m_DDLastFramePointsDrawCallHash) {
@@ -244,18 +244,18 @@ namespace gigno {
 		m_DDCurrentFrameLinesDrawCallHash = 0;
 	}
 
-	void giSwapChain::DrawPoint(glm::vec3 position, glm::vec3 color, uint32_t drawCallHash) {
+	void SwapChain::DrawPoint(glm::vec3 position, glm::vec3 color, uint32_t drawCallHash) {
 		m_DDCurrentFramePointsDrawCallHash += drawCallHash;
 		m_DDPoints.emplace_back(position, color);
 	}
 
-	void giSwapChain::DrawLine(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 startColor, glm::vec3 endColor, uint32_t drawCallHash) {
+	void SwapChain::DrawLine(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 startColor, glm::vec3 endColor, uint32_t drawCallHash) {
 		m_DDCurrentFrameLinesDrawCallHash += drawCallHash;
 		m_DDLines.emplace_back(startPos, startColor);
 		m_DDLines.emplace_back(endPos, endColor);
 	}
 	
-	void giSwapChain::RenderDebugDrawings(VkCommandBuffer buffer, const Camera *camera, uint32_t currentFrame) {
+	void SwapChain::RenderDebugDrawings(VkCommandBuffer buffer, const Camera *camera, uint32_t currentFrame) {
 		PushConstantData_t push{};
 		push.modelMatrix = {1.0f};
 		push.normalsMatrix = {1.0f};
@@ -278,7 +278,7 @@ namespace gigno {
 	}
 	#endif
 
-	void giSwapChain::UpdateUniformBuffer(VkCommandBuffer commandBuffer, const Camera *camera, const std::vector<const Light *> &lights, uint32_t currentFrame)
+	void SwapChain::UpdateUniformBuffer(VkCommandBuffer commandBuffer, const Camera *camera, const std::vector<const Light *> &lights, uint32_t currentFrame)
 	{
 		ASSERT(currentFrame < MAX_FRAMES_IN_FLIGHT);
 
@@ -304,7 +304,7 @@ namespace gigno {
 		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescriptorSets[currentFrame], 0, nullptr);
 	}
 
-	void giSwapChain::CreateUniformBuffers(VkDevice device, VkPhysicalDevice physDevice) {
+	void SwapChain::CreateUniformBuffers(VkDevice device, VkPhysicalDevice physDevice) {
 		VkDeviceSize size = sizeof(UniformBufferData_t);
 
 		m_UniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
@@ -318,7 +318,7 @@ namespace gigno {
 		}
 	}
 
-	void giSwapChain::CreateDescriptorPool(VkDevice device) {
+	void SwapChain::CreateDescriptorPool(VkDevice device) {
 		VkDescriptorPoolSize size{};
 		size.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		size.descriptorCount = MAX_FRAMES_IN_FLIGHT;
@@ -335,7 +335,7 @@ namespace gigno {
 		}
 	}
 
-	void giSwapChain::CreateDescriptorSets(VkDevice device) {
+	void SwapChain::CreateDescriptorSets(VkDevice device) {
 		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, m_DescriptorSetLayout);
 		VkDescriptorSetAllocateInfo allocinfo{};
 		allocinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -368,7 +368,7 @@ namespace gigno {
 		}
 	}
 
-	void giSwapChain::CreateDescriptorSetLayout(VkDevice device) {
+	void SwapChain::CreateDescriptorSetLayout(VkDevice device) {
 		VkDescriptorSetLayoutBinding uboLayoutBinding{};
 		uboLayoutBinding.binding = 0;
 		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -388,7 +388,7 @@ namespace gigno {
 		}
 	}
 
-	void giSwapChain::CreatePipelineLayout(VkDevice device) {
+	void SwapChain::CreatePipelineLayout(VkDevice device) {
 		VkPushConstantRange pushConstantRange{};
 		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 		pushConstantRange.offset = 0;
@@ -408,7 +408,7 @@ namespace gigno {
 		}
 	}
 
-	void giSwapChain::CreatePipeline(VkDevice device, const std::string &vertShaderFilePath, const std::string &fragShaderFilePath) {
+	void SwapChain::CreatePipeline(VkDevice device, const std::string &vertShaderFilePath, const std::string &fragShaderFilePath) {
 		giPipelineConfigInfo info{};
 		giPipeline::DefaultConfig(info);
 		info.renderPass = m_RenderPass;
@@ -416,7 +416,7 @@ namespace gigno {
 		m_Pipeline = std::make_unique<giPipeline>(device, vertShaderFilePath, fragShaderFilePath, info);
 	}
 
-	void giSwapChain::CreateVkSwapChain(VkDevice device, const SwapChainSupportDetails &supportDetails, const QueueFamilyIndices &physicalDeviceQueueFamilyIndices, VkSurfaceKHR surface, const Window *window, bool isFirstCreation) {
+	void SwapChain::CreateVkSwapChain(VkDevice device, const SwapChainSupportDetails &supportDetails, const QueueFamilyIndices &physicalDeviceQueueFamilyIndices, VkSurfaceKHR surface, const Window *window, bool isFirstCreation) {
 		VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(supportDetails.formats);
 		VkPresentModeKHR presentMode = ChooseSwapPresentMode(supportDetails.presentModes);
 		VkExtent2D extent = ChooseSwapExtent(window, supportDetails.surfaceCapabilities);
@@ -475,14 +475,14 @@ namespace gigno {
 		vkGetSwapchainImagesKHR(device, m_VkSwapChain, &imagesCount, m_Images.data());
 	}
 
-	void giSwapChain::CreateImageViews(VkDevice device) {
+	void SwapChain::CreateImageViews(VkDevice device) {
 		m_ImageViews.resize(m_Images.size());
 		for (size_t i = 0; i < m_Images.size(); i++) {
 			m_ImageViews[i] = CreateImageView(device, m_Images[i], m_Format, VK_IMAGE_ASPECT_COLOR_BIT);
 		}
 	}
 
-	void giSwapChain::CreateRenderPass(const VkDevice &device, const VkPhysicalDevice &physDevice) {
+	void SwapChain::CreateRenderPass(const VkDevice &device, const VkPhysicalDevice &physDevice) {
 		VkAttachmentDescription colorAttachment{};
 		colorAttachment.format = m_Format;
 		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -542,7 +542,7 @@ namespace gigno {
 		}
 	}
 
-	void giSwapChain::CreateFrameBuffers(VkDevice device) {
+	void SwapChain::CreateFrameBuffers(VkDevice device) {
 		m_FrameBuffers.resize(m_ImageViews.size());
 		for (size_t i = 0; i < m_ImageViews.size(); i++) {
 			std::array<VkImageView, 2> attachments = { m_ImageViews[i], m_DepthImageView };
@@ -563,7 +563,7 @@ namespace gigno {
 		}
 	}
 
-	void giSwapChain::CreateCommandPool(VkDevice device, QueueFamilyIndices indices) {
+	void SwapChain::CreateCommandPool(VkDevice device, QueueFamilyIndices indices) {
 		VkCommandPoolCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		createInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
@@ -575,14 +575,14 @@ namespace gigno {
 		}
 	}
 
-	void giSwapChain::CreateDepthResources(VkDevice device, VkPhysicalDevice physDevice) {
+	void SwapChain::CreateDepthResources(VkDevice device, VkPhysicalDevice physDevice) {
 		VkFormat format = FindDepthFormat(physDevice);
 		CreateImage(device, physDevice, m_Extent.width, m_Extent.height, format, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_DepthImage, m_DepthImageMemory);
 		m_DepthImageView = CreateImageView(device, m_DepthImage, format, VK_IMAGE_ASPECT_DEPTH_BIT);
 	}
 
-	void giSwapChain::CreateCommandBuffers(VkDevice device) {
+	void SwapChain::CreateCommandBuffers(VkDevice device) {
 		m_CommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 
 		VkCommandBufferAllocateInfo allocInfo{};
@@ -597,7 +597,7 @@ namespace gigno {
 		}
 	}
 
-	VkSurfaceFormatKHR giSwapChain::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &avaliableFormats) {
+	VkSurfaceFormatKHR SwapChain::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &avaliableFormats) {
 		for (const VkSurfaceFormatKHR &format : avaliableFormats) {
 			if (format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR && format.format == VK_FORMAT_B8G8R8A8_UNORM) {
 				return format;
@@ -606,7 +606,7 @@ namespace gigno {
 		return avaliableFormats[0];
 	}
 
-	VkPresentModeKHR giSwapChain::ChooseSwapPresentMode(const std::vector<VkPresentModeKHR> &avaliableModes) {
+	VkPresentModeKHR SwapChain::ChooseSwapPresentMode(const std::vector<VkPresentModeKHR> &avaliableModes) {
 		for (const VkPresentModeKHR &mode : avaliableModes) {
 			if (mode == VK_PRESENT_MODE_MAILBOX_KHR) {
 				return mode;
@@ -616,7 +616,7 @@ namespace gigno {
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}
 
-	VkExtent2D giSwapChain::ChooseSwapExtent(const Window * window, const VkSurfaceCapabilitiesKHR &capabilities) {
+	VkExtent2D SwapChain::ChooseSwapExtent(const Window * window, const VkSurfaceCapabilitiesKHR &capabilities) {
 		if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
 			return capabilities.currentExtent;
 		}
@@ -637,7 +637,7 @@ namespace gigno {
 		}
 	}
 
-	VkFormat giSwapChain::FindSupportedFormat(VkPhysicalDevice physDevice, const std::vector<VkFormat> &candidates, VkImageTiling targetTiling, VkFormatFeatureFlags targetFeatures) {
+	VkFormat SwapChain::FindSupportedFormat(VkPhysicalDevice physDevice, const std::vector<VkFormat> &candidates, VkImageTiling targetTiling, VkFormatFeatureFlags targetFeatures) {
 		for (VkFormat format : candidates) {
 			VkFormatProperties prop;
 			vkGetPhysicalDeviceFormatProperties(physDevice, format, &prop);
@@ -651,13 +651,13 @@ namespace gigno {
 		ERR_MSG_V("Failed to find supported format !", VkFormat{});
 	}
 
-	VkFormat giSwapChain::FindDepthFormat(VkPhysicalDevice physDevice) {
+	VkFormat SwapChain::FindDepthFormat(VkPhysicalDevice physDevice) {
 		return FindSupportedFormat(physDevice, { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
 			VK_IMAGE_TILING_OPTIMAL,
 			VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
 	}
 
-	uint32_t giSwapChain::FindMemoryTypeIndex(VkPhysicalDevice device, uint32_t typeFilter, VkMemoryPropertyFlags properties) const {
+	uint32_t SwapChain::FindMemoryTypeIndex(VkPhysicalDevice device, uint32_t typeFilter, VkMemoryPropertyFlags properties) const {
 		VkPhysicalDeviceMemoryProperties memProp{};
 		vkGetPhysicalDeviceMemoryProperties(device, &memProp);
 
@@ -670,7 +670,7 @@ namespace gigno {
 		ERR_MSG_V("Failed to find suitable memory type !", UINT32_MAX);
 	}
 
-	void giSwapChain::CreateImage(VkDevice device, VkPhysicalDevice physDevice, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
+	void SwapChain::CreateImage(VkDevice device, VkPhysicalDevice physDevice, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
 					VkMemoryPropertyFlags props, VkImage &image, VkDeviceMemory &imageMemory) {
 		VkImageCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -708,7 +708,7 @@ namespace gigno {
 		vkBindImageMemory(device, image, imageMemory, 0);
 	}
 
-	VkImageView giSwapChain::CreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) {
+	VkImageView SwapChain::CreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) {
 		VkImageViewCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		createInfo.pNext = nullptr;
