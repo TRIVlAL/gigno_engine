@@ -1,8 +1,9 @@
 #include "profiling_server.h"
 #include <iostream>
-#include "../error_macros.h"
+#include "../../error_macros.h"
 #include <algorithm>
 #include "imgui.h"
+#include "../../application.h"
 
 namespace gigno {
 

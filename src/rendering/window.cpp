@@ -1,6 +1,7 @@
 #include "window.h"
 #include "../error_macros.h"
 #include "../input/input_server.h"
+#include "../application.h"
 
 namespace gigno {
 
@@ -41,7 +42,7 @@ namespace gigno {
 	void Window::CreateWindowSurface(VkInstance instance, VkSurfaceKHR *surface) const {
 		VkResult result = glfwCreateWindowSurface(instance, m_pWindow, nullptr, surface);
 		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to create Window Surface ! Vullkan error code : " << (int)result);
+			ERR_MSG("Failed to create Window Surface ! Vullkan error code : %d", (int)result);
 		}
 	}
 

@@ -4,7 +4,7 @@
 #include "profile_scope.h"
 #include <vector>
 #include <unordered_map>
-#include "../core_macros.h"
+#include "../../core_macros.h"
 
 namespace gigno {
 

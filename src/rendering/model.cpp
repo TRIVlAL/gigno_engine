@@ -6,6 +6,8 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "../vendor/tiny_object_loader/tiny_obj_loader.h"
 
+#include "../application.h"
+
 namespace gigno
 {
 
@@ -39,7 +41,7 @@ namespace gigno
 		std::string err;
 
 		if(!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path)) {
-			ERR_MSG_V("Tiny Object Loader Error :" << warn << " " << err, ModelData_t{});
+			ERR_MSG_V(ModelData_t{}, "Tiny Object Loader Error ");
 		}
 
 		ModelData_t data{};

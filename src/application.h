@@ -4,8 +4,7 @@
 #include "rendering/rendering_server.h"
 #include "entities/entity_server.h"
 #include "input/input_server.h"
-#include "profiling/profiling_server.h"
-#include "vulkan/vulkan.h"
+#include "debug/debug_server.h"
 #include "rendering/model.h"
 #include "iostream"
 
@@ -24,7 +23,7 @@ namespace gigno {
 		RenderingServer *GetRenderer() { return &m_RenderingServer; }
         EntityServer *GetEntityServer();
         InputServer *GetInputServer() { return &m_InputServer; }
-		ProfilingServer *GetProfiler() { return &m_ProfilingServer; }
+		DebugServer *Debug() { return &m_DebugServer; }
 
 	private:
 
@@ -38,7 +37,7 @@ namespace gigno {
 
 		static inline Application *s_Instance = nullptr;
 
-		ProfilingServer m_ProfilingServer;
+		DebugServer m_DebugServer;
         InputServer m_InputServer; // Must be init before rendering server !
 		RenderingServer m_RenderingServer;
         EntityServer m_EntityServer;

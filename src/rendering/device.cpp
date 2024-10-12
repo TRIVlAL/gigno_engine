@@ -1,9 +1,10 @@
 #include <GLFW/glfw3.h>
-#include "../core_macros.h"
+#include "../error_macros.h"
 #include <cstring>
 #include <set>
 #include "swapchain.h"
 #include "device.h"
+#include "../application.h"
 
 namespace gigno {
 
@@ -75,7 +76,7 @@ namespace gigno {
 		VkResult result = vkCreateInstance(&createinfo, nullptr, &m_VkInstance);
 
 		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to create Vulkan Instance ! Vulkan error code : " << (int)result);
+			ERR_MSG("Failed to create Vulkan Instance ! Vulkan error code : %d", (int)result);
 		}
 	}
 
@@ -95,7 +96,7 @@ namespace gigno {
 		}
 
 		if (result != VK_SUCCESS) {
-			ERR_MSG("VALIDATION LAYER : Failed to create Debug Messenger ! Vulkan error code " << (int)result);
+			ERR_MSG("VALIDATION LAYER : Failed to create Debug Messenger ! Vulkan error code %d", (int)result);
 		}
 	}
 
@@ -157,7 +158,7 @@ namespace gigno {
 
 		VkResult result = vkCreateDevice(m_PhysicalDevice, &deviceCreateInfo, nullptr, &m_VkDevice);
 		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to create Vulkan Logical Device ! Vulkan error code : " << (int)result);
+			ERR_MSG("Failed to create Vulkan Logical Device ! Vulkan error code %d ", (int)result);
 		}
 
 		vkGetDeviceQueue(m_VkDevice, indices.graphicFamily.value(), 0, &m_GraphicsQueue);
@@ -203,7 +204,7 @@ namespace gigno {
 			std::cout << "VERBOSE: VULKAN Validation Layer : " << pCallbackData->pMessage << std::endl;
 		}
 		else if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
-			std::cerr << "ERROR: VULKAN Validation Layer : " << pCallbackData->pMessage << std::endl;
+			ERR_MSG_V(VK_FALSE, "VULKAN Validation Layer : %s", pCallbackData->pMessage);
 		}
 		else if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
 			std::cout << "WARNING: VULKAN Validation Layer : " << pCallbackData->pMessage << std::endl;

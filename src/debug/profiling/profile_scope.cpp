@@ -4,7 +4,7 @@
 
 #include <algorithm>
 #include <iostream>
-#include "../vendor/imgui/imgui.h"
+#include "../../vendor/imgui/imgui.h"
 #include <math.h>
 
 namespace gigno {

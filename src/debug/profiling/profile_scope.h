@@ -1,7 +1,7 @@
 #ifndef PROFILE_SCOPE_H
 #define PROFILE_SCOPE_H
 
-#include "../core_macros.h"
+#include "../../core_macros.h"
 #if USE_IMGUI
 
 #include <string>

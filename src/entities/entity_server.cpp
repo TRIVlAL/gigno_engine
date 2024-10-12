@@ -1,6 +1,7 @@
 #include "entity_server.h"
 #include "entity.h"
 #include "../rendering/gui.h"
+#include "../error_macros.h"
 
 namespace gigno {
 

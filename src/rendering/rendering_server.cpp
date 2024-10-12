@@ -2,6 +2,8 @@
 #include "../error_macros.h"
 #include "../entities/lights/light.h"
 
+#include "application.h"
+
 #include "../core_macros.h"
 #if USE_IMGUI
 	#include "gui.h"
@@ -131,7 +133,7 @@ namespace gigno {
 			return;
 		}
 		else if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to Acquire Swap Chain Image ! Vulkan Error Code : " << (int) result);
+			ERR_MSG("Failed to Acquire Swap Chain Image ! Vulkan Error Code : %d", (int) result);
 		}
 
 		vkResetFences(m_Device.GetDevice(), 1, &m_InFlightFences[m_CurrentFrame]);
@@ -163,7 +165,7 @@ namespace gigno {
 
 		result = vkQueueSubmit(m_Device.GetGraphicsQueue(), 1, &submitInfo, m_InFlightFences[m_CurrentFrame]);
 		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to Submit to Graphics Queue ! Vulkan Error Code : " << (int)result);
+			ERR_MSG("Failed to Submit to Graphics Queue ! Vulkan Error Code : %d", (int)result);
 		}
 
 		VkSwapchainKHR swapchains[] = { m_SwapChain.GetSwapChain() };
@@ -182,7 +184,7 @@ namespace gigno {
 			m_SwapChain.Recreate(m_Device, &m_Window, m_VertShaderFilePath, m_FragShaderFilePath);
 		}
 		else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-			ERR_MSG("Failed to Present Swap Chain Image ! Vulkan Error Code : " << (int)result);
+			ERR_MSG("Failed to Present Swap Chain Image ! Vulkan Error Code : %d", (int)result);
 		} 
 
 		m_CurrentFrame = (m_CurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;

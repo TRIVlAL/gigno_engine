@@ -1,4 +1,3 @@
-#include "application.h"
 #include "error_macros.h"
 #include <numeric>
 #include <chrono>
@@ -13,7 +12,7 @@
 namespace gigno {
 
 	Application::Application(int winw, int winh, const char *title, const std::string &vertShaderPath, const std::string &fragShaderPath) :
-		m_ProfilingServer{},
+		m_DebugServer{},
 		m_InputServer{},
 		m_RenderingServer{ winw, winh, title, &m_InputServer, vertShaderPath, fragShaderPath },
 		m_EntityServer{} {
@@ -34,15 +33,12 @@ namespace gigno {
 	}
 
 	Application *Application::Singleton() {
-		ASSERT_MSG_V(s_Instance, "Calling Application::Singleton but s_Instance has not been assigned !", nullptr);
 		return s_Instance;
 	}
 
 	int Application::run() {
 
-		if (!glfwInit()) {
-			return 1;
-		}
+		ASSERT_MSG_V(glfwInit(), 1, "GLFW Failed to init");
 
 		RenderedEntity first{ModelData_t::FromObjFile("models/smooth_vase.obj")};
 		first.Transform.translation = glm::vec3{ 0.0f, 0.0f, 0.0f };
@@ -99,7 +95,7 @@ namespace gigno {
 		m_EntityServer.Start();
 
 		while (!m_RenderingServer.WindowShouldClose()) {
-			m_ProfilingServer.Begin("Main Loop");
+			Debug()->Profiler()->Begin("Main Loop");
 
 			m_RenderingServer.PollEvents();
 			m_InputServer.UpdateInput();
@@ -122,19 +118,19 @@ namespace gigno {
 			m_RenderingServer.DrawLineGradient(glm::vec3{0.5f, 1.0f, 0.5f}, glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{1.0f, 0.0f, 0.0f}, UNIQUE_NAME);
 			m_RenderingServer.DrawPoint(bulb.Transform.translation, glm::vec3{1.0f, 1.0f, 1.0f}, UNIQUE_NAME);
 			
-			m_ProfilingServer.Begin("Update Entities");
+			Debug()->Profiler()->Begin("Update Entities");
 			m_EntityServer.Tick(deltaTime.count() * 10e-1f); //For some reason, it seems that to get second we need
 															 // to multiply by 10e-1f and not the expected 10e-6f !
 															 // Related to issue #2
-			m_ProfilingServer.End();
+			Debug()->Profiler()->End();
 			
-			m_ProfilingServer.Begin("Render Frame");
+			Debug()->Profiler()->Begin("Render Frame");
 			m_RenderingServer.Render();
-			m_ProfilingServer.End();
+			Debug()->Profiler()->End();
 
-			m_ProfilingServer.End(); //Main Loop
+			Debug()->Profiler()->End(); //Main Loop
 
-			m_ProfilingServer.EndFrame();
+			Debug()->Profiler()->EndFrame();
 		}
 
 		m_RenderingServer.Finalize();
@@ -170,7 +166,7 @@ namespace gigno {
 					m_RenderingServer.OpenDebugWindow();
 				}
 				if(ImGui::Button("Profiler")) {
-					m_ProfilingServer.OpenWindow();
+					m_DebugServer.Profiler()->OpenWindow();
 				}
 
 
