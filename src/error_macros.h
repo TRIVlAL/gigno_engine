@@ -12,7 +12,7 @@
 #define ERR_MSG(msg, ...)                                                                        \
     if (Application *app = Application::Singleton())                                             \
     {                                                                                            \
-        app->Debug()->LogError("ERROR " __FILE__ " line " LINE_STRING " : " msg, ##__VA_ARGS__); \
+        app->Debug()->GetConsole()->LogError("ERROR " __FILE__ " line " LINE_STRING " : " msg, ##__VA_ARGS__); \
     }                                                                                            \
     else                                                                                         \
     {                                                                                            \
@@ -26,7 +26,7 @@ ERR_MSG(msg , ##__VA_ARGS__) ret
 #define ERR                                                                 \
     if (Application *app = Application::Singleton())                        \
     {                                                                       \
-        app->Debug()->LogError("ERROR " __FILE__ " line " LINE_STRING "."); \
+        app->Debug()->GetConsole()->LogError("ERROR " __FILE__ " line " LINE_STRING "."); \
     }                                                                       \
     else                                                                    \
     {                                                                       \
@@ -54,7 +54,7 @@ ERR_MSG(msg , ##__VA_ARGS__) ret
     {                                                                                                                                \
         if (Application *app = Application::Singleton())                                                                             \
         {                                                                                                                            \
-            Application::Singleton()->Debug()->LogError("ASSERT FAILED at " __FILE__ " line " LINE_STRING " : " msg, ##__VA_ARGS__); \
+            Application::Singleton()->Debug()->GetConsole()->LogError("ASSERT FAILED at " __FILE__ " line " LINE_STRING " : " msg, ##__VA_ARGS__); \
         }                                                                                                                            \
         else                                                                                                                         \
         {                                                                                                                            \
@@ -70,7 +70,7 @@ ERR_MSG(msg , ##__VA_ARGS__) ret
     {                                                                                                                                \
         if (Application *app = Application::Singleton())                                                                             \
         {                                                                                                                            \
-            Application::Singleton()->Debug()->LogError("ASSERT FAILED at " __FILE__ " line " LINE_STRING " : " msg, ##__VA_ARGS__); \
+            Application::Singleton()->Debug()->GetConsole()->LogError("ASSERT FAILED at " __FILE__ " line " LINE_STRING " : " msg, ##__VA_ARGS__); \
         }                                                                                                                            \
         else                                                                                                                         \
         {                                                                                                                            \
@@ -86,7 +86,7 @@ ERR_MSG(msg , ##__VA_ARGS__) ret
     {                                                                                                           \
         if (Application *app = Application::Singleton())                                                        \
         {                                                                                                       \
-            Application::Singleton()->Debug()->LogError("ASSERT FAILED at " __FILE__ " line " LINE_STRING "."); \
+            Application::Singleton()->Debug()->GetConsole()->LogError("ASSERT FAILED at " __FILE__ " line " LINE_STRING "."); \
         }                                                                                                       \
         else                                                                                                    \
         {                                                                                                       \
@@ -102,7 +102,7 @@ ERR_MSG(msg , ##__VA_ARGS__) ret
     {                                                                                                           \
         if (Application *app = Application::Singleton())                                                        \
         {                                                                                                       \
-            Application::Singleton()->Debug()->LogError("ASSERT FAILED at " __FILE__ " line " LINE_STRING "."); \
+            Application::Singleton()->Debug()->GetConsole()->LogError("ASSERT FAILED at " __FILE__ " line " LINE_STRING "."); \
         }                                                                                                       \
         else                                                                                                    \
         {                                                                                                       \

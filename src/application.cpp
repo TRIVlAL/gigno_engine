@@ -94,8 +94,15 @@ namespace gigno {
 
 		m_EntityServer.Start();
 
+			Debug()->GetConsole()->LogInfo("Hello %s", "mariooooo");
+			Debug()->GetConsole()->LogWarning("This format should work : %s", "HELLO HELLO");
+			Debug()->GetConsole()->LogError("ERR ERR ERR %f, 2%%", 52.3f);
+
+			Debug()->GetConsole()->LogError("error message unformated !!!");
+
 		while (!m_RenderingServer.WindowShouldClose()) {
 			Debug()->Profiler()->Begin("Main Loop");
+
 
 			m_RenderingServer.PollEvents();
 			m_InputServer.UpdateInput();

@@ -4,9 +4,6 @@
 #include "profiling/profiling_server.h"
 #include "console.h"
 
-#include <cstdio>
-#include <stdarg.h>
-
 namespace gigno {
 
     const int MAX_MESSAGE_LENGTH = 255;
@@ -14,25 +11,7 @@ namespace gigno {
     class DebugServer {
     public:
         ProfilingServer *Profiler() { return &m_Profiler; }
-
-        void LogInfo(const char *fmt, ...) {
-            va_list args;
-            va_start(args, fmt);
-            int result = vsnprintf(m_PrintBuffer, MAX_MESSAGE_LENGTH, fmt, args);
-            m_Console.Log(m_PrintBuffer, CONSOLE_MESSAGE_INFO);
-        }
-        void LogWarning(const char *fmt, ...) {
-            va_list args;
-            va_start(args, fmt);
-            int result = vsnprintf(m_PrintBuffer, MAX_MESSAGE_LENGTH, fmt, args);
-            m_Console.Log(m_PrintBuffer, CONSOLE_MESSAGE_WARN);
-        }
-        void LogError(const char *fmt, ...) {
-            va_list args;
-            va_start(args, fmt);
-            int result = vsnprintf(m_PrintBuffer, MAX_MESSAGE_LENGTH, fmt, args);
-            m_Console.Log(m_PrintBuffer, CONSOLE_MESSAGE_ERR);
-        }
+        Console *GetConsole() { return &m_Console; }
 
     private:
         ProfilingServer m_Profiler{};
