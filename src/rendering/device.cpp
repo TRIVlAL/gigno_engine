@@ -201,16 +201,16 @@ namespace gigno {
 		const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
 		void *pUserData) {
 		if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
-			std::cout << "VERBOSE: VULKAN Validation Layer : " << pCallbackData->pMessage << std::endl;
+			printf("VERBOSE: VULKAN Validation Layer : %s\n", pCallbackData->pMessage);
 		}
 		else if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
 			ERR_MSG_V(VK_FALSE, "VULKAN Validation Layer : %s", pCallbackData->pMessage);
 		}
 		else if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-			std::cout << "WARNING: VULKAN Validation Layer : " << pCallbackData->pMessage << std::endl;
+			printf("WARNING: VULKAN Validation Layer : %s\n", pCallbackData->pMessage);
 		}
 		else {
-			std::cout << "VULKAN Validation Layer : " << pCallbackData->pMessage << std::endl;
+			printf("VULKAN Validation Layer : %s\n", pCallbackData->pMessage);
 		}
 		return VK_FALSE;
 	}

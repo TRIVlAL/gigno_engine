@@ -76,19 +76,19 @@ namespace gigno {
 	//Debug Drawing
 	void RenderingServer::DrawPoint(glm::vec3 pos, glm::vec3 color, const std::string &uniqueName) {
 #if USE_DEBUG_DRAWING
-		if(!m_ShowDD || !m_ShowDDPoints) { return; }
+		if(!ShowDD || !ShowDDPoints) { return; }
 		m_SwapChain.DrawPoint(pos, color, std::hash<std::string>{}(uniqueName));
 #endif
 	}
 	void RenderingServer::DrawLine(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 color, const std::string &uniqueName) {
 #if USE_DEBUG_DRAWING
-		if (!m_ShowDD || !m_ShowDDLines) { return; }
+		if (!ShowDD || !ShowDDLines) { return; }
 		m_SwapChain.DrawLine(startPos, endPos, color, color, std::hash<std::string>{}(uniqueName));
 #endif
 	}
 	void RenderingServer::DrawLineGradient(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 startColor, glm::vec3 endColor, const std::string &uniqueName) {
 #if USE_DEBUG_DRAWING
-		if (!m_ShowDD || !m_ShowDDLines) { return; }
+		if (!ShowDD || !ShowDDLines) { return; }
 		m_SwapChain.DrawLine(startPos, endPos, startColor, endColor, std::hash<std::string>{}(uniqueName));
 #endif
 	}
@@ -120,10 +120,6 @@ namespace gigno {
 	}
 
 	void RenderingServer::DrawFrame() {
-		#if USE_IMGUI
-		ShowDebugWindow();
-		#endif
-
 		vkWaitForFences(m_Device.GetDevice(), 1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT64_MAX);
 
 		uint32_t imageIndex = 0;
@@ -193,34 +189,4 @@ namespace gigno {
 		NewFrameImGui();
 	#endif
 	}
-
-	#if USE_IMGUI
-	void RenderingServer::ShowDebugWindow() {
-		if(!m_ShowDebugWindow) {
-			return;
-		}
-
-		
-		if(!ImGui::Begin("Rendering Server Debug", &m_ShowDebugWindow)) {
-			ImGui::End();
-			return;
-		}
-
-		if(ImGui::Checkbox("Fullbright", &m_SwapChain.Fullbright));
-
-		ImGui::SeparatorText("Debug Drawings");
-		#if !USE_DEBUG_DRAWING
-		ImGui::Text("Debug Drawing is disabled !");
-		ImGui::Text("Enable Debug Drawing in core_macros.h.");
-		#else
-		ImGui::Checkbox("Show Debug Drawings", &m_ShowDD);
-		ImGui::BeginDisabled(!m_ShowDD);
-			ImGui::Checkbox("Show Points", &m_ShowDDPoints); ImGui::SameLine(); ImGui::Checkbox("Show Lines", &m_ShowDDLines);
-		ImGui::EndDisabled();
-		#endif
-
-
-		ImGui::End();
-	}
-	#endif
 }

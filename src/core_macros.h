@@ -5,4 +5,8 @@
 //IMGUI
 #define USE_IMGUI 1
 
+//DEBUG
+#define USE_DEBUG_SERVER 1
+#define USE_CONSOLE 1
+#define USE_PROFILER 1
 #define USE_DEBUG_DRAWING 1

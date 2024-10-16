@@ -25,10 +25,10 @@ namespace gigno {
         const size_t Size;
     };
 
-    const bool CONSOLE_TO_COUT = true;
+    const bool CONSOLE_TO_PRINTF = true;
 
     class Console {
-        std::vector<ConsoleMessage_t> m_Messages{};
+        friend class DebugServer;
     public:
         /*
         @brief logs a formatted info message to the console. 
@@ -66,6 +66,10 @@ namespace gigno {
     private:
         void LogFormat(const char *fmt, ConsoleMessageType_t type, ...);
         void Log(const char *msg, ConsoleMessageType_t type);
+        void DrawConsoleWindow(bool *open);
+    #if USE_IMGUI && USE_CONSOLE && USE_DEBUG_SERVER
+        std::vector<ConsoleMessage_t> m_Messages{};
+    #endif
     };
 
 }

@@ -15,10 +15,6 @@ namespace gigno {
 		for (Entity *entity : m_Entities) {
 			entity->Think(dt);
 		}
-
-	#if USE_IMGUI
-		DrawEntityInspector();
-	#endif
 	}
 
 	void EntityServer::AddEntity(Entity *entity) {
@@ -30,12 +26,12 @@ namespace gigno {
 	}
 
 #if USE_IMGUI
-	void EntityServer::DrawEntityInspector() {
-		if(!m_EntityInspectorOpen) {
+	void EntityServer::DrawEntityInspector(bool *open) {
+		if(!*open) {
 			return;
 		}
 
-		if(!ImGui::Begin("Entity Debug", &m_EntityInspectorOpen)) {
+		if(!ImGui::Begin("Entity Debug", open)) {
 			ImGui::End();
 			return;
 		};

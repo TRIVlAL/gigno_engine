@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_map>
 #include "../../core_macros.h"
+#include <string>
 
 namespace gigno {
 
@@ -35,31 +36,18 @@ namespace gigno {
         void Begin(const std::string &uniqueName);
         void End();
 
-        /*
-        @brief Stops and Updates the value of every profile scope.
-             Draws the UI (if window is open).
-             To be called at the end of every frame of the game loop.
-             Every Profile scope should be ended when called ( Every Begin(...) call should 
-             have an End() call ).
-        */
         void EndFrame();
-        
-    #if USE_IMGUI
+        void DrawProfilerWindow(bool *open);
+        void StartFrame();
 
-        // UI Window.
-        void OpenWindow() {m_ShowProfilerWindow = true;}
-        void CloseWindow() {m_ShowProfilerWindow = false;}
-        void ToggleWindow() {m_ShowProfilerWindow = !m_ShowProfilerWindow;}
-        
+    #if  USE_IMGUI && USE_DEBUG_SERVER && USE_PROFILER
     private:
         // The scopes work as a hierarchy : Every scope have zero or more children.
         std::vector<ProfileScope> m_RootScopes;
 
         ProfileScope *m_pActiveScope = nullptr;
 
-        bool m_ShowProfilerWindow = false;
-
-    #endif //USE_IMGUI
+    #endif
     };
 
 }

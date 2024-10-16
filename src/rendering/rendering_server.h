@@ -54,10 +54,12 @@ namespace gigno {
 		void DrawLine(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 color, const std::string &uniqueName);
 		void DrawLineGradient(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 startColor, glm::vec3 endColor, const std::string &uniqueName);
 
-		#if USE_IMGUI
-		void OpenDebugWindow() { m_ShowDebugWindow = true; }
-		void CloseDebugWindow() { m_ShowDebugWindow = false; }
-		void ToggleDebugWindow() { m_ShowDebugWindow = !m_ShowDebugWindow; }
+		bool *Fullbright() { return &m_SwapChain.Fullbright; }
+
+		#if USE_DEBUG_DRAWING
+		bool ShowDD = true;
+		bool ShowDDPoints = true;
+		bool ShowDDLines = true;
 		#endif
 
 	private:
@@ -84,17 +86,6 @@ namespace gigno {
 		std::string m_FragShaderFilePath;
 
 		float m_RenderTime = 0.0f;
-
-		#if USE_IMGUI
-		bool m_ShowDebugWindow = false;
-		void ShowDebugWindow();
-		#endif
-
-		#if USE_DEBUG_DRAWING
-		bool m_ShowDD = true;
-		bool m_ShowDDPoints = true;
-		bool m_ShowDDLines = true;
-		#endif
 	};
 
 	#define STRINGIFY1(a) STRINGIFY2(a)

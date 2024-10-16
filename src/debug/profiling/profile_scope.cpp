@@ -1,6 +1,6 @@
 #include "profile_scope.h"
 
-#if USE_IMGUI
+#if USE_IMGUI && USE_DEBUG_SERVER && USE_PROFILER
 
 #include <algorithm>
 #include <iostream>
@@ -173,4 +173,4 @@ namespace gigno {
 
 }
 
-#endif //USE_IMGUI
+#endif

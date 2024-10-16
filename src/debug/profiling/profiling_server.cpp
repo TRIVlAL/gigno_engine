@@ -15,7 +15,7 @@ namespace gigno {
     }
 
     void ProfilingServer::Begin(const std::string &name) {
-        #if USE_IMGUI
+        #if USE_IMGUI && USE_DEBUG_SERVER && USE_PROFILER
         if (m_pActiveScope) {
             m_pActiveScope = m_pActiveScope->BeginChild(name);
         } else {
@@ -35,7 +35,7 @@ namespace gigno {
     }
 
     void ProfilingServer::End() {
-        #if USE_IMGUI
+        #if USE_IMGUI && USE_DEBUG_SERVER && USE_PROFILER
         ASSERT(m_pActiveScope);
 
         m_pActiveScope->Stop();
@@ -44,14 +44,17 @@ namespace gigno {
     }
 
     void ProfilingServer::EndFrame() {
-#if USE_IMGUI
+    #if USE_IMGUI && USE_DEBUG_SERVER && USE_PROFILER
         for(ProfileScope &scope : m_RootScopes) {
             scope.EndFrame();
         }
+    #endif
+    }
 
-
-        if(m_ShowProfilerWindow) {
-            if(!ImGui::Begin("Profiler", &m_ShowProfilerWindow, ImGuiWindowFlags_::ImGuiWindowFlags_NoResize)) {
+    void ProfilingServer::DrawProfilerWindow(bool *open) {
+    #if USE_IMGUI && USE_DEBUG_SERVER && USE_PROFILER
+        if (*open) {
+            if (!ImGui::Begin("Profiler", open, ImGuiWindowFlags_::ImGuiWindowFlags_NoResize)) {
                 ImGui::End();
                 return;
             }
@@ -60,18 +63,21 @@ namespace gigno {
             ImGui::Text("The profiler allows you to monitor the timing and performance of\n"
                         "core parts of your code.");
 
-
-            for(ProfileScope scope : m_RootScopes) {
+            for (ProfileScope scope : m_RootScopes) {
                 scope.DrawUI();
             }
 
             ImGui::End();
         }
+    #endif        
+    }
 
-        for(ProfileScope& scope : m_RootScopes) {
+    void ProfilingServer::StartFrame() {
+    #if USE_IMGUI && USE_DEBUG_SERVER && USE_PROFILER
+        for (ProfileScope &scope : m_RootScopes) {
             scope.StartFrame();
         }
-#endif
+    #endif
     }
 
 }

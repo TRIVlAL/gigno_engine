@@ -1,10 +1,13 @@
 #ifndef DEBUG_SERVER_H
 #define DEBUG_SERVER_H
 
+#include "../core_macros.h"
+
 #include "profiling/profiling_server.h"
 #include "console.h"
 
 namespace gigno {
+
 
     const int MAX_MESSAGE_LENGTH = 255;
 
@@ -13,12 +16,31 @@ namespace gigno {
         ProfilingServer *Profiler() { return &m_Profiler; }
         Console *GetConsole() { return &m_Console; }
 
+        void OpenWindow() {
+        #if USE_IMGUI && USE_DEBUG_SERVER
+            m_ShowDebugWindow = true;
+        #endif
+        }
+        void CloseWindow() {
+        #if USE_IMGUI && USE_DEBUG_SERVER
+            m_ShowDebugWindow = false;
+        #endif
+        }
+
+        void Update();
     private:
         ProfilingServer m_Profiler{};
         Console m_Console{};
+    #if USE_DEBUG_SERVER
 
-        char m_PrintBuffer[MAX_MESSAGE_LENGTH];
+        bool m_ShowDebugWindow = true;
+
+        bool m_ShowConsoleWindow = false;
+        bool m_ShowProfilerWindow = false;
+        bool m_ShowEntityInspector = false;
+    #endif
     };
+
 
 }
 

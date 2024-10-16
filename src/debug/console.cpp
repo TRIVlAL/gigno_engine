@@ -24,20 +24,22 @@ namespace gigno {
     }
 
     void Console::Log(const char *msg, ConsoleMessageType_t type) {
+    #if USE_CONSOLE && USE_IMGUI && USE_DEBUG_SERVER
         size_t msg_size = strlen(msg) + 1;
         ConsoleMessage_t &message = m_Messages.emplace_back(msg_size);
         memcpy(message.Message.get(), msg, msg_size);
         message.Type = type;
 
-    #if USE_IMGUI
-        if (CONSOLE_TO_COUT)
+        if (CONSOLE_TO_PRINTF)
     #endif
         {
-            std::cout << msg << std::endl;
+            printf(msg);
+            printf("\n");
         }
     }
 
     void Console::LogFormat(const char *fmt, ConsoleMessageType_t type, ...) {
+    #if USE_CONSOLE && USE_IMGUI && USE_DEBUG_SERVER
         va_list params;
         va_list params2;
         va_start(params, type);
@@ -68,12 +70,34 @@ namespace gigno {
 
 
         // Also log to printf
-    #if USE_IMGUI
-        if(CONSOLE_TO_COUT) 
-    #endif
+        if(CONSOLE_TO_PRINTF) 
         {
-            std::cout  <<  res_message << std::endl;
+            printf(res_message);
+            printf("\n");
         }
+    #else
+        va_list params;
+        va_start(params, type);
+        vprintf(fmt, params);
+        printf("\n");
+    #endif
     }
+
+    #if USE_IMGUI
+    void Console::DrawConsoleWindow(bool *open) {
+        #if USE_IMGUI && USE_CONSOLE && USE_DEBUG_SERVER
+        if(!*open) {
+            return;
+        }
+
+        if(!ImGui::Begin("Console", open)) {
+            ImGui::End();
+            return;
+        }
+
+        ImGui::End();
+        #endif
+    }
+    #endif
 
 }

@@ -27,7 +27,6 @@ namespace gigno {
 
 	Application *Application::MakeApp() {
 		Application *app = new Application(1000, 1000, "Gigno Engine Demo", "shaders/simple_shader.vert.spv", "shaders/simple_shader.frag.spv");
-		std::cout << "Created App !" << std::endl;
 		s_Instance = app;
 		return app;
 	}
@@ -137,7 +136,7 @@ namespace gigno {
 
 			Debug()->Profiler()->End(); //Main Loop
 
-			Debug()->Profiler()->EndFrame();
+			Debug()->Update();
 		}
 
 		m_RenderingServer.Finalize();
@@ -165,16 +164,12 @@ namespace gigno {
 
 			ImGui::Text("Welcome to the Gigno Engine !");
 
+		#if USE_DEBUG_SERVER
 			ImGui::SeparatorText("Debuging");
-				if(ImGui::Button("Entity Debug Window")) {
-					m_EntityServer.OpenDebugWindow();
-				}
-				if(ImGui::Button("Rendering Debug Window")) {
-					m_RenderingServer.OpenDebugWindow();
-				}
-				if(ImGui::Button("Profiler")) {
-					m_DebugServer.Profiler()->OpenWindow();
-				}
+			if(ImGui::Button("Debug Window")) {
+				m_DebugServer.OpenWindow();
+			}
+		#endif
 
 
 		ImGui::End();
