@@ -6,6 +6,9 @@
 #include <stdarg.h>
 #include <vector>
 #include <memory>
+#include <ctime>
+#include <fstream>
+#include <filesystem>
 
 namespace gigno {
     enum ConsoleMessageType_t {
@@ -21,6 +24,7 @@ namespace gigno {
 
         ConsoleMessageType_t Type;
         std::shared_ptr<char[]> Message;
+        time_t TimePoint;
     private:
         const size_t Size;
     };
@@ -30,6 +34,11 @@ namespace gigno {
     class Console {
         friend class DebugServer;
     public:
+        ~Console();
+
+        bool StartFileLogging();
+        bool StopFileLogging();
+
         /*
         @brief logs a formatted info message to the console. 
         Follows the standard c formatting rules. 
@@ -67,8 +76,17 @@ namespace gigno {
         void LogFormat(const char *fmt, ConsoleMessageType_t type, ...);
         void Log(const char *msg, ConsoleMessageType_t type);
         void DrawConsoleWindow(bool *open);
+
+        void LogToFile(const ConsoleMessage_t &message);
+
     #if USE_IMGUI && USE_CONSOLE && USE_DEBUG_SERVER
+        bool m_ShowTimepoints = true;
         std::vector<ConsoleMessage_t> m_Messages{};
+        const std::filesystem::path m_Filepath{"log.txt"};
+        std::ofstream m_FileStream;
+        bool m_IsLoggingToFile = false;
+        bool m_UIFileLoggingCheckbox;
+        bool m_IsFirstFileOpen = true;
     #endif
     };
 

@@ -72,7 +72,7 @@ namespace gigno
         ImGui_ImplVulkan_Init(&vulkanInfo);
         ImGui_ImplVulkan_CreateFontsTexture();
 
-        ImGui::StyleColorsLight();
+        ImGui::StyleColorsDark();
 
         NewFrameImGui();
 

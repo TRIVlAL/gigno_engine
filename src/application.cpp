@@ -102,6 +102,10 @@ namespace gigno {
 		while (!m_RenderingServer.WindowShouldClose()) {
 			Debug()->Profiler()->Begin("Main Loop");
 
+			static int i = 0;
+			i++;
+			Debug()->GetConsole()->LogInfo("Hello %d", i);
+
 
 			m_RenderingServer.PollEvents();
 			m_InputServer.UpdateInput();
