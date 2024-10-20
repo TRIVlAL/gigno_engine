@@ -14,9 +14,8 @@ namespace gigno {
 
     Console::~Console() {
     #if USE_CONSOLE && USE_IMGUI && USE_DEBUG_SERVER
-        if(m_FileStream.is_open()) {
-            m_FileStream.flush();
-            m_FileStream.close();
+        if(m_IsLoggingToFile) {
+            StopFileLogging();
         }
     #endif
     }
@@ -120,6 +119,7 @@ namespace gigno {
                 m_IsLoggingToFile = true;
             }
         }
+        m_UIFileLoggingCheckbox = true;
         LogInfo("Started logging to file.");
         return true;
         #endif
@@ -136,6 +136,7 @@ namespace gigno {
             m_IsLoggingToFile = false;
         }
         LogInfo("Stoppend logging to file.");
+        m_UIFileLoggingCheckbox = false;
         return true;
         #endif
     }

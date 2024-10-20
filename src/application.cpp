@@ -91,6 +91,7 @@ namespace gigno {
 
 		auto lastUpdateTime = std::chrono::steady_clock::now();
 
+		Debug()->GetConsole()->StartFileLogging();
 		m_EntityServer.Start();
 
 			Debug()->GetConsole()->LogInfo("Hello %s", "mariooooo");
