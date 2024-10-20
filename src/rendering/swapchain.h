@@ -130,7 +130,7 @@ namespace gigno {
 
 		void RecordCommandBuffer(VkCommandBuffer buffer, uint32_t currentFrame, uint32_t imageIndex, const SceneRenderingData_t &sceneData);
 
-		void RenderEntities(VkCommandBuffer buffer, const std::vector<const RenderedEntity *> &entities, uint32_t currentFrame);
+		void RenderEntities(VkCommandBuffer buffer, const RenderedEntity * entities, uint32_t currentFrame);
 
 		#if USE_DEBUG_DRAWING
 		void RenderDebugDrawings(VkCommandBuffer buffer, const Camera *camera, uint32_t currentFrame);

@@ -18,7 +18,7 @@ namespace gigno {
 	class InputServer;
 
 	struct SceneRenderingData_t {
-		const std::vector<const RenderedEntity *> &RenderedEntities;
+		const RenderedEntity * RenderedEntities; // First entity in the chain.
 		const std::vector<const Light *> &LightEntities;
 		const Camera *pCamera;
 	};
@@ -72,8 +72,11 @@ namespace gigno {
 		Window m_Window;
 		Device m_Device;
 		SwapChain m_SwapChain;
-		
-		std::vector<const RenderedEntity *> m_RenderedEntities;
+
+		// First rendered entity in the chain of all rendered entity (linked list). Use entity->pNextRenderedEntity for next element in the list.
+		// If this is null, there are no rendered entity. If next is null, it is the last rendered entity.
+		RenderedEntity *m_pFirstRenderedEntity{};
+
 		std::vector<const Light *> m_LightEntities;
 
 		const Camera *m_pCamera = nullptr;

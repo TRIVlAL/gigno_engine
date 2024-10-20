@@ -26,8 +26,9 @@ namespace gigno {
 		void AddEntity(Entity *entity);
 		void RemoveEntity(Entity *entity);
 
-
-		std::vector<Entity *> m_Entities;
+		// First entity in the chain of all entities (linked list). Use entity->pNextEntity for next element in the list.
+		// If this is null, there are no entity. If next is null, it is the last entity.
+		Entity *m_pFirstEntity{};
 	};
 
 }

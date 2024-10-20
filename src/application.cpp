@@ -129,11 +129,9 @@ namespace gigno {
 			m_RenderingServer.DrawLineGradient(glm::vec3{0.5f, 1.0f, 0.5f}, glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{1.0f, 0.0f, 0.0f}, UNIQUE_NAME);
 			m_RenderingServer.DrawPoint(bulb.Transform.translation, glm::vec3{1.0f, 1.0f, 1.0f}, UNIQUE_NAME);
 			
-			Debug()->Profiler()->Begin("Update Entities");
 			m_EntityServer.Tick(deltaTime.count() * 10e-1f); //For some reason, it seems that to get second we need
 															 // to multiply by 10e-1f and not the expected 10e-6f !
 															 // Related to issue #2
-			Debug()->Profiler()->End();
 			
 			Debug()->Profiler()->Begin("Render Frame");
 			m_RenderingServer.Render();

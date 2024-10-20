@@ -52,11 +52,24 @@ namespace gigno {
 	}
 
 	void RenderingServer::SubscribeRenderedEntity(RenderedEntity *entity) {
-		m_RenderedEntities.push_back(entity);
+		entity->pNextRenderedEntity = m_pFirstRenderedEntity;
+		m_pFirstRenderedEntity = entity;
 	}
 
 	void RenderingServer::UnsubscribeRenderedEntity(RenderedEntity *entity) {
-		m_RenderedEntities.erase(std::remove(m_RenderedEntities.begin(), m_RenderedEntities.end(), entity), m_RenderedEntities.end());
+		RenderedEntity *curr = m_pFirstRenderedEntity;
+		if(curr == entity) {
+			m_pFirstRenderedEntity = curr->pNextRenderedEntity;
+			return;
+		}
+		while(curr) {
+			if(curr->pNextRenderedEntity == entity) {
+				curr->pNextRenderedEntity = entity->pNextRenderedEntity;
+				return;
+			}
+			curr = curr->pNextRenderedEntity;
+		}
+		ERR_MSG("Tried to unsubsribe rendered entity '%s' but it was not subscribed.", entity->Name == "" ? "No name" : entity->Name.c_str());
 	}
 
 	void RenderingServer::SubscribeLightEntity(Light *light)
@@ -140,7 +153,7 @@ namespace gigno {
 		m_SwapChain.UpdateDebugDrawings(m_Device.GetDevice(), m_Device.GetPhysicalDevice(), m_Device.GetGraphicsQueue());
 		#endif
 
-		SceneRenderingData_t sceneData{m_RenderedEntities, m_LightEntities, m_pCamera};
+		SceneRenderingData_t sceneData{m_pFirstRenderedEntity, m_LightEntities, m_pCamera};
 		m_SwapChain.RecordCommandBuffer(m_CurrentFrame, imageIndex, sceneData);
 
 		VkSemaphore waitSemaphores[] = { m_ImageAvaliableSemaphores[m_CurrentFrame]};

@@ -162,21 +162,23 @@ namespace gigno {
 		}
 	}
 
-	void SwapChain::RenderEntities(VkCommandBuffer buffer, const std::vector<const RenderedEntity *> &entities, uint32_t currentFrame) {
+	void SwapChain::RenderEntities(VkCommandBuffer buffer, const RenderedEntity * entities, uint32_t currentFrame) {
 		vkCmdSetPrimitiveTopology(buffer, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 
 		vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline.get()->GetVkPipeline());
 
-		for (const RenderedEntity *entity : entities) {
-
+		const RenderedEntity *curr = entities;
+		while(curr) {
 			PushConstantData_t push{};
-			push.modelMatrix = entity->Transform.TransformationMatrix();
-			push.normalsMatrix = glm::mat4{entity->Transform.NormalMatrix()};
+			push.modelMatrix = curr->Transform.TransformationMatrix();
+			push.normalsMatrix = glm::mat4{curr->Transform.NormalMatrix()};
 			push.fullbright = Fullbright;
 			vkCmdPushConstants(buffer, m_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstantData_t), &push);
 
-			entity->pModel->Bind(buffer);
-			entity->pModel->Draw(buffer);
+			curr->pModel->Bind(buffer);
+			curr->pModel->Draw(buffer);
+
+			curr = curr->pNextRenderedEntity;
 		}
 	}
 

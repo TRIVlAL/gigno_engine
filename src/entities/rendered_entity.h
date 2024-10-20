@@ -14,6 +14,10 @@ namespace gigno {
 		~RenderedEntity();
 
 		std::shared_ptr<giModel> pModel;
+
+		// Next rendered entity in the RenderingServer's chain of all rendered entities (linked list). Set on construction.
+		// 'nullptr' if is last element.
+		RenderedEntity *pNextRenderedEntity{};
 	};
 
 }
