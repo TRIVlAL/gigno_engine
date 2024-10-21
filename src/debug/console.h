@@ -14,7 +14,13 @@ namespace gigno {
     enum ConsoleMessageType_t {
         CONSOLE_MESSAGE_INFO = 0,
         CONSOLE_MESSAGE_WARN = 1,
-        CONSOLE_MESSAGE_ERR = 2
+        CONSOLE_MESSAGE_ERR = 2,
+        CONSOLE_MESSAGE_ECHO = 3
+    };
+
+    enum ConsoleMessageFlags_t {
+        MESSAGE_NO_NEW_LINE_BIT = 1 << 0,
+        MESSAGE_NO_TIME_CODE_BIT = 1 << 1
     };
 
     struct ConsoleMessage_t {
@@ -23,6 +29,7 @@ namespace gigno {
         ~ConsoleMessage_t();
 
         ConsoleMessageType_t Type;
+        ConsoleMessageFlags_t Flags;
         std::shared_ptr<char[]> Message;
         time_t TimePoint;
     private:
@@ -31,8 +38,14 @@ namespace gigno {
 
     const bool CONSOLE_TO_PRINTF = true;
 
+    struct CommandToken_t;
+    static void cls(const CommandToken_t&); // Defined in command.cpp.
+                                            // forward-declared here so it can be made a friend of Console.
+
     class Console {
         friend class DebugServer;
+
+        friend void cls(const CommandToken_t&);
     public:
         ~Console();
 
@@ -46,7 +59,11 @@ namespace gigno {
         */
         template<typename ...Args>
         void LogInfo(const char *fmt, Args ...args) {
-            LogFormat(fmt, CONSOLE_MESSAGE_INFO, args...);
+            LogFormat(fmt, CONSOLE_MESSAGE_INFO, (ConsoleMessageFlags_t)0, args...);
+        }
+        template <typename... Args>
+        void LogInfo(ConsoleMessageFlags_t flags, const char *fmt, Args... args) {
+            LogFormat(fmt, CONSOLE_MESSAGE_INFO, flags, args...);
         }
         /*
         @brief logs a formatted warning message to the console.
@@ -55,7 +72,11 @@ namespace gigno {
         */
        template<typename ...Args>
         void LogWarning(const char *fmt, Args ...args) {
-            LogFormat(fmt, CONSOLE_MESSAGE_WARN, args...);
+           LogFormat(fmt, CONSOLE_MESSAGE_WARN, (ConsoleMessageFlags_t)0, args...);
+        }
+        template <typename... Args>
+        void LogWarning(ConsoleMessageFlags_t flags, const char *fmt, Args... args) {
+            LogFormat(fmt, CONSOLE_MESSAGE_WARN, flags, args...);
         }
         /*
         @brief logs a formatted error message to the console.
@@ -66,15 +87,21 @@ namespace gigno {
         */
        template<typename ...Args>
         void LogError(const char *fmt, Args ...args) {
-            LogFormat(fmt, CONSOLE_MESSAGE_ERR, args...);
+           LogFormat(fmt, CONSOLE_MESSAGE_ERR, (ConsoleMessageFlags_t)0, args...);
+        }
+        template <typename... Args>
+        void LogError(ConsoleMessageFlags_t flags, const char *fmt, Args... args) {
+            LogFormat(fmt, CONSOLE_MESSAGE_ERR, flags, args...);
         }
 
         void LogInfo(const char *msg);
         void LogWarning(const char *msg);
         void LogError(const char *msg);
+
+        void CallCommand(const char *line);
     private:
-        void LogFormat(const char *fmt, ConsoleMessageType_t type, ...);
-        void Log(const char *msg, ConsoleMessageType_t type);
+        void LogFormat(const char *fmt, ConsoleMessageType_t type, ConsoleMessageFlags_t flags, ...);
+        void Log(const char *msg, ConsoleMessageType_t type, ConsoleMessageFlags_t flags);
         void DrawConsoleWindow(bool *open);
 
         void LogToFile(const ConsoleMessage_t &message);
@@ -87,6 +114,9 @@ namespace gigno {
         bool m_IsLoggingToFile = false;
         bool m_UIFileLoggingCheckbox;
         bool m_IsFirstFileOpen = true;
+
+        const static size_t CONSOLE_INPUT_BUFFER_SIZE = 256;
+        char m_InputBuffer[CONSOLE_INPUT_BUFFER_SIZE];
     #endif
     };
 

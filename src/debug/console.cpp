@@ -3,6 +3,7 @@
 #include <chrono>
 
 #include "../error_macros.h"
+#include "command.h"
 
 namespace gigno {
 
@@ -21,24 +22,25 @@ namespace gigno {
     }
 
     void Console::LogInfo(const char *msg) {
-        Log(msg, CONSOLE_MESSAGE_INFO);
+        Log(msg, CONSOLE_MESSAGE_INFO, (ConsoleMessageFlags_t)0);
     }
 
     void Console::LogWarning(const char *msg) {
-        Log(msg, CONSOLE_MESSAGE_WARN);
+        Log(msg, CONSOLE_MESSAGE_WARN, (ConsoleMessageFlags_t)0);
     }
 
     void Console::LogError(const char *msg) {
-        Log(msg, CONSOLE_MESSAGE_ERR);
+        Log(msg, CONSOLE_MESSAGE_ERR, (ConsoleMessageFlags_t)0);
     }
 
-    void Console::Log(const char *msg, ConsoleMessageType_t type) {
+    void Console::Log(const char *msg, ConsoleMessageType_t type, ConsoleMessageFlags_t flags) {
     #if USE_CONSOLE && USE_IMGUI && USE_DEBUG_SERVER
         size_t msg_size = strlen(msg) + 1;
         ConsoleMessage_t &message = m_Messages.emplace_back(msg_size);
         memcpy(message.Message.get(), msg, msg_size);
         message.Type = type;
         message.TimePoint = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        message.Flags = flags;
         LogToFile(message);
 
 
@@ -50,11 +52,11 @@ namespace gigno {
         }
     }
 
-    void Console::LogFormat(const char *fmt, ConsoleMessageType_t type, ...) {
+    void Console::LogFormat(const char *fmt, ConsoleMessageType_t type, ConsoleMessageFlags_t flags, ...) {
     #if USE_CONSOLE && USE_IMGUI && USE_DEBUG_SERVER
         va_list params;
         va_list params2;
-        va_start(params, type);
+        va_start(params, flags);
         va_copy(params2, params);
 
         size_t size;
@@ -74,6 +76,7 @@ namespace gigno {
             message.Type = type;
             res_message = message.Message.get();
             message.TimePoint = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+            message.Flags = flags;
             LogToFile(message);
         } else {
             size = size_formatted;
@@ -82,6 +85,7 @@ namespace gigno {
             message.Type = type;
             res_message = message.Message.get();
             message.TimePoint = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+            message.Flags = flags;
             LogToFile(message);
         }
 
@@ -131,11 +135,11 @@ namespace gigno {
             return true;
         }
         if(m_FileStream.is_open()) {
-            m_FileStream << "Logging ended. Closing.\n";
+            m_FileStream << "\nLogging ended. Closing.\n";
             m_FileStream.close();
             m_IsLoggingToFile = false;
         }
-        LogInfo("Stoppend logging to file.");
+        LogInfo("Stopped logging to file.");
         m_UIFileLoggingCheckbox = false;
         return true;
         #endif
@@ -144,8 +148,34 @@ namespace gigno {
     void Console::LogToFile(const ConsoleMessage_t &message) {
         #if USE_IMGUI && USE_CONSOLE && USE_DEBUG_SERVER
         if(m_IsLoggingToFile) {
-            m_FileStream << "[" << message.TimePoint/3600%24 << ":" << message.TimePoint/60%60 << ":" << message.TimePoint%60 << "] " << message.Message.get() << "\n";
+            if(!(message.Flags & MESSAGE_NO_TIME_CODE_BIT)) {
+                m_FileStream << "[" << message.TimePoint/3600%24 << ":" << message.TimePoint/60%60 << ":" << message.TimePoint%60 << "] ";
+            } 
+            m_FileStream << message.Message.get();
+            if(!(message.Flags & MESSAGE_NO_NEW_LINE_BIT)) {
+                m_FileStream << "\n";
+            }
         }
+        #endif
+    }
+
+    void Console::CallCommand(const char *line) {
+        #if USE_IMGUI && USE_CONSOLE && USE_DEBUG_SERVER
+        CommandToken_t token{line};
+        if(!token.GetName()) {
+            LogInfo("Invalid command call.");
+            return;
+        }
+
+        Command *current = Command::s_pCommands;
+        while(current) {
+            if(token.CompareName(current->GetName())) {
+                current->Execute(token);
+                return;
+            }
+            current = current->pNext;
+        }
+        LogInfo("Command '%s' not found. use 'help' for the list of commands.", token.GetName());
         #endif
     }
 
@@ -180,25 +210,37 @@ namespace gigno {
         ImGui::Separator();
 
         ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4{0.2f, 0.2f, 0.2f, 0.8f});
-        if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, 0), ImGuiChildFlags_NavFlattened/*, ImGuiWindowFlags_HorizontalScrollbar*/)) {
-            for(ConsoleMessage_t &message : m_Messages) {
+        if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, -30.0f), ImGuiChildFlags_NavFlattened/*, ImGuiWindowFlags_HorizontalScrollbar*/)) {
+            for(int i = 0; i < m_Messages.size(); i++) {
+                ConsoleMessage_t& message = m_Messages[i];
+
                 // Set color.
                 ImVec4 color{1.0f, 1.0f, 1.0f, 1.0f};
                 if(message.Type == CONSOLE_MESSAGE_WARN) {
                     color = ImVec4{0.8f, 0.8f, 0.0f, 1.0f};
                 } else if(message.Type == CONSOLE_MESSAGE_ERR) {
                     color = ImVec4{1.0f, 0.0f, 0.0f, 1.0f};
+                } else if(message.Type == CONSOLE_MESSAGE_ECHO) {
+                    color = ImVec4{0.6f, 0.6f, 0.6f, 1.0f};
                 }
 
                 ImGui::PushStyleColor(ImGuiCol_Text, color);
-                if(m_ShowTimepoints) {
+                if(m_ShowTimepoints && !(message.Flags & MESSAGE_NO_TIME_CODE_BIT)) {
                     int hours = message.TimePoint/3600%24;
                     int min = message.TimePoint/60%60;
                     int sec = message.TimePoint%60;
                     ImGui::Text("[%d:%d:%d] ", hours, min, sec);
                     ImGui::SameLine();
                 }
+        
                 ImGui::TextWrapped(message.Message.get());
+
+                if(message.Flags & MESSAGE_NO_NEW_LINE_BIT) {
+                    if(m_Messages.size() - 1 != i) {
+                        ImGui::SameLine();
+                    }
+                }
+
                 ImGui::PopStyleColor();
             }
             if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
@@ -208,7 +250,16 @@ namespace gigno {
         ImGui::EndChild();
         ImGui::PopStyleColor();
 
+        ImGui::Separator();
+        if (ImGui::InputText("Enter command", m_InputBuffer, CONSOLE_INPUT_BUFFER_SIZE, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll)) {
+            LogFormat(" -> %s", CONSOLE_MESSAGE_ECHO, (ConsoleMessageFlags_t)0, m_InputBuffer);
+            CallCommand(m_InputBuffer);
+            m_InputBuffer[0] = '\0';
+        }
+
         ImGui::End();
+
+        ImGui::ShowDemoWindow();
         #endif
     }
     #endif

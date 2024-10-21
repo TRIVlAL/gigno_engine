@@ -8,6 +8,7 @@
 #include "entities/lights/environment_light.h"
 #include "core_macros.h"
 #include <thread>
+#include "debug/command_token.h"
 
 namespace gigno {
 
@@ -36,6 +37,7 @@ namespace gigno {
 	}
 
 	int Application::run() {
+		Debug()->GetConsole()->StartFileLogging();
 
 		ASSERT_MSG_V(glfwInit(), 1, "GLFW Failed to init");
 
@@ -91,22 +93,21 @@ namespace gigno {
 
 		auto lastUpdateTime = std::chrono::steady_clock::now();
 
-		Debug()->GetConsole()->StartFileLogging();
 		m_EntityServer.Start();
 
-			Debug()->GetConsole()->LogInfo("Hello %s", "mariooooo");
-			Debug()->GetConsole()->LogWarning("This format should work : %s", "HELLO HELLO");
-			Debug()->GetConsole()->LogError("ERR ERR ERR %f, 2%%", 52.3f);
+		CommandToken_t comm1{""};
+		CommandToken_t comm2{"                  "};
+		CommandToken_t comm3{"\"\""};
+		CommandToken_t comm4{"\"\"    \""};
 
-			Debug()->GetConsole()->LogError("error message unformated !!!");
+		Debug()->GetConsole()->LogInfo("Hello %s", "mariooooo");
+		Debug()->GetConsole()->LogWarning("This format should work : %s", "HELLO HELLO");
+		Debug()->GetConsole()->LogError("ERR ERR ERR %f, 2%%", 52.3f);
+
+		Debug()->GetConsole()->LogError("error message unformated !!!");
 
 		while (!m_RenderingServer.WindowShouldClose()) {
 			Debug()->Profiler()->Begin("Main Loop");
-
-			static int i = 0;
-			i++;
-			Debug()->GetConsole()->LogInfo("Hello %d", i);
-
 
 			m_RenderingServer.PollEvents();
 			m_InputServer.UpdateInput();
