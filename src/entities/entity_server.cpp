@@ -48,15 +48,7 @@ namespace gigno {
 	}
 
 #if USE_IMGUI
-	void EntityServer::DrawEntityInspector(bool *open) {
-		if(!*open) {
-			return;
-		}
-
-		if(!ImGui::Begin("Entity Debug", open)) {
-			ImGui::End();
-			return;
-		};
+	void EntityServer::DrawEntityInspectorTab() {
 
 		int openAction = -1;
 		if(ImGui::Button("Colapse All")) {
@@ -96,8 +88,6 @@ namespace gigno {
 			curr = curr->pNextEntity;
 			i++;
 		}
-
-		ImGui::End();
 	}
 #endif
 

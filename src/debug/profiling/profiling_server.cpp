@@ -51,23 +51,14 @@ namespace gigno {
     #endif
     }
 
-    void ProfilingServer::DrawProfilerWindow(bool *open) {
+    void ProfilingServer::DrawProfilerTab() {
     #if USE_IMGUI && USE_DEBUG_SERVER && USE_PROFILER
-        if (*open) {
-            if (!ImGui::Begin("Profiler", open, ImGuiWindowFlags_::ImGuiWindowFlags_NoResize)) {
-                ImGui::End();
-                return;
-            }
-            ImGui::SetWindowSize(ImVec2{650.0f, 500.0f});
 
-            ImGui::Text("The profiler allows you to monitor the timing and performance of\n"
-                        "core parts of your code.");
+        ImGui::Text("The profiler allows you to monitor the timing and performance of\n"
+                    "core parts of your code.");
 
-            for (ProfileScope scope : m_RootScopes) {
-                scope.DrawUI();
-            }
-
-            ImGui::End();
+        for (ProfileScope scope : m_RootScopes) {
+            scope.DrawUI();
         }
     #endif        
     }

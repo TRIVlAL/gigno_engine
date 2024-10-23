@@ -20,7 +20,8 @@ namespace gigno {
 
     enum ConsoleMessageFlags_t {
         MESSAGE_NO_NEW_LINE_BIT = 1 << 0,
-        MESSAGE_NO_TIME_CODE_BIT = 1 << 1
+        MESSAGE_NO_TIME_CODE_BIT = 1 << 1,
+        MESSAGE_NO_FILE_LOG_BIT = 1 << 2
     };
 
     struct ConsoleMessage_t {
@@ -30,13 +31,17 @@ namespace gigno {
 
         ConsoleMessageType_t Type;
         ConsoleMessageFlags_t Flags;
-        std::shared_ptr<char[]> Message;
+        std::shared_ptr<char> Message;
         time_t TimePoint;
     private:
         const size_t Size;
     };
 
-    const bool CONSOLE_TO_PRINTF = true;
+    const bool CONSOLE_TO_PRINTF = false;
+    const int CONSOLE_MAX_MESSAGE_TO_RENDER = 12'000;     // 0 for rendering all messages.
+    const int CONSOLE_RENDER_FIRST_MESSAGE_COUNT = 2'000; // If there are more messages than the CONSOLE_MAX_MESSAGE_TO_RENDER,
+                                                          // CONSOLE_RENDER_FIRST_MESSAGE_COUNT of the first messages will be rendered,
+                                                          // and the rest will be filled out by the most recent messages.
 
     struct CommandToken_t;
     static void cls(const CommandToken_t&); // Defined in command.cpp.
@@ -47,6 +52,7 @@ namespace gigno {
 
         friend void cls(const CommandToken_t&);
     public:
+        Console();
         ~Console();
 
         bool StartFileLogging();
@@ -102,7 +108,7 @@ namespace gigno {
     private:
         void LogFormat(const char *fmt, ConsoleMessageType_t type, ConsoleMessageFlags_t flags, ...);
         void Log(const char *msg, ConsoleMessageType_t type, ConsoleMessageFlags_t flags);
-        void DrawConsoleWindow(bool *open);
+        void DrawConsoleTab();
 
         void LogToFile(const ConsoleMessage_t &message);
 

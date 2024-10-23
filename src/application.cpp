@@ -95,17 +95,7 @@ namespace gigno {
 
 		m_EntityServer.Start();
 
-		CommandToken_t comm1{""};
-		CommandToken_t comm2{"                  "};
-		CommandToken_t comm3{"\"\""};
-		CommandToken_t comm4{"\"\"    \""};
-
-		Debug()->GetConsole()->LogInfo("Hello %s", "mariooooo");
-		Debug()->GetConsole()->LogWarning("This format should work : %s", "HELLO HELLO");
-		Debug()->GetConsole()->LogError("ERR ERR ERR %f, 2%%", 52.3f);
-
-		Debug()->GetConsole()->LogError("error message unformated !!!");
-
+		Debug()->GetConsole()->LogInfo(MESSAGE_NO_FILE_LOG_BIT, "Secret shhhhhh.");
 		while (!m_RenderingServer.WindowShouldClose()) {
 			Debug()->Profiler()->Begin("Main Loop");
 
@@ -116,6 +106,9 @@ namespace gigno {
 				m_ShowMainUIWindow = true;
 			}
 			DrawMainUIWindow();
+
+			static int i = 0;
+			i++;
 
 			auto currentTime = std::chrono::steady_clock::now();
 			

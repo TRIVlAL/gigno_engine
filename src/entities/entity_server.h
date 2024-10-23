@@ -19,7 +19,7 @@ namespace gigno {
 		void Tick(float dt);
 
 	#if USE_IMGUI
-		void DrawEntityInspector(bool *open);
+		void DrawEntityInspectorTab();
 	#endif
 	private:
 		// Called by the base entity constructor and destructor, limit visibility to Entity friend class only.

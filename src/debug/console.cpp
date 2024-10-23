@@ -7,10 +7,17 @@
 
 namespace gigno {
 
-    ConsoleMessage_t::ConsoleMessage_t(size_t size) : Size{size}, Message{new char[size]} {
+    ConsoleMessage_t::ConsoleMessage_t(size_t size) : Size{size}, Message{new char[size], std::default_delete<char[]>()} {
     }
 
     ConsoleMessage_t::~ConsoleMessage_t() {
+    }
+
+    Console::Console() {
+        LogInfo((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "---------------------------------");
+        LogInfo((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "Gigno engine console initialized.");
+        LogInfo((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "---------------------------------");
+        LogInfo((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "");
     }
 
     Console::~Console() {
@@ -147,7 +154,7 @@ namespace gigno {
 
     void Console::LogToFile(const ConsoleMessage_t &message) {
         #if USE_IMGUI && USE_CONSOLE && USE_DEBUG_SERVER
-        if(m_IsLoggingToFile) {
+        if(m_IsLoggingToFile && !(message.Flags & MESSAGE_NO_FILE_LOG_BIT)) {
             if(!(message.Flags & MESSAGE_NO_TIME_CODE_BIT)) {
                 m_FileStream << "[" << message.TimePoint/3600%24 << ":" << message.TimePoint/60%60 << ":" << message.TimePoint%60 << "] ";
             } 
@@ -180,16 +187,8 @@ namespace gigno {
     }
 
     #if USE_IMGUI
-    void Console::DrawConsoleWindow(bool *open) {
+    void Console::DrawConsoleTab() {
         #if USE_IMGUI && USE_CONSOLE && USE_DEBUG_SERVER
-        if(!*open) {
-            return;
-        }
-
-        if(!ImGui::Begin("Console", open)) {
-            ImGui::End();
-            return;
-        }
 
         if(ImGui::Button("Clear")) { m_Messages.clear(); }
         ImGui::SameLine();
@@ -211,7 +210,22 @@ namespace gigno {
 
         ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4{0.2f, 0.2f, 0.2f, 0.8f});
         if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, -30.0f), ImGuiChildFlags_NavFlattened/*, ImGuiWindowFlags_HorizontalScrollbar*/)) {
-            for(int i = 0; i < m_Messages.size(); i++) {
+            if(CONSOLE_MAX_MESSAGE_TO_RENDER != 0 && m_Messages.size() > CONSOLE_MAX_MESSAGE_TO_RENDER) {
+                ImGui::TextWrapped("%d Messages. Messages rendered limited to %d (the first %d and last %d) ",
+                                    m_Messages.size(),
+                                    CONSOLE_MAX_MESSAGE_TO_RENDER, 
+                                    CONSOLE_RENDER_FIRST_MESSAGE_COUNT, 
+                                    CONSOLE_MAX_MESSAGE_TO_RENDER - CONSOLE_RENDER_FIRST_MESSAGE_COUNT);
+                ImGui::Separator();
+            }
+            int i = 0;
+            bool has_skipped = false;
+            if(m_Messages.size() > CONSOLE_MAX_MESSAGE_TO_RENDER && CONSOLE_MAX_MESSAGE_TO_RENDER != 0 && CONSOLE_RENDER_FIRST_MESSAGE_COUNT == 0) {
+                i = m_Messages.size() - CONSOLE_MAX_MESSAGE_TO_RENDER;
+                has_skipped = true;
+                ImGui::TextWrapped("---- Skipped %d messages ----", m_Messages.size() - CONSOLE_MAX_MESSAGE_TO_RENDER);
+            }
+            while(i < m_Messages.size()) {
                 ConsoleMessage_t& message = m_Messages[i];
 
                 // Set color.
@@ -242,6 +256,13 @@ namespace gigno {
                 }
 
                 ImGui::PopStyleColor();
+
+                i++;
+                if(!has_skipped && m_Messages.size() > CONSOLE_MAX_MESSAGE_TO_RENDER && CONSOLE_MAX_MESSAGE_TO_RENDER != 0 && i >= CONSOLE_RENDER_FIRST_MESSAGE_COUNT) {
+                    ImGui::TextWrapped("---- Skipped %d messages ----", m_Messages.size() - CONSOLE_MAX_MESSAGE_TO_RENDER);
+                    i = m_Messages.size() - CONSOLE_MAX_MESSAGE_TO_RENDER + CONSOLE_RENDER_FIRST_MESSAGE_COUNT; 
+                    has_skipped = true;
+                }
             }
             if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
                 ImGui::SetScrollHereY();
@@ -255,11 +276,8 @@ namespace gigno {
             LogFormat(" -> %s", CONSOLE_MESSAGE_ECHO, (ConsoleMessageFlags_t)0, m_InputBuffer);
             CallCommand(m_InputBuffer);
             m_InputBuffer[0] = '\0';
+            ImGui::SetKeyboardFocusHere(-1);
         }
-
-        ImGui::End();
-
-        ImGui::ShowDemoWindow();
         #endif
     }
     #endif

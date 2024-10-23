@@ -37,7 +37,7 @@ namespace gigno {
         void End();
 
         void EndFrame();
-        void DrawProfilerWindow(bool *open);
+        void DrawProfilerTab();
         void StartFrame();
 
     #if  USE_IMGUI && USE_DEBUG_SERVER && USE_PROFILER
