@@ -1,10 +1,10 @@
 #ifndef DEBUG_SERVER_H
 #define DEBUG_SERVER_H
 
-#include "../core_macros.h"
+#include "../features_usage.h"
 
 #include "profiling/profiling_server.h"
-#include "console.h"
+#include "console/console.h"
 
 namespace gigno {
 

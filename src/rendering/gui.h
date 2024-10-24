@@ -1,7 +1,7 @@
 #ifndef GUI_H
 #define GUI_H
 
-#include "../core_macros.h"
+#include "../features_usage.h"
 
 #if USE_IMGUI
 

@@ -1,7 +1,7 @@
 #include "swapchain.h"
 #include <limits>
 #include <algorithm>
-#include "../core_macros.h"
+#include "../features_usage.h"
 #include "device.h"
 #include "model.h"
 #include <array>

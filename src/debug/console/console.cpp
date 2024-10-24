@@ -2,7 +2,7 @@
 #include <iostream>
 #include <chrono>
 
-#include "../error_macros.h"
+#include "../../error_macros.h"
 #include "command.h"
 
 namespace gigno {
@@ -21,7 +21,7 @@ namespace gigno {
     }
 
     Console::~Console() {
-    #if USE_CONSOLE && USE_IMGUI && USE_DEBUG_SERVER
+    #if USE_CONSOLE
         if(m_IsLoggingToFile) {
             StopFileLogging();
         }
@@ -41,7 +41,7 @@ namespace gigno {
     }
 
     void Console::Log(const char *msg, ConsoleMessageType_t type, ConsoleMessageFlags_t flags) {
-    #if USE_CONSOLE && USE_IMGUI && USE_DEBUG_SERVER
+    #if USE_CONSOLE
         size_t msg_size = strlen(msg) + 1;
         ConsoleMessage_t &message = m_Messages.emplace_back(msg_size);
         memcpy(message.Message.get(), msg, msg_size);
@@ -60,7 +60,7 @@ namespace gigno {
     }
 
     void Console::LogFormat(const char *fmt, ConsoleMessageType_t type, ConsoleMessageFlags_t flags, ...) {
-    #if USE_CONSOLE && USE_IMGUI && USE_DEBUG_SERVER
+    #if USE_CONSOLE
         va_list params;
         va_list params2;
         va_start(params, flags);
@@ -105,26 +105,26 @@ namespace gigno {
         }
     #else
         va_list params;
-        va_start(params, type);
+        va_start(params, flags);
         vprintf(fmt, params);
         printf("\n");
     #endif
     }
 
     bool Console::StartFileLogging() {
-        #if USE_IMGUI && USE_CONSOLE && USE_DEBUG_SERVER
+        #if USE_CONSOLE
         if(m_IsLoggingToFile) {
             return true;
         }
         if (!m_FileStream.is_open()) {
             if(m_IsFirstFileOpen) {
-                m_FileStream.open(m_Filepath);
+                m_FileStream.open(CONSOLE_LOG_FILEPATH);
                 m_IsFirstFileOpen = false;
             } else {
-                m_FileStream.open(m_Filepath, std::ios::app);
+                m_FileStream.open(CONSOLE_LOG_FILEPATH, std::ios::app);
             }
             if(!m_FileStream.is_open()) {
-                Console::LogError("Failed to open file %s for logging !", m_Filepath.c_str());
+                Console::LogError("Failed to open file %s for logging !", CONSOLE_LOG_FILEPATH.c_str());
                 return false;
             } else {
                 m_IsLoggingToFile = true;
@@ -133,11 +133,13 @@ namespace gigno {
         m_UIFileLoggingCheckbox = true;
         LogInfo("Started logging to file.");
         return true;
+        #else
+        return false;
         #endif
     }
 
     bool Console::StopFileLogging() {
-        #if USE_IMGUI && USE_CONSOLE && USE_DEBUG_SERVER
+        #if USE_CONSOLE
         if(!m_IsLoggingToFile) {
             return true;
         }
@@ -149,11 +151,13 @@ namespace gigno {
         LogInfo("Stopped logging to file.");
         m_UIFileLoggingCheckbox = false;
         return true;
+        #else
+        return false;
         #endif
     }
 
     void Console::LogToFile(const ConsoleMessage_t &message) {
-        #if USE_IMGUI && USE_CONSOLE && USE_DEBUG_SERVER
+        #if USE_CONSOLE
         if(m_IsLoggingToFile && !(message.Flags & MESSAGE_NO_FILE_LOG_BIT)) {
             if(!(message.Flags & MESSAGE_NO_TIME_CODE_BIT)) {
                 m_FileStream << "[" << message.TimePoint/3600%24 << ":" << message.TimePoint/60%60 << ":" << message.TimePoint%60 << "] ";
@@ -167,7 +171,7 @@ namespace gigno {
     }
 
     void Console::CallCommand(const char *line) {
-        #if USE_IMGUI && USE_CONSOLE && USE_DEBUG_SERVER
+        #if USE_CONSOLE
         CommandToken_t token{line};
         if(!token.GetName()) {
             LogInfo("Invalid command call.");
@@ -188,7 +192,7 @@ namespace gigno {
 
     #if USE_IMGUI
     void Console::DrawConsoleTab() {
-        #if USE_IMGUI && USE_CONSOLE && USE_DEBUG_SERVER
+        #if USE_CONSOLE
 
         if(ImGui::Button("Clear")) { m_Messages.clear(); }
         ImGui::SameLine();
@@ -204,7 +208,7 @@ namespace gigno {
             }
         }
         ImGui::SameLine();
-        ImGui::Text("(%s)", m_Filepath.u8string().c_str());
+        ImGui::Text("(%s)", CONSOLE_LOG_FILEPATH.u8string().c_str());
 
         ImGui::Separator();
 

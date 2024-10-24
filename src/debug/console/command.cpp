@@ -1,6 +1,9 @@
 #include "command.h"
-#include "application.h"
+#include "../../application.h"
 
+#include "../../features_usage.h"
+
+#if USE_CONSOLE
 namespace gigno {
 
     Command *Command::s_pCommands = nullptr;
@@ -62,3 +65,5 @@ namespace gigno {
 
     }
 }
+
+#endif //USE_CONSOLE

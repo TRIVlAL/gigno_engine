@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <memory>
-#include "../core_macros.h"
+#include "../features_usage.h"
 
 namespace gigno {
 

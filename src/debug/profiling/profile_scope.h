@@ -1,8 +1,8 @@
 #ifndef PROFILE_SCOPE_H
 #define PROFILE_SCOPE_H
 
-#include "../../core_macros.h"
-#if USE_IMGUI && USE_DEBUG_SERVER && USE_PROFILER
+#include "../../features_usage.h"
+#if USE_PROFILER
 
 #include <string>
 #include <vector>

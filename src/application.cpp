@@ -6,9 +6,8 @@
 #include "entities/lights/directional_light.h"
 #include "entities/lights/point_light.h"
 #include "entities/lights/environment_light.h"
-#include "core_macros.h"
+#include "features_usage.h"
 #include <thread>
-#include "debug/command_token.h"
 
 namespace gigno {
 

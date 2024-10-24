@@ -1,6 +1,7 @@
 #include "command_token.h"
-#include "../algorithm/my_cstr.h"
-#include "../error_macros.h"
+#include "../../algorithm/my_cstr.h"
+#include <cstring>
+#include "../../error_macros.h"
 
 namespace gigno {
 

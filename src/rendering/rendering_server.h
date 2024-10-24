@@ -49,7 +49,7 @@ namespace gigno {
 
 		void CreateModel(std::shared_ptr<giModel> &model, const ModelData_t &modelData);
 
-		//Debug Drawing ( need to active USE_DEBUG_DRAWING in core_macros.h )
+		//Debug Drawing ( need to active USE_DEBUG_DRAWING in features_usage.h )
 		void DrawPoint(glm::vec3 pos, glm::vec3 color, const std::string &uniqueName );
 		void DrawLine(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 color, const std::string &uniqueName);
 		void DrawLineGradient(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 startColor, glm::vec3 endColor, const std::string &uniqueName);

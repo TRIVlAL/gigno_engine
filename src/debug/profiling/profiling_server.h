@@ -4,7 +4,7 @@
 #include "profile_scope.h"
 #include <vector>
 #include <unordered_map>
-#include "../../core_macros.h"
+#include "../../features_usage.h"
 #include <string>
 
 namespace gigno {
@@ -14,7 +14,7 @@ namespace gigno {
 
         Usage:
             * Requirements :
-              * !!! Requires ImGui to work !!! Set USE_IMGUI flag to 1 in core_macros.h !!!
+              * !!! Requires ImGui to work !!! Set USE_IMGUI flag to 1 in features_usage.h !!!
             * Key Methods :
               * Begin(...) : Begins a Child Profiling Scope in the hierarchy Its data will be 
                             In the profiler window.
@@ -40,7 +40,7 @@ namespace gigno {
         void DrawProfilerTab();
         void StartFrame();
 
-    #if  USE_IMGUI && USE_DEBUG_SERVER && USE_PROFILER
+    #if  USE_PROFILER
     private:
         // The scopes work as a hierarchy : Every scope have zero or more children.
         std::vector<ProfileScope> m_RootScopes;

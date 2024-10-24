@@ -1,6 +1,6 @@
 #include "profile_scope.h"
 
-#if USE_IMGUI && USE_DEBUG_SERVER && USE_PROFILER
+#if USE_PROFILER
 
 #include <algorithm>
 #include <iostream>
@@ -23,12 +23,12 @@ namespace gigno {
     }
 
     void ProfileScope::Stop() {
-        auto endTime = std::chrono::high_resolution_clock::now();
+        auto end_time = std::chrono::high_resolution_clock::now();
 
-        auto actualStart = std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTime).time_since_epoch();
-        auto actualEnd = std::chrono::time_point_cast<std::chrono::microseconds>(endTime).time_since_epoch();
+        auto actual_start = std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTime).time_since_epoch();
+        auto actual_end = std::chrono::time_point_cast<std::chrono::microseconds>(end_time).time_since_epoch();
 
-        auto duration = actualEnd - actualStart;
+        auto duration = actual_end - actual_start;
 
         m_CurrentFrameDuration += duration;
         m_CallCountThisFrame++;
@@ -95,7 +95,7 @@ namespace gigno {
     }
 
     ProfileScope *ProfileScope::BeginChild(const std::string &name) {
-        for(int i = 0; i < m_Children.size(); i++) {
+        for(size_t i = 0; i < m_Children.size(); i++) {
             if(m_Children[i].GetName() == name) {
                 m_Children[i].Start();
                 m_Children[i].SetEscape(this);

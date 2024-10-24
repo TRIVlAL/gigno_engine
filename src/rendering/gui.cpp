@@ -5,7 +5,7 @@
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_vulkan.h"
 
-#include "../core_macros.h"
+#include "../features_usage.h"
 
 #include "../application.h"
 

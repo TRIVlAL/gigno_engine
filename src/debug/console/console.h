@@ -1,7 +1,7 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
-#include "../core_macros.h"
+#include "../../features_usage.h"
 
 #include <stdarg.h>
 #include <vector>
@@ -37,14 +37,16 @@ namespace gigno {
         const size_t Size;
     };
 
-    const bool CONSOLE_TO_PRINTF = false;
+    const bool CONSOLE_TO_PRINTF = true;                  // Are Console messages also forwarded to the standard console output ? (printf)
     const int CONSOLE_MAX_MESSAGE_TO_RENDER = 12'000;     // 0 for rendering all messages.
     const int CONSOLE_RENDER_FIRST_MESSAGE_COUNT = 2'000; // If there are more messages than the CONSOLE_MAX_MESSAGE_TO_RENDER,
                                                           // CONSOLE_RENDER_FIRST_MESSAGE_COUNT of the first messages will be rendered,
                                                           // and the rest will be filled out by the most recent messages.
+    const std::filesystem::path CONSOLE_LOG_FILEPATH{"log.txt"}; // The relative path to the file where the messages are logged
+                                                                 // When StartFileLogging() is called.
 
     struct CommandToken_t;
-    static void cls(const CommandToken_t&); // Defined in command.cpp.
+    static void cls(const CommandToken_t&); // Defined in command.cpp. Method of the cls console command to clear the console.
                                             // forward-declared here so it can be made a friend of Console.
 
     class Console {
@@ -55,6 +57,16 @@ namespace gigno {
         Console();
         ~Console();
 
+        /*
+        @brief From now on, until a StopFileLogging() call, every messages will be copied into a log file.
+        This Log file is defined as the constant CONSOLE_LOG_FILEPATH (see above).
+        @returns whether opening the file was successfull.
+        Notes : - If the file does not exist, it is created.
+                - If the file already exists and it is the first time Logging to file since startup, all the content
+                of the file is OVEWRITEN
+                - The content of the log file will not necessarly appear externaly until a StopFileLogging call or
+                  the termination of the application.
+        */
         bool StartFileLogging();
         bool StopFileLogging();
 
@@ -100,22 +112,25 @@ namespace gigno {
             LogFormat(fmt, CONSOLE_MESSAGE_ERR, flags, args...);
         }
 
+        /*
+        No-formatting versions of the log methods.
+        */
         void LogInfo(const char *msg);
         void LogWarning(const char *msg);
         void LogError(const char *msg);
 
-        void CallCommand(const char *line);
     private:
+        void CallCommand(const char *line);
+
         void LogFormat(const char *fmt, ConsoleMessageType_t type, ConsoleMessageFlags_t flags, ...);
         void Log(const char *msg, ConsoleMessageType_t type, ConsoleMessageFlags_t flags);
         void DrawConsoleTab();
 
         void LogToFile(const ConsoleMessage_t &message);
 
-    #if USE_IMGUI && USE_CONSOLE && USE_DEBUG_SERVER
+    #if USE_CONSOLE
         bool m_ShowTimepoints = true;
         std::vector<ConsoleMessage_t> m_Messages{};
-        const std::filesystem::path m_Filepath{"log.txt"};
         std::ofstream m_FileStream;
         bool m_IsLoggingToFile = false;
         bool m_UIFileLoggingCheckbox;
