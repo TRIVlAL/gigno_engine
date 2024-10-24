@@ -38,10 +38,10 @@ namespace gigno {
 		m_ProjMode = PROJECTION_MODE_PERSPECTIVE;
 		m_CurrentFovy = fovy;
 
-		const float tanHalfFovy = tan(fovy / 2.f);
+		const float tan_half_fovy = tan(fovy / 2.f);
 		m_ProjectionMatrix = glm::mat4{ 1.0f };
-		m_ProjectionMatrix[0][0] = 1.f / (aspect * tanHalfFovy);
-		m_ProjectionMatrix[1][1] = 1.f / (tanHalfFovy);
+		m_ProjectionMatrix[0][0] = 1.f / (aspect * tan_half_fovy);
+		m_ProjectionMatrix[1][1] = 1.f / (tan_half_fovy);
 		m_ProjectionMatrix[2][2] = far / (far - near);
 		m_ProjectionMatrix[2][3] = 1.f;
 		m_ProjectionMatrix[3][2] = -(far * near) / (far - near);
@@ -59,7 +59,7 @@ namespace gigno {
 	glm::mat4 Camera::GetViewMatrix() const {
 		
 		if (m_LookMode == LOOK_MODE_POINT) {
-			const glm::vec3 direction = m_LookPoint - Transform.translation;
+			const glm::vec3 direction = m_LookPoint - Transform.Position;
 			const glm::vec3 up = { 0.0f, 1.0f, 0.0f };
 			const glm::vec3 w{ glm::normalize(direction) };
 			const glm::vec3 u{ glm::normalize(glm::cross(w, up)) };
@@ -75,17 +75,17 @@ namespace gigno {
 			matrix[0][2] = w.x;
 			matrix[1][2] = w.y;
 			matrix[2][2] = w.z;
-			matrix[3][0] = -glm::dot(u, Transform.translation);
-			matrix[3][1] = -glm::dot(v, Transform.translation);
-			matrix[3][2] = -glm::dot(w, Transform.translation);
+			matrix[3][0] = -glm::dot(u, Transform.Position);
+			matrix[3][1] = -glm::dot(v, Transform.Position);
+			matrix[3][2] = -glm::dot(w, Transform.Position);
 			return matrix;
 		} else if (m_LookMode == LOOK_MODE_TRANSFORM_FORWARD || true) {
-			const float c3 = glm::cos(Transform.rotation.z);
-			const float s3 = glm::sin(Transform.rotation.z);
-			const float c2 = glm::cos(Transform.rotation.x);
-			const float s2 = glm::sin(Transform.rotation.x);
-			const float c1 = glm::cos(Transform.rotation.y);
-			const float s1 = glm::sin(Transform.rotation.y);
+			const float c3 = glm::cos(Transform.Rotation.z);
+			const float s3 = glm::sin(Transform.Rotation.z);
+			const float c2 = glm::cos(Transform.Rotation.x);
+			const float s2 = glm::sin(Transform.Rotation.x);
+			const float c1 = glm::cos(Transform.Rotation.y);
+			const float s1 = glm::sin(Transform.Rotation.y);
 			const glm::vec3 u{ (c1 * c3 + s1 * s2 * s3), (c2 * s3), (c1 * s2 * s3 - c3 * s1) };
 			const glm::vec3 v{ (c3 * s1 * s2 - c1 * s3), (c2 * c3), (c1 * c3 * s2 + s1 * s3) };
 			const glm::vec3 w{ (c2 * s1), (-s2), (c1 * c2) };
@@ -99,9 +99,9 @@ namespace gigno {
 			matrix[0][2] = w.x;
 			matrix[1][2] = w.y;
 			matrix[2][2] = w.z;
-			matrix[3][0] = -glm::dot(u, Transform.translation);
-			matrix[3][1] = -glm::dot(v, Transform.translation);
-			matrix[3][2] = -glm::dot(w, Transform.translation);
+			matrix[3][0] = -glm::dot(u, Transform.Position);
+			matrix[3][1] = -glm::dot(v, Transform.Position);
+			matrix[3][2] = -glm::dot(w, Transform.Position);
 			return matrix;
 		}
 	}

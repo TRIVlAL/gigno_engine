@@ -30,7 +30,7 @@ namespace gigno
 
         ImGui_ImplGlfw_InitForVulkan(window, true);
 
-        VkDescriptorPoolSize imguiPoolSizes[] = {
+        VkDescriptorPoolSize imgui_pool_sizes[] = {
             {VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
             {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000},
             {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000},
@@ -47,11 +47,11 @@ namespace gigno
         poolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
         poolCreateInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
         poolCreateInfo.maxSets = 1000;
-        poolCreateInfo.poolSizeCount = std::size(imguiPoolSizes);
-        poolCreateInfo.pPoolSizes = imguiPoolSizes;
+        poolCreateInfo.poolSizeCount = std::size(imgui_pool_sizes);
+        poolCreateInfo.pPoolSizes = imgui_pool_sizes;
 
-        VkDescriptorPool imguiPool{};
-        VkResult result = vkCreateDescriptorPool(device.GetDevice(), &poolCreateInfo, nullptr, &imguiPool);
+        VkDescriptorPool imgui_pool{};
+        VkResult result = vkCreateDescriptorPool(device.GetDevice(), &poolCreateInfo, nullptr, &imgui_pool);
         if (result != VK_SUCCESS)
         {
             ERR_MSG_V(false, "Failed to create ImGui Descriptor Pool ! Aborting GUI Initialization ! Vulkan Error Code %d ", (int)result);
@@ -63,7 +63,7 @@ namespace gigno
         vulkanInfo.PhysicalDevice = device.GetPhysicalDevice();
         vulkanInfo.Device = device.GetDevice();
         vulkanInfo.Queue = device.GetGraphicsQueue();
-        vulkanInfo.DescriptorPool = imguiPool;
+        vulkanInfo.DescriptorPool = imgui_pool;
         vulkanInfo.MinImageCount = 3;
         vulkanInfo.RenderPass = swapchain.GetRenderPass();
         vulkanInfo.ImageCount = 3;

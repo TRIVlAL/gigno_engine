@@ -50,20 +50,20 @@ namespace gigno {
 #if USE_IMGUI
 	void EntityServer::DrawEntityInspectorTab() {
 
-		int openAction = -1;
+		int open_action = -1;
 		if(ImGui::Button("Colapse All")) {
-			openAction = 0;
+			open_action = 0;
 		}
 		ImGui::SameLine();
 		if(ImGui::Button("Open All")) {
-			openAction = 1;
+			open_action = 1;
 		}
 
 		Entity *curr = m_pFirstEntity;
 		int i = 0;
 		while(curr) {
-			if(openAction >= 0) {
-				ImGui::SetNextItemOpen(openAction);
+			if (open_action >= 0) {
+				ImGui::SetNextItemOpen(open_action);
 			}
 
 			std::string typeName = curr->GetTypeName();

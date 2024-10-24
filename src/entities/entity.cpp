@@ -7,31 +7,31 @@ namespace  gigno {
 
 	// translation -> rotation y -> rotation x -> rotation z -> scale
 	glm::mat4 Transform_t::TransformationMatrix() const {
-		float ca = glm::cos(rotation.y);
-		float sa = glm::sin(rotation.y);
-		float cb = glm::cos(rotation.x);
-		float sb = glm::sin(rotation.x);
-		float cc = glm::cos(rotation.z);
-		float sc = glm::sin(rotation.z);
+		const float ca = glm::cos(Rotation.y);
+		const float sa = glm::sin(Rotation.y);
+		const float cb = glm::cos(Rotation.x);
+		const float sb = glm::sin(Rotation.x);
+		const float cc = glm::cos(Rotation.z);
+		const float sc = glm::sin(Rotation.z);
 		return glm::mat4{
-			{scale.x * (ca * cc + sa * sb * sc),
-			scale.x * (cb * sc),
-			scale.x * (ca * sb * sc - cc * sa),
+			{Scale.x * (ca * cc + sa * sb * sc),
+			Scale.x * (cb * sc),
+			Scale.x * (ca * sb * sc - cc * sa),
 			0.0f },
 
-			{scale.y * (cc * sa * sb - ca * sc),
-			scale.y * (cb * cc),
-			scale.y * (ca * cc * sb + sa * sc),
+			{Scale.y * (cc * sa * sb - ca * sc),
+			Scale.y * (cb * cc),
+			Scale.y * (ca * cc * sb + sa * sc),
 			0.0f},
 
-			{scale.z * (cb * sa),
-			scale.z * (-sb),
-			scale.z * (ca * cb),
+			{Scale.z * (cb * sa),
+			Scale.z * (-sb),
+			Scale.z * (ca * cb),
 			0.0f},
 
-			{translation.x,
-			translation.y,
-			translation.z,
+			{Position.x,
+			Position.y,
+			Position.z,
 			1.0f}
 		};
 	}
@@ -54,8 +54,8 @@ namespace  gigno {
 
 	void Entity::AddSerializedProperties() {
 		serializedProps.reserve(3);
-		SERIALIZE(glm::vec3, Transform.translation);
-		SERIALIZE(glm::vec3, Transform.scale);
-		SERIALIZE(glm::vec3, Transform.rotation);
+		SERIALIZE(glm::vec3, Transform.Position);
+		SERIALIZE(glm::vec3, Transform.Scale);
+		SERIALIZE(glm::vec3, Transform.Rotation);
 	}
 }

@@ -16,10 +16,10 @@ namespace gigno {
 	struct Vertex {
 		Vertex(){};
 		Vertex(glm::vec3 pos, glm::vec3 col) :
-			position{ pos }, color{ col } {}
-		glm::vec3 position{};
-		glm::vec3 color{};
-		glm::vec3 normal{glm::sqrt(3.0f)};
+			Position{ pos }, Color{ col } {}
+		glm::vec3 Position{};
+		glm::vec3 Color{};
+		glm::vec3 Normal{glm::sqrt(3.0f)};
 		glm::vec2 uv{};
 
 		static VkVertexInputBindingDescription GetBindingDescription();
@@ -27,7 +27,7 @@ namespace gigno {
 
 		// Need Equal operator for unordered map
 		bool operator==(const Vertex &other) const {
-			return other.position == position && other.color == color && other.normal == normal && other.uv == uv;
+			return other.Position == Position && other.Color == Color && other.Normal == Normal && other.uv == uv;
 		}
 	};
 }
@@ -38,8 +38,8 @@ namespace std {
 	template<>
 	struct hash<gigno::Vertex> {
 		size_t operator()(const gigno::Vertex &key) const {
-			return hash<glm::vec3>()(key.position) ^ hash<glm::vec3>()(key.color) ^ 
-			hash<glm::vec3>()(key.normal) ^ hash<glm::vec2>()(key.uv);
+			return hash<glm::vec3>()(key.Position) ^ hash<glm::vec3>()(key.Color) ^ 
+			hash<glm::vec3>()(key.Normal) ^ hash<glm::vec2>()(key.uv);
 		}
 	};
 

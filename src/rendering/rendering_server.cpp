@@ -135,8 +135,8 @@ namespace gigno {
 	void RenderingServer::DrawFrame() {
 		vkWaitForFences(m_Device.GetDevice(), 1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT64_MAX);
 
-		uint32_t imageIndex = 0;
-		VkResult result = vkAcquireNextImageKHR(m_Device.GetDevice(), m_SwapChain.GetSwapChain(), UINT64_MAX, m_ImageAvaliableSemaphores[m_CurrentFrame], VK_NULL_HANDLE, &imageIndex);
+		uint32_t image_index = 0;
+		VkResult result = vkAcquireNextImageKHR(m_Device.GetDevice(), m_SwapChain.GetSwapChain(), UINT64_MAX, m_ImageAvaliableSemaphores[m_CurrentFrame], VK_NULL_HANDLE, &image_index);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_Window.HasResized()) {
 			m_SwapChain.Recreate(m_Device, &m_Window, m_VertShaderFilePath, m_FragShaderFilePath);
 			return;
@@ -153,22 +153,22 @@ namespace gigno {
 		m_SwapChain.UpdateDebugDrawings(m_Device.GetDevice(), m_Device.GetPhysicalDevice(), m_Device.GetGraphicsQueue());
 		#endif
 
-		SceneRenderingData_t sceneData{m_pFirstRenderedEntity, m_LightEntities, m_pCamera};
-		m_SwapChain.RecordCommandBuffer(m_CurrentFrame, imageIndex, sceneData);
+		SceneRenderingData_t scene_data{m_pFirstRenderedEntity, m_LightEntities, m_pCamera};
+		m_SwapChain.RecordCommandBuffer(m_CurrentFrame, image_index, scene_data);
 
-		VkSemaphore waitSemaphores[] = { m_ImageAvaliableSemaphores[m_CurrentFrame]};
-		VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphores[m_CurrentFrame]};
-		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+		VkSemaphore wait_semaphores[] = { m_ImageAvaliableSemaphores[m_CurrentFrame]};
+		VkSemaphore signal_semaphores[] = { m_RenderFinishedSemaphores[m_CurrentFrame]};
+		VkPipelineStageFlags wait_stages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		submitInfo.waitSemaphoreCount = 1;
-		submitInfo.pWaitSemaphores = waitSemaphores;
-		submitInfo.pWaitDstStageMask = waitStages;
+		submitInfo.pWaitSemaphores = wait_semaphores;
+		submitInfo.pWaitDstStageMask = wait_stages;
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = m_SwapChain.GetCommandBufferPtr(m_CurrentFrame);
 		submitInfo.signalSemaphoreCount = 1;
-		submitInfo.pSignalSemaphores = signalSemaphores;
+		submitInfo.pSignalSemaphores = signal_semaphores;
 
 		vkResetFences(m_Device.GetDevice(), 1, &m_InFlightFences[m_CurrentFrame]);
 
@@ -179,16 +179,16 @@ namespace gigno {
 
 		VkSwapchainKHR swapchains[] = { m_SwapChain.GetSwapChain() };
 
-		VkPresentInfoKHR presentInfo{};
-		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-		presentInfo.waitSemaphoreCount = 1;
-		presentInfo.pWaitSemaphores = signalSemaphores;
-		presentInfo.swapchainCount = 1;
-		presentInfo.pSwapchains = swapchains;
-		presentInfo.pImageIndices = &imageIndex;
-		presentInfo.pResults = nullptr;
+		VkPresentInfoKHR present_info{};
+		present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+		present_info.waitSemaphoreCount = 1;
+		present_info.pWaitSemaphores = signal_semaphores;
+		present_info.swapchainCount = 1;
+		present_info.pSwapchains = swapchains;
+		present_info.pImageIndices = &image_index;
+		present_info.pResults = nullptr;
 
-		result = vkQueuePresentKHR(m_Device.GetPresentQueue(), &presentInfo);
+		result = vkQueuePresentKHR(m_Device.GetPresentQueue(), &present_info);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR) {
 			m_SwapChain.Recreate(m_Device, &m_Window, m_VertShaderFilePath, m_FragShaderFilePath);
 		}

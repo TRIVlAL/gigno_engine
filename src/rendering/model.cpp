@@ -24,9 +24,9 @@ namespace gigno
 	{
 		std::array<VkVertexInputAttributeDescription, 4> descriptions{};
 
-		descriptions[0] = {0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position)};
-		descriptions[1] = {1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color)};
-		descriptions[2] = {2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal)};
+		descriptions[0] = {0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Position)};
+		descriptions[1] = {1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Color)};
+		descriptions[2] = {2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Normal)};
 		descriptions[3] = {3, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv)};
 
 		return descriptions;
@@ -51,18 +51,18 @@ namespace gigno
 			for(const tinyobj::index_t& index : shape.mesh.indices) {
 				Vertex vertex{};
 
-				vertex.position = { attrib.vertices[3 * index.vertex_index + 0],
+				vertex.Position = { attrib.vertices[3 * index.vertex_index + 0],
 									attrib.vertices[3 * index.vertex_index + 1],
 									attrib.vertices[3 * index.vertex_index + 2]};
 				
 				uint32_t colorIndex = 3 * index.vertex_index + 2;
 				if(colorIndex < attrib.colors.size()) {
-					vertex.color = {attrib.colors[colorIndex - 0],
+					vertex.Color = {attrib.colors[colorIndex - 0],
 									attrib.colors[colorIndex - 1],
 									attrib.colors[colorIndex - 2]};
 				}
 
-				vertex.normal = {attrib.normals[3 * index.normal_index + 0],
+				vertex.Normal = {attrib.normals[3 * index.normal_index + 0],
 								attrib.normals[3 * index.normal_index + 1],
 								attrib.normals[3 * index.normal_index + 2]};
 				vertex.uv = {attrib.texcoords[2 * index.texcoord_index + 0],
@@ -112,47 +112,49 @@ namespace gigno
 	}
 
 	void giModel::CreateVertexBuffer(VkDevice device, VkPhysicalDevice physDevice, VkCommandPool commandPool, VkQueue queue) {
-		VkDeviceSize bufferSize = sizeof(m_Vertices[0]) * m_Vertices.size();
+		VkDeviceSize buffer_size = sizeof(m_Vertices[0]) * m_Vertices.size();
 
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
+		VkBuffer staging_buffer;
+		VkDeviceMemory staging_buffer_memory;
 
-		CreateBuffer(device, physDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+		CreateBuffer(device, physDevice, buffer_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+					 staging_buffer, staging_buffer_memory);
 
 		void *data;
-		vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, m_Vertices.data(), (size_t)bufferSize);
-		vkUnmapMemory(device, stagingBufferMemory);
+		vkMapMemory(device, staging_buffer_memory, 0, buffer_size, 0, &data);
+		memcpy(data, m_Vertices.data(), (size_t)buffer_size);
+		vkUnmapMemory(device, staging_buffer_memory);
 
-		CreateBuffer(device, physDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_VertexBuffer, m_VertexBufferMemory);
+		CreateBuffer(device, physDevice, buffer_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+					 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_VertexBuffer, m_VertexBufferMemory);
 
-		CopyBuffer(device, stagingBuffer, m_VertexBuffer, bufferSize, commandPool, queue);
+		CopyBuffer(device, staging_buffer, m_VertexBuffer, buffer_size, commandPool, queue);
 
-		vkDestroyBuffer(device, stagingBuffer, nullptr);
-		vkFreeMemory(device, stagingBufferMemory, nullptr);
+		vkDestroyBuffer(device, staging_buffer, nullptr);
+		vkFreeMemory(device, staging_buffer_memory, nullptr);
 	}
 
 	void giModel::CreateIndexBuffer(VkDevice device, VkPhysicalDevice physDevice, VkCommandPool commandPool, VkQueue queue) {
-		VkDeviceSize bufferSize = sizeof(indice_t) * m_Indices.size();
+		VkDeviceSize buffer_size = sizeof(indice_t) * m_Indices.size();
 
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
+		VkBuffer staging_buffer;
+		VkDeviceMemory staging_buffer_memory;
 
-		CreateBuffer(device, physDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+		CreateBuffer(device, physDevice, buffer_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+					 staging_buffer, staging_buffer_memory);
 
-		void *data;
-		vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, m_Indices.data(), (size_t)bufferSize);
-		vkUnmapMemory(device, stagingBufferMemory);
+		void *data{};
+		vkMapMemory(device, staging_buffer_memory, 0, buffer_size, 0, &data);
+		memcpy(data, m_Indices.data(), (size_t)buffer_size);
+		vkUnmapMemory(device, staging_buffer_memory);
 
-		CreateBuffer(device, physDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_IndexBuffer, m_IndexBufferMemory);
+		CreateBuffer(device, physDevice, buffer_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+					 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_IndexBuffer, m_IndexBufferMemory);
 
-		CopyBuffer(device, stagingBuffer, m_IndexBuffer, bufferSize, commandPool, queue);
+		CopyBuffer(device, staging_buffer, m_IndexBuffer, buffer_size, commandPool, queue);
 
-		vkDestroyBuffer(device, stagingBuffer, nullptr);
-		vkFreeMemory(device, stagingBufferMemory, nullptr);
+		vkDestroyBuffer(device, staging_buffer, nullptr);
+		vkFreeMemory(device, staging_buffer_memory, nullptr);
 	}
 
 }

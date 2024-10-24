@@ -41,41 +41,41 @@ namespace gigno {
 		ASSERT_MSG_V(glfwInit(), 1, "GLFW Failed to init");
 
 		RenderedEntity first{ModelData_t::FromObjFile("models/smooth_vase.obj")};
-		first.Transform.translation = glm::vec3{ 0.0f, 0.0f, 0.0f };
-		first.Transform.scale = glm::vec3{ 3.0f, -1.5f, 3.0f };
-		first.Transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+		first.Transform.Position = glm::vec3{ 0.0f, 0.0f, 0.0f };
+		first.Transform.Scale = glm::vec3{ 3.0f, -1.5f, 3.0f };
+		first.Transform.Rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 		float rot = 0;
 		float y = -5.0f;
 
 		RenderedEntity second{ModelData_t::FromObjFile("models/flat_vase.obj")};
-		second.Transform.translation = glm::vec3{ 1.0f, 0.5f, 1.0f };
-		second.Transform.scale = glm::vec3{3.0f, 3.0f, 3.0f};
-		second.Transform.rotation = glm::vec3(glm::radians(-90.0f), glm::radians(180.0f), glm::radians(-50.0f));
+		second.Transform.Position = glm::vec3{ 1.0f, 0.5f, 1.0f };
+		second.Transform.Scale = glm::vec3{3.0f, 3.0f, 3.0f};
+		second.Transform.Rotation = glm::vec3(glm::radians(-90.0f), glm::radians(180.0f), glm::radians(-50.0f));
 
 		Spinner third{ModelData_t::FromObjFile("models/colored_cube.obj")};
-		third.Transform.translation = glm::vec3{-0.5f, 0.75f, -0.5f};
-		third.Transform.scale = glm::vec3{.2f, .2f, .2f};
-		third.Transform.rotation = glm::vec3(0.0f, glm::radians(55.0f), 0.0f);
+		third.Transform.Position = glm::vec3{-0.5f, 0.75f, -0.5f};
+		third.Transform.Scale = glm::vec3{.2f, .2f, .2f};
+		third.Transform.Rotation = glm::vec3(0.0f, glm::radians(55.0f), 0.0f);
 		third.Speed = glm::two_pi<float>();
 
 		Spinner fourth{ModelData_t::FromObjFile("models/smooth_vase.obj")};
-		fourth.Transform.translation = glm::vec3{0.5f, 0.0f, 0.5f};
-		fourth.Transform.scale = glm::vec3{3.0f, 2.0f, 3.0f};
-		fourth.Transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+		fourth.Transform.Position = glm::vec3{0.5f, 0.0f, 0.5f};
+		fourth.Transform.Scale = glm::vec3{3.0f, 2.0f, 3.0f};
+		fourth.Transform.Rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 		second.Name = "Upside-down";
 		fourth.Speed = 0.5f * glm::two_pi<float>();
 
 		RenderedEntity fifth{ModelData_t::FromObjFile("models/smooth_vase.obj")};
-		fifth.Transform.translation = glm::vec3{0.5f, 2.0f, 0.5f};
-		fifth.Transform.scale = glm::vec3{3.0f, 2.0f, 3.0f};
-		fifth.Transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+		fifth.Transform.Position = glm::vec3{0.5f, 2.0f, 0.5f};
+		fifth.Transform.Scale = glm::vec3{3.0f, 2.0f, 3.0f};
+		fifth.Transform.Rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 		second.Name = "Upside-down above";
 
 		DomeCamera camera(10.0f);
 		camera.SetPerspectiveProjection(glm::radians(50.0f), m_RenderingServer.GetAspectRatio(), -0.05f, 1.0f);
-		camera.Transform.translation = { 0.0f, 0.0f, -3.0f };
-		camera.Transform.rotation.y = 0;
-		camera.SetTarget( (first.Transform.translation + second.Transform.translation + third.Transform.translation + fourth.Transform.translation) * 0.25f );
+		camera.Transform.Position = { 0.0f, 0.0f, -3.0f };
+		camera.Transform.Rotation.y = 0;
+		camera.SetTarget( (first.Transform.Position + second.Transform.Position + third.Transform.Position + fourth.Transform.Position) * 0.25f );
 		camera.Name = "My Camera";
 
 
@@ -84,13 +84,13 @@ namespace gigno {
 		sun2.Direction = glm::normalize(glm::vec3{-1.0f, 0.0f, 2.0f});
 
 		PointLight bulb;
-		bulb.Transform.translation = glm::vec3{0.5f,0.5f, 0.5f};
+		bulb.Transform.Position = glm::vec3{0.5f,0.5f, 0.5f};
 		bulb.Intensity = .5f;
 
 		EnvironmentLight env;
 		env.intensity = 0.02f;
 
-		auto lastUpdateTime = std::chrono::steady_clock::now();
+		auto last_update_time = std::chrono::steady_clock::now();
 
 		m_EntityServer.Start();
 
@@ -109,23 +109,23 @@ namespace gigno {
 			static int i = 0;
 			i++;
 
-			auto currentTime = std::chrono::steady_clock::now();
-			
-			std::chrono::duration<float> deltaTime = currentTime - lastUpdateTime;
-			deltaTime = std::chrono::duration<float>{ glm::min(deltaTime.count(), MAX_FRAME_TIME) };
-			deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(deltaTime);
+			auto current_time = std::chrono::steady_clock::now();
 
-			lastUpdateTime = currentTime;
+			std::chrono::duration<float> delta_time = current_time - last_update_time;
+			delta_time = std::chrono::duration<float>{glm::min(delta_time.count(), MAX_FRAME_TIME)};
+			delta_time = std::chrono::duration_cast<std::chrono::microseconds>(delta_time);
+
+			last_update_time = current_time;
 
 			m_RenderingServer.DrawLineGradient(glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 1.0f}, glm::vec3{1.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, 1.0f}, UNIQUE_NAME);
 			m_RenderingServer.DrawLineGradient(glm::vec3{0.0f, 1.0f, 1.0f}, glm::vec3{0.5f, 1.0f, 0.5f}, glm::vec3{0.0f, 0.0f, 1.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, UNIQUE_NAME);
 			m_RenderingServer.DrawLineGradient(glm::vec3{0.5f, 1.0f, 0.5f}, glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{1.0f, 0.0f, 0.0f}, UNIQUE_NAME);
-			m_RenderingServer.DrawPoint(bulb.Transform.translation, glm::vec3{1.0f, 1.0f, 1.0f}, UNIQUE_NAME);
-			
-			m_EntityServer.Tick(deltaTime.count() * 10e-1f); //For some reason, it seems that to get second we need
-															 // to multiply by 10e-1f and not the expected 10e-6f !
-															 // Related to issue #2
-			
+			m_RenderingServer.DrawPoint(bulb.Transform.Position, glm::vec3{1.0f, 1.0f, 1.0f}, UNIQUE_NAME);
+
+			m_EntityServer.Tick(delta_time.count() * 10e-1f); // For some reason, it seems that to get second we need
+															  //  to multiply by 10e-1f and not the expected 10e-6f !
+															  //  Related to issue #2
+
 			Debug()->Profiler()->Begin("Render Frame");
 			m_RenderingServer.Render();
 			Debug()->Profiler()->End();

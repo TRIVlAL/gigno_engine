@@ -16,9 +16,9 @@ namespace gigno {
 
 	struct Transform_t
 	{
-		glm::vec3 translation{};
-		glm::vec3 scale{1.0f, 1.0f, 1.0f};
-		glm::vec3 rotation{};
+		glm::vec3 Position{};
+		glm::vec3 Scale{1.0f, 1.0f, 1.0f};
+		glm::vec3 Rotation{};
 
 		glm::mat4 TransformationMatrix() const;
 		glm::mat3 NormalMatrix() const;
