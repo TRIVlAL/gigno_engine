@@ -20,7 +20,7 @@ namespace gigno {
 
         const char *GetArg(uint32_t index) const;
 
-        bool GetArgInt(uint32_t arg_index, int64_t &output) const noexcept;
+        bool GetArgInt(uint32_t arg_index, int &output) const noexcept;
         bool GetArgFloat(uint32_t arg_index, float &output) const noexcept;
 
     private:

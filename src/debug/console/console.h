@@ -38,8 +38,7 @@ namespace gigno {
     };
 
     const bool CONSOLE_TO_PRINTF = true;                  // Are Console messages also forwarded to the standard console output ? (printf)
-    const int CONSOLE_MAX_MESSAGE_TO_RENDER = 12'000;     // 0 for rendering all messages.
-    const int CONSOLE_RENDER_FIRST_MESSAGE_COUNT = 2'000; // If there are more messages than the CONSOLE_MAX_MESSAGE_TO_RENDER,
+    const int CONSOLE_RENDER_FIRST_MESSAGE_COUNT = 2'000; // If there are more messages than the convar_console_max_message.Get(),
                                                           // CONSOLE_RENDER_FIRST_MESSAGE_COUNT of the first messages will be rendered,
                                                           // and the rest will be filled out by the most recent messages.
     const std::filesystem::path CONSOLE_LOG_FILEPATH{"log.txt"}; // The relative path to the file where the messages are logged

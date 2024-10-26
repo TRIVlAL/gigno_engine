@@ -1,0 +1,11 @@
+On the style of the code :
+- PascalCase for Classes
+- PascalCase_t for enum and structs
+- PascalCase for methods.
+- PascalCase for public class/structs variables
+- m_PascalCaseWithM for private ('member') class/struct variables
+- snake_case for scope variables defined in a method.
+- camelCase for function parameter.
+- Precede pointer name with a 'p' : pThisIsPointer (if meaningful. char *, for exemple, is not meaningful)
+- 'public:' block before 'private:' block in class header.
+- snake_case.h for file names.

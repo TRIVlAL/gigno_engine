@@ -74,9 +74,9 @@ namespace gigno {
         return strcmp(m_Words[0], other) == 0;
     }
 
-    bool CommandToken_t::GetArgInt(uint32_t arg_index, int64_t &output) const noexcept {
+    bool CommandToken_t::GetArgInt(uint32_t arg_index, int &output) const noexcept {
         char *end;
-        output = strtol(GetArg(arg_index), &end, 10);
+        output = (int)strtol(GetArg(arg_index), &end, 10);
         return (end != GetArg(arg_index) && *end == '\0' /*&& errno != ERANGE    ignore out of range !*/);
     }
 

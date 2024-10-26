@@ -16,7 +16,7 @@ namespace gigno {
         Command() = delete;
         Command(const char *name, CommandCallback_t callback, const char *help_string = "");
 
-        Command* pNext{};
+        Command *GetNext() { return m_pNext; }
 
         const char *GetName() { return m_Name; }
         const char *GetHelpString() { return m_HelpString; }
@@ -25,6 +25,8 @@ namespace gigno {
         
         static Command* s_pCommands;
     private:
+        Command* m_pNext{};
+
         CommandCallback_t *m_Callback;
         const char *m_Name;
         const char *m_HelpString;

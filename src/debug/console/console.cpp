@@ -4,8 +4,11 @@
 
 #include "../../error_macros.h"
 #include "command.h"
+#include "convar.h"
 
 namespace gigno {
+
+    CONVAR_HELP(uint, console_max_message, "Max number of messages rendered to the console. 0 = all messages", 15'000 );
 
     ConsoleMessage_t::ConsoleMessage_t(size_t size) : Size{size}, Message{new char[size], std::default_delete<char[]>()} {
     }
@@ -178,15 +181,28 @@ namespace gigno {
             return;
         }
 
-        Command *current = Command::s_pCommands;
-        while(current) {
-            if(token.CompareName(current->GetName())) {
-                current->Execute(token);
-                return;
+        {
+            Command *current = Command::s_pCommands;
+            while(current) {
+                if(token.CompareName(current->GetName())) {
+                    current->Execute(token);
+                    return;
+                }
+                current = current->GetNext();
             }
-            current = current->pNext;
         }
-        LogInfo("Command '%s' not found. use 'help' for the list of commands.", token.GetName());
+        {
+            ConVar *current = ConVar::s_pConVars;
+            while(current) {
+                if(token.CompareName(current->GetName())) {
+                    current->Set(token);
+                    return;
+                }
+                current = current->GetNext();
+            }
+        }
+        
+        LogInfo("No Command/Convar '%s' found. use 'help' for the list of commands.", token.GetName());
         #endif
     }
 
@@ -212,22 +228,24 @@ namespace gigno {
 
         ImGui::Separator();
 
+        int render_first_message_count = convar_console_max_message.Get() > CONSOLE_RENDER_FIRST_MESSAGE_COUNT ? CONSOLE_RENDER_FIRST_MESSAGE_COUNT : 0;
+
         ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4{0.2f, 0.2f, 0.2f, 0.8f});
         if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, -30.0f), ImGuiChildFlags_NavFlattened/*, ImGuiWindowFlags_HorizontalScrollbar*/)) {
-            if(CONSOLE_MAX_MESSAGE_TO_RENDER != 0 && m_Messages.size() > CONSOLE_MAX_MESSAGE_TO_RENDER) {
+            if(convar_console_max_message.Get() != 0 && m_Messages.size() > convar_console_max_message.Get()) {
                 ImGui::TextWrapped("%d Messages. Messages rendered limited to %d (the first %d and last %d) ",
-                                    m_Messages.size(),
-                                    CONSOLE_MAX_MESSAGE_TO_RENDER, 
-                                    CONSOLE_RENDER_FIRST_MESSAGE_COUNT, 
-                                    CONSOLE_MAX_MESSAGE_TO_RENDER - CONSOLE_RENDER_FIRST_MESSAGE_COUNT);
+                                   m_Messages.size(),
+                                   convar_console_max_message.Get(),
+                                   render_first_message_count,
+                                   convar_console_max_message.Get() - render_first_message_count);
                 ImGui::Separator();
             }
             int i = 0;
             bool has_skipped = false;
-            if(m_Messages.size() > CONSOLE_MAX_MESSAGE_TO_RENDER && CONSOLE_MAX_MESSAGE_TO_RENDER != 0 && CONSOLE_RENDER_FIRST_MESSAGE_COUNT == 0) {
-                i = m_Messages.size() - CONSOLE_MAX_MESSAGE_TO_RENDER;
+            if(m_Messages.size() > convar_console_max_message.Get() && convar_console_max_message.Get() != 0 && render_first_message_count == 0) {
+                i = m_Messages.size() - convar_console_max_message.Get();
                 has_skipped = true;
-                ImGui::TextWrapped("---- Skipped %d messages ----", m_Messages.size() - CONSOLE_MAX_MESSAGE_TO_RENDER);
+                ImGui::TextWrapped("---- Skipped %d messages ----", m_Messages.size() - convar_console_max_message.Get());
             }
             while(i < m_Messages.size()) {
                 ConsoleMessage_t& message = m_Messages[i];
@@ -262,9 +280,9 @@ namespace gigno {
                 ImGui::PopStyleColor();
 
                 i++;
-                if(!has_skipped && m_Messages.size() > CONSOLE_MAX_MESSAGE_TO_RENDER && CONSOLE_MAX_MESSAGE_TO_RENDER != 0 && i >= CONSOLE_RENDER_FIRST_MESSAGE_COUNT) {
-                    ImGui::TextWrapped("---- Skipped %d messages ----", m_Messages.size() - CONSOLE_MAX_MESSAGE_TO_RENDER);
-                    i = m_Messages.size() - CONSOLE_MAX_MESSAGE_TO_RENDER + CONSOLE_RENDER_FIRST_MESSAGE_COUNT; 
+                if(!has_skipped && m_Messages.size() > convar_console_max_message.Get() && convar_console_max_message.Get() != 0 && i >= render_first_message_count) {
+                    ImGui::TextWrapped("---- Skipped %d messages ----", m_Messages.size() - convar_console_max_message.Get());
+                    i = m_Messages.size() - convar_console_max_message.Get() + render_first_message_count;
                     has_skipped = true;
                 }
             }
@@ -285,5 +303,6 @@ namespace gigno {
         #endif
     }
     #endif
+
 
 }

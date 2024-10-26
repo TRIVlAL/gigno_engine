@@ -7,7 +7,7 @@
 #include "entities/lights/point_light.h"
 #include "entities/lights/environment_light.h"
 #include "features_usage.h"
-#include <thread>
+
 
 namespace gigno {
 
@@ -39,6 +39,7 @@ namespace gigno {
 		Debug()->GetConsole()->StartFileLogging();
 
 		ASSERT_MSG_V(glfwInit(), 1, "GLFW Failed to init");
+
 
 		RenderedEntity first{ModelData_t::FromObjFile("models/smooth_vase.obj")};
 		first.Transform.Position = glm::vec3{ 0.0f, 0.0f, 0.0f };
@@ -93,6 +94,8 @@ namespace gigno {
 		auto last_update_time = std::chrono::steady_clock::now();
 
 		m_EntityServer.Start();
+
+		
 
 		Debug()->GetConsole()->LogInfo(MESSAGE_NO_FILE_LOG_BIT, "Secret shhhhhh.");
 		while (!m_RenderingServer.WindowShouldClose()) {
