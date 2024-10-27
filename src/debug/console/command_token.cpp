@@ -73,16 +73,4 @@ namespace gigno {
     bool CommandToken_t::CompareName(const char *other) const {
         return strcmp(m_Words[0], other) == 0;
     }
-
-    bool CommandToken_t::GetArgInt(uint32_t arg_index, int &output) const noexcept {
-        char *end;
-        output = (int)strtol(GetArg(arg_index), &end, 10);
-        return (end != GetArg(arg_index) && *end == '\0' /*&& errno != ERANGE    ignore out of range !*/);
-    }
-
-    bool CommandToken_t::GetArgFloat(uint32_t arg_index, float &output) const noexcept {
-        char *end;
-        output = strtof(GetArg(arg_index), &end);
-        return (end != GetArg(arg_index) && *end == '\0');
-    }
 }

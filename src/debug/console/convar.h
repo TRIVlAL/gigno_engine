@@ -1,173 +1,111 @@
+/*
+    CONVAR
+A Console Variable (Convar) is a Global variable that can be modified AT RUNTIME from the Console. 
+    - The type of the variable must be fully stringify-able (see stringify.h for more info). That means that The following functions
+    are implemented for this type : ToString(...), FromString(...) and TypeString()
+    - Each Convars must be initialized IN GLOBAL SCOPE !
+
+    - you refer by a convar by its name (given in the constructor) to set it, followed by the necessary arguments.
+        - for exemple : an int convar called 'my_test1' is set to 5 by entering into the console 'my_test1 5'
+    - If the console is disabled, Convars act as simple constant variables.
+    - The convar of type T has an implicit conversion to the type T.
+*/
+
 #ifndef CONVAR_H
 #define CONVAR_H
 
-#include "command_token.h"
-#include <stdio.h>
-#include "glm/glm.hpp"
 #include "../../features_usage.h"
-#include <cstring>
+
+#if USE_CONSOLE
+
+#include "command_token.h"
+#include "../../stringify.h"
 
 namespace gigno {
-#if USE_CONSOLE
-    #define CONVAR(type, name, value, ...)\
-    static type##_ConVar convar_##name(#name, "", value, ##__VA_ARGS__)
-#else
-    #define CONVAR(type, name, value, ...)\
-    static type##_ConVar convar_##name(value)
-#endif
 
-#if USE_CONSOLE
-    #define CONVAR_HELP(type, name, helpstr, value, ...)\
-    static type##_ConVar convar_##name(#name, helpstr, value, ##__VA_ARGS__)
-#else
-    #define CONVAR_HELP(type, name, helpstr, value, ...)\
-    static type##_ConVar convar_##name(value)
-#endif
-
-#if USE_CONSOLE
-
-    class ConVar {
+    class BaseConvar {
     public:
-        static ConVar* s_pConVars;
-
-        ConVar() = delete;
-        ConVar(const char *name, const char *helpstr) :
-            m_Name{name}, m_HelpString{helpstr} {
-                m_pNext = s_pConVars;
-                s_pConVars = this;
+        BaseConvar(const char *name, const char *helpstr) 
+            : m_Name{name}, m_HelpString{helpstr} {
+            m_pNext = s_pConvars;
+            s_pConvars = this;
         }
 
         virtual void Set(const CommandToken_t &args) = 0;
-        virtual void Reset() = 0;
-        
-        virtual void PrintInfo(int flags) = 0;
+        virtual size_t ValToString(char *to) const = 0;
+        virtual const char *TypeToString() const = 0;
 
-        const char *GetHelpString() { return m_HelpString; }
+        const char *GetName() const { return m_Name; }
+        const char *GetHelpString() const { return m_HelpString; }
+        BaseConvar *GetNext() const { return m_pNext; }
 
-        ConVar* GetNext() { return m_pNext; }
-        const char *GetName() { return m_Name; }
-    private:
+        void LogInfo() const;
 
-        ConVar* m_pNext;
+        void HandleSetResult(const CommandToken_t &token, int result) const;
+
+        inline static BaseConvar *s_pConvars = nullptr;
+    private: 
+        BaseConvar *m_pNext;
+
         const char *m_Name;
         const char *m_HelpString;
     };
 
-#define DEFINE_CON_VAR_TYPE(type)                                                                                                                \
-    class type##_ConVar : ConVar                                                                                                                 \
-    {                                                                                                                                            \
-    public:                                                                                                                                      \
-        type##_ConVar() = delete;                                                                                                                \
-        type##_ConVar(const char *name, const char *helpstr, const type value) : ConVar(name, helpstr), m_Value{value}, m_DefaultValue{value} {} \
-                                                                                                                                                 \
-        virtual void Set(const CommandToken_t &args) override;                                                                                   \
-        virtual void Reset() override { m_Value = m_DefaultValue; }                                                                              \
-                                                                                                                                                 \
-        virtual void PrintInfo(int flags) override;                                                                         \
-                                                                                                                                                 \
-        type Get() { return m_Value; }                                                                                                           \
-                                                                                                                                                 \
-    private:                                                                                                                                     \
-        type m_Value;                                                                                                                            \
-        const type m_DefaultValue;                                                                                                               \
-    }
-
-#define DEFINE_CON_VAR_TYPE_NAME(type, name)                                                                                                     \
-    class name##_ConVar : ConVar                                                                                                                 \
-    {                                                                                                                                            \
-    public:                                                                                                                                      \
-        name##_ConVar() = delete;                                                                                                                \
-        name##_ConVar(const char *name, const char *helpstr, const type value) : ConVar(name, helpstr), m_Value{value}, m_DefaultValue{value} {} \
-                                                                                                                                                 \
-        virtual void Set(const CommandToken_t &args) override;                                                                                   \
-        virtual void Reset() override { m_Value = m_DefaultValue; }                                                                              \
-                                                                                                                                                 \
-        virtual void PrintInfo(int flags) override;                                                                        \
-                                                                                                                                                 \
-        type Get() { return m_Value; }                                                                                                           \
-                                                                                                                                                 \
-    private:                                                                                                                                     \
-        type m_Value;                                                                                                                            \
-        const type m_DefaultValue;                                                                                                               \
-    }
-
-#define DEFINE_CON_VAR_SETTER(type)                    \
-    void type##_ConVar::Set(const CommandToken_t &args)
-
-#define DEFINE_CON_VAR_PRINT_INFO(type)\
-    void type##_ConVar::PrintInfo(int flags)
-
-
-
-#else //USE_CONSOLE
-#define DEFINE_CON_VAR_TYPE(type) \
-    class type##_ConVar {\
-    public:\
-        type##_ConVar(type value) : m_Value{value} {}\
-        type Get() { return m_Value; }\
-    private:\
-        const type m_Value;\
-    }\
-
-#define DEFINE_CON_VAR_TYPE_NAME(type, name) \
-    class name##_ConVar {\
-    public:\
-        name##_ConVar(type value) : m_Value{value} {}\
-        type Get() { return m_Value; }\
-    private:\
-        type m_Value;\
-    }\
-
-#endif //USE_CONSOLE
-
-// BASE CONVAR TYPES:
-
-    DEFINE_CON_VAR_TYPE(int);
-
-    DEFINE_CON_VAR_TYPE(float);
-
-    DEFINE_CON_VAR_TYPE_NAME(unsigned int, uint);
-
-    DEFINE_CON_VAR_TYPE_NAME(glm::vec3, vec3);
-
-#if USE_CONSOLE
-    // The str_ConVar (i.e char *) is a bit more complex than the other ones. We can not use the macro there.
-    class str_ConVar : ConVar {
+    /*
+    T must be fully stringify-able (see strigify.h)
+    */
+    template<typename T>
+    class Convar : BaseConvar {
     public:
-        str_ConVar() = delete;
-        str_ConVar(const char *name, const char *helpstr, const char * value);
-        ~str_ConVar() {
-            delete[] m_Value;
+        Convar() = delete;
+        Convar(const char *name, const char *helpstr, T val)
+            : m_Value{val}, BaseConvar(name, helpstr) {}
+        
+        virtual void Set(const CommandToken_t &args) override {
+            if(args.GetArgC() > 0) {
+                std::pair<int, T> result = FromString<T>(args);
+                if(result.first) {
+                    BaseConvar::HandleSetResult(args, result.first);
+                    return;
+                }
+                m_Value = result.second;
+            }
+
+            LogInfo();
+        }
+        virtual size_t ValToString(char *to) const override {
+            return ToString<T>(to, m_Value);
+        }
+        virtual const char *TypeToString() const override {
+            return TypeString<T>();
         }
 
-        virtual void Set(const CommandToken_t &args) override;
-        virtual void Reset() override;
 
-        virtual void PrintInfo(int flags) override;
-
-        char * Get() { return m_Value; } 
-
+        operator T() const { return m_Value; }
     private:
-        char *m_Value{};
-        const char *m_DefaultValue;
+        T m_Value;
     };
-#else
-    class str_ConVar {
-    public:
-        str_ConVar(const char *value) {
-            size_t size = strlen(value) + 1;
-            m_Value = new char[size];
-            strcpy(m_Value, value);
-        }
-        ~str_ConVar() {
-            delete[] m_Value;
-        }
-        char *Get() { return m_Value; }
-    private:
-        char *m_Value;
-    };
-#endif
 
 }
+
+#else //USE_CONSOLE
+
+namespace gigno {
+
+    template<typename T>
+    class Convar {
+    public:
+        Convar() = delete;
+        Convar(const char *name, const char *helpstr, T val)
+            : m_Value{val} {}
+
+        operator T() const { return m_Value; }
+    private:
+        const T m_Value;
+    };
+
+}
+#endif
+
 
 #endif

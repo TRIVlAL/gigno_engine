@@ -41,7 +41,7 @@ namespace gigno {
     CONSOLE_COMMAND_HELP(help, "Usage : 'help' [command] to get help on a specific command or 'help' to get a list of all console commands.") {
         Console *console = Application::Singleton()->Debug()->GetConsole();
         Command *comm_current = Command::s_pCommands;
-        ConVar *convar_current = ConVar::s_pConVars;
+        BaseConvar *convar_current = BaseConvar::s_pConvars;
         if(args.GetArgC() == 0) {
             console->LogInfo("Usage : 'help' [command] to get help on a specific command. List of all console commands :"); 
             if(comm_current) {
@@ -74,9 +74,9 @@ namespace gigno {
             }
             while(convar_current) {
                 if(strcmp(convar_current->GetName(), args.GetArg(0)) == 0) {
-                    console->LogInfo(MESSAGE_NO_NEW_LINE_BIT, "ConVar");
-                    convar_current->PrintInfo(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_NEW_LINE_BIT);
-                    console->LogInfo(MESSAGE_NO_TIME_CODE_BIT, "     %s", convar_current->GetHelpString());
+                    char valuestr[convar_current->ValToString(nullptr)];
+                    convar_current->ValToString(valuestr);
+                    console->LogInfo("Convar '%s' = '%s' : %s", convar_current->GetName(), valuestr, convar_current->GetHelpString());
                     return;
                 }
                 convar_current = convar_current->GetNext();

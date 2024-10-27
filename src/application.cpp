@@ -7,6 +7,8 @@
 #include "entities/lights/point_light.h"
 #include "entities/lights/environment_light.h"
 #include "features_usage.h"
+#include "stringify.h"
+#include "debug/console/convar.h"
 
 
 namespace gigno {
@@ -95,10 +97,10 @@ namespace gigno {
 
 		m_EntityServer.Start();
 
-		
 
 		Debug()->GetConsole()->LogInfo(MESSAGE_NO_FILE_LOG_BIT, "Secret shhhhhh.");
 		while (!m_RenderingServer.WindowShouldClose()) {
+
 			Debug()->Profiler()->Begin("Main Loop");
 
 			m_RenderingServer.PollEvents();

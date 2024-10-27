@@ -11,6 +11,9 @@ namespace gigno {
         CommandToken_t(const char *expression);
         ~CommandToken_t();
 
+        CommandToken_t(const CommandToken_t &) = delete;
+        CommandToken_t &operator=(const CommandToken_t &) = delete;
+
         const char *GetName() const {
             return m_WordCount > 0 ? m_Words[0] : nullptr; 
         }
@@ -19,9 +22,6 @@ namespace gigno {
         uint32_t GetArgC() const { return m_WordCount - 1; }
 
         const char *GetArg(uint32_t index) const;
-
-        bool GetArgInt(uint32_t arg_index, int &output) const noexcept;
-        bool GetArgFloat(uint32_t arg_index, float &output) const noexcept;
 
     private:
         uint32_t m_WordCount{};
