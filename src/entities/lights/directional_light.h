@@ -6,7 +6,7 @@
 namespace gigno {
 
     class DirectionalLight : public Light {
-        ENABLE_SERIALIZE(DirectionalLight, Light)
+        ENABLE_SERIALIZATION(DireactionalLight);
     public:
         DirectionalLight() : Light() {};
         ~DirectionalLight() {}
@@ -17,6 +17,10 @@ namespace gigno {
         virtual uint32_t DataSlotsCount() const override { return 1; }
         virtual void FillDataSlots(glm::vec4 *data) const override;
     };
+
+    DEFINE_SERIALIZATION(DirectionalLight) {
+        
+    }
 
 }
 

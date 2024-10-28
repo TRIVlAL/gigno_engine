@@ -8,7 +8,7 @@
 namespace gigno {
 
 	class RenderedEntity : public Entity {
-		ENABLE_SERIALIZE(RenderedEntity, Entity);
+		ENABLE_SERIALIZATION(RenderedEntity);
 	public:
 		RenderedEntity(ModelData_t modelData);
 		~RenderedEntity();
@@ -19,6 +19,10 @@ namespace gigno {
 		// 'nullptr' if is last element.
 		RenderedEntity *pNextRenderedEntity{};
 	};
+
+	DEFINE_SERIALIZATION(RenderedEntity) {
+		SERIALIZE_BASE_CLASS(Entity);
+	}
 
 }
 

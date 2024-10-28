@@ -12,7 +12,6 @@
 
 namespace gigno {
 	class Application;
-	struct PropertySerializationData_t;
 
 	struct Transform_t
 	{
@@ -69,7 +68,7 @@ namespace gigno {
 		// Called Every Tick by the Entity Server
 		virtual void Think(float dt) {};
 
-		std::string Name{};
+		const char *Name = "";
 		Transform_t Transform{};
 
 		// Next entity in the EntityServer's chain of all entities (linked list). Set on construction.
@@ -80,11 +79,13 @@ namespace gigno {
 
 		//SERIALIZATION--------------------------------------------------------------
 
-		std::vector<PropertySerializationData_t> serializedProps{};
+		/*
+		Pointers to heap-allocated serialized properties for every data that we want to serialize
+		*/
+		std::vector<BaseSerializedProperty *> serializedProps{};
 		virtual void AddSerializedProperties();
-		public: virtual std::string GetTypeName() { return std::string{"Entity"}; }; protected:
-
-
+	public:
+		virtual const char *GetTypeName() const { return "Entity"; };
 	};
 
 }

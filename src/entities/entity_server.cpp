@@ -44,7 +44,7 @@ namespace gigno {
 			}
 			curr = curr->pNextEntity;
 		}
-		ERR_MSG("Tried to remove entity '%s' but it was never added.", (entity->Name == "" ? "No name" : entity->Name.c_str()));
+		ERR_MSG("Tried to remove entity '%s' but it was never added.", (*entity->Name == '\0' ? "No name" : entity->Name));
 	}
 
 #if USE_IMGUI
@@ -66,23 +66,31 @@ namespace gigno {
 				ImGui::SetNextItemOpen(open_action);
 			}
 
-			std::string typeName = curr->GetTypeName();
-			if(typeName == "#Noname") {
-				continue;
+			const char *typeName = curr->GetTypeName();
+			const char *name = curr->Name;
+			if(!name || *name == '\0') {
+				name = "No name";
 			}
-			if(ImGui::CollapsingHeader((std::to_string(i) + ". " + (curr->Name == "" ? "No name" : curr->Name) + " (" + typeName + ")").data())) {
+			size_t header_size = snprintf(nullptr, 0, "%d. %s (%s)", i, name, typeName) + 1;
+			char header[header_size];
+			snprintf(header, header_size, "%d. %s (%s)", i, name, typeName);
+			if(ImGui::CollapsingHeader(header)) {
+				bool did_one = false;
+				for(BaseSerializedProperty *prop : Serialization::GetProperties(curr)) {
 
-				for(PropertySerializationData_t data : Serialization::GetProperties(curr)) {
-
-					if(Serialization::IsSpecialToken(data)) {
-						Serialization::HandleSpecialTokenForImGui(data);
+					if(Serialization::IsSpecialToken(prop)) {
+						Serialization::HandleSpecialTokenForImGui(prop);
 						continue;
 					}
 
-					std::string valueString;
-					if(data.ToString(valueString)) {
-						ImGui::BulletText((data.Name + " : " + valueString).data());
-					}
+					size_t value_str_size = prop->ValueToString(nullptr);
+					char value_str[value_str_size];
+					prop->ValueToString(value_str);
+					ImGui::BulletText("%s : %s", prop->GetName(), value_str);
+					did_one = true;
+				}
+				if(!did_one) {
+					ImGui::Text("* nothing to serialize *");
 				}
 			}
 			curr = curr->pNextEntity;

@@ -4,9 +4,7 @@
 namespace gigno {
 
     class Spinner : public RenderedEntity {
-        BEGIN_SERIALIZE(Spinner, RenderedEntity)
-        SERIALIZE(float, Speed);
-        END_SERIALIZE
+        ENABLE_SERIALIZATION(Spinner);
     public:
         Spinner(ModelData_t modelData) : RenderedEntity(modelData) {}
 
@@ -20,5 +18,11 @@ namespace gigno {
             Transform.Rotation.y = glm::mod<float>(Transform.Rotation.y + (Speed * dt), glm::two_pi<float>());
         }
     };
+
+    DEFINE_SERIALIZATION(Spinner) {
+        SERIALIZE_BASE_CLASS(RenderedEntity);
+
+        SERIALIZE(float, Speed);
+    }
 
 }

@@ -24,9 +24,7 @@ namespace gigno {
 	};
 
 	class Camera : public Entity {
-		BEGIN_SERIALIZE(Camera, Entity)
-		SERIALIZE(int, m_LookMode);
-		END_SERIALIZE
+		ENABLE_SERIALIZATION(Camera);
 	public:
 		Camera();
 		Camera(float left, float right, float top, float bottom, float near, float far);
@@ -55,6 +53,10 @@ namespace gigno {
 
 		glm::mat4 m_ProjectionMatrix = { 1.0f };
 	};
+
+	DEFINE_SERIALIZATION(Camera) {
+		SERIALIZE_BASE_CLASS(Entity);
+	}
 
 }
 

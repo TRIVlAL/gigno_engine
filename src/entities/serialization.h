@@ -4,104 +4,89 @@
 #include <vector>
 #include "string"
 #include "../features_usage.h"
+#include "../stringify.h"
 
 #if USE_IMGUI
     #include "../rendering/gui.h"
 #endif
 
-/*
-HOW TO USE SERIALIZATION:
-
-Any Entity can serialize any number of properties (variables) so that they can be accessed through the static method Serialization::GetProperties( ... ).
-Simply add at the top of the class declaration that derives Entity the following macros.
-
-in between BEGIN_SERIALIZE and END_SERIALIZE, add the macro SERIALIZE for each property you wish to serialize.
-
-Now, any time someone will call GetProperties( ... ) with this entity as a parameter, they will recieve a vector of every properties,
-with their name, their type as a string, and a void pointer to their value.
-
-Even if you don't want to Serialize data for this class, you should still add the macros to make sure that data is still serialized 
-by the base classes. In that case, simply use ENABLE_SERIALIZE():
-
-    EXAMPLE:
-
-    class Foo : DerivesFromEntity {
-        BEGIN_SERIALIZE( Foo, DerivesFromEntity )
-        SERIALIZE(int meber_variable)
-        END_SERIALIZE
-
-        int member_variable;
-        //...
-    }
-
-    class Bar : DerivesFromEntity { // Bar does not want to serialize any additional data
-        ENABLE_SERIALIZE( Bar, DerivesFromEntity )
-
-        //...
-    }
-
-SPECIAL TOKENS:
-
-If you wish to have special layout option, you can use the macros : SERIALIZATION_LINE_SKIP, SERIALIZATION_SEPARATOR.
-This will add properties with special Serialization Token as Name. These token always start with a hashtag '#'.
-You can check if the property is a special token using Serialization::IsSpecialToken( ... ). These token can be handled
-differently by any implementation you need. In the case of a ImGui ui, the method Serialization::HandleSpecialTokenForImGui( ... )
-can be used.
-*/
-
-#define ENABLE_SERIALIZE(entity_type_name, base_class) BEGIN_SERIALIZE(entity_type_name, base_class) END_SERIALIZE;
-
-#define BEGIN_SERIALIZE(entity_type_name, base_class)                                     \
-public:                                                                                   \
-    virtual std::string GetTypeName() override { return std::string{#entity_type_name}; } \
-                                                                                          \
-protected:                                                                                \
-    virtual void AddSerializedProperties() override                                       \
-    {                                                                                     \
-        base_class::AddSerializedProperties();                                            \
-        SERIALIZATION_SEPARATOR;
-
-#define END_SERIALIZE \
-    }                 \
-                      \
-private:
-
-#define SERIALIZE(type, name) serializedProps.push_back(PropertySerializationData_t{std::string{#name}, (void *)&name, std::string{#type}});
-
-#define SERIALIZATION_LINE_SKIP serializedProps.push_back(PropertySerializationData_t{std::string{"#LINE_SKIP"}, nullptr, std::string{""}});
-#define SERIALIZATION_SEPARATOR serializedProps.push_back(PropertySerializationData_t{std::string{"#SEPARATOR"}, nullptr, std::string{""}});
-
 namespace gigno {
     class Entity;
 
-    /*
-    Represents an Entity property (variable) that has been serialized.
+#define ENABLE_SERIALIZATION(type)\
+    public: inline virtual void AddSerializedProperties() override; virtual const char *GetTypeName() const override { return #type; }; private:\
 
-    Implementation:
-        * If you wish to add a new type to be serializable, modify ToString( ... )
-    */
-    struct PropertySerializationData_t
+
+#define DEFINE_SERIALIZATION(type)                          \
+    template <>                                             \
+    constexpr inline const char *TypeString<type>() { return #type; } \
+    void type::AddSerializedProperties()
+
+#define SERIALIZE(type, name)\
+    serializedProps.push_back(new SerializedProperty<type>(#name, &name))
+
+#define SERIALIZATION_LINE_SKIP\
+    serializedProps.push_back(new EmptySerializedProperty("#LINE_SKIP"))
+
+#define SERIALIZATION_SEPARATOR\
+    serializedProps.push_back(new EmptySerializedProperty("#SEPARATOR"))
+
+#define SERIALIZE_BASE_CLASS(base_class)\
+    base_class::AddSerializedProperties(); SERIALIZATION_SEPARATOR;
+
+    class BaseSerializedProperty
     {
-        const std::string Name{};
-        const void *Value{};
-        /// @brief The type of the value, as a string (i.e "int" or "float" or "vec3")
-        const std::string Type{};
+    public:
+        BaseSerializedProperty() = delete;
+        BaseSerializedProperty(const char *name, void *data)
+            : m_Name{name}, m_Data{data} {}
 
-        /// @brief to get the Value of a Property, as a string.
-        /// @param to will be set to the string value of the property
-        /// @return was it a success ?
-        bool ToString(std::string &to);
+        virtual size_t ValueToString(char *to) const = 0;
+        virtual const char *TypeToString() const = 0;
+        const char *GetName() const { return m_Name; }
+        void *GetData() const { return m_Data; }
+    private:
+        const char *m_Name;
+        void *m_Data;
     };
 
+    template<typename T>
+    class SerializedProperty : public BaseSerializedProperty {
+    public:
+        SerializedProperty() = delete;
+        SerializedProperty(const char* name, T* data) 
+            : BaseSerializedProperty(name, static_cast<void *>(data)) {}
+
+        virtual size_t ValueToString(char *to) const override {
+            return ToString<T>(to, *(static_cast<T*>(GetData())));
+        }
+        virtual const char *TypeToString() const override {
+            return TypeString<T>();
+        }
+    };
+
+    class EmptySerializedProperty : public BaseSerializedProperty {
+    public:
+        EmptySerializedProperty() = delete;
+        EmptySerializedProperty(const char *tag) 
+            : BaseSerializedProperty(tag, nullptr) {}
+        
+        virtual size_t ValueToString(char *to) const override {
+            return -1;
+        }
+        virtual const char *TypeToString() const override {
+            return "<serialization tag>";
+        }
+    };
     
     class Serialization { // See top of the file for explanation / How-To.
         Serialization() = delete;
     public:
-        static std::vector<PropertySerializationData_t> GetProperties(const Entity *entity);
-        static bool IsSpecialToken(const PropertySerializationData_t &prop);
-    #if USE_IMGUI
-        static void HandleSpecialTokenForImGui(const PropertySerializationData_t &prop);
-    #endif
+        static const std::vector<BaseSerializedProperty *>& GetProperties(const Entity *entity);
+        static bool IsSpecialToken(BaseSerializedProperty *prop);
+#if USE_IMGUI
+        static void HandleSpecialTokenForImGui(const BaseSerializedProperty *prop);
+#endif
     };
 
 }

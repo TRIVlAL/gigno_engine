@@ -50,12 +50,14 @@ namespace  gigno {
 
 	Entity::~Entity() {
 		GetApp()->GetEntityServer()->RemoveEntity(this);
+		for(BaseSerializedProperty *prop : serializedProps) {
+			delete prop;
+		}
 	}
 
-	void Entity::AddSerializedProperties() {
-		serializedProps.reserve(3);
+	DEFINE_SERIALIZATION(Entity) {
 		SERIALIZE(glm::vec3, Transform.Position);
-		SERIALIZE(glm::vec3, Transform.Scale);
 		SERIALIZE(glm::vec3, Transform.Rotation);
+		SERIALIZE(glm::vec3, Transform.Scale);
 	}
 }

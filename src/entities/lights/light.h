@@ -10,7 +10,7 @@ namespace gigno {
     const float LIGHT_DATA_ENVIRONMENT = 3.0f;
 
     class Light : public Entity {
-        ENABLE_SERIALIZE(Light, Entity)
+        ENABLE_SERIALIZATION(Light);
     public:
         Light();
         ~Light();
@@ -21,7 +21,9 @@ namespace gigno {
     private:
     };
 
-
+    DEFINE_SERIALIZATION(Light) {
+        SERIALIZE_BASE_CLASS(Entity);
+    }
 }
 
 #endif

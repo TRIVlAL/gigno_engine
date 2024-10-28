@@ -6,7 +6,7 @@
 namespace gigno {
 
 	class DomeCamera : public Camera {
-		ENABLE_SERIALIZE(DomeCamera, Camera)
+		ENABLE_SERIALIZATION(DomeCamera);
 	public:
 		DomeCamera(float moveSpeed);
 		DomeCamera(float moveSpeed, CAMERA_ORTHOGRAPHIC_ARGUMENTS_TYPED);
@@ -21,6 +21,10 @@ namespace gigno {
 		glm::vec3 m_Target{};
 		float m_DistanceToTarget{};
 	};
+
+	DEFINE_SERIALIZATION(DomeCamera) {
+		SERIALIZE_BASE_CLASS(Camera);
+	}
 
 }
 

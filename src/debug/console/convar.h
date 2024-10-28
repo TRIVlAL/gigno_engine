@@ -9,6 +9,7 @@ A Console Variable (Convar) is a Global variable that can be modified AT RUNTIME
         - for exemple : an int convar called 'my_test1' is set to 5 by entering into the console 'my_test1 5'
     - If the console is disabled, Convars act as simple constant variables.
     - The convar of type T has an implicit conversion to the type T.
+    - T's copy constructor must exist.
 */
 
 #ifndef CONVAR_H

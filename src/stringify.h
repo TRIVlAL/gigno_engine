@@ -16,6 +16,7 @@
 #include <cstring>
 #include <cerrno>
 #include "debug/console/command_token.h"
+#include "glm/glm.hpp"
 
 namespace gigno {
 
@@ -55,6 +56,22 @@ namespace gigno {
         size_t size = snprintf(nullptr, 0, "%u", from) + 1;
         if(to)
             snprintf(to, size, "%u", from);
+        return size;
+    }
+
+    template<> inline
+    size_t ToString<float>(char *to, const float& from) {
+        size_t size = snprintf(nullptr, 0, "%f", from) + 1;
+        if(to)
+            snprintf(to, size, "%f", from);
+        return size;
+    }
+
+    template<> inline
+    size_t ToString<glm::vec3>(char *to, const glm::vec3 & from) {
+        size_t size = snprintf(nullptr, 0, "(%f, %f, %f)", from.x, from.y, from.z) + 1;
+        if(to)
+            snprintf(to, size, "(%f, %f, %f)", from.x, from.y, from.z);
         return size;
     }
 
@@ -141,6 +158,12 @@ namespace gigno {
 
     template<> inline
     constexpr const char *TypeString<unsigned int>() { return "unsigned int"; }
+    
+    template<> inline
+    constexpr const char *TypeString<float>() { return "float"; }
+
+    template<> inline
+    constexpr const char *TypeString<glm::vec3>() { return "vec3"; }
 
 }
 

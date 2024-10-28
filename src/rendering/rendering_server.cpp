@@ -69,7 +69,7 @@ namespace gigno {
 			}
 			curr = curr->pNextRenderedEntity;
 		}
-		ERR_MSG("Tried to unsubsribe rendered entity '%s' but it was not subscribed.", entity->Name == "" ? "No name" : entity->Name.c_str());
+		ERR_MSG("Tried to unsubsribe rendered entity '%s' but it was not subscribed.", entity->Name == "" ? "No name" : entity->Name);
 	}
 
 	void RenderingServer::SubscribeLightEntity(Light *light)
