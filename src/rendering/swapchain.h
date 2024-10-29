@@ -9,13 +9,13 @@
 
 #include "model.h"
 
-#include "../core_macros.h"
+#include "../features_usage.h"
 
 #include "glm/glm.hpp"
 
 namespace gigno {
 
-	const int MAX_FRAMES_IN_FLIGHT = 2;
+	const size_t MAX_FRAMES_IN_FLIGHT = 2;
 
 	/*
 	Per-Entity data pushed to the shader.
@@ -43,7 +43,7 @@ namespace gigno {
 		glm::vec4 lightDatas[MAX_LIGHT_DATA_COUNT];
 	};
 
-	class giDevice;
+	class Device;
 	struct SwapChainSupportDetails;
 	struct QueueFamilyIndices;
 	struct SceneRenderingData_t;
@@ -66,10 +66,10 @@ namespace gigno {
 		  * void Recreate( ... )
 		* Lifetime : Must outlive the device used for initialization/clean up.
 	*/
-	class giSwapChain
+	class SwapChain
 	{
 	public:
-		giSwapChain(const giDevice &device, const Window *window, const std::string &vertShaderPath, const std::string &fragShaderPath);
+		SwapChain(const Device &device, const Window *window, const std::string &vertShaderPath, const std::string &fragShaderPath);
 
 		void CleanUp(VkDevice device);
 
@@ -85,7 +85,7 @@ namespace gigno {
 		@brief Recreates the Vulkan structs needed. To be called if the window size changed.
 		@param device same device as the one used on initialization/clean up 
 		*/
-		void Recreate(const giDevice &device, const Window *window, const std::string &vertShaderPath, const std::string &fragShaderPath);
+		void Recreate(const Device &device, const Window *window, const std::string &vertShaderPath, const std::string &fragShaderPath);
 
 		/* 
 		@brief Fills the command buffer so that it is ready to be Submitted to vulkan. Updates the data pushed to the shader (Push Constants, Uniform Buffer)
@@ -130,7 +130,7 @@ namespace gigno {
 
 		void RecordCommandBuffer(VkCommandBuffer buffer, uint32_t currentFrame, uint32_t imageIndex, const SceneRenderingData_t &sceneData);
 
-		void RenderEntities(VkCommandBuffer buffer, const std::vector<const RenderedEntity *> &entities, uint32_t currentFrame);
+		void RenderEntities(VkCommandBuffer buffer, const RenderedEntity * entities, uint32_t currentFrame);
 
 		#if USE_DEBUG_DRAWING
 		void RenderDebugDrawings(VkCommandBuffer buffer, const Camera *camera, uint32_t currentFrame);

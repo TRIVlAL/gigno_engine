@@ -9,7 +9,7 @@ int main() {
 	int result = app->run();
 
 	if (result) {
-		std::cout << "Gigno Application exited with code " << (int)result << " (not sccess)";
+		printf("Gigno Application exited with code %d (not success).", result);
 	}
 
 	gigno::Application::ShutdownApp();

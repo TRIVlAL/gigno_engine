@@ -1,13 +1,14 @@
 #include <GLFW/glfw3.h>
-#include "../core_macros.h"
+#include "../error_macros.h"
 #include <cstring>
 #include <set>
 #include "swapchain.h"
 #include "device.h"
+#include "../application.h"
 
 namespace gigno {
 
-	giDevice::giDevice(const Window *window) {
+	Device::Device(const Window *window) {
 		CreateInstance();
 		if (m_EnableValidationLayer) {
 			CreateDebugMessenger();
@@ -18,7 +19,7 @@ namespace gigno {
 	}
 
 
-	giDevice::~giDevice() {
+	Device::~Device() {
 		vkDestroyDevice(m_VkDevice, nullptr);
 
 		//Destroy Debug Messenger
@@ -35,7 +36,7 @@ namespace gigno {
 
 	
 
-	void giDevice::CreateInstance() {
+	void Device::CreateInstance() {
 		if (m_EnableValidationLayer && !CheckValidationLayerSupport()) {
 			std::cerr << "ERROR ! VULKAN Validation layer requested, but not avaliable !\n";
 		}
@@ -75,39 +76,39 @@ namespace gigno {
 		VkResult result = vkCreateInstance(&createinfo, nullptr, &m_VkInstance);
 
 		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to create Vulkan Instance ! Vulkan error code : " << (int)result);
+			ERR_MSG("Failed to create Vulkan Instance ! Vulkan error code : %d", (int)result);
 		}
 	}
 
-	void giDevice::CreateDebugMessenger() {
+	void Device::CreateDebugMessenger() {
 		if (!m_EnableValidationLayer) return;
 
 		VkDebugUtilsMessengerCreateInfoEXT createinfo;
 		PopulateDebugMessengerCreateInfo(createinfo);
 
-		auto funcCreateMessenger = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(m_VkInstance, "vkCreateDebugUtilsMessengerEXT");
+		auto func_create_messenger = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(m_VkInstance, "vkCreateDebugUtilsMessengerEXT");
 		VkResult result;
-		if (funcCreateMessenger != nullptr) {
-			result = funcCreateMessenger(m_VkInstance, &createinfo, nullptr, &m_DebugMessenger);
+		if (func_create_messenger != nullptr) {
+			result = func_create_messenger(m_VkInstance, &createinfo, nullptr, &m_DebugMessenger);
 		}
 		else {
 			result = VK_ERROR_EXTENSION_NOT_PRESENT;
 		}
 
 		if (result != VK_SUCCESS) {
-			ERR_MSG("VALIDATION LAYER : Failed to create Debug Messenger ! Vulkan error code " << (int)result);
+			ERR_MSG("VALIDATION LAYER : Failed to create Debug Messenger ! Vulkan error code %d", (int)result);
 		}
 	}
 
-	void giDevice::PickPhysicalDevice() {
+	void Device::PickPhysicalDevice() {
 
-		uint32_t deviceCount = 0;
-		vkEnumeratePhysicalDevices(m_VkInstance, &deviceCount, nullptr);
+		uint32_t device_count = 0;
+		vkEnumeratePhysicalDevices(m_VkInstance, &device_count, nullptr);
 
-		ASSERT_MSG(deviceCount > 0, "No GPU with Vulkan Support found !");
+		ASSERT_MSG(device_count > 0, "No GPU with Vulkan Support found !");
 
-		std::vector<VkPhysicalDevice> devices(deviceCount);
-		vkEnumeratePhysicalDevices(m_VkInstance, &deviceCount, devices.data());
+		std::vector<VkPhysicalDevice> devices(device_count);
+		vkEnumeratePhysicalDevices(m_VkInstance, &device_count, devices.data());
 
 		for (auto &device : devices) {
 			if (IsPhysicalDeviceSuitable(device)) {
@@ -119,22 +120,23 @@ namespace gigno {
 		ASSERT_MSG((m_PhysicalDevice != VK_NULL_HANDLE), "No Suitable GPU Found !");
 	}
 
-	void giDevice::CreateVulkanDevice() {
+	void Device::CreateVulkanDevice() {
 		QueueFamilyIndices indices = FindQueueFamiliyIndices(m_PhysicalDevice);
 		
-		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-		std::set<uint32_t> uniqueQueueFamilyIndices = { indices.graphicFamily.value(), indices.presentFamily.value()};
+		std::vector<VkDeviceQueueCreateInfo> queue_create_infos;
+		std::set<uint32_t> unique_queue_family_indices = { indices.graphicFamily.value(), indices.presentFamily.value()};
+		queue_create_infos.reserve(unique_queue_family_indices.size());
 
-		float queuePrioriy = 1.0f;
+		float queue_prioriy = 1.0f;
 
-		for (uint32_t queueFamilyIndex : uniqueQueueFamilyIndices) {
+		for (uint32_t queueFamilyIndex : unique_queue_family_indices) {
 			VkDeviceQueueCreateInfo queueCreateInfo{};
 			queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 			queueCreateInfo.pNext = nullptr;
 			queueCreateInfo.queueFamilyIndex = indices.graphicFamily.value();
 			queueCreateInfo.queueCount = 1;
-			queueCreateInfo.pQueuePriorities = &queuePrioriy;
-			queueCreateInfos.push_back(queueCreateInfo);
+			queueCreateInfo.pQueuePriorities = &queue_prioriy;
+			queue_create_infos.push_back(queueCreateInfo);
 		}
 		
 		VkPhysicalDeviceFeatures deviceFeatures{};
@@ -142,8 +144,8 @@ namespace gigno {
 		VkDeviceCreateInfo deviceCreateInfo{};
 		deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 		deviceCreateInfo.pNext = nullptr;
-		deviceCreateInfo.queueCreateInfoCount = queueCreateInfos.size();
-		deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
+		deviceCreateInfo.queueCreateInfoCount = queue_create_infos.size();
+		deviceCreateInfo.pQueueCreateInfos = queue_create_infos.data();
 		if (m_EnableValidationLayer) {
 			deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(m_ValidationLayers.size());
 			deviceCreateInfo.ppEnabledLayerNames = m_ValidationLayers.data();
@@ -157,24 +159,24 @@ namespace gigno {
 
 		VkResult result = vkCreateDevice(m_PhysicalDevice, &deviceCreateInfo, nullptr, &m_VkDevice);
 		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to create Vulkan Logical Device ! Vulkan error code : " << (int)result);
+			ERR_MSG("Failed to create Vulkan Logical Device ! Vulkan error code %d ", (int)result);
 		}
 
 		vkGetDeviceQueue(m_VkDevice, indices.graphicFamily.value(), 0, &m_GraphicsQueue);
 		vkGetDeviceQueue(m_VkDevice, indices.presentFamily.value(), 0, &m_PresentQueue);
 	}
 
-	void giDevice::CreateSurface(const Window *window) {
+	void Device::CreateSurface(const Window *window) {
 		window->CreateWindowSurface(m_VkInstance, &m_Surface);
 	}
 
 #ifndef NDEBUG
-	bool giDevice::CheckValidationLayerSupport() {
-		uint32_t layerCount = 0;
-		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+	bool Device::CheckValidationLayerSupport() {
+		uint32_t layer_count = 0;
+		vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
 
-		std::vector<VkLayerProperties> avaliables(layerCount);
-		vkEnumerateInstanceLayerProperties(&layerCount, avaliables.data());
+		std::vector<VkLayerProperties> avaliables(layer_count);
+		vkEnumerateInstanceLayerProperties(&layer_count, avaliables.data());
 
 		for (const char *layer : m_ValidationLayers) {
 			bool found = false;
@@ -194,32 +196,32 @@ namespace gigno {
 	}
 #endif
 
-	VKAPI_ATTR VkBool32 VKAPI_CALL giDevice::ValidationLayerDebugCallback(
-		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-		VkDebugUtilsMessageTypeFlagsEXT messageType,
-		const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-		void *pUserData) {
-		if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
-			std::cout << "VERBOSE: VULKAN Validation Layer : " << pCallbackData->pMessage << std::endl;
+	VKAPI_ATTR VkBool32 VKAPI_CALL Device::ValidationLayerDebugCallback(
+			VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
+			VkDebugUtilsMessageTypeFlagsEXT message_type,
+			const VkDebugUtilsMessengerCallbackDataEXT *callback_data,
+			void *pUserData) {
+		if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
+			printf("VERBOSE: VULKAN Validation Layer : %s\n", callback_data->pMessage);
 		}
-		else if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
-			std::cerr << "ERROR: VULKAN Validation Layer : " << pCallbackData->pMessage << std::endl;
+		else if (message_severity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
+			ERR_MSG_V(VK_FALSE, "VULKAN Validation Layer : %s", callback_data->pMessage);
 		}
-		else if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-			std::cout << "WARNING: VULKAN Validation Layer : " << pCallbackData->pMessage << std::endl;
+		else if (message_severity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+			printf("WARNING: VULKAN Validation Layer : %s\n", callback_data->pMessage);
 		}
 		else {
-			std::cout << "VULKAN Validation Layer : " << pCallbackData->pMessage << std::endl;
+			printf("VULKAN Validation Layer : %s\n", callback_data->pMessage);
 		}
 		return VK_FALSE;
 	}
 
-	std::vector<const char *> giDevice::GetRequiredExtensions() {
-		uint32_t glfwExtensionCount = 0;
-		const char **glfwExtensions;
-		glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+	std::vector<const char *> Device::GetRequiredExtensions() {
+		uint32_t glfw_extension_count = 0;
+		const char **glfw_extensions;
+		glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
 
-		std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+		std::vector<const char *> extensions{glfw_extensions, glfw_extensions + glfw_extension_count};
 
 		if (m_EnableValidationLayer) {
 			extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -228,7 +230,7 @@ namespace gigno {
 		return extensions;
 	}
 
-	void giDevice::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &info) {
+	void Device::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &info) {
 		info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 		info.pNext = nullptr;
 		info.messageSeverity =
@@ -245,80 +247,79 @@ namespace gigno {
 		info.pUserData = nullptr;
 	}
 
-	bool giDevice::IsPhysicalDeviceSuitable(const VkPhysicalDevice& device) {
-		bool extensionsSupported = CheckDeviceExtensionSupport(device);
+	bool Device::IsPhysicalDeviceSuitable(const VkPhysicalDevice& device) {
+		bool extensions_supported = CheckDeviceExtensionSupport(device);
 
-		bool swapChainAdequate = false;
-		if (extensionsSupported) {
+		bool swap_chain_adequate = false;
+		if (extensions_supported) {
 			SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(device);
-			swapChainAdequate = !swapChainSupport.presentModes.empty() && !swapChainSupport.formats.empty();
+			swap_chain_adequate = !swapChainSupport.presentModes.empty() && !swapChainSupport.formats.empty();
 		}
 
-		return FindQueueFamiliyIndices(device).IsComplete() && extensionsSupported && swapChainAdequate;
+		return FindQueueFamiliyIndices(device).IsComplete() && extensions_supported && swap_chain_adequate;
 	}
 
-	QueueFamilyIndices giDevice::FindQueueFamiliyIndices(const VkPhysicalDevice &device) const {
-		uint32_t queueFamilyCount = 0;
-		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+	QueueFamilyIndices Device::FindQueueFamiliyIndices(const VkPhysicalDevice &device) const {
+		uint32_t queue_fam_count = 0;
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_fam_count, nullptr);
 
-		std::vector<VkQueueFamilyProperties> queueFamilyProperties(queueFamilyCount);
-		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilyProperties.data());
+		std::vector<VkQueueFamilyProperties> queue_fam_properties(queue_fam_count);
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_fam_count, queue_fam_properties.data());
 
 		QueueFamilyIndices indices{};
-		int i = 0;
-		for (const auto &queueFamilyProperty : queueFamilyProperties) {
-			VkBool32 supportsPresent = false;
-			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, m_Surface, &supportsPresent);
-			if (supportsPresent) {
+
+		for (size_t i = 0; i < queue_fam_properties.size(); i++) {
+			const auto &queue_fam_property = queue_fam_properties[i];
+			VkBool32 supports_present = false;
+			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, m_Surface, &supports_present);
+			if (supports_present) {
 				indices.presentFamily = i;
 			}
-			if (queueFamilyProperty.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+			if (queue_fam_property.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
 				indices.graphicFamily = i;
 			}
 
 			if (indices.IsComplete()) {
 				break;
 			}
-
-			i++;
 		}
 
 		return indices;
 	}
 
-	bool giDevice::CheckDeviceExtensionSupport(const VkPhysicalDevice &device) {
-		uint32_t extensionCount = 0;
-		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+	bool Device::CheckDeviceExtensionSupport(const VkPhysicalDevice &device) {
+		uint32_t extension_count = 0;
+		vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, nullptr);
 
-		std::vector<VkExtensionProperties> extensionPorperties(extensionCount);
-		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, extensionPorperties.data());
+		std::vector<VkExtensionProperties> extension_porperties(extension_count);
+		vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, extension_porperties.data());
 
-		std::set<std::string> uniqueRequiredExtensions(m_DeviceExtensions.begin(), m_DeviceExtensions.end());
-		for (auto &extentionProperty : extensionPorperties) {
-			uniqueRequiredExtensions.erase(extentionProperty.extensionName);
+		std::set<std::string> unique_required_extensions(m_DeviceExtensions.begin(), m_DeviceExtensions.end());
+		for (auto &extentionProperty : extension_porperties) {
+			unique_required_extensions.erase(extentionProperty.extensionName);
 		}
 
-		return uniqueRequiredExtensions.empty();
+		return unique_required_extensions.empty();
 	}
 
-	SwapChainSupportDetails giDevice::QuerySwapChainSupport(const VkPhysicalDevice &device) const {
+	SwapChainSupportDetails Device::QuerySwapChainSupport(const VkPhysicalDevice &device) const {
 		SwapChainSupportDetails details{};
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_Surface, &details.surfaceCapabilities);
 
-		uint32_t formatsCount;
-		vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_Surface, &formatsCount, nullptr);
+		uint32_t formats_count;
+		vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_Surface, &formats_count, nullptr);
 
-		if (formatsCount != 0) { 
-				details.formats.resize(formatsCount);
-			vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_Surface, &formatsCount, details.formats.data());
+		if (formats_count != 0) { 
+			details.formats.resize(formats_count);
+			vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_Surface, &formats_count, details.formats.data());
 		}
 
-		uint32_t presentsCount;
-		vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_Surface, &presentsCount, nullptr);
+		uint32_t presents_count;
+		vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_Surface, &presents_count, nullptr);
 
-		if (presentsCount != 0) {
-			details.presentModes.resize(presentsCount);
-			vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_Surface, &formatsCount, details.presentModes.data());
+		if (presents_count != 0) {
+			details.presentModes.resize(presents_count);
+			vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_Surface, &formats_count, details.presentModes.data());
 		}
 
 		return details;

@@ -16,9 +16,9 @@ namespace gigno {
 
 	struct Transform_t
 	{
-		glm::vec3 translation{};
-		glm::vec3 scale{1.0f, 1.0f, 1.0f};
-		glm::vec3 rotation{};
+		glm::vec3 Position{};
+		glm::vec3 Scale{1.0f, 1.0f, 1.0f};
+		glm::vec3 Rotation{};
 
 		glm::mat4 TransformationMatrix() const;
 		glm::mat3 NormalMatrix() const;
@@ -72,6 +72,9 @@ namespace gigno {
 		std::string Name{};
 		Transform_t Transform{};
 
+		// Next entity in the EntityServer's chain of all entities (linked list). Set on construction.
+		// 'nullptr' if is last element.
+		Entity* pNextEntity;
 	protected:
 		Application *GetApp() const;
 
@@ -80,6 +83,8 @@ namespace gigno {
 		std::vector<PropertySerializationData_t> serializedProps{};
 		virtual void AddSerializedProperties();
 		public: virtual std::string GetTypeName() { return std::string{"Entity"}; }; protected:
+
+
 	};
 
 }

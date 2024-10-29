@@ -4,6 +4,7 @@
 #include <fstream>
 #include "../error_macros.h"
 #include "iostream"
+#include "../application.h"
 
 namespace gigno {
 
@@ -81,7 +82,7 @@ namespace gigno {
 		VkResult result = vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &graphicsPipelineCreateInfo, nullptr, &m_VkPipeline);
 
 		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to create Graphics Pipeline ! Vulkand error code : " << (int)result);
+			ERR_MSG("Failed to create Graphics Pipeline ! Vulkand error code : %d", (int)result);
 		}
 	}
 
@@ -94,8 +95,8 @@ namespace gigno {
 
 		VkResult result = vkCreateShaderModule(device, &createInfo, nullptr, shaderModule);
 		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to create ShaderModule ! Vulkan error code : " << (int)result <<"." << std::endl << 
-			"If the error code is -13, make sure the shader files are present in the running directory (from which the executable is ran) in the folder 'shader/'.");
+			ERR_MSG("Failed to create ShaderModule ! Vulkan error code : %d. \n "
+			"If the error code is -13, make sure the shader files are present in the running directory (from which the executable is ran) in the folder 'shader/'.", (int)result);
 		}
 	}
 
@@ -103,7 +104,7 @@ namespace gigno {
 		std::ifstream infile{ path, std::ios::ate | std::ios::binary };
 
 		if (!infile.is_open()) {
-			ERR_MSG_V("failed to open file:" + path, std::vector<char>{});
+			ERR_MSG_V(std::vector<char> {}, "failed to open file: %s", path);
 		}
 
 		size_t filesize = static_cast<size_t>(infile.tellg());

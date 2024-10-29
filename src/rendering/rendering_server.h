@@ -18,7 +18,7 @@ namespace gigno {
 	class InputServer;
 
 	struct SceneRenderingData_t {
-		const std::vector<const RenderedEntity *> &RenderedEntities;
+		const RenderedEntity * RenderedEntities; // First entity in the chain.
 		const std::vector<const Light *> &LightEntities;
 		const Camera *pCamera;
 	};
@@ -49,15 +49,17 @@ namespace gigno {
 
 		void CreateModel(std::shared_ptr<giModel> &model, const ModelData_t &modelData);
 
-		//Debug Drawing ( need to active USE_DEBUG_DRAWING in core_macros.h )
+		//Debug Drawing ( need to active USE_DEBUG_DRAWING in features_usage.h )
 		void DrawPoint(glm::vec3 pos, glm::vec3 color, const std::string &uniqueName );
 		void DrawLine(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 color, const std::string &uniqueName);
 		void DrawLineGradient(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 startColor, glm::vec3 endColor, const std::string &uniqueName);
 
-		#if USE_IMGUI
-		void OpenDebugWindow() { m_ShowDebugWindow = true; }
-		void CloseDebugWindow() { m_ShowDebugWindow = false; }
-		void ToggleDebugWindow() { m_ShowDebugWindow = !m_ShowDebugWindow; }
+		bool *Fullbright() { return &m_SwapChain.Fullbright; }
+
+		#if USE_DEBUG_DRAWING
+		bool ShowDD = true;
+		bool ShowDDPoints = true;
+		bool ShowDDLines = true;
 		#endif
 
 	private:
@@ -68,10 +70,13 @@ namespace gigno {
 		uint32_t m_CurrentFrame = 0;
 
 		Window m_Window;
-		giDevice m_Device;
-		giSwapChain m_SwapChain;
-		
-		std::vector<const RenderedEntity *> m_RenderedEntities;
+		Device m_Device;
+		SwapChain m_SwapChain;
+
+		// First rendered entity in the chain of all rendered entity (linked list). Use entity->pNextRenderedEntity for next element in the list.
+		// If this is null, there are no rendered entity. If next is null, it is the last rendered entity.
+		RenderedEntity *m_pFirstRenderedEntity{};
+
 		std::vector<const Light *> m_LightEntities;
 
 		const Camera *m_pCamera = nullptr;
@@ -84,17 +89,6 @@ namespace gigno {
 		std::string m_FragShaderFilePath;
 
 		float m_RenderTime = 0.0f;
-
-		#if USE_IMGUI
-		bool m_ShowDebugWindow = false;
-		void ShowDebugWindow();
-		#endif
-
-		#if USE_DEBUG_DRAWING
-		bool m_ShowDD = true;
-		bool m_ShowDDPoints = true;
-		bool m_ShowDDLines = true;
-		#endif
 	};
 
 	#define STRINGIFY1(a) STRINGIFY2(a)

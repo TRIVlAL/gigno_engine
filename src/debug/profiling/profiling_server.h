@@ -4,7 +4,8 @@
 #include "profile_scope.h"
 #include <vector>
 #include <unordered_map>
-#include "../core_macros.h"
+#include "../../features_usage.h"
+#include <string>
 
 namespace gigno {
 
@@ -13,7 +14,7 @@ namespace gigno {
 
         Usage:
             * Requirements :
-              * !!! Requires ImGui to work !!! Set USE_IMGUI flag to 1 in core_macros.h !!!
+              * !!! Requires ImGui to work !!! Set USE_IMGUI flag to 1 in features_usage.h !!!
             * Key Methods :
               * Begin(...) : Begins a Child Profiling Scope in the hierarchy Its data will be 
                             In the profiler window.
@@ -35,31 +36,18 @@ namespace gigno {
         void Begin(const std::string &uniqueName);
         void End();
 
-        /*
-        @brief Stops and Updates the value of every profile scope.
-             Draws the UI (if window is open).
-             To be called at the end of every frame of the game loop.
-             Every Profile scope should be ended when called ( Every Begin(...) call should 
-             have an End() call ).
-        */
         void EndFrame();
-        
-    #if USE_IMGUI
+        void DrawProfilerTab();
+        void StartFrame();
 
-        // UI Window.
-        void OpenWindow() {m_ShowProfilerWindow = true;}
-        void CloseWindow() {m_ShowProfilerWindow = false;}
-        void ToggleWindow() {m_ShowProfilerWindow = !m_ShowProfilerWindow;}
-        
+    #if  USE_PROFILER
     private:
         // The scopes work as a hierarchy : Every scope have zero or more children.
         std::vector<ProfileScope> m_RootScopes;
 
         ProfileScope *m_pActiveScope = nullptr;
 
-        bool m_ShowProfilerWindow = false;
-
-    #endif //USE_IMGUI
+    #endif
     };
 
 }

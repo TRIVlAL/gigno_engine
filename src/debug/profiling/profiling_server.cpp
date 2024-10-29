@@ -1,8 +1,9 @@
 #include "profiling_server.h"
 #include <iostream>
-#include "../error_macros.h"
+#include "../../error_macros.h"
 #include <algorithm>
 #include "imgui.h"
+#include "../../application.h"
 
 namespace gigno {
 
@@ -14,7 +15,7 @@ namespace gigno {
     }
 
     void ProfilingServer::Begin(const std::string &name) {
-        #if USE_IMGUI
+        #if USE_PROFILER
         if (m_pActiveScope) {
             m_pActiveScope = m_pActiveScope->BeginChild(name);
         } else {
@@ -34,7 +35,7 @@ namespace gigno {
     }
 
     void ProfilingServer::End() {
-        #if USE_IMGUI
+        #if USE_PROFILER
         ASSERT(m_pActiveScope);
 
         m_pActiveScope->Stop();
@@ -43,34 +44,31 @@ namespace gigno {
     }
 
     void ProfilingServer::EndFrame() {
-#if USE_IMGUI
+    #if USE_PROFILER
         for(ProfileScope &scope : m_RootScopes) {
             scope.EndFrame();
         }
+    #endif
+    }
 
+    void ProfilingServer::DrawProfilerTab() {
+    #if USE_PROFILER
 
-        if(m_ShowProfilerWindow) {
-            if(!ImGui::Begin("Profiler", &m_ShowProfilerWindow, ImGuiWindowFlags_::ImGuiWindowFlags_NoResize)) {
-                ImGui::End();
-                return;
-            }
-            ImGui::SetWindowSize(ImVec2{650.0f, 500.0f});
+        ImGui::Text("The profiler allows you to monitor the timing and performance of\n"
+                    "core parts of your code.");
 
-            ImGui::Text("The profiler allows you to monitor the timing and performance of\n"
-                        "core parts of your code.");
-
-
-            for(ProfileScope scope : m_RootScopes) {
-                scope.DrawUI();
-            }
-
-            ImGui::End();
+        for (ProfileScope scope : m_RootScopes) {
+            scope.DrawUI();
         }
+    #endif        
+    }
 
-        for(ProfileScope& scope : m_RootScopes) {
+    void ProfilingServer::StartFrame() {
+    #if USE_PROFILER
+        for (ProfileScope &scope : m_RootScopes) {
             scope.StartFrame();
         }
-#endif
+    #endif
     }
 
 }

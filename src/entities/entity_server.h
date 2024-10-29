@@ -3,8 +3,7 @@
 
 #include <vector>
 #include <memory>
-
-#include "../core_macros.h"
+#include "../features_usage.h"
 
 namespace gigno {
 
@@ -19,23 +18,17 @@ namespace gigno {
 		void Start();
 		void Tick(float dt);
 
-#if USE_IMGUI
-		void OpenDebugWindow() { m_EntityInspectorOpen = true; }
-		void CloseDebugWindow() { m_EntityInspectorOpen = false; }
-		void ToggleDebugWindow() { m_EntityInspectorOpen = !m_EntityInspectorOpen; }
-#endif
-
+	#if USE_IMGUI
+		void DrawEntityInspectorTab();
+	#endif
 	private:
 		// Called by the base entity constructor and destructor, limit visibility to Entity friend class only.
 		void AddEntity(Entity *entity);
 		void RemoveEntity(Entity *entity);
 
-#if USE_IMGUI
-		bool m_EntityInspectorOpen = false; 
-		void DrawEntityInspector();
-#endif
-
-		std::vector<Entity *> m_Entities;
+		// First entity in the chain of all entities (linked list). Use entity->pNextEntity for next element in the list.
+		// If this is null, there are no entity. If next is null, it is the last entity.
+		Entity *m_pFirstEntity{};
 	};
 
 }
