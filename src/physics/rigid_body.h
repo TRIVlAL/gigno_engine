@@ -6,10 +6,7 @@
 namespace gigno {
 
     class RigidBody : public RenderedEntity {
-        BEGIN_SERIALIZE(RigidBody, RenderedEntity)
-        SERIALIZE(glm::vec3, m_Force);
-        SERIALIZE(glm::vec3, m_Velocity);
-        END_SERIALIZE
+        ENABLE_SERIALIZATION(RigidBody);
     public:
         RigidBody(ModelData_t model);
         ~RigidBody();
@@ -30,6 +27,11 @@ namespace gigno {
         glm::vec3 m_Velocity{};
         glm::vec3 m_Force{};
     };
+
+    DEFINE_SERIALIZATION(RigidBody) {
+        SERIALIZE(glm::vec3, m_Velocity);
+        SERIALIZE(glm::vec3, m_Force);
+    }
 
 }
 
