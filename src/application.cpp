@@ -9,6 +9,8 @@
 #include "features_usage.h"
 #include "stringify.h"
 #include "debug/console/convar.h"
+#include "physics/rigid_body.h"
+#include <thread>
 
 
 namespace gigno {
@@ -42,7 +44,7 @@ namespace gigno {
 
 		ASSERT_MSG_V(glfwInit(), 1, "GLFW Failed to init");
 
-
+		/*
 		RenderedEntity first{ModelData_t::FromObjFile("models/smooth_vase.obj")};
 		first.Transform.Position = glm::vec3{ 0.0f, 0.0f, 0.0f };
 		first.Transform.Scale = glm::vec3{ 3.0f, -1.5f, 3.0f };
@@ -73,12 +75,13 @@ namespace gigno {
 		fifth.Transform.Scale = glm::vec3{3.0f, 2.0f, 3.0f};
 		fifth.Transform.Rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 		second.Name = "Upside-down above";
+		*/
 
 		DomeCamera camera(10.0f);
 		camera.SetPerspectiveProjection(glm::radians(50.0f), m_RenderingServer.GetAspectRatio(), -0.05f, 1.0f);
-		camera.Transform.Position = { 0.0f, 0.0f, -3.0f };
+		camera.Transform.Position = { 0.0f, 0.0f, -10.0f };
 		camera.Transform.Rotation.y = 0;
-		camera.SetTarget( (first.Transform.Position + second.Transform.Position + third.Transform.Position + fourth.Transform.Position) * 0.25f );
+		camera.SetTarget( glm::vec3{0.0f} );
 		camera.Name = "My Camera";
 
 
@@ -93,6 +96,16 @@ namespace gigno {
 		EnvironmentLight env;
 		env.intensity = 0.02f;
 
+		RigidBody phys_cube{ModelData_t::FromObjFile("models/colored_cube.obj")};
+		phys_cube.Transform.Position = glm::vec3{-4.0f, 2.0f, 0.0f};
+		phys_cube.Transform.Scale = glm::vec3{0.2, 0.2f, 0.2f};
+		phys_cube.TestingInterpolateType = 0;
+
+		RigidBody phys_cube2{ModelData_t::FromObjFile("models/colored_cube.obj")};
+		phys_cube2.Transform.Position = glm::vec3{-4.0f, 0.0f, 0.0f};
+		phys_cube2.Transform.Scale = glm::vec3{0.2, 0.2f, 0.2f};
+		phys_cube2.TestingInterpolateType = 1;
+
 		auto last_update_time = std::chrono::steady_clock::now();
 
 		m_EntityServer.Start();
@@ -100,6 +113,9 @@ namespace gigno {
 
 		Debug()->GetConsole()->LogInfo(MESSAGE_NO_FILE_LOG_BIT, "Secret shhhhhh.");
 		while (!m_RenderingServer.WindowShouldClose()) {
+
+			phys_cube.AddForce(glm::vec3{5.0f, 0.0f, 0.0f});
+			phys_cube2.AddForce(glm::vec3{5.0f, 0.0f, 0.0f});
 
 			Debug()->Profiler()->Begin("Main Loop");
 
@@ -110,6 +126,20 @@ namespace gigno {
 				m_ShowMainUIWindow = true;
 			}
 			DrawMainUIWindow();
+
+			if(m_InputServer.GetKeyUp(KEY_R)) {
+				phys_cube.Stop();
+				phys_cube2.Stop();
+				phys_cube.Transform.Position = glm::vec3{-4.0f, 2.0f, 0.0f};
+				phys_cube2.Transform.Position = glm::vec3{-4.0f, 0.0f, 0.0f};
+			}
+			if(m_InputServer.GetKeyUp(KEY_T)) {
+				phys_cube.Transform.Position = glm::vec3{-4.0f, 2.0f, 0.0f};
+				phys_cube2.Transform.Position = glm::vec3{-4.0f, 0.0f, 0.0f};
+			}
+			if(m_InputServer.GetKey(KEY_L)) {
+				std::this_thread::sleep_for(std::chrono::milliseconds(500));
+			}
 
 			static int i = 0;
 			i++;
@@ -122,10 +152,9 @@ namespace gigno {
 
 			last_update_time = current_time;
 
-			m_RenderingServer.DrawLineGradient(glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 1.0f}, glm::vec3{1.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, 1.0f}, UNIQUE_NAME);
-			m_RenderingServer.DrawLineGradient(glm::vec3{0.0f, 1.0f, 1.0f}, glm::vec3{0.5f, 1.0f, 0.5f}, glm::vec3{0.0f, 0.0f, 1.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, UNIQUE_NAME);
-			m_RenderingServer.DrawLineGradient(glm::vec3{0.5f, 1.0f, 0.5f}, glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{1.0f, 0.0f, 0.0f}, UNIQUE_NAME);
-			m_RenderingServer.DrawPoint(bulb.Transform.Position, glm::vec3{1.0f, 1.0f, 1.0f}, UNIQUE_NAME);
+			m_RenderingServer.DrawLine(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{1.0f, 0.0f, 0.0f}, glm::vec3{1.0f, 0.0f, 0.0f}, UNIQUE_NAME);
+			m_RenderingServer.DrawLine(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, UNIQUE_NAME);
+			m_RenderingServer.DrawLine(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, 1.0f}, glm::vec3{0.0f, 0.0f, 1.0f}, UNIQUE_NAME);
 
 			m_EntityServer.Tick(delta_time.count() * 10e-1f); // For some reason, it seems that to get second we need
 															  //  to multiply by 10e-1f and not the expected 10e-6f !

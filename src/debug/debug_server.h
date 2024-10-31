@@ -33,7 +33,7 @@ namespace gigno {
         Console m_Console{};
     #if USE_DEBUG_SERVER
 
-        bool m_ShowDebugWindow = true;
+        bool m_ShowDebugWindow = false;
 
         bool m_ShowConsoleWindow = false;
         bool m_ShowProfilerWindow = false;

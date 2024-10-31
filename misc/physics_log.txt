@@ -1,0 +1,4 @@
+1. Apply equation every frame
+2. In case of framedrops, and in general, goes too fast !
+3. average the speed every frame.
+4. now thats better !
