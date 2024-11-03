@@ -1,0 +1,4 @@
+On top, the object simply adds force*dt to its velocity every frame.
+On bottom, the object averages the last frame and new frame velocity.
+
+A lag of 500ms is artificially added during this screenshot.

@@ -110,9 +110,13 @@ namespace gigno {
 
 		m_EntityServer.Start();
 
+		auto start_time = std::chrono::steady_clock::now();
+
 
 		Debug()->GetConsole()->LogInfo(MESSAGE_NO_FILE_LOG_BIT, "Secret shhhhhh.");
 		while (!m_RenderingServer.WindowShouldClose()) {
+
+			auto curr_time = std::chrono::steady_clock::now();
 
 			phys_cube.AddForce(glm::vec3{5.0f, 0.0f, 0.0f});
 			phys_cube2.AddForce(glm::vec3{5.0f, 0.0f, 0.0f});
@@ -127,6 +131,7 @@ namespace gigno {
 			}
 			DrawMainUIWindow();
 
+
 			if(m_InputServer.GetKeyUp(KEY_R)) {
 				phys_cube.Stop();
 				phys_cube2.Stop();
@@ -136,9 +141,6 @@ namespace gigno {
 			if(m_InputServer.GetKeyUp(KEY_T)) {
 				phys_cube.Transform.Position = glm::vec3{-4.0f, 2.0f, 0.0f};
 				phys_cube2.Transform.Position = glm::vec3{-4.0f, 0.0f, 0.0f};
-			}
-			if(m_InputServer.GetKey(KEY_L)) {
-				std::this_thread::sleep_for(std::chrono::milliseconds(500));
 			}
 
 			static int i = 0;
@@ -160,8 +162,11 @@ namespace gigno {
 															  //  to multiply by 10e-1f and not the expected 10e-6f !
 															  //  Related to issue #2
 
+			curr_time = std::chrono::steady_clock::now();
+
 			Debug()->Profiler()->Begin("Render Frame");
 			m_RenderingServer.Render();
+
 			Debug()->Profiler()->End();
 
 			Debug()->Profiler()->End(); //Main Loop

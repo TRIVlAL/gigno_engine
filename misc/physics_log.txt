@@ -1,4 +1,50 @@
+-------------------------------------------------------------------------------------------------------------
+THE EQUATIONS OF MOVEMENT
+-------------------------------------------------------------------------------------------------------------
+
 1. Apply equation every frame
 2. In case of framedrops, and in general, goes too fast !
 3. average the speed every frame.
 4. now thats better !
+
+
+--------------	Experiment  -----------------------
+
+First: When we just apply the equation every frames:
+
+	//Called every frame (dt = frame delta time)
+	m_Velocity += dt * m_Force;
+	Transform.Position += dt * m_Velocity;
+
+Second:	When we average the speed every frames:
+	glm::vec3 avrg_vel = m_Velocity;
+        m_Velocity += dt * m_Force;
+        avrg_vel += m_Velocity;
+        avrg_vel *= 0.5f;
+        Transform.Position += dt * avrg_vel;
+
+
+with a constant acceleration of 5.0
+Frame times : around 300 us
+
+				
+	Time [s]		  Distance travelled			
+			Theory		First		Second
+----------------------------------------------------------------
+	  2	         10.0		9.9733		9.97158
+	 10		250.0	       249.3031	      249.2944
+  	100		2.5e4	       2.4954e4	       2.4954e4
+
+Frame times : around 25000 us
+
+
+	Time [s]		  Distance travelled			
+			Theory		First		Second
+----------------------------------------------------------------
+	  2	         10.0		10.3965         10.2608
+	  10		250.0	       251.9258        251.2529
+  	100		2.5e4	       2.5008e4	       2.5001e4
+
+-> Quand le framerate est plus bas (et plus realiste), la deuxieme methode est plus proche.
+   Mais, les deux methodes ne sont pas exactes ! il nous faut une alternative...
+   Il nous faut du multithreaded !
