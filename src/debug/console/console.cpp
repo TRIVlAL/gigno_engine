@@ -8,7 +8,7 @@
 
 namespace gigno {
 
-    Convar<uint32_t> convar_console_max_message = Convar<uint32_t>("console_max_message", "Max number of messages rendered to the console. 0 = all messages", 15'000);
+    CONVAR(uint32_t, console_max_message, 15'000, "Max number of messages rendered to the console. 0 = all messages");
 
     ConsoleMessage_t::ConsoleMessage_t(size_t size) : Size{size}, Message{new char[size], std::default_delete<char[]>()} {
     }

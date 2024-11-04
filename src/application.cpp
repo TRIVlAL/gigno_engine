@@ -19,7 +19,8 @@ namespace gigno {
 		m_DebugServer{},
 		m_InputServer{},
 		m_RenderingServer{ winw, winh, title, &m_InputServer, vertShaderPath, fragShaderPath },
-		m_EntityServer{} {
+		m_EntityServer{},
+		m_PhysicServer{} {
 
 		}
 
@@ -112,14 +113,14 @@ namespace gigno {
 
 		auto start_time = std::chrono::steady_clock::now();
 
+		phys_cube.m_Force = glm::vec3{5.0f, 0.0f, 0.0f};
+		phys_cube2.m_Force = glm::vec3{5.0f, 0.0f, 0.0f};
 
 		Debug()->GetConsole()->LogInfo(MESSAGE_NO_FILE_LOG_BIT, "Secret shhhhhh.");
 		while (!m_RenderingServer.WindowShouldClose()) {
 
 			auto curr_time = std::chrono::steady_clock::now();
 
-			phys_cube.AddForce(glm::vec3{5.0f, 0.0f, 0.0f});
-			phys_cube2.AddForce(glm::vec3{5.0f, 0.0f, 0.0f});
 
 			Debug()->Profiler()->Begin("Main Loop");
 

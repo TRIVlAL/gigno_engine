@@ -6,7 +6,7 @@
 #include "input/input_server.h"
 #include "debug/debug_server.h"
 #include "rendering/model.h"
-#include "iostream"
+#include "physics/physic_server.h"
 
 namespace gigno {
 
@@ -41,6 +41,7 @@ namespace gigno {
         InputServer m_InputServer; // Must be init before rendering server !
 		RenderingServer m_RenderingServer;
         EntityServer m_EntityServer;
+		PhysicServer m_PhysicServer;
 	};
 
 }

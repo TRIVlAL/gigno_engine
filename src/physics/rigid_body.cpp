@@ -1,9 +1,10 @@
 #include "rigid_body.h"
+#include "application.h"
 
 namespace gigno {
 
     RigidBody::RigidBody(ModelData_t model)
-    : RenderedEntity(model) {
+    : PhysicEntity(model) {
 
     }
 
@@ -11,7 +12,7 @@ namespace gigno {
 
     }
 
-    void RigidBody::Think(float dt) {
+    void RigidBody::PhysicThink(float dt) {
         if(TestingInterpolateType == 0) {
             m_Velocity += dt * m_Force;
             Transform.Position += dt * m_Velocity;
@@ -22,8 +23,6 @@ namespace gigno {
             avrg_vel *= 0.5f;
             Transform.Position += dt * avrg_vel;
         }
-
-        m_Force = glm::vec3{0.0f};
     }
 
 }

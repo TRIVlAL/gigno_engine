@@ -22,8 +22,12 @@ A Console Variable (Convar) is a Global variable that can be modified AT RUNTIME
 #include "command_token.h"
 #include "../../stringify.h"
 
+
 namespace gigno {
 
+    #define CONVAR(type, name, value, help_string) \
+        Convar<type> convar_##name = Convar<type>(#name, help_string, value);
+    
     class BaseConvar {
     public:
         BaseConvar(const char *name, const char *helpstr) 
@@ -106,6 +110,7 @@ namespace gigno {
     };
 
 }
+
 #endif
 
 
