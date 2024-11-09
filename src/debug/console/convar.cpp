@@ -8,11 +8,11 @@ namespace gigno {
     void BaseConvar::LogInfo() const {
         char valstr[ValToString(nullptr)];
         ValToString(valstr);
-        Application::Singleton()->Debug()->GetConsole()->LogInfo("'%s' = '%s'", GetName(), valstr);
+        Console::Singleton()->LogInfo("'%s' = '%s'", GetName(), valstr);
     }
 
     void BaseConvar::HandleSetResult(const CommandToken_t &args, int result) const {
-        Console *console = Application::Singleton()->Debug()->GetConsole();
+        Console *console = Console::Singleton();
         switch(result) {
             case FROM_STRING_SUCCESS:
                 LogInfo(); break;

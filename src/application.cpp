@@ -10,6 +10,7 @@
 #include "stringify.h"
 #include "debug/console/convar.h"
 #include "physics/rigid_body.h"
+#include "test_entity.h"
 #include <thread>
 
 
@@ -24,7 +25,9 @@ namespace gigno {
 
 		}
 
-	Application::~Application() {}
+	Application::~Application() {
+		m_PhysicServer.Stop();
+	}
 
 	EntityServer *Application::GetEntityServer() {
 		return &m_EntityServer;
@@ -41,7 +44,7 @@ namespace gigno {
 	}
 
 	int Application::run() {
-		Debug()->GetConsole()->StartFileLogging();
+		Console::Singleton()->StartFileLogging();
 
 		ASSERT_MSG_V(glfwInit(), 1, "GLFW Failed to init");
 
@@ -107,20 +110,16 @@ namespace gigno {
 		phys_cube2.Transform.Scale = glm::vec3{0.2, 0.2f, 0.2f};
 		phys_cube2.TestingInterpolateType = 1;
 
+		TestEntity test{&phys_cube, &phys_cube2};
+
 		auto last_update_time = std::chrono::steady_clock::now();
 
 		m_EntityServer.Start();
 
 		auto start_time = std::chrono::steady_clock::now();
 
-		phys_cube.m_Force = glm::vec3{5.0f, 0.0f, 0.0f};
-		phys_cube2.m_Force = glm::vec3{5.0f, 0.0f, 0.0f};
-
-		Debug()->GetConsole()->LogInfo(MESSAGE_NO_FILE_LOG_BIT, "Secret shhhhhh.");
+		Console::Singleton()->LogInfo(MESSAGE_NO_FILE_LOG_BIT, "Secret shhhhhh.");
 		while (!m_RenderingServer.WindowShouldClose()) {
-
-			auto curr_time = std::chrono::steady_clock::now();
-
 
 			Debug()->Profiler()->Begin("Main Loop");
 
@@ -132,6 +131,7 @@ namespace gigno {
 			}
 			DrawMainUIWindow();
 
+			Console::Singleton()->LogInfo("------------------------------------------------------------");
 
 			if(m_InputServer.GetKeyUp(KEY_R)) {
 				phys_cube.Stop();
@@ -144,11 +144,7 @@ namespace gigno {
 				phys_cube2.Transform.Position = glm::vec3{-4.0f, 0.0f, 0.0f};
 			}
 
-			static int i = 0;
-			i++;
-
 			auto current_time = std::chrono::steady_clock::now();
-
 			std::chrono::duration<float> delta_time = current_time - last_update_time;
 			delta_time = std::chrono::duration<float>{glm::min(delta_time.count(), MAX_FRAME_TIME)};
 			delta_time = std::chrono::duration_cast<std::chrono::microseconds>(delta_time);
@@ -162,8 +158,6 @@ namespace gigno {
 			m_EntityServer.Tick(delta_time.count() * 10e-1f); // For some reason, it seems that to get second we need
 															  //  to multiply by 10e-1f and not the expected 10e-6f !
 															  //  Related to issue #2
-
-			curr_time = std::chrono::steady_clock::now();
 
 			Debug()->Profiler()->Begin("Render Frame");
 			m_RenderingServer.Render();

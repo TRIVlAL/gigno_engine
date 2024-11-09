@@ -22,7 +22,7 @@ namespace gigno {
     //DEFINITIONS OF DEFAULT CONSOLE COMMANDS.
 
     CONSOLE_COMMAND_HELP(echo, "Usage : echo [words, ...].\nRepeats every arguments separated by a space.") {
-        Console *console = Application::Singleton()->Debug()->GetConsole();
+        Console *console = Console::Singleton();
         ConsoleMessageFlags_t flags = MESSAGE_NO_NEW_LINE_BIT;
         for(int i = 0; i < args.GetArgC(); i++) {
             console->LogInfo(flags, "%s", args.GetArg(i));
@@ -34,12 +34,13 @@ namespace gigno {
     }
 
     CONSOLE_COMMAND_HELP(cls, "Usage : clears the console from every messages.") {
-        Console *console = Application::Singleton()->Debug()->GetConsole();
-        console->m_Messages.clear();
+        if(Console *console = Console::Singleton()) {
+            console->Clear();
+        }
     }
 
     CONSOLE_COMMAND_HELP(help, "Usage : 'help' [command] to get help on a specific command or 'help' to get a list of all console commands.") {
-        Console *console = Application::Singleton()->Debug()->GetConsole();
+        Console *console = Console::Singleton();
         Command *comm_current = Command::s_pCommands;
         BaseConvar *convar_current = BaseConvar::s_pConvars;
         if(args.GetArgC() == 0) {

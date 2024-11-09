@@ -24,7 +24,9 @@ namespace gigno {
                 if(ImGui::BeginTabBar("##debug_tabs")) {
                     #if USE_CONSOLE
                     if(ImGui::BeginTabItem("Console")) {
-                        m_Console.DrawConsoleTab();
+                        if(Console *cons = Console::Singleton()) {
+                            cons->DrawConsoleTab();
+                        }
                         ImGui::EndTabItem();
                     }
                     #endif

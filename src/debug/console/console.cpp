@@ -6,7 +6,10 @@
 #include "command.h"
 #include "convar.h"
 
+
 namespace gigno {
+
+    Console Console::s_Instance{};
 
     CONVAR(uint32_t, console_max_message, 15'000, "Max number of messages rendered to the console. 0 = all messages");
 
@@ -44,9 +47,13 @@ namespace gigno {
     }
 
     void Console::Log(const char *msg, ConsoleMessageType_t type, ConsoleMessageFlags_t flags) {
-    #if USE_CONSOLE
+        m_LogMutex.lock();
+
+#if USE_CONSOLE
         size_t msg_size = strlen(msg) + 1;
+        m_MessageVectorMutex.lock();
         ConsoleMessage_t &message = m_Messages.emplace_back(msg_size);
+        m_MessageVectorMutex.unlock();
         memcpy(message.Message.get(), msg, msg_size);
         message.Type = type;
         message.TimePoint = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -60,10 +67,14 @@ namespace gigno {
             printf(msg);
             printf("\n");
         }
+
+        m_LogMutex.unlock();
     }
 
     void Console::LogFormat(const char *fmt, ConsoleMessageType_t type, ConsoleMessageFlags_t flags, ...) {
-    #if USE_CONSOLE
+        m_LogMutex.lock();
+
+#if USE_CONSOLE
         va_list params;
         va_list params2;
         va_start(params, flags);
@@ -81,7 +92,9 @@ namespace gigno {
         if(size_formatted < 0) {
             //failed to format string. Simply use unformated string.
             size = strlen(fmt) + 1;
+            m_MessageVectorMutex.lock();
             ConsoleMessage_t &message = m_Messages.emplace_back(size);
+            m_MessageVectorMutex.unlock();
             strcpy(message.Message.get(), fmt);
             message.Type = type;
             res_message = message.Message.get();
@@ -90,7 +103,9 @@ namespace gigno {
             LogToFile(message);
         } else {
             size = size_formatted;
+            m_MessageVectorMutex.lock();
             ConsoleMessage_t &message = m_Messages.emplace_back(size);
+            m_MessageVectorMutex.unlock();
             vsnprintf(message.Message.get(), size_formatted, fmt, params2);
             message.Type = type;
             res_message = message.Message.get();
@@ -112,6 +127,7 @@ namespace gigno {
         vprintf(fmt, params);
         printf("\n");
     #endif
+        m_LogMutex.unlock();
     }
 
     bool Console::StartFileLogging() {
@@ -140,6 +156,14 @@ namespace gigno {
         return false;
         #endif
     }
+
+    #if USE_CONSOLE
+    void Console::Clear() {
+        m_MessageVectorMutex.lock();
+        m_Messages.clear();
+        m_MessageVectorMutex.unlock();
+    }
+    #endif
 
     bool Console::StopFileLogging() {
         #if USE_CONSOLE
@@ -210,7 +234,9 @@ namespace gigno {
     void Console::DrawConsoleTab() {
         #if USE_CONSOLE
 
-        if(ImGui::Button("Clear")) { m_Messages.clear(); }
+        if(ImGui::Button("Clear")) {
+            Clear();
+        }
         ImGui::SameLine();
         ImGui::Checkbox("Show times", &m_ShowTimepoints);
         ImGui::SameLine();
@@ -230,11 +256,15 @@ namespace gigno {
 
         int render_first_message_count = convar_console_max_message > CONSOLE_RENDER_FIRST_MESSAGE_COUNT ? CONSOLE_RENDER_FIRST_MESSAGE_COUNT : 0;
 
+        m_MessageVectorMutex.lock();
+        const size_t message_size = m_Messages.size();
+        m_MessageVectorMutex.unlock();
+
         ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4{0.2f, 0.2f, 0.2f, 0.8f});
         if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, -30.0f), ImGuiChildFlags_NavFlattened/*, ImGuiWindowFlags_HorizontalScrollbar*/)) {
-            if(convar_console_max_message != 0 && m_Messages.size() > convar_console_max_message) {
+            if(convar_console_max_message != 0 && message_size > convar_console_max_message) {
                 ImGui::TextWrapped("%d Messages. Messages rendered limited to %d (the first %d and last %d) ",
-                                   m_Messages.size(),
+                                   message_size,
                                    convar_console_max_message,
                                    render_first_message_count,
                                    convar_console_max_message - render_first_message_count);
@@ -242,13 +272,15 @@ namespace gigno {
             }
             int i = 0;
             bool has_skipped = false;
-            if(m_Messages.size() > convar_console_max_message && convar_console_max_message != 0 && render_first_message_count == 0) {
-                i = m_Messages.size() - convar_console_max_message;
+            if(message_size > convar_console_max_message && convar_console_max_message != 0 && render_first_message_count == 0) {
+                i = message_size - convar_console_max_message;
                 has_skipped = true;
-                ImGui::TextWrapped("---- Skipped %d messages ----", m_Messages.size() - convar_console_max_message);
+                ImGui::TextWrapped("---- Skipped %d messages ----", message_size - convar_console_max_message);
             }
-            while(i < m_Messages.size()) {
+            while(i < message_size) {
+                m_MessageVectorMutex.lock();
                 ConsoleMessage_t& message = m_Messages[i];
+                m_MessageVectorMutex.unlock();
 
                 // Set color.
                 ImVec4 color{1.0f, 1.0f, 1.0f, 1.0f};
@@ -272,7 +304,7 @@ namespace gigno {
                 ImGui::TextWrapped(message.Message.get());
 
                 if(message.Flags & MESSAGE_NO_NEW_LINE_BIT) {
-                    if(m_Messages.size() - 1 != i) {
+                    if(message_size - 1 != i) {
                         ImGui::SameLine();
                     }
                 }
@@ -280,9 +312,9 @@ namespace gigno {
                 ImGui::PopStyleColor();
 
                 i++;
-                if(!has_skipped && m_Messages.size() > convar_console_max_message && convar_console_max_message != 0 && i >= render_first_message_count) {
-                    ImGui::TextWrapped("---- Skipped %d messages ----", m_Messages.size() - convar_console_max_message);
-                    i = m_Messages.size() - convar_console_max_message + render_first_message_count;
+                if(!has_skipped && message_size > convar_console_max_message && convar_console_max_message != 0 && i >= render_first_message_count) {
+                    ImGui::TextWrapped("---- Skipped %d messages ----", message_size - convar_console_max_message);
+                    i = message_size - convar_console_max_message + render_first_message_count;
                     has_skipped = true;
                 }
             }

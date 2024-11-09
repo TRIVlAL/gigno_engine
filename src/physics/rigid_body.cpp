@@ -4,7 +4,7 @@
 namespace gigno {
 
     RigidBody::RigidBody(ModelData_t model)
-    : PhysicEntity(model) {
+    : RenderedEntity(model) {
 
     }
 
@@ -12,7 +12,7 @@ namespace gigno {
 
     }
 
-    void RigidBody::PhysicThink(float dt) {
+    void RigidBody::LatePhysicThink(float dt) {
         if(TestingInterpolateType == 0) {
             m_Velocity += dt * m_Force;
             Transform.Position += dt * m_Velocity;
@@ -23,6 +23,10 @@ namespace gigno {
             avrg_vel *= 0.5f;
             Transform.Position += dt * avrg_vel;
         }
+        i++;
+        Console::Singleton()->LogInfo("%u", i);
+
+        m_Force = glm::vec3{0};
     }
 
 }

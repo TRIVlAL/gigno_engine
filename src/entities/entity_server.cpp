@@ -25,6 +25,19 @@ namespace gigno {
 		Application::Singleton()->Debug()->Profiler()->End();
 	}
 
+	void EntityServer::PhysicTick(float dt) {
+		Entity *curr = m_pFirstEntity;
+		while(curr) {
+			curr->PhysicThink(dt);
+			curr = curr->pNextEntity;
+		}
+		curr = m_pFirstEntity;
+		while(curr) {
+			curr->LatePhysicThink(dt);
+			curr = curr->pNextEntity;
+		}
+	}
+
 	void EntityServer::AddEntity(Entity *entity) {
 		entity->pNextEntity = m_pFirstEntity;
 		m_pFirstEntity = entity;

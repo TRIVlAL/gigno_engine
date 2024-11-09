@@ -17,6 +17,7 @@ namespace gigno {
 
 		void Start();
 		void Tick(float dt);
+		void PhysicTick(float dt);
 
 	#if USE_IMGUI
 		void DrawEntityInspectorTab();

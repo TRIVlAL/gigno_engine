@@ -9,6 +9,7 @@
 #include <ctime>
 #include <fstream>
 #include <filesystem>
+#include <mutex>
 
 namespace gigno {
     enum ConsoleMessageType_t {
@@ -53,6 +54,10 @@ namespace gigno {
 
         friend void cls(const CommandToken_t&);
     public:
+        static Console *Singleton() {
+            return &s_Instance;
+        }
+
         Console();
         ~Console();
 
@@ -118,7 +123,11 @@ namespace gigno {
         void LogWarning(const char *msg);
         void LogError(const char *msg);
 
+
     private:
+        static Console s_Instance;
+
+
         void CallCommand(const char *line);
 
         void LogFormat(const char *fmt, ConsoleMessageType_t type, ConsoleMessageFlags_t flags, ...);
@@ -127,7 +136,10 @@ namespace gigno {
 
         void LogToFile(const ConsoleMessage_t &message);
 
+        std::mutex m_LogMutex;
+        std::mutex m_MessageVectorMutex;
     #if USE_CONSOLE
+
         bool m_ShowTimepoints = true;
         std::vector<ConsoleMessage_t> m_Messages{};
         std::ofstream m_FileStream;
@@ -137,6 +149,8 @@ namespace gigno {
 
         const static size_t CONSOLE_INPUT_BUFFER_SIZE = 256;
         char m_InputBuffer[CONSOLE_INPUT_BUFFER_SIZE];
+        
+        void Clear();
     #endif
     };
 

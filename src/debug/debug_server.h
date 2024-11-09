@@ -14,7 +14,6 @@ namespace gigno {
     class DebugServer {
     public:
         ProfilingServer *Profiler() { return &m_Profiler; }
-        Console *GetConsole() { return &m_Console; }
 
         void OpenWindow() {
         #if USE_IMGUI && USE_DEBUG_SERVER
@@ -30,7 +29,6 @@ namespace gigno {
         void Update();
     private:
         ProfilingServer m_Profiler{};
-        Console m_Console{};
     #if USE_DEBUG_SERVER
 
         bool m_ShowDebugWindow = false;

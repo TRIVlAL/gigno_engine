@@ -95,6 +95,9 @@ namespace gigno {
 
 #else //USE_CONSOLE
 
+#define CONVAR(type, name, value, help_string)\
+    const type convar_##name = value;
+
 namespace gigno {
 
     template<typename T>

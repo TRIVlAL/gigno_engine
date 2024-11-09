@@ -48,3 +48,16 @@ Frame times : around 25000 us
 -> Quand le framerate est plus bas (et plus realiste), la deuxieme methode est plus proche.
    Mais, les deux methodes ne sont pas exactes ! il nous faut une alternative...
    Il nous faut du multithreaded !
+
+with multithreding :
+120 tick per frame
+constant acceleration of 5.0
+
+	Time [s]		  Distance travelled			
+			Theory		First		Second
+----------------------------------------------------------------
+	  2	         10.0		10.0417        10.0000
+	  10		250.0	       250.2084        250.0000
+  	100		2.5e4	       2.4993e4       2.4991e4
+
+-> Multithreading en plus de deuxieme methode donne une precision incroyable.

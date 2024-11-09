@@ -1,17 +1,21 @@
 #ifndef RIGID_BODY_H
 #define RIGID_BODY_H
 
-#include "physic_entity.h"
+#include "entities/rendered_entity.h"
 
 namespace gigno {
 
-    class RigidBody : public PhysicEntity {
+    class RigidBody : public RenderedEntity {
         ENABLE_SERIALIZATION(RigidBody);
     public:
         RigidBody(ModelData_t model);
         ~RigidBody();
 
-        virtual void PhysicThink(float dt) override;
+        void AddForce(const glm::vec3 &force) {
+            m_Force += force;
+        }
+
+        virtual void LatePhysicThink(float dt) override;
 
         void Stop() {
             m_Velocity = glm::vec3{0.0f};
@@ -19,12 +23,16 @@ namespace gigno {
 
         int TestingInterpolateType{};
 
-        glm::vec3 m_Force{};
     private:
+        glm::vec3 m_Force{};
         glm::vec3 m_Velocity{};
+
+        uint64_t i  = 0;
     };
 
     DEFINE_SERIALIZATION(RigidBody) {
+        SERIALIZE_BASE_CLASS(RenderedEntity);
+
         SERIALIZE(glm::vec3, m_Velocity);
         SERIALIZE(glm::vec3, m_Force);
     }
