@@ -15,11 +15,6 @@ namespace gigno {
         PhysicServer();
         ~PhysicServer();
 
-        void Stop() {
-            m_LoopContinue = false;
-            m_LoopThread.join();
-        }
-
 
     private:
         std::thread m_LoopThread;

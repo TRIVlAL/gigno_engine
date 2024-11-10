@@ -23,8 +23,6 @@ namespace gigno {
             avrg_vel *= 0.5f;
             Transform.Position += dt * avrg_vel;
         }
-        i++;
-        Console::Singleton()->LogInfo("%u", i);
 
         m_Force = glm::vec3{0};
     }

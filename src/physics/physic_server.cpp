@@ -19,8 +19,8 @@ namespace gigno {
     }
 
     PhysicServer::~PhysicServer() {
-        //m_LoopContinue = false;
-        //m_LoopThread.join();
+        m_LoopContinue = false;
+        m_LoopThread.join();
     }
 
     void PhysicServer::Loop() {
@@ -49,8 +49,6 @@ namespace gigno {
                     // SPIN
                 }
             }
-
-            Console::Singleton()->LogInfo("#########################################");
         }
     }
 

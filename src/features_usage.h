@@ -18,5 +18,5 @@ Some features (namely Console, Profiler, m.b. other) still define theirpulbic me
 #define USE_DEBUG_DRAWING                                                       1
 
 #define USE_DEBUG_SERVER                                                        1
-#define USE_CONSOLE                 (USE_DEBUG_SERVER && USE_IMGUI &&           0 )
+#define USE_CONSOLE                 (USE_DEBUG_SERVER && USE_IMGUI &&           1 )
 #define USE_PROFILER                (USE_DEBUG_SERVER && USE_IMGUI &&           1 )

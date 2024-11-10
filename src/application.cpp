@@ -26,7 +26,6 @@ namespace gigno {
 		}
 
 	Application::~Application() {
-		m_PhysicServer.Stop();
 	}
 
 	EntityServer *Application::GetEntityServer() {
@@ -130,8 +129,6 @@ namespace gigno {
 				m_ShowMainUIWindow = true;
 			}
 			DrawMainUIWindow();
-
-			Console::Singleton()->LogInfo("------------------------------------------------------------");
 
 			if(m_InputServer.GetKeyUp(KEY_R)) {
 				phys_cube.Stop();

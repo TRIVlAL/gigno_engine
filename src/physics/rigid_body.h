@@ -26,8 +26,6 @@ namespace gigno {
     private:
         glm::vec3 m_Force{};
         glm::vec3 m_Velocity{};
-
-        uint64_t i  = 0;
     };
 
     DEFINE_SERIALIZATION(RigidBody) {
