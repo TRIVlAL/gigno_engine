@@ -9,6 +9,7 @@
 #include "features_usage.h"
 #include "stringify.h"
 #include "debug/console/convar.h"
+#include "debug/profiler/profiler.h"
 #include "physics/rigid_body.h"
 #include "test_entity.h"
 #include <thread>
@@ -120,7 +121,7 @@ namespace gigno {
 		Console::Singleton()->LogInfo(MESSAGE_NO_FILE_LOG_BIT, "Secret shhhhhh.");
 		while (!m_RenderingServer.WindowShouldClose()) {
 
-			Debug()->Profiler()->Begin("Main Loop");
+			Profiler::Begin("Main Loop");
 
 			m_RenderingServer.PollEvents();
 			m_InputServer.UpdateInput();
@@ -156,12 +157,12 @@ namespace gigno {
 															  //  to multiply by 10e-1f and not the expected 10e-6f !
 															  //  Related to issue #2
 
-			Debug()->Profiler()->Begin("Render Frame");
+			Profiler::Begin("Render Frame");
 			m_RenderingServer.Render();
 
-			Debug()->Profiler()->End();
+			Profiler::End();
 
-			Debug()->Profiler()->End(); //Main Loop
+			Profiler::End(); //Main Loop
 
 			Debug()->Update();
 		}

@@ -48,7 +48,7 @@ namespace gigno {
 		appinfo.applicationVersion = VK_MAKE_API_VERSION(0, 0, 0, 0);
 		appinfo.pEngineName = "Gigno Engine";
 		appinfo.applicationVersion = VK_MAKE_API_VERSION(0, 0, 0, 0);
-		appinfo.apiVersion = VK_MAKE_API_VERSION(1, 0, 0, 0);
+		appinfo.apiVersion = VK_MAKE_API_VERSION(0, 0, 0, 0);
 
 		std::vector<const char *> extensions = GetRequiredExtensions();
 
@@ -147,8 +147,8 @@ namespace gigno {
 		deviceCreateInfo.queueCreateInfoCount = queue_create_infos.size();
 		deviceCreateInfo.pQueueCreateInfos = queue_create_infos.data();
 		if (m_EnableValidationLayer) {
-			deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(m_ValidationLayers.size());
-			deviceCreateInfo.ppEnabledLayerNames = m_ValidationLayers.data();
+			//deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(m_ValidationLayers.size());
+			//deviceCreateInfo.ppEnabledLayerNames = m_ValidationLayers.data();
 		}
 		else {
 			deviceCreateInfo.enabledLayerCount = 0;
@@ -208,10 +208,10 @@ namespace gigno {
 			ERR_MSG_V(VK_FALSE, "VULKAN Validation Layer : %s", callback_data->pMessage);
 		}
 		else if (message_severity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-			printf("WARNING: VULKAN Validation Layer : %s\n", callback_data->pMessage);
+			Console::Singleton()->LogWarning("VULKAN Validation Layer WARNING : %s\n", callback_data->pMessage);
 		}
 		else {
-			printf("VULKAN Validation Layer : %s\n", callback_data->pMessage);
+			Console::Singleton()->LogInfo("VULKAN Validation Layer : %s\n", callback_data->pMessage);
 		}
 		return VK_FALSE;
 	}

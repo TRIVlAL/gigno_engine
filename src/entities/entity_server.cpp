@@ -2,6 +2,7 @@
 #include "entity.h"
 #include "../rendering/gui.h"
 #include "../error_macros.h"
+#include "../debug/profiler/profiler.h"
 
 namespace gigno {
 
@@ -14,7 +15,7 @@ namespace gigno {
 	}
 
 	void EntityServer::Tick(float dt) {
-		Application::Singleton()->Debug()->Profiler()->Begin("Entity Update");
+		Profiler::Begin("Entity Update");
 
 		Entity *curr = m_pFirstEntity;
 		while(curr) {
@@ -22,7 +23,7 @@ namespace gigno {
 			curr = curr->pNextEntity;
 		}
 
-		Application::Singleton()->Debug()->Profiler()->End();
+		Profiler::End();
 	}
 
 	void EntityServer::PhysicTick(float dt) {

@@ -8,8 +8,6 @@ namespace gigno {
 
     void DebugServer::Update() {
     #if USE_DEBUG_SERVER && USE_IMGUI
-        m_Profiler.EndFrame();
-
         if(m_ShowDebugWindow) {
             ImGui::SetNextWindowSizeConstraints(ImVec2{650.0f, 500.0f}, ImVec2{FLT_MAX, FLT_MAX});
             if(!ImGui::Begin("Debug Window", &m_ShowDebugWindow)) {
@@ -32,7 +30,7 @@ namespace gigno {
                     #endif
                     #if USE_PROFILER
                     if(ImGui::BeginTabItem("Profiler")) {
-                        m_Profiler.DrawProfilerTab();
+                        Profiler::DrawProfilerTab();
                         ImGui::EndTabItem();
                     }
                     #endif
@@ -47,8 +45,6 @@ namespace gigno {
                 ImGui::End();
             }
         }
-
-        m_Profiler.StartFrame();
     #endif
     }
 }

@@ -10,6 +10,8 @@
 
 #include "entities/entity_server.h"
 
+#include "../debug/profiler/profiler.h"
+
 namespace gigno {
 
     CONVAR(uint32_t, phys_loop_rate, 120, "How many times per second is the physics called.");
@@ -24,6 +26,7 @@ namespace gigno {
     }
 
     void PhysicServer::Loop() {
+
         std::chrono::time_point<std::chrono::high_resolution_clock> frame_start{};
         std::chrono::time_point<std::chrono::high_resolution_clock> frame_end{};
         std::chrono::nanoseconds to_wait{0};
@@ -31,9 +34,13 @@ namespace gigno {
         EntityServer* entity_serv = Application::Singleton()->GetEntityServer();
     
         while(m_LoopContinue) {
+            Profiler::Begin("Physics Loop");
+
             frame_start = std::chrono::high_resolution_clock::now();
 
             entity_serv->PhysicTick(frame_time.count() / 1e9);
+
+            Profiler::End();
 
             frame_end = std::chrono::high_resolution_clock::now();
             std::chrono::nanoseconds dur = frame_end - frame_start;
