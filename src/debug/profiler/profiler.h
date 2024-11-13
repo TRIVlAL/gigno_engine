@@ -40,6 +40,11 @@ namespace gigno {
     #if USE_PROFILER
 
     private:
+        static thread_local ProfileThread s_Thread;
+
+        static std::mutex s_BindThreadMutex;
+        static std::vector<ProfileThread *> s_BoundThreads;
+
         class ProfileThread {
         public:
             ProfileThread();
@@ -51,64 +56,11 @@ namespace gigno {
             void DrawUI();
 
         private:
-            struct ProfileScope_t {
-                ProfileScope_t(const char *name) : Name{name} {};
-                ~ProfileScope_t();
-
-                struct ProfileData_t {
-                    size_t CurrentIndex{};
-                    // Are in milliseconds.
-                    float Durations[PROFILER_RESOLUTION];
-
-                    // Current ceilling of the plot.
-                    size_t CurrentCeilling = 10.0f;
-
-                    // Used for updating the ceilling height dynamically.
-                    int ValuesOverCeillingCount = 0;
-                    float AverageValueOverCeilling = 0.0f;
-
-                    // The sum of all the durations in the m_Durations array.
-                    float RecentTotal = 0.0f;
-
-                    int FramesWithoutValuesOverCeilling = 0;
-
-                    // How many time did it begin since the last BeginFrame() call.
-                    int CallCountThisFrame = 0;
-                    float MaxTotalDuration = 0.0f;
-
-                    void UpdateCeilling(float mili_duration);
-                };
-
-                const char *Name{};
-
-                // -1 means no active child.
-                int ActiveChildIndex = -1;
-                // Use pointer because ProfileScope_t is still considered an incomplete type... C++ amma right ?
-                std::vector<ProfileScope_t *> Children{};
-
-
-                // Wether this scope has called begin this frame...
-                bool HasRun = false;
-
-                ProfileData_t Data{};
-
-                ProfileData_t DataCopy{};
-
-                void Start();
-                void Stop();
-                void EndFrame();
-
-                void DrawUI(int depth, int thread_id, int thread_hash);
-
-            private:
-                std::chrono::high_resolution_clock::time_point m_StartTime{};
-                float m_TotalDurationThisFrame = 0.0f;
-                int m_CallCountThisFrame = 0;
-            };
+            struct ProfileScope_t;
 
             void EndFrame();
-            
-            ProfileScope_t m_RootScope{""};
+
+            ProfileScope_t *m_RootScope{};
 
             bool m_StartedRootScope = false;
 
@@ -116,13 +68,63 @@ namespace gigno {
             int m_ThreadID{};
         };
 
+#endif
+    };
 
-        static thread_local ProfileThread s_Thread;
+    struct Profiler::ProfileThread::ProfileScope_t
+    {
+        ProfileScope_t(const char *name) : Name{name} {};
+        ~ProfileScope_t();
 
-        static std::mutex s_BindThreadMutex;
-        static std::vector<ProfileThread*> s_BoundThreads;
-    
-    #endif
+        struct ProfileData_t
+        {
+            size_t CurrentIndex{};
+            // Are in milliseconds.
+            float Durations[PROFILER_RESOLUTION];
+
+            // Current ceilling of the plot.
+            size_t CurrentCeilling = 10.0f;
+
+            // Used for updating the ceilling height dynamically.
+            int ValuesOverCeillingCount = 0;
+            float AverageValueOverCeilling = 0.0f;
+
+            // The sum of all the durations in the m_Durations array.
+            float RecentTotal = 0.0f;
+
+            int FramesWithoutValuesOverCeilling = 0;
+
+            // How many time did it begin since the last BeginFrame() call.
+            int CallCountThisFrame = 0;
+            float MaxTotalDuration = 0.0f;
+
+            void UpdateCeilling(float mili_duration);
+        };
+
+        const char *Name{};
+
+        // -1 means no active child.
+        int ActiveChildIndex = -1;
+        // Use pointer because ProfileScope_t is still considered an incomplete type... C++ amma right ?
+        std::vector<ProfileScope_t> Children{};
+
+        // Wether this scope has called begin this frame...
+        bool HasRun = false;
+
+        ProfileData_t Data{};
+
+        ProfileData_t DataCopy{};
+
+        void Start();
+        void Stop();
+        void EndFrame();
+
+        void DrawUI(int depth, int thread_id, int thread_hash);
+
+    private:
+        std::chrono::high_resolution_clock::time_point m_StartTime{};
+        float m_TotalDurationThisFrame = 0.0f;
+        int m_CallCountThisFrame = 0;
     };
 }
 

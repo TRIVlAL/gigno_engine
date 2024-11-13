@@ -53,56 +53,62 @@ namespace gigno {
             }
         }
         s_BindThreadMutex.unlock();
+        if(m_RootScope) {
+            delete m_RootScope;
+        }
     }
 
     void Profiler::ProfileThread::Begin(const char *name)
     {
-        ProfileScope_t *active_scope = &m_RootScope;
+        ProfileScope_t *active_scope = m_RootScope;
 
         if(!m_StartedRootScope) {
             //The root scope never started. It will be our first scope.
             m_StartedRootScope = true;
-            m_RootScope.Name = name;
-            m_RootScope.Start();
+            if(!m_RootScope) {
+                m_RootScope = new ProfileScope_t(name);
+            }
+            m_RootScope->Name = name;
+            m_RootScope->Start();
             return;
         } else {
             while(active_scope->ActiveChildIndex != -1) {
-                active_scope = active_scope->Children[active_scope->ActiveChildIndex];
+                active_scope = &active_scope->Children[active_scope->ActiveChildIndex];
             }
         }
 
 
         for(int i = 0; i < active_scope->Children.size(); i++) {
-            if(strcmp(name, active_scope->Children[i]->Name) == 0) {
+            if(strcmp(name, active_scope->Children[i].Name) == 0) {
                 // scope with this name already exists.
-                active_scope->Children[i]->Start();
+                active_scope->Children[i].Start();
                 active_scope->ActiveChildIndex = i;
                 return;
             }
         }
 
         //No scope with the same name is child. Create one.
-        ProfileScope_t *child = active_scope->Children.emplace_back(new ProfileScope_t{name});
+        ProfileScope_t &child = active_scope->Children.emplace_back(name);
 
         active_scope->ActiveChildIndex = active_scope->Children.size() - 1;
 
-        child->Start();
+        child.Start();
     }
 
     void Profiler::ProfileThread::End() {
-        if(m_RootScope.ActiveChildIndex == -1) {
+        if(m_RootScope->ActiveChildIndex == -1) {
             // The root scope is closed. End of frame.
-            m_RootScope.Stop();
+            m_RootScope->Stop();
             EndFrame();
             return;
         }
 
-        ProfileScope_t *active_scope = &m_RootScope;
+        ProfileScope_t *active_scope = m_RootScope;
         ProfileScope_t *last_scope = active_scope;
 
         while(active_scope->ActiveChildIndex != -1) {
             last_scope = active_scope;
-            active_scope = active_scope->Children[active_scope->ActiveChildIndex];
+            active_scope = &active_scope->Children[active_scope->ActiveChildIndex];
         }
 
         active_scope->Stop();
@@ -110,16 +116,7 @@ namespace gigno {
     }
 
     Profiler::ProfileThread::ProfileScope_t::~ProfileScope_t() {
-        // TODO : SEGFAULT ON DESTRUCTOR !
-
-        // These deletes cause crashes fsr... 
-        // We risk to leack them, but that poses no problem since we only delete ProfileScopes at app exit.
-
-        /*
-        for(ProfileScope_t* child : Children) {
-            delete child;
-        }
-        */
+        
     }
 
     void Profiler::ProfileThread::ProfileScope_t::Start()
@@ -137,7 +134,7 @@ namespace gigno {
     }
 
     void Profiler::ProfileThread::EndFrame() {
-        m_RootScope.EndFrame();
+        m_RootScope->EndFrame();
         m_StartedRootScope = false;
     }
 
@@ -166,8 +163,8 @@ namespace gigno {
         m_TotalDurationThisFrame = 0.0f;
 
         //Call EndFrame to children
-        for(ProfileScope_t *child : Children) {
-            child->EndFrame();
+        for(ProfileScope_t &child : Children) {
+            child.EndFrame();
         }
     }
 
@@ -195,7 +192,7 @@ namespace gigno {
     }
 
     void Profiler::ProfileThread::DrawUI() {
-        m_RootScope.DrawUI(0, m_ThreadID, m_ThreadHash);
+        m_RootScope->DrawUI(0, m_ThreadID, m_ThreadHash);
     }
 
     void Profiler::ProfileThread::ProfileScope_t::DrawUI(int depth, int thread_id, int thread_hash) {
@@ -267,8 +264,8 @@ namespace gigno {
             {
                 ImGui::SeparatorText("Contains :");
             }
-            for(ProfileScope_t *child : Children) {
-                child->DrawUI(depth + 1, thread_id, thread_hash);
+            for(ProfileScope_t &child : Children) {
+                child.DrawUI(depth + 1, thread_id, thread_hash);
             }
             ImGui::TreePop();
         }
