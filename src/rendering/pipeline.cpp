@@ -50,7 +50,7 @@ namespace gigno {
 		VkVertexInputBindingDescription bindingDescription = Vertex::GetBindingDescription();
 		std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions = Vertex::GetAttributeDescriptions();
 
-		VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo;
+		VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo{};
 		vertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 		vertexInputCreateInfo.pNext = nullptr;
 		vertexInputCreateInfo.vertexBindingDescriptionCount = 1;

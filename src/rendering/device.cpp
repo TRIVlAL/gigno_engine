@@ -38,7 +38,7 @@ namespace gigno {
 
 	void Device::CreateInstance() {
 		if (m_EnableValidationLayer && !CheckValidationLayerSupport()) {
-			std::cerr << "ERROR ! VULKAN Validation layer requested, but not avaliable !\n";
+			printf("ERROR ! VULKAN Validation layer requested, but not avaliable !");
 		}
 
 		VkApplicationInfo appinfo;
@@ -47,8 +47,9 @@ namespace gigno {
 		appinfo.pApplicationName = "Gigno Engine App";
 		appinfo.applicationVersion = VK_MAKE_API_VERSION(0, 0, 0, 0);
 		appinfo.pEngineName = "Gigno Engine";
+		// Note for later : DO NOT CHANGE THE API VERSION UNLESS U SURE WHAT U DOING (More than myself anyway)
+		appinfo.apiVersion = VK_MAKE_API_VERSION(1, 0, 0, 0); 
 		appinfo.applicationVersion = VK_MAKE_API_VERSION(0, 0, 0, 0);
-		appinfo.apiVersion = VK_MAKE_API_VERSION(0, 0, 0, 0);
 
 		std::vector<const char *> extensions = GetRequiredExtensions();
 
@@ -147,8 +148,8 @@ namespace gigno {
 		deviceCreateInfo.queueCreateInfoCount = queue_create_infos.size();
 		deviceCreateInfo.pQueueCreateInfos = queue_create_infos.data();
 		if (m_EnableValidationLayer) {
-			//deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(m_ValidationLayers.size());
-			//deviceCreateInfo.ppEnabledLayerNames = m_ValidationLayers.data();
+			deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(m_ValidationLayers.size());
+			deviceCreateInfo.ppEnabledLayerNames = m_ValidationLayers.data();
 		}
 		else {
 			deviceCreateInfo.enabledLayerCount = 0;

@@ -87,7 +87,7 @@ namespace gigno {
 		};
 
 #ifdef NDEBUG
-		const bool m_EnableValidationLayer =false;
+		const bool m_EnableValidationLayer = false;
 #else
 		const bool m_EnableValidationLayer = true;
 #endif

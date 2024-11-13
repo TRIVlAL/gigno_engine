@@ -24,6 +24,10 @@ namespace gigno {
         LogInfo((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "Gigno engine console initialized.");
         LogInfo((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "---------------------------------");
         LogInfo((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "");
+
+        if(!StartFileLogging()) {
+            LogInfo("Failed initial file logging.");
+        }
     }
 
     Console::~Console() {
