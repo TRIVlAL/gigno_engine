@@ -113,7 +113,7 @@ namespace gigno {
 		}
 
 		std::array<VkClearValue, 2> clear_vals = {};
-		clear_vals[0].color = {{0.15f, 0.15f, 0.15f, 1.0f}};
+		clear_vals[0].color = {{.15f, 0.15f, 0.15f, 1.0f}};
 		clear_vals[1].depthStencil = {1.0f, 0};
 
 		VkRenderPassBeginInfo pass_begin_info{};

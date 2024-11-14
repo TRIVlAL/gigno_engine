@@ -29,6 +29,8 @@ namespace gigno {
 	}
 
 	RenderingServer::~RenderingServer() {
+		
+		vkDeviceWaitIdle(m_Device.GetDevice());
 
 #if USE_IMGUI
 		ShutdownImGui();
@@ -41,10 +43,6 @@ namespace gigno {
 			vkDestroySemaphore(m_Device.GetDevice(), m_RenderFinishedSemaphores[i], nullptr);
 			vkDestroyFence(m_Device.GetDevice(), m_InFlightFences[i], nullptr);
 		}
-	}
-
-	void RenderingServer::Finalize() {
-		vkDeviceWaitIdle(m_Device.GetDevice());
 	}
 
 	void RenderingServer::PollEvents() {

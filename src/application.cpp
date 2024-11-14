@@ -167,8 +167,6 @@ namespace gigno {
 			Debug()->Update();
 		}
 
-		m_RenderingServer.Finalize();
-
 		return 0;
 	}
 

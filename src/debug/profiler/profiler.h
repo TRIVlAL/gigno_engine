@@ -70,7 +70,7 @@ namespace gigno {
 
 #endif
     };
-
+#if USE_PROFILER
     struct Profiler::ProfileThread::ProfileScope_t
     {
         ProfileScope_t(const char *name) : Name{name} {};
@@ -78,7 +78,7 @@ namespace gigno {
         struct ProfileData_t
         {
             size_t CurrentIndex{};
-            // Are in milliseconds.
+            // Are in microseconds.
             float Durations[PROFILER_RESOLUTION];
 
             // Current ceilling of the plot.
@@ -104,15 +104,13 @@ namespace gigno {
 
         // -1 means no active child.
         int ActiveChildIndex = -1;
-        // Use pointer because ProfileScope_t is still considered an incomplete type... C++ amma right ?
+
         std::vector<ProfileScope_t> Children{};
 
         // Wether this scope has called begin this frame...
         bool HasRun = false;
 
         ProfileData_t Data{};
-
-        //ProfileData_t DataCopy{};
 
         void Start();
         void Stop();
@@ -125,6 +123,7 @@ namespace gigno {
         float m_TotalDurationThisFrame = 0.0f;
         int m_CallCountThisFrame = 0;
     };
+    #endif
 }
 
 

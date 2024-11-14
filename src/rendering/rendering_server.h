@@ -29,8 +29,6 @@ namespace gigno {
 		RenderingServer(int winw, int winh, const char *winTitle, InputServer *inputServer, const std::string &vertShaderFilePath, const std::string &fragShaderFilePath);
 		~RenderingServer();
 
-		void Finalize();
-
 		bool WindowShouldClose() { return m_Window.ShouldClose(); }
 		void PollEvents();
 
