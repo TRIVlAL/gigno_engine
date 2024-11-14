@@ -74,7 +74,6 @@ namespace gigno {
     struct Profiler::ProfileThread::ProfileScope_t
     {
         ProfileScope_t(const char *name) : Name{name} {};
-        ~ProfileScope_t();
 
         struct ProfileData_t
         {
@@ -120,6 +119,8 @@ namespace gigno {
         void EndFrame();
 
         void DrawUI(int depth, int thread_id, int thread_hash);
+
+        bool done = true;
 
     private:
         std::chrono::high_resolution_clock::time_point m_StartTime{};

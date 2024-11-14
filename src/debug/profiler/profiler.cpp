@@ -53,9 +53,10 @@ namespace gigno {
             }
         }
         s_BindThreadMutex.unlock();
-        if(m_RootScope) {
-            delete m_RootScope;
-        }
+
+        //Purposfully not deleting m_RootScope
+        // See issue #6 @ https://github.com/TRIVlAL/gigno_engine/issues/6
+        // See issue #2519 of MinGW-packages @ https://github.com/msys2/MINGW-packages/issues/2519
     }
 
     void Profiler::ProfileThread::Begin(const char *name)
@@ -113,10 +114,6 @@ namespace gigno {
 
         active_scope->Stop();
         last_scope->ActiveChildIndex = -1;
-    }
-
-    Profiler::ProfileThread::ProfileScope_t::~ProfileScope_t() {
-        
     }
 
     void Profiler::ProfileThread::ProfileScope_t::Start()
@@ -196,7 +193,8 @@ namespace gigno {
     }
 
     void Profiler::ProfileThread::ProfileScope_t::DrawUI(int depth, int thread_id, int thread_hash) {
-        
+        done = false;
+
         //Copy data
         DataCopy = Data;
 
@@ -269,6 +267,7 @@ namespace gigno {
             }
             ImGui::TreePop();
         }
+        done = true;
     }
 
     #endif // USE_PROFILER
