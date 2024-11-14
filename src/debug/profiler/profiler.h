@@ -112,15 +112,13 @@ namespace gigno {
 
         ProfileData_t Data{};
 
-        ProfileData_t DataCopy{};
+        //ProfileData_t DataCopy{};
 
         void Start();
         void Stop();
         void EndFrame();
 
         void DrawUI(int depth, int thread_id, int thread_hash);
-
-        bool done = true;
 
     private:
         std::chrono::high_resolution_clock::time_point m_StartTime{};

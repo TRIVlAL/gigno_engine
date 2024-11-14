@@ -193,10 +193,8 @@ namespace gigno {
     }
 
     void Profiler::ProfileThread::ProfileScope_t::DrawUI(int depth, int thread_id, int thread_hash) {
-        done = false;
-
         //Copy data
-        DataCopy = Data;
+        //Data = Data;
 
         size_t label_size{};
         if(depth == 0) {
@@ -215,16 +213,16 @@ namespace gigno {
 
             float width = 500 - (float)depth * ImGui::GetTreeNodeToLabelSpacing();
             float height = std::max(100.0f - (float)depth * 20.0f, 40.0f);
-            ImGui::PlotLines("##Durations", DataCopy.Durations, PROFILER_RESOLUTION, DataCopy.CurrentIndex, nullptr, 0.0f,
-                             DataCopy.CurrentCeilling + 1.0f, ImVec2{width, height});
+            ImGui::PlotLines("##Durations", Data.Durations, PROFILER_RESOLUTION, Data.CurrentIndex, nullptr, 0.0f,
+                             Data.CurrentCeilling + 1.0f, ImVec2{width, height});
             ImGui::SameLine();
             float posX = ImGui::GetCursorPosX();
-            ImGui::Text("%d us", (int)DataCopy.CurrentCeilling);
+            ImGui::Text("%d us", (int)Data.CurrentCeilling);
 
             ImGui::SameLine();
             ImGui::SetCursorPosX(posX);
             ImGui::SetCursorPosY(ImGui::GetCursorPosY() + height/2 -5.0f);
-            ImGui::Text("%d us", (int)DataCopy.Durations[DataCopy.CurrentIndex]);
+            ImGui::Text("%d us", (int)Data.Durations[Data.CurrentIndex]);
 
             ImGui::SameLine();
             ImGui::SetCursorPosX( posX);
@@ -234,28 +232,28 @@ namespace gigno {
             ImGui::Text("Recent Average :");
             ImGui::SameLine(); 
             ImGui::SetCursorPosX(width/2);
-            int avrg = (int)(DataCopy.RecentTotal / PROFILER_RESOLUTION);
+            int avrg = (int)(Data.RecentTotal / PROFILER_RESOLUTION);
             ImGui::Text("%d us", avrg);
 
             ImGui::Text("Max Value :");
             ImGui::SameLine();
             ImGui::SetCursorPosX(width/2);
-            ImGui::Text("%d us", (int)DataCopy.MaxTotalDuration);
+            ImGui::Text("%d us", (int)Data.MaxTotalDuration);
 
-            if(DataCopy.CallCountThisFrame == 1) {
+            if(Data.CallCountThisFrame == 1) {
                 ImGui::Text("Called once.");
             } else {
-                ImGui::Text("Called %d times this frame", DataCopy.CallCountThisFrame);
+                ImGui::Text("Called %d times this frame", Data.CallCountThisFrame);
                 ImGui::Text("Average per call :");
                 ImGui::SameLine(); 
                 ImGui::SetCursorPosX(width/2);
-                int avrg = (int)(DataCopy.Durations[DataCopy.CurrentIndex] / DataCopy.CallCountThisFrame);
+                int avrg = (int)(Data.Durations[Data.CurrentIndex] / Data.CallCountThisFrame);
                 ImGui::Text("%d us", avrg);
 
                 /*ImGui::Text("Max Duration :");
                 ImGui::SameLine(); 
                 ImGui::SetCursorPosX(width/2);
-                ImGui::Text("%d us", (int)DataCopy.MaxTotalDuration);*/
+                ImGui::Text("%d us", (int)Data.MaxTotalDuration);*/
             }
 
             if(Children.size() > 0)
@@ -267,7 +265,6 @@ namespace gigno {
             }
             ImGui::TreePop();
         }
-        done = true;
     }
 
     #endif // USE_PROFILER
