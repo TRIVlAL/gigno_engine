@@ -75,12 +75,29 @@ namespace gigno {
         return size;
     }
 
+    template<> inline
+    size_t ToString<bool>(char *to, const bool & from) {
+        if(to) {
+            if(from == true) {
+                strcpy(to, "true");
+            } else {
+                strcpy(to, "false");
+            }
+        }
+
+        if(from == true) {
+            return 5; //true\0
+        } else {
+            return 6; //false\0
+        }
+    }
+
 // FROM STRING -----------------------------------------
     enum : int {
         FROM_STRING_SUCCESS = 0,
 
         FROM_STRING_NUMBER_OUT_OF_RANGE = 1,
-        FROM_STRING_ONE_ARG_FAILED = 2
+        FROM_STRING_ONE_ARG_FAILED = 2 //Could not convert from the argument given (expects a single argument)
     };
 
     /*
@@ -149,6 +166,17 @@ namespace gigno {
         return std::pair<int, unsigned int>{res, val};
     }
 
+    template<> inline
+    std::pair<int, bool> FromString<bool>(const char **arguments, size_t argsCount) {
+        if (strcmp(*arguments, "true") == 0 || strcmp(*arguments, "1") == 0) {
+            return std::pair<int, bool>{FROM_STRING_SUCCESS, true};
+        } else if(strcmp(*arguments, "false") == 0 || strcmp(*arguments, "0") == 0) {
+            return std::pair<int, bool>{FROM_STRING_SUCCESS, false};
+        } else {
+            return std::pair<int, bool>{FROM_STRING_ONE_ARG_FAILED, false};
+        }
+    }
+
 //TYPE STRING -------------------------------------------------------------------------
     template<typename T>
     constexpr const char *TypeString();
@@ -164,6 +192,9 @@ namespace gigno {
 
     template<> inline
     constexpr const char *TypeString<glm::vec3>() { return "vec3"; }
+
+    template<> inline
+    constexpr const char *TypeString<bool>() { return "bool"; }
 
 }
 

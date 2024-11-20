@@ -22,7 +22,11 @@
 #include "../entities/lights/light.h"
 #include "rendering_server.h"
 
+#include "../debug/console/convar.h"
+
 namespace gigno {
+
+	CONVAR(bool, r_fullbright, false, "if true, lighting is not aspplied.");
 
 	SwapChain::SwapChain(const Device &device, const Window *window, const std::string &vertShaderPath, const std::string &fragShaderPath)
 	{
@@ -172,7 +176,7 @@ namespace gigno {
 			PushConstantData_t push{};
 			push.modelMatrix = curr->Transform.TransformationMatrix();
 			push.normalsMatrix = glm::mat4{curr->Transform.NormalMatrix()};
-			push.fullbright = Fullbright;
+			push.fullbright = convar_r_fullbright;
 			vkCmdPushConstants(buffer, m_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstantData_t), &push);
 
 			curr->pModel->Bind(buffer);

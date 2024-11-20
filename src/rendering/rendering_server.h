@@ -52,8 +52,6 @@ namespace gigno {
 		void DrawLine(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 color, const std::string &uniqueName);
 		void DrawLineGradient(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 startColor, glm::vec3 endColor, const std::string &uniqueName);
 
-		bool *Fullbright() { return &m_SwapChain.Fullbright; }
-
 		#if USE_DEBUG_DRAWING
 		bool ShowDD = true;
 		bool ShowDDPoints = true;

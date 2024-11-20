@@ -99,8 +99,6 @@ namespace gigno {
 		void DrawPoint(glm::vec3 position, glm::vec3 color, uint32_t drawCallHash);
 		void DrawLine(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 startColor, glm::vec3 endColor, uint32_t drawCallHash);
 		#endif
-
-		bool Fullbright = false;
 		
 	private:
 		void CreateDescriptorSetLayout(VkDevice device); 

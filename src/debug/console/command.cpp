@@ -86,6 +86,12 @@ namespace gigno {
         }
 
     }
+
+    CONSOLE_COMMAND_HELP(exit, "closes the app") {
+        if(Application *app = Application::Singleton()) {
+            app->Close = true;
+        }
+    }
 }
 
 #endif //USE_CONSOLE

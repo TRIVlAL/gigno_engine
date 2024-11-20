@@ -25,6 +25,8 @@ namespace gigno {
         InputServer *GetInputServer() { return &m_InputServer; }
 		DebugServer *Debug() { return &m_DebugServer; }
 
+		bool Close = false; // When true, finish loop then close the app.
+
 	private:
 
 		Application(int winw, int winh, const char *title, const std::string &vertShaderPath, const std::string &fragShaderPath);
