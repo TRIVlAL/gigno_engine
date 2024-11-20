@@ -1,0 +1,3 @@
+Red : three points in a plane
+Blue : three points in another plane
+Green : The intersection of both planes

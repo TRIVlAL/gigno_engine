@@ -12,8 +12,6 @@
 #include "debug/profiler/profiler.h"
 #include "physics/rigid_body.h"
 #include "test_entity.h"
-#include <thread>
-
 
 namespace gigno {
 
@@ -83,7 +81,7 @@ namespace gigno {
 
 		DomeCamera camera(10.0f);
 		camera.SetPerspectiveProjection(glm::radians(50.0f), m_RenderingServer.GetAspectRatio(), -0.05f, 1.0f);
-		camera.Transform.Position = { 0.0f, 0.0f, -10.0f };
+		camera.Transform.Position = { 0.0f, 0.0f, -5.0f };
 		camera.Transform.Rotation.y = 0;
 		camera.SetTarget( glm::vec3{0.0f} );
 		camera.Name = "My Camera";
@@ -149,9 +147,9 @@ namespace gigno {
 
 			last_update_time = current_time;
 
-			m_RenderingServer.DrawLine(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{1.0f, 0.0f, 0.0f}, glm::vec3{1.0f, 0.0f, 0.0f}, UNIQUE_NAME);
-			m_RenderingServer.DrawLine(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, UNIQUE_NAME);
-			m_RenderingServer.DrawLine(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, 1.0f}, glm::vec3{0.0f, 0.0f, 1.0f}, UNIQUE_NAME);
+			//m_RenderingServer.DrawLine(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{1.0f, 0.0f, 0.0f}, glm::vec3{1.0f, 0.0f, 0.0f}, UNIQUE_NAME);
+			//m_RenderingServer.DrawLine(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, UNIQUE_NAME);
+			//m_RenderingServer.DrawLine(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, 1.0f}, glm::vec3{0.0f, 0.0f, 1.0f}, UNIQUE_NAME);
 
 			m_EntityServer.Tick(delta_time.count() * 10e-1f); // For some reason, it seems that to get second we need
 															  //  to multiply by 10e-1f and not the expected 10e-6f !
