@@ -15,26 +15,32 @@
 
 namespace gigno {
 
+	Application *Application::MakeApp() {
+		Application *app = new Application(1000, 1000, "Gigno Engine Demo", "shaders/simple_shader.vert.spv", "shaders/simple_shader.frag.spv");
+		return app;
+	}
+	
+	void Application::ShutdownApp() {
+		ASSERT_MSG(s_Instance, "MakeApp() must be called before ShutdownApp() !");
+		delete(s_Instance);
+	}
+
 	Application::Application(int winw, int winh, const char *title, const std::string &vertShaderPath, const std::string &fragShaderPath) :
 		m_DebugServer{},
 		m_InputServer{},
 		m_RenderingServer{ winw, winh, title, &m_InputServer, vertShaderPath, fragShaderPath },
 		m_EntityServer{},
 		m_PhysicServer{} {
-
+			if(s_Instance) {
+				ERR_MSG("Multiple applications created !");
+			}
+			s_Instance = this;
 		}
 
 	Application::~Application() {
-	}
-
-	EntityServer *Application::GetEntityServer() {
-		return &m_EntityServer;
-	}
-
-	Application *Application::MakeApp() {
-		Application *app = new Application(1000, 1000, "Gigno Engine Demo", "shaders/simple_shader.vert.spv", "shaders/simple_shader.frag.spv");
-		s_Instance = app;
-		return app;
+		if(s_Instance == this) {
+			s_Instance = nullptr;
+		}
 	}
 
 	Application *Application::Singleton() {
@@ -42,7 +48,7 @@ namespace gigno {
 	}
 
 	int Application::run() {
-		Console::Singleton()->StartFileLogging();
+		Console::StartFileLogging ();
 
 		ASSERT_MSG_V(glfwInit(), 1, "GLFW Failed to init");
 
@@ -116,7 +122,7 @@ namespace gigno {
 
 		auto start_time = std::chrono::steady_clock::now();
 
-		Console::Singleton()->LogInfo(MESSAGE_NO_FILE_LOG_BIT, "Secret shhhhhh.");
+		Console::LogInfo (MESSAGE_NO_FILE_LOG_BIT, "Secret shhhhhh.");
 		while (!m_RenderingServer.WindowShouldClose() && !Close) {
 
 			Profiler::Begin("Main Loop");
@@ -166,12 +172,6 @@ namespace gigno {
 		}
 
 		return 0;
-	}
-
-	void Application::ShutdownApp() {
-		Application *app = s_Instance;
-		s_Instance = nullptr;
-		delete(app);
 	}
 
 	void Application::DrawMainUIWindow() {

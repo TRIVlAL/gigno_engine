@@ -1,6 +1,5 @@
 #include "application.h"
-
-#include <iostream>
+#include "debug/console/console.h"
 
 int main() {
  
@@ -8,11 +7,9 @@ int main() {
 
 	int result = app->run();
 
-	if (result) {
-		printf("Gigno Application exited with code %d (not success).", result);
-	}
-
 	gigno::Application::ShutdownApp();
+
+	gigno::Console::LogInfo("Gigno Engine exited with code %d.", result);
 
 	return result;
 }

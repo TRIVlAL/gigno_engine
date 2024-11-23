@@ -20,33 +20,33 @@ namespace gigno {
     }
 
     Console::Console() {
-        LogInfo((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "---------------------------------");
-        LogInfo((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "Gigno engine console initialized.");
-        LogInfo((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "---------------------------------");
-        LogInfo((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "");
+        LogInfo_Impl((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "---------------------------------");
+        LogInfo_Impl((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "Gigno engine console initialized.");
+        LogInfo_Impl((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "---------------------------------");
+        LogInfo_Impl((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "");
 
-        if(!StartFileLogging()) {
-            LogInfo("Failed initial file logging.");
+        if(!StartFileLogging_Impl()) {
+            LogInfo_Impl("Failed initial file logging.");
         }
     }
 
     Console::~Console() {
     #if USE_CONSOLE
         if(m_IsLoggingToFile) {
-            StopFileLogging();
+            StopFileLogging_Impl();
         }
     #endif
     }
 
-    void Console::LogInfo(const char *msg) {
+    void Console::LogInfo_Impl(const char *msg) {
         Log(msg, CONSOLE_MESSAGE_INFO, (ConsoleMessageFlags_t)0);
     }
 
-    void Console::LogWarning(const char *msg) {
+    void Console::LogWarning_Impl(const char *msg) {
         Log(msg, CONSOLE_MESSAGE_WARN, (ConsoleMessageFlags_t)0);
     }
 
-    void Console::LogError(const char *msg) {
+    void Console::LogError_Impl(const char *msg) {
         Log(msg, CONSOLE_MESSAGE_ERR, (ConsoleMessageFlags_t)0);
     }
 
@@ -134,7 +134,7 @@ namespace gigno {
         m_LogMutex.unlock();
     }
 
-    bool Console::StartFileLogging() {
+    bool Console::StartFileLogging_Impl() {
         #if USE_CONSOLE
         if(m_IsLoggingToFile) {
             return true;
@@ -147,14 +147,14 @@ namespace gigno {
                 m_FileStream.open(CONSOLE_LOG_FILEPATH, std::ios::app);
             }
             if(!m_FileStream.is_open()) {
-                Console::LogError("Failed to open file %s for logging !", CONSOLE_LOG_FILEPATH.c_str());
+                Console::LogError_Impl("Failed to open file %s for logging !", CONSOLE_LOG_FILEPATH.c_str());
                 return false;
             } else {
                 m_IsLoggingToFile = true;
             }
         }
         m_UIFileLoggingCheckbox = true;
-        LogInfo("Started logging to file.");
+        LogInfo_Impl("Started logging to file.");
         return true;
         #else
         return false;
@@ -169,7 +169,7 @@ namespace gigno {
     }
     #endif
 
-    bool Console::StopFileLogging() {
+    bool Console::StopFileLogging_Impl() {
         #if USE_CONSOLE
         if(!m_IsLoggingToFile) {
             return true;
@@ -179,7 +179,7 @@ namespace gigno {
             m_FileStream.close();
             m_IsLoggingToFile = false;
         }
-        LogInfo("Stopped logging to file.");
+        LogInfo_Impl("Stopped logging to file.");
         m_UIFileLoggingCheckbox = false;
         return true;
         #else
@@ -205,7 +205,7 @@ namespace gigno {
         #if USE_CONSOLE
         CommandToken_t token{line};
         if(!token.GetName()) {
-            LogInfo("Invalid command call.");
+            LogInfo_Impl("Invalid command call.");
             return;
         }
 
@@ -230,7 +230,7 @@ namespace gigno {
             }
         }
         
-        LogInfo("No Command/Convar '%s' found. use 'help' for the list of commands.", token.GetName());
+        LogInfo_Impl("No Command/Convar '%s' found. use 'help' for the list of commands.", token.GetName());
         #endif
     }
 
@@ -250,7 +250,7 @@ namespace gigno {
                     m_UIFileLoggingCheckbox = false;
                 }
             } else {
-                StopFileLogging();
+                StopFileLogging_Impl();
             }
         }
         ImGui::SameLine();

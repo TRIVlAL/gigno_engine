@@ -209,10 +209,10 @@ namespace gigno {
 			ERR_MSG_V(VK_FALSE, "VULKAN Validation Layer : %s", callback_data->pMessage);
 		}
 		else if (message_severity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-			Console::Singleton()->LogWarning("VULKAN Validation Layer WARNING : %s\n", callback_data->pMessage);
+			Console::LogWarning ("VULKAN Validation Layer WARNING : %s\n", callback_data->pMessage);
 		}
 		else {
-			Console::Singleton()->LogInfo("VULKAN Validation Layer : %s\n", callback_data->pMessage);
+			Console::LogInfo ("VULKAN Validation Layer : %s\n", callback_data->pMessage);
 		}
 		return VK_FALSE;
 	}

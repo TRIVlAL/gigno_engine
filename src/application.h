@@ -21,13 +21,14 @@ namespace gigno {
 		int run();
 
 		RenderingServer *GetRenderer() { return &m_RenderingServer; }
-        EntityServer *GetEntityServer();
+        EntityServer *GetEntityServer() { return &m_EntityServer; }
         InputServer *GetInputServer() { return &m_InputServer; }
 		DebugServer *Debug() { return &m_DebugServer; }
 
 		bool Close = false; // When true, finish loop then close the app.
 
 	private:
+		static inline Application *s_Instance = nullptr;
 
 		Application(int winw, int winh, const char *title, const std::string &vertShaderPath, const std::string &fragShaderPath);
 		~Application();
@@ -36,8 +37,6 @@ namespace gigno {
 		void DrawMainUIWindow();
 
         const float MAX_FRAME_TIME = 1000.0f;
-
-		static inline Application *s_Instance = nullptr;
 
 		DebugServer m_DebugServer;
         InputServer m_InputServer; // Must be init before rendering server !

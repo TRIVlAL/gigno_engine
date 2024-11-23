@@ -43,7 +43,7 @@ namespace gigno {
                                                           // CONSOLE_RENDER_FIRST_MESSAGE_COUNT of the first messages will be rendered,
                                                           // and the rest will be filled out by the most recent messages.
     const std::filesystem::path CONSOLE_LOG_FILEPATH{"log.txt"}; // The relative path to the file where the messages are logged
-                                                                 // When StartFileLogging() is called.
+                                                                 // When StartFileLogging_Impl() is called.
 
     struct CommandToken_t;
     static void cls(const CommandToken_t&); // Defined in command.cpp. Method of the cls console command to clear the console.
@@ -51,15 +51,9 @@ namespace gigno {
 
     class Console {
         friend class DebugServer;
-
         friend void cls(const CommandToken_t&);
     public:
-        static Console *Singleton() {
-            return &s_Instance;
-        }
-
-        Console();
-        ~Console();
+        // Static methods forwarded to singleton.
 
         /*
         @brief From now on, until a StopFileLogging() call, every messages will be copied into a log file.
@@ -68,38 +62,35 @@ namespace gigno {
         Notes : - If the file does not exist, it is created.
                 - If the file already exists and it is the first time Logging to file since startup, all the content
                 of the file is OVEWRITEN
-                - The content of the log file will not necessarly appear externaly until a StopFileLogging call or
+                - The content of the log file will not necessarly appear externaly until a StopFileLoggin call or
                   the termination of the application.
         */
-        bool StartFileLogging();
-        bool StopFileLogging();
+        static bool StartFileLogging() { return Singleton()->StartFileLogging_Impl(); }
+        static bool StopFileLogging() { return Singleton()->StopFileLogging_Impl(); }
 
+        static void LogInfo(const char *message) { Singleton()->LogInfo_Impl(message); }
+        template <typename... Args>
         /*
         @brief logs a formatted info message to the console. 
         Follows the standard c formatting rules. 
         If the message cannot be formatted, a segmentation fault will occur (crash).
         */
-        template<typename ...Args>
-        void LogInfo(const char *fmt, Args ...args) {
-            LogFormat(fmt, CONSOLE_MESSAGE_INFO, (ConsoleMessageFlags_t)0, args...);
-        }
-        template <typename... Args>
-        void LogInfo(ConsoleMessageFlags_t flags, const char *fmt, Args... args) {
-            LogFormat(fmt, CONSOLE_MESSAGE_INFO, flags, args...);
-        }
+        static void LogInfo(const char *formatted, Args... args) { Singleton()->LogInfo_Impl(formatted, args...); }
+        template<typename ...Args> 
+        static void LogInfo(ConsoleMessageFlags_t flags, const char *formatted, Args ...args) { Singleton()->LogInfo_Impl(flags, formatted, args...); }
+
+        static void LogWarning(const char *message) { Singleton()->LogWarning_Impl(message); }
+        template<typename ...Args> 
         /*
         @brief logs a formatted warning message to the console.
         Follows the standard c formatting rules.
         If the message cannot be formatted, a segmentation fault will occur (crash).
         */
-       template<typename ...Args>
-        void LogWarning(const char *fmt, Args ...args) {
-           LogFormat(fmt, CONSOLE_MESSAGE_WARN, (ConsoleMessageFlags_t)0, args...);
-        }
+        static void LogWarning(const char *formatted, Args ...args) { Singleton()->LogWarning_Impl(formatted, args...); }
         template <typename... Args>
-        void LogWarning(ConsoleMessageFlags_t flags, const char *fmt, Args... args) {
-            LogFormat(fmt, CONSOLE_MESSAGE_WARN, flags, args...);
-        }
+        static void LogWarning(ConsoleMessageFlags_t flags, const char *formatted, Args... args) { Singleton()->LogWarning_Impl(flags, formatted, args...); }
+
+        static void LogError(const char *message) { Singleton()->LogError_Impl(message); }
         /*
         @brief logs a formatted error message to the console.
         Follows the standard c formatting rules.
@@ -107,26 +98,59 @@ namespace gigno {
         The error is just for look, it will not handle anything else.
         If you want correct error, use the ERR_MSG macro from error_macros.h
         */
+        template<typename ...Args> 
+        static void LogError(const char *formatted, Args ...args) { Singleton()->LogError_Impl(formatted, args...); }
+        template <typename... Args>
+        static void LogError(ConsoleMessageFlags_t flags, const char *formatted, Args... args) { Singleton()->LogError_Impl(flags, formatted, args...); }
+
+    private:
+        static Console s_Instance;
+
+        static Console *Singleton() {
+            return &s_Instance;
+        }
+
+        Console();
+        ~Console();
+
+        
+        bool StartFileLogging_Impl();
+        bool StopFileLogging_Impl();
+
+        
+        template<typename ...Args>
+        void LogInfo_Impl(const char *fmt, Args ...args) {
+            LogFormat(fmt, CONSOLE_MESSAGE_INFO, (ConsoleMessageFlags_t)0, args...);
+        }
+        template <typename... Args>
+        void LogInfo_Impl(ConsoleMessageFlags_t flags, const char *fmt, Args... args) {
+            LogFormat(fmt, CONSOLE_MESSAGE_INFO, flags, args...);
+        }
+        
        template<typename ...Args>
-        void LogError(const char *fmt, Args ...args) {
+        void LogWarning_Impl(const char *fmt, Args ...args) {
+           LogFormat(fmt, CONSOLE_MESSAGE_WARN, (ConsoleMessageFlags_t)0, args...);
+        }
+        template <typename... Args>
+        void LogWarning_Impl(ConsoleMessageFlags_t flags, const char *fmt, Args... args) {
+            LogFormat(fmt, CONSOLE_MESSAGE_WARN, flags, args...);
+        }
+        
+       template<typename ...Args>
+        void LogError_Impl(const char *fmt, Args ...args) {
            LogFormat(fmt, CONSOLE_MESSAGE_ERR, (ConsoleMessageFlags_t)0, args...);
         }
         template <typename... Args>
-        void LogError(ConsoleMessageFlags_t flags, const char *fmt, Args... args) {
+        void LogError_Impl(ConsoleMessageFlags_t flags, const char *fmt, Args... args) {
             LogFormat(fmt, CONSOLE_MESSAGE_ERR, flags, args...);
         }
 
         /*
         No-formatting versions of the log methods.
         */
-        void LogInfo(const char *msg);
-        void LogWarning(const char *msg);
-        void LogError(const char *msg);
-
-
-    private:
-        static Console s_Instance;
-
+        void LogInfo_Impl(const char *msg);
+        void LogWarning_Impl(const char *msg);
+        void LogError_Impl(const char *msg);
 
         void CallCommand(const char *line);
 

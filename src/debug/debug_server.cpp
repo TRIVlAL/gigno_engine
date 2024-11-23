@@ -23,7 +23,7 @@ namespace gigno {
                     #if USE_CONSOLE
                     if(ImGui::BeginTabItem("Console")) {
                         if(Console *cons = Console::Singleton()) {
-                            cons->DrawConsoleTab();
+                             cons->DrawConsoleTab();
                         }
                         ImGui::EndTabItem();
                     }

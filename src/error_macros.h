@@ -9,29 +9,15 @@
 #define STRINGIZE2(x) #x
 #define LINE_STRING STRINGIZE(__LINE__)
 
-#define ERR_MSG(msg, ...)                                                                \
-    if (Console *cons = Console::Singleton())                                            \
-    {                                                                                    \
-        cons->LogError("ERROR " __FILE__ " line " LINE_STRING " : " msg, ##__VA_ARGS__); \
-    }                                                                                    \
-    else                                                                                 \
-    {                                                                                    \
-        printf("ERROR " __FILE__ " line " LINE_STRING " : " msg "\n", ##__VA_ARGS__);    \
-    }                                                                                    \
+#define ERR_MSG(msg, ...)                                                               \
+    Console::LogError("ERROR " __FILE__ " line " LINE_STRING " : " msg, ##__VA_ARGS__); \
     return
 
 #define ERR_MSG_V(ret, msg, ...) \
 ERR_MSG(msg , ##__VA_ARGS__) ret
 
-#define ERR                                                         \
-    if (Console *cons = CONSOLE_H::Singleton())                     \
-    {                                                               \
-        cons->LogError("ERROR " __FILE__ " line " LINE_STRING "."); \
-    }                                                               \
-    else                                                            \
-    {                                                               \
-        printf("ERROR " __FILE__ " line " LINE_STRING ".\n");       \
-    }                                                               \
+#define ERR                                                        \
+    Console::LogError("ERROR " __FILE__ " line " LINE_STRING "."); \
     return
 
 #define ERR_V(ret) \
@@ -49,66 +35,34 @@ ERR_MSG(msg , ##__VA_ARGS__) ret
         ERR           \
     }
 
-#define ASSERT_MSG(cond, msg, ...)                                                                                                   \
-    if (!(cond))                                                                                                                     \
-    {                                                                                                                                \
-        if (Console *cons = Console::Singleton())                                                                             \
-        {                                                                                                                            \
-            cons->LogError("ASSERT FAILED at " __FILE__ " line " LINE_STRING " : " msg, ##__VA_ARGS__); \
-        }                                                                                                                            \
-        else                                                                                                                         \
-        {                                                                                                                            \
-            printf("ASSERT FAILED at " __FILE__ " line " LINE_STRING " : " msg "\n", ##__VA_ARGS__);                                 \
-        }                                                                                                                            \
-                                                                                                                                     \
-        __debugbreak();                                                                                                              \
-        return;                                                                                                                      \
+#define ASSERT_MSG(cond, msg, ...)                                                                     \
+    if (!(cond))                                                                                       \
+    {                                                                                                  \
+        Console::LogError("ASSERT FAILED at " __FILE__ " line " LINE_STRING " : " msg, ##__VA_ARGS__); \
+        __debugbreak();                                                                                \
+        return;                                                                                        \
     }
 
-#define ASSERT_MSG_V(cond, ret, msg, ...)                                                               \
-    if (!(cond))                                                                                        \
-    {                                                                                                   \
-        if (Console *cons = Console::Singleton())                                                       \
-        {                                                                                               \
-            cons->LogError("ASSERT FAILED at " __FILE__ " line " LINE_STRING " : " msg, ##__VA_ARGS__); \
-        }                                                                                               \
-        else                                                                                            \
-        {                                                                                               \
-            printf("ASSERT FAILED at " __FILE__ " line " LINE_STRING " : " msg "\n", ##__VA_ARGS__);    \
-        }                                                                                               \
-                                                                                                        \
-        __debugbreak();                                                                                 \
-        return ret;                                                                                     \
+#define ASSERT_MSG_V(cond, ret, msg, ...)                                                                \
+    if (!(cond))                                                                                         \
+    {                                                                                                    \
+        Console::LogError("ASSERT FAILED at " __FILE__ " line " LINE_STRING " : " msg, ##__VA_ARGS__); \
+        __debugbreak();                                                                                  \
+        return ret;                                                                                      \
     }
 
-#define ASSERT_V(cond, ret)                                                        \
-    if (!(cond))                                                                   \
-    {                                                                              \
-        if (Console *cons = Console::Singleton())                                  \
-        {                                                                          \
-            cons->LogError("ASSERT FAILED at " __FILE__ " line " LINE_STRING "."); \
-        }                                                                          \
-        else                                                                       \
-        {                                                                          \
-            printf("ASSERT FAILED at " __FILE__ " line " LINE_STRING ".\n");       \
-        }                                                                          \
-                                                                                   \
-        __debugbreak();                                                            \
-        return ret;                                                                \
+#define ASSERT_V(cond, ret)                                                       \
+    if (!(cond))                                                                  \
+    {                                                                             \
+        Console::LogError("ASSERT FAILED at " __FILE__ " line " LINE_STRING "."); \
+        __debugbreak();                                                           \
+        return ret;                                                               \
     }
 
 #define ASSERT(cond)                                                               \
     if (!(cond))                                                                   \
     {                                                                              \
-        if (Console *cons = Console::Singleton())                                  \
-        {                                                                          \
-            cons->LogError("ASSERT FAILED at " __FILE__ " line " LINE_STRING "."); \
-        }                                                                          \
-        else                                                                       \
-        {                                                                          \
-            printf("ASSERT FAILED at " __FILE__ " line " LINE_STRING ".\n");       \
-        }                                                                          \
-                                                                                   \
+             Console::LogError ("ASSERT FAILED at " __FILE__ " line " LINE_STRING "."); \
         __debugbreak();                                                            \
         return;                                                                    \
     }

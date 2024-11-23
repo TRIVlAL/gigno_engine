@@ -22,10 +22,9 @@ namespace gigno {
     //DEFINITIONS OF DEFAULT CONSOLE COMMANDS.
 
     CONSOLE_COMMAND_HELP(echo, "Usage : echo [words, ...].\nRepeats every arguments separated by a space.") {
-        Console *console = Console::Singleton();
         ConsoleMessageFlags_t flags = MESSAGE_NO_NEW_LINE_BIT;
         for(int i = 0; i < args.GetArgC(); i++) {
-            console->LogInfo(flags, "%s", args.GetArg(i));
+            Console::LogInfo (flags, "%s", args.GetArg(i));
             flags = (ConsoleMessageFlags_t)(MESSAGE_NO_NEW_LINE_BIT | MESSAGE_NO_TIME_CODE_BIT);
             if(i == args.GetArgC() - 2) {
                 flags = MESSAGE_NO_TIME_CODE_BIT;
@@ -40,23 +39,22 @@ namespace gigno {
     }
 
     CONSOLE_COMMAND_HELP(help, "Usage : 'help' [command] to get help on a specific command or 'help' to get a list of all console commands.") {
-        Console *console = Console::Singleton();
         Command *comm_current = Command::s_pCommands;
         BaseConvar *convar_current = BaseConvar::s_pConvars;
         if(args.GetArgC() == 0) {
-            console->LogInfo("Usage : 'help' [command] to get help on a specific command. List of all console commands :"); 
+            Console::LogInfo ("Usage : 'help' [command] to get help on a specific command. List of all console commands :"); 
             if(comm_current) {
-                console->LogInfo(MESSAGE_NO_TIME_CODE_BIT, "Commands :");
+                Console::LogInfo (MESSAGE_NO_TIME_CODE_BIT, "Commands :");
             }
             while (comm_current) {
-                console->LogInfo(MESSAGE_NO_TIME_CODE_BIT, "  - %s", comm_current->GetName());
+                Console::LogInfo (MESSAGE_NO_TIME_CODE_BIT, "  - %s", comm_current->GetName());
                 comm_current = comm_current->GetNext();
             }
             if(convar_current) {
-                console->LogInfo(MESSAGE_NO_TIME_CODE_BIT, "Console variables (ConVar) :");
+                Console::LogInfo (MESSAGE_NO_TIME_CODE_BIT, "Console variables (ConVar) :");
             }
             while(convar_current) {
-                console->LogInfo(MESSAGE_NO_TIME_CODE_BIT, "  - %s", convar_current->GetName());
+                Console::LogInfo (MESSAGE_NO_TIME_CODE_BIT, "  - %s", convar_current->GetName());
                 convar_current = convar_current->GetNext();
             }
         } else {
@@ -68,7 +66,7 @@ namespace gigno {
                     } else {
                         help_str = comm_current->GetHelpString();
                     }
-                    console->LogInfo("Command '%s' : %s", comm_current->GetName(), help_str);
+                    Console::LogInfo ("Command '%s' : %s", comm_current->GetName(), help_str);
                     return;
                 }
                 comm_current = comm_current->GetNext();
@@ -77,12 +75,12 @@ namespace gigno {
                 if(strcmp(convar_current->GetName(), args.GetArg(0)) == 0) {
                     char valuestr[convar_current->ValToString(nullptr)];
                     convar_current->ValToString(valuestr);
-                    console->LogInfo("Convar '%s' = '%s' : %s", convar_current->GetName(), valuestr, convar_current->GetHelpString());
+                    Console::LogInfo ("Convar '%s' = '%s' : %s", convar_current->GetName(), valuestr, convar_current->GetHelpString());
                     return;
                 }
                 convar_current = convar_current->GetNext();
             }
-            console->LogInfo("Command '%s' does not exist.", args.GetArg(0));
+            Console::LogInfo ("Command '%s' does not exist.", args.GetArg(0));
         }
 
     }

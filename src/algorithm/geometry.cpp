@@ -31,5 +31,6 @@ namespace gigno {
 
     bool LineIntersect(glm::vec3 point1, glm::vec3 dir1, glm::vec3 point2, glm::vec3 dir2, glm::vec3 &outResult) {
         // TODO : Implement
+        return false;
     }
 }
