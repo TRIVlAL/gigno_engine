@@ -13,8 +13,7 @@ namespace gigno {
         ENABLE_SERIALIZATION(TestEntity);
     public:
         TestEntity(RigidBody *rb1, RigidBody *rb2) : Entity(), m_RB1{rb1}, m_RB2{rb2} {
-            m_RB1->TestingInterpolateType = 0;
-            m_RB2->TestingInterpolateType = 1;
+            m_RB1->Mass = 10.0f;
         }
         ~TestEntity() {
 
@@ -29,7 +28,7 @@ namespace gigno {
         glm::vec3 b3{1.0f, 0.0f, 2.0f};
 
         void Think(float dt) override {
-
+            /*
             glm::vec3 an = glm::cross(a2 - a1, a3 - a1);
             glm::vec3 bn = glm::cross(b2 - b1, b3 - b1);
 
@@ -87,10 +86,17 @@ namespace gigno {
             LineIntersect(line.Point, line.Dir, a1, glm::normalize(a2 - a1), intersect);
 
             Application::Singleton()->GetRenderer()->DrawLine(line.Point - line.Dir * 1000.0f, line.Point + line.Dir * 1000.0f, glm::vec3{0.0f, 0.8f, 0.2f}, UNIQUE_NAME);
+            */
         }
 
         void PhysicThink(float dt) override {
-            m_RB1->AddForce(glm::vec3{5.0f, 0.0f, 0.0f});
+            static int i = 0;
+            if(i < 1) {
+                m_RB1->AddForce(glm::vec3{100.0f, 1000.0f, 0.0f}, glm::vec3{0.0f, 0.2f, 0.2f});
+                i++;
+            } else {
+                m_RB1->AddForce(glm::vec3{0.0f, -9.81, 0.0f}*m_RB1->Mass);
+            }
             m_RB2->AddForce(glm::vec3{5.0f, 0.0f, 0.0f});
         }
     private:

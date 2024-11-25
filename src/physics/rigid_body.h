@@ -11,9 +11,7 @@ namespace gigno {
         RigidBody(ModelData_t model);
         ~RigidBody();
 
-        void AddForce(const glm::vec3 &force) {
-            m_Force += force;
-        }
+        void AddForce(const glm::vec3 &force, const glm::vec3 &application = glm::vec3{0.0f, 0.0f, 0.0f});
 
         virtual void LatePhysicThink(float dt) override;
 
@@ -21,11 +19,14 @@ namespace gigno {
             m_Velocity = glm::vec3{0.0f};
         }
 
-        int TestingInterpolateType{};
+        float Mass{1.0f};
 
     private:
         glm::vec3 m_Force{};
         glm::vec3 m_Velocity{};
+
+        glm::vec3 m_Torque{};
+        glm::vec3 m_RotationVelocity{};
     };
 
     DEFINE_SERIALIZATION(RigidBody) {
@@ -33,6 +34,9 @@ namespace gigno {
 
         SERIALIZE(glm::vec3, m_Velocity);
         SERIALIZE(glm::vec3, m_Force);
+
+        SERIALIZE(glm::vec3, m_Torque);
+        SERIALIZE(glm::vec3, m_RotationVelocity);
     }
 
 }

@@ -87,7 +87,7 @@ namespace gigno {
 
 		DomeCamera camera(10.0f);
 		camera.SetPerspectiveProjection(glm::radians(50.0f), m_RenderingServer.GetAspectRatio(), -0.05f, 1.0f);
-		camera.Transform.Position = { 0.0f, 0.0f, -5.0f };
+		camera.Transform.Position = { 0.0f, 0.0f, -10.0f };
 		camera.Transform.Rotation.y = 0;
 		camera.SetTarget( glm::vec3{0.0f} );
 		camera.Name = "My Camera";
@@ -107,12 +107,10 @@ namespace gigno {
 		RigidBody phys_cube{ModelData_t::FromObjFile("models/colored_cube.obj")};
 		phys_cube.Transform.Position = glm::vec3{-4.0f, 2.0f, 0.0f};
 		phys_cube.Transform.Scale = glm::vec3{0.2, 0.2f, 0.2f};
-		phys_cube.TestingInterpolateType = 0;
 
 		RigidBody phys_cube2{ModelData_t::FromObjFile("models/colored_cube.obj")};
 		phys_cube2.Transform.Position = glm::vec3{-4.0f, 0.0f, 0.0f};
 		phys_cube2.Transform.Scale = glm::vec3{0.2, 0.2f, 0.2f};
-		phys_cube2.TestingInterpolateType = 1;
 
 		TestEntity test{&phys_cube, &phys_cube2};
 
