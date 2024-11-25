@@ -23,6 +23,8 @@ namespace gigno {
 			curr = curr->pNextEntity;
 		}
 
+		Console::Singleton()->UpdateCommands(dt);
+
 		Profiler::End();
 	}
 

@@ -97,7 +97,9 @@ namespace gigno {
         FROM_STRING_SUCCESS = 0,
 
         FROM_STRING_NUMBER_OUT_OF_RANGE = 1,
-        FROM_STRING_ONE_ARG_FAILED = 2 //Could not convert from the argument given (expects a single argument)
+        FROM_STRING_ONE_ARG_FAILED = 2, //Could not convert from the argument given (expects a single argument)
+
+        FROM_STRING_ENUM_VALUE_NOT_EXISTS = 3
     };
 
     /*

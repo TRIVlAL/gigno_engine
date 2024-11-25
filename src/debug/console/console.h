@@ -48,10 +48,13 @@ namespace gigno {
     struct CommandToken_t;
     static void cls(const CommandToken_t&); // Defined in command.cpp. Method of the cls console command to clear the console.
                                             // forward-declared here so it can be made a friend of Console.
+    static void bind_update(float);         // Defined in bind_command. forward-declared here so it can be made a friend of Console.
 
     class Console {
         friend class DebugServer;
+        friend class EntityServer;
         friend void cls(const CommandToken_t&);
+        friend void bind_update(float);
     public:
         // Static methods forwarded to singleton.
 
@@ -144,6 +147,11 @@ namespace gigno {
         void LogError_Impl(ConsoleMessageFlags_t flags, const char *fmt, Args... args) {
             LogFormat(fmt, CONSOLE_MESSAGE_ERR, flags, args...);
         }
+
+        /*
+        Called by EntityServer in Think... better way?
+        */
+        void UpdateCommands(float dt);
 
         /*
         No-formatting versions of the log methods.

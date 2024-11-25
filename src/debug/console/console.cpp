@@ -38,7 +38,16 @@ namespace gigno {
     #endif
     }
 
-    void Console::LogInfo_Impl(const char *msg) {
+    void Console::UpdateCommands(float dt) {
+        Command *curr = Command::s_pCommands;
+        while(curr) {
+            curr->Update(dt);
+            curr = curr->GetNext();
+        }
+    }
+
+    void Console::LogInfo_Impl(const char *msg)
+    {
         Log(msg, CONSOLE_MESSAGE_INFO, (ConsoleMessageFlags_t)0);
     }
 

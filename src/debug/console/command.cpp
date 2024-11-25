@@ -9,14 +9,18 @@ namespace gigno {
 
     Command *Command::s_pCommands = nullptr;
 
-    Command::Command(const char *name, CommandCallback_t callback, const char * help_string) : 
-        m_Name{name}, m_Callback{callback}, m_HelpString{help_string} {
+    Command::Command(const char *name, CommandCallback_t callback, CommandUpdate_t update_callback, const char * help_string) : 
+        m_Name{name}, m_Callback{callback}, m_Update{update_callback}, m_HelpString{help_string} {
         m_pNext = Command::s_pCommands;
         Command::s_pCommands = this;
     }
 
     void Command::Execute(const CommandToken_t &token) {
         m_Callback(token);
+    }
+
+    void Command::Update(float dt) {
+        m_Update(dt);
     }
 
     //DEFINITIONS OF DEFAULT CONSOLE COMMANDS.
