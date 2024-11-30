@@ -46,5 +46,31 @@ namespace gigno {
             }
         }
     }
+
+    CONSOLE_COMMAND_HELP(unbind, "Usage : bind [KEY] . The key passed in will no longer have any command bound to") {
+        if(args.GetArgC() < 1) {
+            Console::LogInfo("unbind requires one argument.");
+            return;
+        }
+
+        const char *key_str = args.GetArg(0);
+        std::pair<int, Key_t> key_res = FromString<Key_t>(& key_str, 1);
+        if(key_res.first != FROM_STRING_SUCCESS) {
+            Console::LogInfo("Could not convers '%s' to a key.", args.GetArg(0));
+            return;
+        }
+
+        int i = 0;
+        int erased_count = 0;
+        while(i < s_BoundCommands.size()) {
+            if(s_BoundCommands[i].first == key_res.second) {
+                s_BoundCommands.erase(s_BoundCommands.begin() + i);
+                erased_count++;
+            } else {
+                i++;
+            }
+        }
+        Console::LogInfo("Erased %d bindings from the key '%s'", erased_count, args.GetArg(0));
+    }
 }
 
