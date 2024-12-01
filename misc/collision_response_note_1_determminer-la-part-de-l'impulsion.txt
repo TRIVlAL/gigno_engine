@@ -1,0 +1,20 @@
+On siat qu'au total, la somme des impulsions est de J.
+Mais quelle part de l'impulsion revient à quel objet ?
+
+k est la part d'impulsion qui est appliquée à l'objet 1.
+1-k est la part d'impulsion qui est appliquée à l'objet 2.
+comme sa, la somme des impulsion est de J.
+
+m1v1 + m2v2  =  m1(v1 + kJ) + m2(v2 - (1-k)J)
+
+m1v1 + m2v2  =  m1(v1 + kJ) + m2(v2 (-J) + kJ)
+
+m1(-kJ) + m2(J - kJ) = 0
+m1 k    + m2 (-1+k) = 0
+k(m1 + m2) - m2 = 0
+k = m2 / (m1 + m2)
+
+
+-----------------
+Donc, l'impulsion sur l'objet 1 est de (m2/(m1+m2))J
+      l'impulsion sur l'objet 2 est de (m1/(m1+m2))J

@@ -104,13 +104,19 @@ namespace gigno {
 		EnvironmentLight env;
 		env.intensity = 0.02f;
 
-		RigidBody phys_cube{ModelData_t::FromObjFile("models/colored_cube.obj")};
-		phys_cube.Transform.Position = glm::vec3{-4.0f, 2.0f, 0.0f};
-		phys_cube.Transform.Scale = glm::vec3{0.2, 0.2f, 0.2f};
+		RigidBody phys_cube{ModelData_t::FromObjFile("models/uv_sphere.obj")};
+		phys_cube.Transform.Position = glm::vec3{-0.5f, 2.5f, 0.0f};
+		phys_cube.Transform.Scale = glm::vec3{0.5, 0.5f, 0.5f};
+		phys_cube.GiveSphereCollider(0.5f);
+		phys_cube.MovementType = DYNAMIC;
+		phys_cube.AddImpulse(glm::vec3{0.0f, -5.0f, 0.0f});
 
-		RigidBody phys_cube2{ModelData_t::FromObjFile("models/colored_cube.obj")};
-		phys_cube2.Transform.Position = glm::vec3{-4.0f, 0.0f, 0.0f};
-		phys_cube2.Transform.Scale = glm::vec3{0.2, 0.2f, 0.2f};
+		RigidBody phys_cube2{ModelData_t::FromObjFile("models/uv_sphere.obj")};
+		phys_cube2.Transform.Position = glm::vec3{-0.5f, -0.5f, 0.0f};
+		phys_cube2.Transform.Scale = glm::vec3{0.5, 0.5f, 0.5f};
+		phys_cube2.GiveSphereCollider(0.5f);
+		phys_cube2.MovementType = DYNAMIC;
+		phys_cube2.AddImpulse(glm::vec3{0.0f, 5.0f, 0.0f});
 
 		TestEntity test{&phys_cube, &phys_cube2};
 
@@ -132,17 +138,6 @@ namespace gigno {
 				m_ShowMainUIWindow = true;
 			}
 			DrawMainUIWindow();
-
-			if(m_InputServer.GetKeyUp(KEY_R)) {
-				phys_cube.Stop();
-				phys_cube2.Stop();
-				phys_cube.Transform.Position = glm::vec3{-4.0f, 2.0f, 0.0f};
-				phys_cube2.Transform.Position = glm::vec3{-4.0f, 0.0f, 0.0f};
-			}
-			if(m_InputServer.GetKeyUp(KEY_T)) {
-				phys_cube.Transform.Position = glm::vec3{-4.0f, 2.0f, 0.0f};
-				phys_cube2.Transform.Position = glm::vec3{-4.0f, 0.0f, 0.0f};
-			}
 
 			auto current_time = std::chrono::steady_clock::now();
 			std::chrono::duration<float> delta_time = current_time - last_update_time;

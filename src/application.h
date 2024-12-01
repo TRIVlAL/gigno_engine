@@ -23,6 +23,7 @@ namespace gigno {
 		RenderingServer *GetRenderer() { return &m_RenderingServer; }
         EntityServer *GetEntityServer() { return &m_EntityServer; }
         InputServer *GetInputServer() { return &m_InputServer; }
+		PhysicServer *GetPhysicServer() { return &m_PhysicServer; }
 		DebugServer *Debug() { return &m_DebugServer; }
 
 		bool Close = false; // When true, finish loop then close the app.

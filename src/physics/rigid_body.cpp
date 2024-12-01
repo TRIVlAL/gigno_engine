@@ -5,20 +5,48 @@ namespace gigno {
 
     RigidBody::RigidBody(ModelData_t model)
     : RenderedEntity(model) {
-
     }
 
     RigidBody::~RigidBody() {
 
     }
 
-    void RigidBody::AddForce(const glm::vec3& force, const glm::vec3& application) {
+    void RigidBody::GiveSphereCollider(float radius) {
+        if(hasCollider) {
+            GetApp()->GetPhysicServer()->RemoveCollider(this);
+        }
+        Collider::ColliderParameter param;
+        param.Radius = radius;
+        GetApp()->GetPhysicServer()->AddCollider(this, COLLIDER_SPHERE, param);
+        hasCollider = true;
+    }
+
+    void RigidBody::GivePlaneCollider(glm::vec3 normal) {
+        if(hasCollider) {
+            GetApp()->GetPhysicServer()->RemoveCollider(this);
+        }
+        Collider::ColliderParameter param;
+        param.Normal = normal;
+        GetApp()->GetPhysicServer()->AddCollider(this, COLLIDER_PLANE, param);
+    }
+
+    void RigidBody::AddForce(const glm::vec3 &force, const glm::vec3 &application) {
         m_Force += force;
 
         m_Torque += glm::cross(application, force);
     }
 
+    void RigidBody::AddImpulse(const glm::vec3 &impulse, const glm::vec3 &application) {
+        m_Velocity += impulse;
+
+        m_RotationVelocity += glm::cross(application, impulse);
+    }
+
     void RigidBody::LatePhysicThink(float dt) {
+        if(MovementType == STATIC) {
+            return;
+        }
+
         glm::vec3 avrg_vel = m_Velocity;
         m_Velocity += dt * m_Force / Mass;
         avrg_vel += m_Velocity;

@@ -41,6 +41,8 @@ namespace gigno {
 
             entity_serv->PhysicTick(frame_time.count() / 1e9);
 
+            DetectCollisions();
+
             Profiler::End();
 
             frame_end = std::chrono::high_resolution_clock::now();
@@ -60,4 +62,36 @@ namespace gigno {
         }
     }
 
+    void PhysicServer::DetectCollisions() {
+        std::lock_guard<std::mutex>{m_WorldMutex};
+
+        for(int i = 0; i < m_World.size(); i++) {
+            for(int j = 0; j < m_World.size(); j++) {
+                if(i != j) {
+                    ResolveCollision(m_World[i], m_World[j]);
+                }
+            }
+        }
+    }
+
+    void PhysicServer::AddCollider(RigidBody *body, ColliderType_t type, Collider::ColliderParameter parameters) {
+        std::lock_guard<std::mutex>{m_WorldMutex};
+
+        Collider &coll = m_World.emplace_back();
+        coll.type = type;
+        coll.parameters = parameters;
+        coll.boundRigidBody = body;
+    }
+
+    void PhysicServer::RemoveCollider(RigidBody *body) {
+        std::lock_guard<std::mutex>{m_WorldMutex};
+
+        for(int i = 0; i < m_World.size(); i++) {
+            if(m_World[i].boundRigidBody == body) {
+                m_World.erase(m_World.begin() + i);
+                return;
+            }
+        }
+        ERR_MSG("Tried to remove collider of a body that never had a collider !");
+    }
 }

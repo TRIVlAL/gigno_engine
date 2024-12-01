@@ -13,7 +13,7 @@ namespace gigno {
         ENABLE_SERIALIZATION(TestEntity);
     public:
         TestEntity(RigidBody *rb1, RigidBody *rb2) : Entity(), m_RB1{rb1}, m_RB2{rb2} {
-            m_RB1->Mass = 10.0f;
+            m_RB1->Mass = 2.0f;
         }
         ~TestEntity() {
 
@@ -91,13 +91,8 @@ namespace gigno {
 
         void PhysicThink(float dt) override {
             static int i = 0;
-            if(i < 1) {
-                m_RB1->AddForce(glm::vec3{100.0f, 1000.0f, 0.0f}, glm::vec3{0.0f, 0.2f, 0.2f});
-                i++;
-            } else {
-                m_RB1->AddForce(glm::vec3{0.0f, -9.81, 0.0f}*m_RB1->Mass);
-            }
-            m_RB2->AddForce(glm::vec3{5.0f, 0.0f, 0.0f});
+            //m_RB1->AddForce(glm::vec3{0.0f, -2.0f, 0.0f});
+            //m_RB2->AddForce(glm::vec3{0.0f, 2.0f, 0.0f});
         }
     private:
         RigidBody *m_RB1{};
