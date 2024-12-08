@@ -29,7 +29,7 @@ namespace gigno {
 		alignas(4) bool fullbright = false;
 	};
 
-	const int MAX_LIGHT_DATA_COUNT = 10;
+	const int MAX_LIGHT_DATA_COUNT = 15;
 
 	/*
 	Constant-during-the-frame data pushed to the shader.

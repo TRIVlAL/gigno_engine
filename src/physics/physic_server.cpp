@@ -62,15 +62,24 @@ namespace gigno {
         }
     }
 
-    void PhysicServer::DetectCollisions() {
+    void PhysicServer::DetectCollisions()
+    {
         std::lock_guard<std::mutex>{m_WorldMutex};
 
+        for(Collider &col : m_World) {
+            col.PollRigidBodyValues();
+        }
+
         for(int i = 0; i < m_World.size(); i++) {
-            for(int j = 0; j < m_World.size(); j++) {
+            for(int j = i+1; j < m_World.size(); j++) {
                 if(i != j) {
                     ResolveCollision(m_World[i], m_World[j]);
                 }
             }
+        }
+
+        for (Collider &col : m_World) {
+            col.ApplyImpulse();
         }
     }
 
@@ -80,14 +89,14 @@ namespace gigno {
         Collider &coll = m_World.emplace_back();
         coll.type = type;
         coll.parameters = parameters;
-        coll.boundRigidBody = body;
+        coll.BoundRigidBody = body;
     }
 
     void PhysicServer::RemoveCollider(RigidBody *body) {
         std::lock_guard<std::mutex>{m_WorldMutex};
 
         for(int i = 0; i < m_World.size(); i++) {
-            if(m_World[i].boundRigidBody == body) {
+            if(m_World[i].BoundRigidBody == body) {
                 m_World.erase(m_World.begin() + i);
                 return;
             }

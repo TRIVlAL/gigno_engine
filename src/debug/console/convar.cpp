@@ -19,6 +19,8 @@ namespace gigno {
                 Console::LogInfo ("Could not trivially convert '%s' to type '%s'", args.GetArg(0), TypeToString()); break;
             case FROM_STRING_NUMBER_OUT_OF_RANGE:
                 Console::LogInfo ("Value '%s' was too big/small. It exceeded the limit for the type '%s'", args.GetArg(0), TypeToString()); break;
+            case FROM_STRING_NOT_ENOUGH_ARGS:
+                Console::LogInfo("Value type '%s' requires more arguments !", TypeToString());
             default:
                 Console::LogInfo ("Could not set Convar !"); break;
         }

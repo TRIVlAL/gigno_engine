@@ -299,6 +299,7 @@ namespace gigno {
 		for(const Light *light : lights) {
 			const uint32_t advance = light->DataSlotsCount();
 			if(i + advance > MAX_LIGHT_DATA_COUNT) {
+				Console::LogError("Rendering : Max Light Data exceeded ! Some lights will be ignored !");
 				break;
 			}
 			light->FillDataSlots(&ub.lightDatas[i]);

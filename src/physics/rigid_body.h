@@ -6,11 +6,6 @@
 
 namespace gigno {
 
-    enum MovementType_t {
-        DYNAMIC = 0,
-        STATIC = 1
-    };
-
     class RigidBody : public RenderedEntity {
         ENABLE_SERIALIZATION(RigidBody);
     public:
@@ -21,6 +16,7 @@ namespace gigno {
 
         void AddForce(const glm::vec3 &force, const glm::vec3 &application = glm::vec3{0.0f, 0.0f, 0.0f});
         void AddImpulse(const glm::vec3 &impulse, const glm::vec3 &application = glm::vec3{0.0f, 0.0f, 0.0f});
+        void AddRotationImpulse(const glm::vec3 &rotation);
 
         virtual void LatePhysicThink(float dt) override;
 
@@ -31,7 +27,8 @@ namespace gigno {
         glm::vec3 GetVelocity() { return m_Velocity; }
 
         float Mass{1.0f};
-        MovementType_t MovementType{};
+        float Bounciness{0.0f};
+        bool IsStaitc{false};
 
     private:
         bool hasCollider = false;

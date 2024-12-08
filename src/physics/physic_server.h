@@ -28,6 +28,7 @@ namespace gigno {
 
         void Loop();
 
+        void ApplyGlobalForces();
         void DetectCollisions();
 
         void AddCollider(RigidBody *body, ColliderType_t type, Collider::ColliderParameter parameters);

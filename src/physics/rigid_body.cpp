@@ -1,7 +1,10 @@
 #include "rigid_body.h"
 #include "application.h"
+#include "../debug/console/convar.h"
 
 namespace gigno {
+    #define DEFAULT_GRAVITY glm::vec3{0.0f, -9.81f, 0.0f}
+    CONVAR(glm::vec3, phys_gravity, DEFAULT_GRAVITY, "");
 
     RigidBody::RigidBody(ModelData_t model)
     : RenderedEntity(model) {
@@ -42,10 +45,16 @@ namespace gigno {
         m_RotationVelocity += glm::cross(application, impulse);
     }
 
+    void RigidBody::AddRotationImpulse(const glm::vec3 &rotation) {
+        m_RotationVelocity += rotation;
+    }
+
     void RigidBody::LatePhysicThink(float dt) {
-        if(MovementType == STATIC) {
+        if(IsStaitc) {
             return;
         }
+
+        AddForce((glm::vec3)convar_phys_gravity);
 
         glm::vec3 avrg_vel = m_Velocity;
         m_Velocity += dt * m_Force / Mass;

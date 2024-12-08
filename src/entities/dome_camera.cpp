@@ -46,7 +46,11 @@ namespace gigno {
 		}
 
 		Transform.Position += parralel * right_move * Speed * dt;
-		Transform.Position.y += up_move * Speed * dt;
+
+		if(MaxLower >= 0.0f && Transform.Position.y + up_move * Speed * dt > m_Target.y - MaxLower) {
+			Transform.Position.y += up_move * Speed * dt;
+		}
+
 
 		glm::vec3 targetToMe = Transform.Position - m_Target;
 		Transform.Position = m_Target + ( glm::normalize(targetToMe) * m_DistanceToTarget);

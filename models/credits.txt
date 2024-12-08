@@ -1,2 +1,6 @@
 Credits to "blurrypiano". 
-These models were taken from his public google drive : https://drive.google.com/drive/folders/1QuvSRG4HCxCfC5k0F5G03tNwUQoqE8f3
+The following models were taken from his public google drive : https://drive.google.com/drive/folders/1QuvSRG4HCxCfC5k0F5G03tNwUQoqE8f3 
+	- colored_cube.obj
+	- cube.obj
+	- flat_vase.obj
+	- smooth_vase.obj

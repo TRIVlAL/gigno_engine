@@ -15,6 +15,7 @@ namespace gigno {
 		void SetTarget(glm::vec3 target);
 
 		float Speed;
+		float MaxLower = -1.0f; //-1.0f means no max lower.
 
 		virtual void Think(float dt) override;
 	private:

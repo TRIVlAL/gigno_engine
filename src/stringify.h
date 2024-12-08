@@ -99,7 +99,9 @@ namespace gigno {
         FROM_STRING_NUMBER_OUT_OF_RANGE = 1,
         FROM_STRING_ONE_ARG_FAILED = 2, //Could not convert from the argument given (expects a single argument)
 
-        FROM_STRING_ENUM_VALUE_NOT_EXISTS = 3
+        FROM_STRING_ENUM_VALUE_NOT_EXISTS = 3,
+
+        FROM_STRING_NOT_ENOUGH_ARGS = 4
     };
 
     /*
@@ -166,6 +168,53 @@ namespace gigno {
         }
 
         return std::pair<int, unsigned int>{res, val};
+    }
+
+    template<> inline
+    std::pair<int, float> FromString<float>(const char **arguments, size_t argsCount) {
+        char *endptr{};
+
+        float val = strtof(arguments[0], &endptr);
+
+        int res = 0;
+        if(endptr == arguments[0] || *endptr != '\0') { res = FROM_STRING_ONE_ARG_FAILED; }
+        if(errno == ERANGE) { 
+            res = FROM_STRING_NUMBER_OUT_OF_RANGE; 
+            errno = 0;
+        }
+
+        return std::pair<int, float>{res, val};
+    }
+
+    template<> inline
+    std::pair<int, glm::vec3> FromString<glm::vec3>(const char **arguments, size_t argsCount) {
+        if(argsCount < 3) {
+            return std::pair<int, glm::vec3>(FROM_STRING_NOT_ENOUGH_ARGS, glm::vec3{});
+        }
+        glm::vec3 ret{};
+
+        std::pair<int, float> intermed_result = FromString<float>(&arguments[0], 1);
+        if(intermed_result.first != FROM_STRING_SUCCESS) {
+            return std::pair<int, glm::vec3>(intermed_result.first, glm::vec3{});
+        } else {
+            ret.x = intermed_result.second;
+        }
+
+        intermed_result = FromString<float>(&arguments[1], 1);
+        if(intermed_result.first != FROM_STRING_SUCCESS) {
+            return std::pair<int, glm::vec3>(intermed_result.first, glm::vec3{});
+        } else {
+            ret.y = intermed_result.second;
+        }
+
+        intermed_result = FromString<float>(&arguments[2], 1);
+        if(intermed_result.first != FROM_STRING_SUCCESS) {
+            return std::pair<int, glm::vec3>(intermed_result.first, glm::vec3{});
+        } else {
+            ret.z = intermed_result.second;
+        }
+
+        return std::pair<int, glm::vec3>(FROM_STRING_SUCCESS, ret);
     }
 
     template<> inline
