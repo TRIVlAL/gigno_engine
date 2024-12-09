@@ -75,5 +75,4 @@ namespace gigno {
         m_Force = glm::vec3{0.0f};
         m_Torque = glm::vec3{0.0f};
     }
-
 }

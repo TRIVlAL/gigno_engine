@@ -62,6 +62,8 @@ namespace gigno {
     */
     void RespondCollision(Collider &col1, Collider &col2, const glm::vec3 &colNormal, const float &colDepth, 
                         const glm::vec3 &col1ApplyPoint, const glm::vec3 &col2ApplyPoint);
+
+    void ApplyFriction(float normalImpulse, Collider &col, const glm::vec3 &surfaceNormal, const glm::vec3 &applyPoint, float frictionCoefficient);
 }
 
 #endif

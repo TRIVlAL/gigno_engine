@@ -36,8 +36,30 @@ namespace  gigno {
 		};
 	}
 
+
 	glm::mat3 Transform_t::NormalMatrix() const {
 		return glm::transpose(glm::inverse(glm::mat3(TransformationMatrix())));
+	}
+
+	glm::vec3 Transform_t::ApplyRotate(glm::vec3 v) const {
+		const float ca = glm::cos(Rotation.y);
+		const float sa = glm::sin(Rotation.y);
+		const float cb = glm::cos(Rotation.x);
+		const float sb = glm::sin(Rotation.x);
+		const float cc = glm::cos(Rotation.z);
+		const float sc = glm::sin(Rotation.z);
+		return v * glm::mat3{
+			{(ca * cc + sa * sb * sc),
+			(cb * sc),
+			(ca * sb * sc - cc * sa)},
+
+			{(cc * sa * sb - ca * sc),
+			(cb * cc),
+			(ca * cc * sb + sa * sc)},
+
+			{(cb * sa),
+			(-sb),
+			(ca * cb)}};
 	}
 
 	Application *Entity::GetApp() const{

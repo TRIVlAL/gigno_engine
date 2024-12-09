@@ -89,6 +89,7 @@ namespace gigno {
 		phys_sphere.Transform.Scale = glm::vec3{0.5, 0.5f, 0.5f};
 		phys_sphere.GiveSphereCollider(0.5f);
 		phys_sphere.AddImpulse(glm::vec3{0.0f, -2.4f, -3.25f});
+		phys_sphere.FrictionCoefficient = 0.1f;
 		phys_sphere.Bounciness = 0.0f;
 
 		RigidBody phys_sphere2{ModelData_t::FromObjFile("models/uv_sphere.obj")};
@@ -96,6 +97,7 @@ namespace gigno {
 		phys_sphere2.Transform.Scale = glm::vec3{0.5, 0.5f, 0.5f};
 		phys_sphere2.GiveSphereCollider(0.5f);
 		phys_sphere2.AddImpulse(glm::vec3{0.0f, 0.45f, 0.25f});
+		phys_sphere2.FrictionCoefficient = 0.1f;
 		phys_sphere2.Bounciness = 0.0f;
 
 		RigidBody phys_sphere3{ModelData_t::FromObjFile("models/uv_sphere.obj")};
@@ -103,6 +105,7 @@ namespace gigno {
 		phys_sphere3.Transform.Scale = glm::vec3{0.5, 0.5f, 0.5f};
 		phys_sphere3.GiveSphereCollider(0.5f);
 		phys_sphere3.AddImpulse(glm::vec3{1.75f, -1.25f, 0.0f});
+		phys_sphere3.FrictionCoefficient = 0.1f;
 		phys_sphere3.Bounciness = 0.0f;
 
 		RigidBody phys_plane{ModelData_t::FromObjFile("models/plane_subdivided.obj")};
@@ -110,6 +113,7 @@ namespace gigno {
 		phys_plane.Transform.Scale = glm::vec3{2.0f};
 		phys_plane.GivePlaneCollider(glm::vec3{0.0f, 1.0f, 0.0f});
 		phys_plane.IsStaitc = true;
+		phys_plane.FrictionCoefficient = 0.1f;
 		phys_plane.Bounciness = 0.0f;
 
 		RigidBody phys_plane2{ModelData_t::FromObjFile("models/plane_subdivided.obj")};
@@ -118,6 +122,7 @@ namespace gigno {
 		phys_plane2.Transform.Scale = glm::vec3{2.0f};
 		phys_plane2.GivePlaneCollider(glm::vec3{0.0f, 0.0f, 1.0f});
 		phys_plane2.IsStaitc = true;
+		phys_plane2.FrictionCoefficient = 0.0f;
 		phys_plane2.Bounciness = 0.0f;
 
 		RigidBody phys_plane3{ModelData_t::FromObjFile("models/plane_subdivided.obj")};
@@ -126,6 +131,7 @@ namespace gigno {
 		phys_plane3.Transform.Scale = glm::vec3{2.0f};
 		phys_plane3.GivePlaneCollider(glm::vec3{0.0f, 0.0f, -1.0f});
 		phys_plane3.IsStaitc = true;
+		phys_plane3.FrictionCoefficient = 0.0f;
 		phys_plane3.Bounciness = 0.0f;
 
 		RigidBody phys_plane4{ModelData_t::FromObjFile("models/plane_subdivided.obj")};
@@ -134,6 +140,7 @@ namespace gigno {
 		phys_plane4.Transform.Scale = glm::vec3{2.0f};
 		phys_plane4.GivePlaneCollider(glm::vec3{1.0f, 0.0f, 0.0f});
 		phys_plane4.IsStaitc = true;
+		phys_plane4.FrictionCoefficient = 0.0f;
 		phys_plane4.Bounciness = 0.0f;
 
 		RigidBody phys_plane5{ModelData_t::FromObjFile("models/plane_subdivided.obj")};
@@ -142,6 +149,7 @@ namespace gigno {
 		phys_plane5.Transform.Scale = glm::vec3{2.0f};
 		phys_plane5.GivePlaneCollider(glm::vec3{-1.0f, 0.0f, 0.0f});
 		phys_plane5.IsStaitc = true;
+		phys_plane5.FrictionCoefficient = 0.0f;
 		phys_plane5.Bounciness = 0.0f;
 
 		TestEntity test{&phys_sphere, &phys_sphere2};

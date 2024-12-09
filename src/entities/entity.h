@@ -21,6 +21,7 @@ namespace gigno {
 
 		glm::mat4 TransformationMatrix() const;
 		glm::mat3 NormalMatrix() const;
+		glm::vec3 ApplyRotate(glm::vec3 v) const;
 	};
 
 	/*

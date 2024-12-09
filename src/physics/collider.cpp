@@ -1,8 +1,11 @@
 #include "collider.h"
 #include "../error_macros.h"
 #include "rigid_body.h"
+#include "../debug/console/convar.h"
 
 namespace gigno {
+
+    CONVAR(float, phys_epsilon, 1e-8, "Small value considered 0");
 
     void Collider::PollRigidBodyValues() {
         if(BoundRigidBody)  {
@@ -11,7 +14,7 @@ namespace gigno {
             Velocity = BoundRigidBody->GetVelocity();
             Mass = BoundRigidBody->Mass;
             Bounciness = BoundRigidBody->Bounciness;
-            FrictionCoefficient = BoundRigidBody->FrictionCoeficient;
+            FrictionCoefficient = BoundRigidBody->FrictionCoefficient;
             IsStatic = BoundRigidBody->IsStaitc;
         }
     }
@@ -119,10 +122,8 @@ namespace gigno {
                 if(colDepth < 0.2f) {
                     col2.PosOffset += -colNormal * colDepth;
                 }
-            
-                glm::vec3 tangent_move = glm::normalize(col2.Velocity + glm::dot(colNormal, col2.Velocity));
-                col2.Impulse += tangent_move * J * (col1.Mass + col2.Mass) * (col1.FrictionCoefficient + col2.FrictionCoefficient) / 2.0f;
-                col2.AngularImpulse += glm::cross(col2ApplyPoint, tangent_move * J * (col1.Mass + col2.Mass));
+
+                ApplyFriction(J * (col1.Mass + col2.Mass), col2, colNormal, col2ApplyPoint, (col1.FrictionCoefficient + col2.FrictionCoefficient) / 2.0f);
             } 
             else if(col2.IsStatic) {
                 col1.Impulse += colNormal * J * (col1.Mass + col2.Mass);
@@ -132,9 +133,7 @@ namespace gigno {
                     col1.PosOffset += colNormal * colDepth;
                 }
 
-                glm::vec3 tangent_move = glm::normalize(col1.Velocity + glm::dot(-colNormal, col1.Velocity));
-                col1.Impulse += tangent_move * J * (col1.Mass + col2.Mass) * (col1.FrictionCoefficient + col2.FrictionCoefficient) / 2.0f;
-                col1.AngularImpulse += glm::cross(col1ApplyPoint, tangent_move * J * (col1.Mass + col2.Mass));
+                ApplyFriction(J * (col1.Mass + col2.Mass), col1, -colNormal, col1ApplyPoint, (col1.FrictionCoefficient + col2.FrictionCoefficient) / 2.0f);
             } 
             else {
                 col1.Impulse += colNormal * J * col2.Mass;
@@ -150,15 +149,26 @@ namespace gigno {
                     col2.PosOffset += -colNormal * colDepth / 2.0f;
                 }
 
-                glm::vec3 tangent_move = glm::normalize(col1.Velocity + glm::dot(colNormal, col1.Velocity));
-                col1.Impulse += tangent_move * J * col2.Mass * (col1.FrictionCoefficient + col2.FrictionCoefficient) / 2.0f;
-                col1.AngularImpulse += glm::cross(col1ApplyPoint, tangent_move * J * col2.Mass);
+                ApplyFriction(J * col2.Mass, col1, -colNormal, col1ApplyPoint, (col1.FrictionCoefficient + col2.FrictionCoefficient) / 2.0f);
 
-                tangent_move = glm::normalize(col2.Velocity + glm::dot(-colNormal, col2.Velocity));
-                col2.Impulse += tangent_move * J * col1.Mass * (col1.FrictionCoefficient + col2.FrictionCoefficient) / 2.0f;
-                col2.AngularImpulse += glm::cross(col2ApplyPoint, tangent_move * J * col1.Mass);
+                ApplyFriction(J * col1.Mass, col2, colNormal, col2ApplyPoint, (col1.FrictionCoefficient + col2.FrictionCoefficient) / 2.0f);
             }
 
         }
+    }
+
+    void ApplyFriction(float normalImpulse, Collider &col, const glm::vec3 &surfaceNormal, const glm::vec3 &applyPoint, float frictionCoefficient) {
+        glm::vec3 tangent_move = col.Velocity - surfaceNormal * glm::dot(surfaceNormal, col.Velocity);
+        float tangent_move_len = glm::length(tangent_move);
+        
+        
+        if(tangent_move_len == 0.0f) { 
+            return;
+        }
+
+        tangent_move = tangent_move/tangent_move_len;
+        float impulse = glm::clamp(glm::abs(normalImpulse * frictionCoefficient), 0.0f, tangent_move_len);
+        col.Impulse += -tangent_move * impulse;
+        col.AngularImpulse += glm::cross(applyPoint, -tangent_move * impulse);
     }
 }

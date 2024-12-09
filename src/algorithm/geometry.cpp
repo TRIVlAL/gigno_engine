@@ -29,8 +29,26 @@ namespace gigno {
         return line;
     }
 
-    bool LineIntersect(glm::vec3 point1, glm::vec3 dir1, glm::vec3 point2, glm::vec3 dir2, glm::vec3 &outResult) {
-        // TODO : Implement
-        return false;
+    void SegmentsClosestPoints(glm::vec3 a1, glm::vec3 a2, glm::vec3 b1, glm::vec3 b2, glm::vec3 &outAPoint, glm::vec3 &outBPoint)
+    {
+        /*
+        Thanks to Johnathon Selstad ! @https://zalo.github.io/blog/closest-point-between-segments/
+        */
+
+        glm::vec3 A_norm = glm::normalize(a2 - a1);
+        glm::vec3 B = b2 - b1;
+        glm::vec3 a1b1_proj = b1 - a1 - A_norm * glm::dot(b1 - a1, A_norm);
+        glm::vec3 a1b2_proj = b2 - a1 - A_norm * glm::dot(b2 - a1, A_norm);
+        glm::vec3 B_proj = a1b2_proj - a1b1_proj;
+        float t = glm::dot(- a1b1_proj, B_proj) / glm::dot(B_proj, B_proj);
+        if(B_proj.x == 0.0f && B_proj.y == 0.0f && B_proj.z == 0.0f || t < 0.0f) {
+            t = 0.0f; //parallel
+        }
+        t = glm::clamp(t, 0.0f, 1.0f);
+
+        outBPoint = (1-t)*b1 + t*b2;
+
+        outAPoint = a1 + A_norm * glm::clamp(glm::dot(outBPoint - a1, A_norm), 0.0f, 1.0f);
+
     }
 }
