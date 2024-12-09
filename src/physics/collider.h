@@ -32,6 +32,7 @@ namespace gigno {
         glm::vec3 Velocity;
         float Mass;
         float Bounciness;
+        float FrictionCoefficient;
         bool IsStatic;
 
         // Impulsion to be applied in the end.

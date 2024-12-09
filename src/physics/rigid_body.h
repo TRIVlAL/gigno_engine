@@ -28,6 +28,7 @@ namespace gigno {
 
         float Mass{1.0f};
         float Bounciness{0.0f};
+        float FrictionCoeficient{0.5f};
         bool IsStaitc{false};
 
     private:

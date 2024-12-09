@@ -11,6 +11,7 @@ namespace gigno {
             Velocity = BoundRigidBody->GetVelocity();
             Mass = BoundRigidBody->Mass;
             Bounciness = BoundRigidBody->Bounciness;
+            FrictionCoefficient = BoundRigidBody->FrictionCoeficient;
             IsStatic = BoundRigidBody->IsStaitc;
         }
     }
@@ -84,21 +85,6 @@ namespace gigno {
 
         // col2 Plane are always constidered static !
         if(col1.BoundRigidBody) {
-            /*float e = (col1.Bounciness + col2.Bounciness) / 2.0f;
-            float J = glm::dot(-col1.Velocity, col2.parameters.Normal) * (1+e);
-            col1.Impulse += J * col2.parameters.Normal;
-            col1.AngularImpulse += glm::cross(-col2.parameters.Normal * col1.parameters.Radius, col2.parameters.Normal * J);
-
-            glm::vec3 new_velocity = col1.Velocity + J * col2.parameters.Normal;
-            glm::vec3 movement_along_plane_dir = glm::normalize(new_velocity - col2.parameters.Normal * glm::dot(col2.parameters.Normal, new_velocity));
-            col1.Impulse += -movement_along_plane_dir * glm::length(J * col2.parameters.Normal) * 0.1f;
-            col1.AngularImpulse += glm::cross(-col2.parameters.Normal * col1.parameters.Radius, -movement_along_plane_dir * glm::length(J * col2.parameters.Normal) * 0.1f);
-
-            if (col_depth < 0.2f)
-            {
-                // Offset the object to the edge of the plane!
-                col1.BoundRigidBody->Transform.Position += col2.parameters.Normal * -col_depth / 2.0f;
-            }*/
            RespondCollision(col1, col2, -col2.parameters.Normal, col_depth, -col2.parameters.Normal * col1.parameters.Radius, glm::vec3{0.0f});
         }
 
@@ -128,24 +114,26 @@ namespace gigno {
 
             if(col1.IsStatic) {
                 col2.Impulse += -colNormal * J * (col1.Mass + col2.Mass);
+                col2.AngularImpulse += glm::cross(col2ApplyPoint, -colNormal * J * (col1.Mass + col2.Mass));
 
                 if(colDepth < 0.2f) {
                     col2.PosOffset += -colNormal * colDepth;
                 }
             
                 glm::vec3 tangent_move = glm::normalize(col2.Velocity + glm::dot(colNormal, col2.Velocity));
-                col2.Impulse += tangent_move * J * (col1.Mass + col2.Mass) * 0.5f;
+                col2.Impulse += tangent_move * J * (col1.Mass + col2.Mass) * (col1.FrictionCoefficient + col2.FrictionCoefficient) / 2.0f;
                 col2.AngularImpulse += glm::cross(col2ApplyPoint, tangent_move * J * (col1.Mass + col2.Mass));
             } 
             else if(col2.IsStatic) {
                 col1.Impulse += colNormal * J * (col1.Mass + col2.Mass);
+                col1.AngularImpulse += glm::cross(col1ApplyPoint, colNormal * J * (col1.Mass + col2.Mass));
 
                 if(colDepth < 0.2f) {
                     col1.PosOffset += colNormal * colDepth;
                 }
 
                 glm::vec3 tangent_move = glm::normalize(col1.Velocity + glm::dot(-colNormal, col1.Velocity));
-                col1.Impulse += tangent_move * J * (col1.Mass + col2.Mass) * 0.5f;
+                col1.Impulse += tangent_move * J * (col1.Mass + col2.Mass) * (col1.FrictionCoefficient + col2.FrictionCoefficient) / 2.0f;
                 col1.AngularImpulse += glm::cross(col1ApplyPoint, tangent_move * J * (col1.Mass + col2.Mass));
             } 
             else {
@@ -163,11 +151,11 @@ namespace gigno {
                 }
 
                 glm::vec3 tangent_move = glm::normalize(col1.Velocity + glm::dot(colNormal, col1.Velocity));
-                col1.Impulse += tangent_move * J * col2.Mass * 0.5f;
+                col1.Impulse += tangent_move * J * col2.Mass * (col1.FrictionCoefficient + col2.FrictionCoefficient) / 2.0f;
                 col1.AngularImpulse += glm::cross(col1ApplyPoint, tangent_move * J * col2.Mass);
 
                 tangent_move = glm::normalize(col2.Velocity + glm::dot(-colNormal, col2.Velocity));
-                col2.Impulse += tangent_move * J * col1.Mass * 0.5f;
+                col2.Impulse += tangent_move * J * col1.Mass * (col1.FrictionCoefficient + col2.FrictionCoefficient) / 2.0f;
                 col2.AngularImpulse += glm::cross(col2ApplyPoint, tangent_move * J * col1.Mass);
             }
 
