@@ -1,15 +1,24 @@
 #include "application.h"
 #include "debug/console/console.h"
+#include "debug/console/convar.h"
+
+namespace gigno {
+	CONVAR(bool, should_restart, false, "If true, the app will auto restart when closing.");
+}
 
 int main() {
+	int result = 0;
  
-	gigno::Application *app = gigno::Application::MakeApp();
+	do {
+		gigno::Application *app = gigno::Application::MakeApp();
 
-	int result = app->run();
+		result = app->run();
 
-	gigno::Application::ShutdownApp();
+		gigno::Application::ShutdownApp();
 
-	gigno::Console::LogInfo("Gigno Engine exited with code %d.", result);
+		gigno::Console::LogInfo("Gigno Engine exited with code %d.", result);
+
+	} while((bool)gigno::convar_should_restart);
 
 	return result;
 }
