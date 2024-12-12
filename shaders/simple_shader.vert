@@ -10,7 +10,7 @@ layout(location = 0) out vec3 outColor;
 layout(push_constant) uniform Push {
 	mat4 model;
 	mat4 normalMatrix;
-	bool fullbright;
+	int fullbright;
 } push;
 
 const int MAX_LIGHT_DATA_COUNT = 10; //MAX_LIGHT_DATA_COUNT hard-coded for now to reflect the one in swapchain.h
@@ -26,7 +26,7 @@ void main() {
 	gl_Position = ubo.projection * ubo.view * push.model * vec4(inPosition, 1.0);
 
 	float lightPower = 0.0f;
-	if(push.fullbright) {
+	if(push.fullbright == 1) {
 		lightPower = 1.0f;
 	} else {
 		for(int i = 0; i < MAX_LIGHT_DATA_COUNT; i++) {
@@ -49,8 +49,11 @@ void main() {
 		}
 	}
 
-
-	outColor = inColor * lightPower;
+	if(push.fullbright == 2) {
+		outColor = vec3(1.0f, 1.0f, 1.0f) * lightPower;
+	} else {
+		outColor = inColor * lightPower;
+	}
 
 	gl_PointSize = 5.0f;
 }

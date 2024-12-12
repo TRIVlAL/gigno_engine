@@ -24,6 +24,7 @@ namespace gigno {
         LogInfo_Impl((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "Gigno engine console initialized.");
         LogInfo_Impl((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "---------------------------------");
         LogInfo_Impl((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "");
+        LogInfo_Impl((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "Type 'help' for a list of commands.");
 
         if(!StartFileLogging_Impl()) {
             LogInfo_Impl("Failed initial file logging.");

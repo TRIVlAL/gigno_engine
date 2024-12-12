@@ -26,7 +26,7 @@ namespace gigno {
 	struct PushConstantData_t {
 		glm::mat4 modelMatrix;
 		glm::mat4 normalsMatrix;
-		alignas(4) bool fullbright = false;
+		alignas(4) int fullbright = 0;
 	};
 
 	const int MAX_LIGHT_DATA_COUNT = 15;

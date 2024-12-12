@@ -42,8 +42,8 @@ namespace gigno {
     const int CONSOLE_RENDER_FIRST_MESSAGE_COUNT = 2'000; // If there are more messages than the convar_console_max_message,
                                                           // CONSOLE_RENDER_FIRST_MESSAGE_COUNT of the first messages will be rendered,
                                                           // and the rest will be filled out by the most recent messages.
-    const std::filesystem::path CONSOLE_LOG_FILEPATH{"log.txt"}; // The relative path to the file where the messages are logged
-                                                                 // When StartFileLogging_Impl() is called.
+    const std::filesystem::path CONSOLE_LOG_FILEPATH{"gigno_log.txt"}; // The relative path to the file where the messages are logged
+                                                                    // When StartFileLogging_Impl() is called.
 
     struct CommandToken_t;
     static void cls(const CommandToken_t&); // Defined in command.cpp. Method of the cls console command to clear the console.

@@ -26,7 +26,7 @@
 
 namespace gigno {
 
-	CONVAR(bool, r_fullbright, false, "if true, lighting is not aspplied.");
+	CONVAR(int, r_fullbright, 0, "1 : no lighting applied. 2 : No color but do lighting");
 
 	SwapChain::SwapChain(const Device &device, const Window *window, const std::string &vertShaderPath, const std::string &fragShaderPath)
 	{
@@ -176,7 +176,7 @@ namespace gigno {
 			PushConstantData_t push{};
 			push.modelMatrix = curr->Transform.TransformationMatrix();
 			push.normalsMatrix = glm::mat4{curr->Transform.NormalMatrix()};
-			push.fullbright = convar_r_fullbright;
+			push.fullbright = (int)convar_r_fullbright;
 			vkCmdPushConstants(buffer, m_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstantData_t), &push);
 
 			curr->pModel->Bind(buffer);
