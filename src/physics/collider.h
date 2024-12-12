@@ -2,6 +2,7 @@
 #define COLLIDER_H
 
 #include <glm/glm.hpp>
+#include "physics_material.h"
 
 namespace gigno {
 
@@ -26,19 +27,14 @@ namespace gigno {
         } parameters;
 
         // Values to poll from the rigid body
-        // TODO : change this whole system ? Keep all the data 
-        // In collider to avoid having to copy everything everytime!
         void PollRigidBodyValues();
         glm::vec3 Position;
         glm::vec3 Rotation;
         glm::vec3 Velocity;
-        glm::vec3 TotalForce;
         glm::vec3 AngularVelocity;
         float Mass;
-        float Bounciness;
-        float FrictionCoefficient;
-        float RollingCoefficient = 0.005f;
         bool IsStatic;
+        PhysicsMaterial_t Material;
 
         // Impulsion to be applied in the end.
         void ApplyImpulse();
@@ -47,8 +43,9 @@ namespace gigno {
         glm::vec3 PosOffset;
 
         void ApplyDrag();
-        float DragCoefficient = 0.5f;
+        float GetDragCoefficient();
         float GetAreaCrossSection(const glm::vec3 &direction);
+        
 
         // To avoid memory fragmentation, values needed from the 
         // rigidbody are all polled once at the beggining
@@ -57,7 +54,6 @@ namespace gigno {
         RigidBody *BoundRigidBody{};
     };
 
-    
 
     bool ResolveCollision(Collider &col1, Collider &col2);
 

@@ -13,11 +13,9 @@ namespace gigno {
             Position = BoundRigidBody->Transform.Position;
             Rotation = BoundRigidBody->Transform.Rotation;
             Velocity = BoundRigidBody->GetVelocity();
-            TotalForce = BoundRigidBody->GetForce();
             Mass = BoundRigidBody->Mass;
-            Bounciness = BoundRigidBody->Bounciness;
-            FrictionCoefficient = BoundRigidBody->FrictionCoefficient;
             IsStatic = BoundRigidBody->IsStaitc;
+            Material = BoundRigidBody->Material;
         }
     }
 
@@ -36,19 +34,30 @@ namespace gigno {
     void Collider::ApplyDrag() {
         float velocity_len = glm::length(Velocity);
         BoundRigidBody->AddForce(-Velocity * velocity_len * 0.5f * 
-                                (float)convar_phys_air_density * DragCoefficient * 
+                                (float)convar_phys_air_density * GetDragCoefficient() * 
                                 GetAreaCrossSection(-Velocity/velocity_len));
 
         // TODO : Also apply angular drag.
         
     }
 
+    float Collider::GetDragCoefficient() {
+        switch(type) {
+            case COLLIDER_SPHERE:
+                return 0.48f;
+            case COLLIDER_PLANE:
+                return 0.0f; // Planes area static so we wont use it anyway.
+        }
+
+        ERR_MSG_V(0.0f, "Collider with no type is querrying DragCoefficient !");
+    }
+
     float Collider::GetAreaCrossSection(const glm::vec3 &direction)
     {
         if(type == COLLIDER_SPHERE) {
-            return glm::pi<float>() * parameters.Radius * parameters.Radius;
+            return glm::pi<float>() * parameters.Radius *parameters.Radius;
         } else if(type == COLLIDER_PLANE) {
-            return INFINITY; // Planes area static so dont mind anyway.
+            return INFINITY; // Planes area static so we wont use it anyway.
         } else {
             ERR_MSG_V(0.0f, "Collider with no type is querrying GetAreaCrossSection !");
         }
@@ -134,7 +143,7 @@ namespace gigno {
             glm::vec3 Delta_v = col2.Velocity - col1.Velocity;
             float ProjD_v = glm::dot(Delta_v, colNormal);
 
-            float e = (col1.Bounciness + col2.Bounciness) / 2.0f;
+            float e = GetBounciness(col1.Material) * GetBounciness(col2.Material);
     
             float J = (1.0 + e) * ProjD_v / (col1.Mass + col2.Mass);
 
@@ -146,7 +155,7 @@ namespace gigno {
                     col2.PosOffset += -colNormal * colDepth;
                 }
 
-                ApplyFriction(J * (col1.Mass + col2.Mass), col2, colNormal, col2ApplyPoint, (col1.FrictionCoefficient + col2.FrictionCoefficient) / 2.0f);
+                ApplyFriction(J * (col1.Mass + col2.Mass), col2, colNormal, col2ApplyPoint, GetDynamicFrictionCoefficient(col1.Material, col2.Material));
             } 
             else if(col2.IsStatic) {
                 col1.Impulse += colNormal * J * (col1.Mass + col2.Mass);
@@ -156,7 +165,7 @@ namespace gigno {
                     col1.PosOffset += colNormal * colDepth;
                 }
 
-                ApplyFriction(J * (col1.Mass + col2.Mass), col1, -colNormal, col1ApplyPoint, (col1.FrictionCoefficient + col2.FrictionCoefficient) / 2.0f);
+                ApplyFriction(J * (col1.Mass + col2.Mass), col1, -colNormal, col1ApplyPoint,  GetDynamicFrictionCoefficient(col1.Material, col2.Material));
             } 
             else {
                 col1.Impulse += colNormal * J * col2.Mass;
@@ -172,23 +181,15 @@ namespace gigno {
                     col2.PosOffset += -colNormal * colDepth / 2.0f;
                 }
 
-                ApplyFriction(J * col2.Mass, col1, -colNormal, col1ApplyPoint, (col1.FrictionCoefficient + col2.FrictionCoefficient) / 2.0f);
+                ApplyFriction(J * col2.Mass, col1, -colNormal, col1ApplyPoint,  GetDynamicFrictionCoefficient(col1.Material, col2.Material));
 
-                ApplyFriction(J * col1.Mass, col2, colNormal, col2ApplyPoint, (col1.FrictionCoefficient + col2.FrictionCoefficient) / 2.0f);
+                ApplyFriction(J * col1.Mass, col2, colNormal, col2ApplyPoint,  GetDynamicFrictionCoefficient(col1.Material, col2.Material));
             }
 
         }
     }
 
     void ApplyFriction(float normalImpulse, Collider &col, const glm::vec3 &surfaceNormal, const glm::vec3 &applyPoint, float frictionCoefficient) {
-        
-        if(LenSquared(col.AngularVelocity) != 0.0f) {
-            // Roling friction
-            glm::vec3 direction = glm::normalize(-col.TotalForce);
-            col.Impulse += col.RollingCoefficient * normalImpulse * direction;
-            col.AngularImpulse += glm::cross(applyPoint, col.RollingCoefficient * normalImpulse * direction);
-        }
-
         glm::vec3 tangent_move = col.Velocity - surfaceNormal * glm::dot(surfaceNormal, col.Velocity);
         float tangent_move_len = glm::length(tangent_move);
         

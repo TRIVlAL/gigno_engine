@@ -14,8 +14,6 @@ namespace gigno {
     public:
         TestEntity(RigidBody *rb1, RigidBody *rb2) : Entity(), m_RB1{rb1}, m_RB2{rb2} {
             m_RB1->Mass = 1.0f;
-            m_RB2->Bounciness = 0.5f;
-            m_RB1->Bounciness = 0.5f;
         }
         ~TestEntity() {
 

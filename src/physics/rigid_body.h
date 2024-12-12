@@ -30,9 +30,8 @@ namespace gigno {
 
 
         float Mass{1.0f};
-        float Bounciness{0.0f};
-        float FrictionCoefficient{0.5f};
         bool IsStaitc{false};
+        PhysicsMaterial_t Material{MAT_PLASTIC};
 
     private:
         bool hasCollider = false;
