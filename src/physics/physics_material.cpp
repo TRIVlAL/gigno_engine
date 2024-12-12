@@ -51,4 +51,6 @@ float gigno::GetBounciness(PhysicsMaterial_t mat) {
         case MAT_STEEL:
             return 0.7f;
     }
+
+    ERR_MSG_V(0.0f, "Querrying Bounciness of a Material that does not exist !");
 }

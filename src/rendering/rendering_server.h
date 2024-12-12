@@ -42,6 +42,7 @@ namespace gigno {
 
 		void SetCurrentCamera(const Camera *camera) { m_pCamera = camera; }
 		bool HasCamera() const { return m_pCamera != nullptr; }
+		const Camera *GetCameraHandle() const { return m_pCamera; }
 
 		float GetAspectRatio() { return static_cast<float>(m_SwapChain.GetWidth()) / static_cast<float>(m_SwapChain.GetHeight()); }
 

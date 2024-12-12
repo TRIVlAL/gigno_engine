@@ -2,10 +2,17 @@
 #include "../application.h"
 #include "entity_server.h"
 #include <string.h>
+#include "../debug/console/convar.h"
+#include "../features_usage.h"
 
 namespace  gigno {
 
+	#if USE_DEBUG_DRAWING
+	CONVAR(bool, draw_transform_debug, false, "Shows debug drawings that represents the transforms of every entity");
+	#endif
+
 	// translation -> rotation y -> rotation x -> rotation z -> scale
+	// Rotation Tait-Bryan YXZ (see @ https://en.wikipedia.org/wiki/Euler_angles (Rotation Matrix))
 	glm::mat4 Transform_t::TransformationMatrix() const {
 		const float ca = glm::cos(Rotation.y);
 		const float sa = glm::sin(Rotation.y);
@@ -48,7 +55,7 @@ namespace  gigno {
 		const float sb = glm::sin(Rotation.x);
 		const float cc = glm::cos(Rotation.z);
 		const float sc = glm::sin(Rotation.z);
-		return v * glm::mat3{
+		return glm::mat3{
 			{(ca * cc + sa * sb * sc),
 			(cb * sc),
 			(ca * sb * sc - cc * sa)},
@@ -59,7 +66,7 @@ namespace  gigno {
 
 			{(cb * sa),
 			(-sb),
-			(ca * cb)}};
+			(ca * cb)}} * v;
 	}
 
 	Application *Entity::GetApp() const{
@@ -77,7 +84,25 @@ namespace  gigno {
 		}
 	}
 
-	DEFINE_SERIALIZATION(Entity) {
+	void Entity::Think(float dt) {
+		#if USE_DEBUG_DRAWING
+		if((bool)convar_draw_transform_debug) {
+			RenderingServer *renderer = GetApp()->GetRenderer();
+			if(renderer->GetCameraHandle() == this) {
+				return;
+			}
+			renderer->DrawLine(Transform.Position, Transform.Position + Transform.ApplyRotate(glm::vec3{1.0f, 0.0f, 0.0f} * 2.0f), 
+							glm::vec3{1.0f, 0.0f, 0.0f}, UNIQUE_NAME);
+			renderer->DrawLine(Transform.Position, Transform.Position + Transform.ApplyRotate(glm::vec3{0.0f, 1.0f, 0.0f} * 2.0f),
+							   glm::vec3{0.0f, 1.0f, 0.0f}, UNIQUE_NAME);
+			renderer->DrawLine(Transform.Position, Transform.Position + Transform.ApplyRotate(glm::vec3{0.0f, 0.0f, 1.0f} * 2.0f),
+							   glm::vec3{0.0f, 0.0f, 1.0f}, UNIQUE_NAME);
+		}
+		#endif
+	}
+
+	DEFINE_SERIALIZATION(Entity)
+	{
 		SERIALIZE(glm::vec3, Transform.Position);
 		SERIALIZE(glm::vec3, Transform.Rotation);
 		SERIALIZE(glm::vec3, Transform.Scale);

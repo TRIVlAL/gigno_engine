@@ -158,6 +158,10 @@ namespace gigno {
 
 		Console::LogInfo (MESSAGE_NO_FILE_LOG_BIT, "Secret shhhhhh.");
 		while (!m_RenderingServer.WindowShouldClose() && !Close) {
+			
+			if(!m_InputServer.GetKey(KEY_B)) {
+				phys_plane.Transform.Rotation += glm::vec3{0.0f, 0.0f, 0.1f * glm::pi<float>() * 2.0f /360.0f};
+			}
 
 			Profiler::Begin("Main Loop");
 

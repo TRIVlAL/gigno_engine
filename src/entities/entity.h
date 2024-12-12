@@ -67,7 +67,7 @@ namespace gigno {
 
 		virtual void Start() { AddSerializedProperties(); };
 		// Called Every Tick by the Entity Server
-		virtual void Think(float dt) {};
+		virtual void Think(float dt);
 		// Called Every physic Tick (fixed time interval)
 		virtual void PhysicThink(float dt) {};
 		// Called Every physic Tick after PhysicThink.
