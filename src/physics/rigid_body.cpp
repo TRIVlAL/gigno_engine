@@ -45,6 +45,10 @@ namespace gigno {
         m_RotationVelocity += glm::cross(application, impulse);
     }
 
+    void RigidBody::AddTorque(const glm::vec3 &torque) {
+        m_Torque += torque;
+    }
+
     void RigidBody::AddRotationImpulse(const glm::vec3 &rotation) {
         m_RotationVelocity += rotation;
     }
@@ -54,7 +58,7 @@ namespace gigno {
             return;
         }
 
-        AddForce((glm::vec3)convar_phys_gravity);
+        AddForce((glm::vec3)convar_phys_gravity * Mass);
 
         glm::vec3 avrg_vel = m_Velocity;
         m_Velocity += dt * m_Force / Mass;

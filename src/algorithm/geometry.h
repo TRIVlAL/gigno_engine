@@ -1,3 +1,6 @@
+#ifndef GEOMETRY_H
+#define GEOMETRY_H
+
 #include "glm/glm.hpp"
 
 namespace gigno {
@@ -20,4 +23,8 @@ namespace gigno {
     @param outBPoint the end of the shortes segment between a and b
     */
     void SegmentsClosestPoints(glm::vec3 a1, glm::vec3 a2, glm::vec3 b1, glm::vec3 b2, glm::vec3 &outAPoint, glm::vec3 &outBPoint);
+
+    float LenSquared(glm::vec3 &vec);
 }
+
+#endif

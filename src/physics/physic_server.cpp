@@ -42,6 +42,7 @@ namespace gigno {
             entity_serv->PhysicTick(frame_time.count() / 1e9);
 
             DetectCollisions();
+            ApplyDrag();
 
             Profiler::End();
 
@@ -80,6 +81,12 @@ namespace gigno {
 
         for (Collider &col : m_World) {
             col.ApplyImpulse();
+        }
+    }
+
+    void PhysicServer::ApplyDrag() {
+        for(Collider& col : m_World) {
+            col.ApplyDrag();
         }
     }
 

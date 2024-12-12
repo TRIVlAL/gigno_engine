@@ -2,16 +2,18 @@
 #include "../error_macros.h"
 #include "rigid_body.h"
 #include "../debug/console/convar.h"
+#include "../algorithm/geometry.h"
 
 namespace gigno {
 
-    CONVAR(float, phys_epsilon, 1e-8, "Small value considered 0");
+    CONVAR(float, phys_air_density, 1.225f, "Higher means higher drag");
 
     void Collider::PollRigidBodyValues() {
         if(BoundRigidBody)  {
             Position = BoundRigidBody->Transform.Position;
             Rotation = BoundRigidBody->Transform.Rotation;
             Velocity = BoundRigidBody->GetVelocity();
+            TotalForce = BoundRigidBody->GetForce();
             Mass = BoundRigidBody->Mass;
             Bounciness = BoundRigidBody->Bounciness;
             FrictionCoefficient = BoundRigidBody->FrictionCoefficient;
@@ -29,6 +31,27 @@ namespace gigno {
         Impulse = glm::vec3{0};
         AngularImpulse = glm::vec3{0};
         PosOffset = glm::vec3{0};
+    }
+
+    void Collider::ApplyDrag() {
+        float velocity_len = glm::length(Velocity);
+        BoundRigidBody->AddForce(-Velocity * velocity_len * 0.5f * 
+                                (float)convar_phys_air_density * DragCoefficient * 
+                                GetAreaCrossSection(-Velocity/velocity_len));
+
+        // TODO : Also apply angular drag.
+        
+    }
+
+    float Collider::GetAreaCrossSection(const glm::vec3 &direction)
+    {
+        if(type == COLLIDER_SPHERE) {
+            return glm::pi<float>() * parameters.Radius * parameters.Radius;
+        } else if(type == COLLIDER_PLANE) {
+            return INFINITY; // Planes area static so dont mind anyway.
+        } else {
+            ERR_MSG_V(0.0f, "Collider with no type is querrying GetAreaCrossSection !");
+        }
     }
 
     bool ResolveCollision(Collider &col1, Collider &col2) {
@@ -158,17 +181,23 @@ namespace gigno {
     }
 
     void ApplyFriction(float normalImpulse, Collider &col, const glm::vec3 &surfaceNormal, const glm::vec3 &applyPoint, float frictionCoefficient) {
+        
+        if(LenSquared(col.AngularVelocity) != 0.0f) {
+            // Roling friction
+            glm::vec3 direction = glm::normalize(-col.TotalForce);
+            col.Impulse += col.RollingCoefficient * normalImpulse * direction;
+            col.AngularImpulse += glm::cross(applyPoint, col.RollingCoefficient * normalImpulse * direction);
+        }
+
         glm::vec3 tangent_move = col.Velocity - surfaceNormal * glm::dot(surfaceNormal, col.Velocity);
         float tangent_move_len = glm::length(tangent_move);
         
-        
-        if(tangent_move_len == 0.0f) { 
-            return;
+        if(tangent_move_len != 0.0f) { 
+            tangent_move = tangent_move/tangent_move_len;
+            float impulse = glm::clamp(glm::abs(normalImpulse * frictionCoefficient), 0.0f, tangent_move_len);
+            col.Impulse += -tangent_move * impulse;
+            col.AngularImpulse += glm::cross(applyPoint, -tangent_move * impulse);
         }
 
-        tangent_move = tangent_move/tangent_move_len;
-        float impulse = glm::clamp(glm::abs(normalImpulse * frictionCoefficient), 0.0f, tangent_move_len);
-        col.Impulse += -tangent_move * impulse;
-        col.AngularImpulse += glm::cross(applyPoint, -tangent_move * impulse);
     }
 }

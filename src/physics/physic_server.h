@@ -30,6 +30,7 @@ namespace gigno {
 
         void ApplyGlobalForces();
         void DetectCollisions();
+        void ApplyDrag();
 
         void AddCollider(RigidBody *body, ColliderType_t type, Collider::ColliderParameter parameters);
         void RemoveCollider(RigidBody *body);

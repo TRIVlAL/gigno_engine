@@ -54,10 +54,10 @@ namespace gigno {
 
 		DomeCamera camera(17.0f);
 		camera.SetPerspectiveProjection(glm::radians(50.0f), m_RenderingServer.GetAspectRatio(), -0.05f, 1.0f);
-		camera.Transform.Position = { 0.0f, 0.0f, -17.0f };
+		camera.Transform.Position = { -5.0f, 0.0f, -17.0f };
 		camera.Transform.Rotation.y = 0;
 		camera.MaxLower = 0.0f;
-		camera.SetTarget( glm::vec3{0.0f} );
+		camera.SetTarget( glm::vec3{0.0f, 0.0f, -5.0f} );
 		camera.Name = "My Camera";
 
 
@@ -88,30 +88,36 @@ namespace gigno {
 		phys_sphere.Transform.Position = glm::vec3{0.3f, 2.5f, 4.0f};
 		phys_sphere.Transform.Scale = glm::vec3{0.5, 0.5f, 0.5f};
 		phys_sphere.GiveSphereCollider(0.5f);
-		phys_sphere.AddImpulse(glm::vec3{0.0f, -2.4f, -3.25f});
+		phys_sphere.AddImpulse(glm::vec3{40.0f, 5.0f, -10.0f});
 		phys_sphere.FrictionCoefficient = 0.1f;
 		phys_sphere.Bounciness = 0.0f;
+		phys_sphere.Mass = 30.0f;
 
-		RigidBody phys_sphere2{ModelData_t::FromObjFile("models/uv_sphere.obj")};
-		phys_sphere2.Transform.Position = glm::vec3{-0.5f, -0.5f, -1.0f};
+		RigidBody phys_sphere2{ModelData_t::FromObjFile("models/colored_uv_sphere.obj")};
+		phys_sphere2.Transform.Position = glm::vec3{-0.5f, -0.5f, 0.0f};
 		phys_sphere2.Transform.Scale = glm::vec3{0.5, 0.5f, 0.5f};
 		phys_sphere2.GiveSphereCollider(0.5f);
-		phys_sphere2.AddImpulse(glm::vec3{0.0f, 0.45f, 0.25f});
+		phys_sphere2.AddImpulse(glm::vec3{0.0f, 5.0f, 3.0f});
 		phys_sphere2.FrictionCoefficient = 0.1f;
 		phys_sphere2.Bounciness = 0.0f;
+		phys_sphere2.Mass = 50.0f;
 
 		RigidBody phys_sphere3{ModelData_t::FromObjFile("models/uv_sphere.obj")};
 		phys_sphere3.Transform.Position = glm::vec3{-3.0f, 2.5f, 0.0f};
 		phys_sphere3.Transform.Scale = glm::vec3{0.5, 0.5f, 0.5f};
 		phys_sphere3.GiveSphereCollider(0.5f);
-		phys_sphere3.AddImpulse(glm::vec3{1.75f, -1.25f, 0.0f});
+		phys_sphere3.AddImpulse(glm::vec3{1.75f, -1.25f, 5.0f});
 		phys_sphere3.FrictionCoefficient = 0.1f;
 		phys_sphere3.Bounciness = 0.0f;
+		phys_sphere3.Mass = 35.0f;
 
 		RigidBody phys_plane{ModelData_t::FromObjFile("models/plane_subdivided.obj")};
 		phys_plane.Transform.Position = glm::vec3{0.0f, -1.0f, 0.0f};
+		phys_plane.Transform.Rotation = glm::vec3{0.0f, 0.0f, 2 * glm::pi<float>() * -10.0f / 360.0f};
 		phys_plane.Transform.Scale = glm::vec3{2.0f};
-		phys_plane.GivePlaneCollider(glm::vec3{0.0f, 1.0f, 0.0f});
+		glm::vec3 norm = phys_plane.Transform.ApplyRotate(glm::vec3{0.0f, 1.0f, 0.0f});
+		norm.x = -norm.x;
+		phys_plane.GivePlaneCollider(norm);
 		phys_plane.IsStaitc = true;
 		phys_plane.FrictionCoefficient = 0.1f;
 		phys_plane.Bounciness = 0.0f;

@@ -26,13 +26,18 @@ namespace gigno {
         } parameters;
 
         // Values to poll from the rigid body
+        // TODO : change this whole system ? Keep all the data 
+        // In collider to avoid having to copy everything everytime!
         void PollRigidBodyValues();
         glm::vec3 Position;
         glm::vec3 Rotation;
         glm::vec3 Velocity;
+        glm::vec3 TotalForce;
+        glm::vec3 AngularVelocity;
         float Mass;
         float Bounciness;
         float FrictionCoefficient;
+        float RollingCoefficient = 0.005f;
         bool IsStatic;
 
         // Impulsion to be applied in the end.
@@ -40,6 +45,10 @@ namespace gigno {
         glm::vec3 Impulse;
         glm::vec3 AngularImpulse;
         glm::vec3 PosOffset;
+
+        void ApplyDrag();
+        float DragCoefficient = 0.5f;
+        float GetAreaCrossSection(const glm::vec3 &direction);
 
         // To avoid memory fragmentation, values needed from the 
         // rigidbody are all polled once at the beggining

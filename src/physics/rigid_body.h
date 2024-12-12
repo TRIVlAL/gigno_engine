@@ -16,6 +16,7 @@ namespace gigno {
 
         void AddForce(const glm::vec3 &force, const glm::vec3 &application = glm::vec3{0.0f, 0.0f, 0.0f});
         void AddImpulse(const glm::vec3 &impulse, const glm::vec3 &application = glm::vec3{0.0f, 0.0f, 0.0f});
+        void AddTorque(const glm::vec3 &torque);
         void AddRotationImpulse(const glm::vec3 &rotation);
 
         virtual void LatePhysicThink(float dt) override;
@@ -24,7 +25,9 @@ namespace gigno {
             m_Velocity = glm::vec3{0.0f};
         }
 
-        glm::vec3 GetVelocity() { return m_Velocity; }
+        glm::vec3 GetVelocity() { return m_Velocity; };
+        glm::vec3 GetForce() { return m_Force; };
+
 
         float Mass{1.0f};
         float Bounciness{0.0f};

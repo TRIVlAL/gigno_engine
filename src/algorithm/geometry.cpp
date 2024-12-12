@@ -51,4 +51,8 @@ namespace gigno {
         outAPoint = a1 + A_norm * glm::clamp(glm::dot(outBPoint - a1, A_norm), 0.0f, 1.0f);
 
     }
+
+    float LenSquared(glm::vec3 &vec) {
+        return vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
+    }
 }
