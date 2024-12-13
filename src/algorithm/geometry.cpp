@@ -52,7 +52,39 @@ namespace gigno {
 
     }
 
+    glm::vec3 PointToSegment(glm::vec3 point, glm::vec3 seg1, glm::vec3 seg2) {
+        const float seg_len = glm::length(seg2-seg1);
+        const glm::vec3 dir = (seg2 - seg1) / seg_len;
+
+        const float t = glm::clamp(glm::dot(point - seg1, dir), 0.0f, seg_len);
+
+        return -(point - seg1 - dir * t);
+    }
+
     float LenSquared(glm::vec3 &vec) {
         return vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
+    }
+
+    glm::vec3 ApplyRotation(glm::vec3 rotation, glm::vec3 vector)
+    {
+        const float ca = glm::cos(rotation.y);
+        const float sa = glm::sin(rotation.y);
+        const float cb = glm::cos(rotation.x);
+        const float sb = glm::sin(rotation.x);
+        const float cc = glm::cos(rotation.z);
+        const float sc = glm::sin(rotation.z);
+        return glm::mat3{
+                   {(ca * cc + sa * sb * sc),
+                    (cb * sc),
+                    (ca * sb * sc - cc * sa)},
+
+                   {(cc * sa * sb - ca * sc),
+                    (cb * cc),
+                    (ca * cc * sb + sa * sc)},
+
+                   {(cb * sa),
+                    (-sb),
+                    (ca * cb)}} *
+               vector;
     }
 }

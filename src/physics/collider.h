@@ -12,7 +12,12 @@ namespace gigno {
         COLLIDER_NONE = 0,
         COLLIDER_SPHERE,
         COLLIDER_PLANE,
+        COLLIDER_CAPSULE,
         COLLIDER_MAX_ENUM
+    };
+
+    struct CapsuleParameters{
+        float Radius, Length;
     };
 
     struct Collider {
@@ -24,6 +29,9 @@ namespace gigno {
 
             // Plane
             glm::vec3 Normal;
+
+            // Capsule
+            CapsuleParameters Capsule;
         } parameters;
 
         // Values to poll from the rigid body
@@ -58,7 +66,10 @@ namespace gigno {
     bool ResolveCollision(Collider &col1, Collider &col2);
 
     bool ResolveCollision_SphereSphere(Collider &col1, Collider &col2);
-    bool ResolveCollision_SpherePlane(Collider &col1, Collider &col2);
+    bool ResolveCollision_SpherePlane(Collider &sphere, Collider &plane);
+    bool ResolveCollision_SphereCapsule(Collider &sphere, Collider &capsule);
+    bool ResolveCollision_PlaneCapsule(Collider &plane, Collider &capsule);
+    bool ResolveCollision_CapsuleCapsule(Collider &col1, Collider &col2);
 
     /*
     colNormal : unit vector from col1 to col2

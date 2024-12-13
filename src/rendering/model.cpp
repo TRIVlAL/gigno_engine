@@ -41,7 +41,7 @@ namespace gigno
 		std::string err;
 
 		if(!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path)) {
-			ERR_MSG_V(ModelData_t{}, "Tiny Object Loader Error ");
+			ERR_MSG_V(ModelData_t{}, "Tiny Object Loader Error : %s", err.c_str());
 		}
 
 		ModelData_t data{};

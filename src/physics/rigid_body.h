@@ -13,6 +13,7 @@ namespace gigno {
         ~RigidBody();
         void GiveSphereCollider(float radius);
         void GivePlaneCollider(glm::vec3 normal);
+        void GiveCapsuleCollider(float radius, float length);
 
         void AddForce(const glm::vec3 &force, const glm::vec3 &application = glm::vec3{0.0f, 0.0f, 0.0f});
         void AddImpulse(const glm::vec3 &impulse, const glm::vec3 &application = glm::vec3{0.0f, 0.0f, 0.0f});

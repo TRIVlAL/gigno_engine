@@ -24,7 +24,18 @@ namespace gigno {
     */
     void SegmentsClosestPoints(glm::vec3 a1, glm::vec3 a2, glm::vec3 b1, glm::vec3 b2, glm::vec3 &outAPoint, glm::vec3 &outBPoint);
 
+    /*
+    returns the shortest vector from the point to the segment.
+    */
+    glm::vec3 PointToSegment(glm::vec3 point, glm::vec3 seg1, glm::vec3 seg2);
+
     float LenSquared(glm::vec3 &vec);
+
+    /*
+    Return the result of the given vecctor after being rotated following the 
+    Tait-Bryan YXZ (see @ https://en.wikipedia.org/wiki/Euler_angles (Rotation Matrix)) convention
+    */
+    glm::vec3 ApplyRotation(glm::vec3 rotation, glm::vec3 vector);
 }
 
 #endif

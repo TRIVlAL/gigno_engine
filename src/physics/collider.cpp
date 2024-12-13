@@ -3,6 +3,7 @@
 #include "rigid_body.h"
 #include "../debug/console/convar.h"
 #include "../algorithm/geometry.h"
+#include <utility>
 
 namespace gigno {
 
@@ -47,6 +48,8 @@ namespace gigno {
                 return 0.48f;
             case COLLIDER_PLANE:
                 return 0.0f; // Planes area static so we wont use it anyway.
+            case COLLIDER_CAPSULE:
+                return 0.7f;
         }
 
         ERR_MSG_V(0.0f, "Collider with no type is querrying DragCoefficient !");
@@ -58,6 +61,11 @@ namespace gigno {
             return glm::pi<float>() * parameters.Radius *parameters.Radius;
         } else if(type == COLLIDER_PLANE) {
             return INFINITY; // Planes area static so we wont use it anyway.
+        } else if(type == COLLIDER_CAPSULE) {
+            // If moving vertically, only pi * r^2. If moving horizontally, add r * length.
+            const float t = glm::dot(direction, ApplyRotation(Rotation, glm::vec3{0.0f, 1.0f, 0.0f}));
+            return parameters.Capsule.Length * parameters.Capsule.Radius * 2.0f * t 
+                    + glm::pi<float>() * parameters.Capsule.Radius * parameters.Capsule.Radius;  
         } else {
             ERR_MSG_V(0.0f, "Collider with no type is querrying GetAreaCrossSection !");
         }
@@ -65,9 +73,7 @@ namespace gigno {
 
     bool ResolveCollision(Collider &col1, Collider &col2) {
         if(col2.type < col1.type) {
-            Collider &intermediate = col1;
-            col1 = col2;
-            col2 = intermediate;
+            std::swap(col1, col2);
         }
 
         ASSERT_MSG_V(col1.type != COLLIDER_NONE && col2.type != COLLIDER_NONE, false, "Physics ResolveCollision : A collider was of the base class !");
@@ -77,9 +83,17 @@ namespace gigno {
                 return ResolveCollision_SphereSphere(col1, col2);
             } else if(col2.type == COLLIDER_PLANE) {
                 return ResolveCollision_SpherePlane(col1, col2);
+            } else if(col2.type == COLLIDER_CAPSULE) {
+                return ResolveCollision_SphereCapsule(col1, col2);
             }
         } else if(col1.type == COLLIDER_PLANE) {
-
+            if(col2.type == COLLIDER_CAPSULE) {
+                return ResolveCollision_PlaneCapsule(col1, col2);
+            }
+        } else if(col1.type == COLLIDER_CAPSULE) {
+            if(col2.type == COLLIDER_CAPSULE) {
+                return ResolveCollision_CapsuleCapsule(col1, col2);
+            }
         }
         
         return false;
@@ -106,24 +120,101 @@ namespace gigno {
         return true;
     }
 
-    bool ResolveCollision_SpherePlane(Collider &col1, Collider &col2) {
+    bool ResolveCollision_SpherePlane(Collider &sphere, Collider &plane) {
 
-        float height = glm::dot(col1.Position - col2.Position, col2.parameters.Normal);
-        float col_depth = height - col1.parameters.Radius;
-
+        float height = glm::dot(sphere.Position - plane.Position, plane.parameters.Normal);
+        float col_depth = height - sphere.parameters.Radius;
 
         if (col_depth >= 0 ||
-            col_depth < -2.0f * col1.parameters.Radius /*Under the plane*/ )
+            col_depth < -2.0f * sphere.parameters.Radius /*Under the plane*/)
         {
             return false;
         }
 
         // col2 Plane are always constidered static !
-        if(col1.BoundRigidBody) {
-           RespondCollision(col1, col2, -col2.parameters.Normal, col_depth, -col2.parameters.Normal * col1.parameters.Radius, glm::vec3{0.0f});
+        if(sphere.BoundRigidBody) {
+            RespondCollision(sphere, plane, -plane.parameters.Normal, col_depth, -plane.parameters.Normal * sphere.parameters.Radius, glm::vec3{0.0f});
         }
 
         return true;
+    }
+
+    bool ResolveCollision_SphereCapsule(Collider &sphere, Collider &capsule) {
+        const glm::vec3 capsule_orientation = ApplyRotation(capsule.Rotation, glm::vec3{0.0f, 1.0f, 0.0f});
+        const glm::vec3 capsule_bottom = capsule.Position - capsule.parameters.Capsule.Length * 0.5f * capsule_orientation;
+        const glm::vec3 capsule_top = capsule.Position + capsule.parameters.Capsule.Length * 0.5f * capsule_orientation;
+        const glm::vec3 sphere_to_capsule = PointToSegment(sphere.Position, capsule_bottom, capsule_top);
+
+        Application::Singleton()->GetRenderer()->DrawLine(sphere.Position, sphere.Position + sphere_to_capsule, glm::vec3{0.0f, 1.0f, 0.0f}, UNIQUE_NAME);
+
+        const float distance = glm::length(sphere_to_capsule);
+        const float col_depth = distance - sphere.parameters.Radius - capsule.parameters.Capsule.Radius;
+
+        if(col_depth >= 0) {
+            //Not colliding
+            return false;
+        }
+
+        if(sphere.BoundRigidBody && capsule.BoundRigidBody) {
+            const glm::vec3 sphere_to_capsule_norm = sphere_to_capsule / distance;
+
+            RespondCollision(sphere, capsule, sphere_to_capsule / distance, col_depth, 
+                            sphere_to_capsule_norm * sphere.parameters.Radius, -sphere_to_capsule_norm * capsule.parameters.Radius);
+        }
+
+        return true;
+    }
+
+    bool ResolveCollision_PlaneCapsule(Collider &plane, Collider &capsule) {
+        const glm::vec3 capsule_orientation = ApplyRotation(capsule.Rotation, glm::vec3{0.0f, 1.0f, 0.0f});
+        const glm::vec3 capsule_bottom = capsule.Position - capsule.parameters.Capsule.Length * 0.5f * capsule_orientation;
+        const glm::vec3 capsule_top = capsule.Position + capsule.parameters.Capsule.Length * 0.5f * capsule_orientation;
+
+        const float bottom_depth = glm::dot(capsule_bottom - plane.Position, plane.parameters.Normal) - capsule.parameters.Capsule.Radius;
+        const float top_depth = glm::dot(capsule_top - plane.Position, plane.parameters.Normal) - capsule.parameters.Capsule.Radius;
+
+        if(bottom_depth >= 0 && top_depth >= 0) {
+            return false;
+        }
+
+        glm::vec3 capsule_application_point{};
+
+        if(bottom_depth < 0 && top_depth < 0) {
+            // Both underground, the apply point is thoward the one that is deeper, so we weight by their depth.
+            capsule_application_point = (((capsule_bottom - capsule.Position) * -bottom_depth) + ((capsule_top - capsule.Position) * -top_depth))/(-bottom_depth - top_depth) ;
+        } 
+        else if(bottom_depth < 0 && top_depth > 0) {
+            // On under, one above. Apply point is between the one under, and the point that meets the ground.
+            float total_height = top_depth - bottom_depth;
+            float t = -bottom_depth / total_height;
+            t = t * 0.5f;
+
+            capsule_application_point = ((capsule_bottom - capsule.Position) * (1-t)) + ((capsule_top - capsule.Position) * (t));
+        } 
+        else if(top_depth < 0 && top_depth < bottom_depth) {
+            // On under, one above. Apply point is between the one under, and the point that meets the ground.
+            float total_height = bottom_depth - top_depth;
+            float t = -top_depth / total_height;
+            t = t * 0.5f;
+
+            capsule_application_point = ((capsule_top - capsule.Position) * (1 - t)) + ((capsule_bottom - capsule.Position) * (t));
+        }
+
+        capsule_application_point += -plane.parameters.Normal * capsule.parameters.Radius;
+
+        Application::Singleton()->GetRenderer()->DrawLine(capsule.Position + capsule_application_point + glm::vec3{0.0f, -100.0f, 0.0f}, capsule.Position + capsule_application_point + glm::vec3{0.0f, 100.0f, 0.0f}, glm::vec3{1.0f, 0.0f, 0.0f}, UNIQUE_NAME);
+
+        if(capsule.BoundRigidBody) {
+            RespondCollision(plane, capsule, plane.parameters.Normal, glm::min(bottom_depth, top_depth),
+                             capsule.Position + capsule_application_point - plane.Position - plane.parameters.Normal * glm::dot(capsule.Position + capsule_application_point - plane.Position, plane.parameters.Normal),
+                             capsule_application_point);
+        }
+
+        return true;
+    }
+
+    bool ResolveCollision_CapsuleCapsule(Collider &col1, Collider &col2) {
+        return false;
     }
 
     void RespondCollision(Collider &col1, Collider &col2, const glm::vec3 &colNormal, const float &colDepth,
@@ -151,7 +242,7 @@ namespace gigno {
                 col2.Impulse += -colNormal * J * (col1.Mass + col2.Mass);
                 col2.AngularImpulse += glm::cross(col2ApplyPoint, -colNormal * J * (col1.Mass + col2.Mass));
 
-                if(colDepth < 0.2f) {
+                if(colDepth < 2.0f) {
                     col2.PosOffset += -colNormal * colDepth;
                 }
 

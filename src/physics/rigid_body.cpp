@@ -33,6 +33,16 @@ namespace gigno {
         GetApp()->GetPhysicServer()->AddCollider(this, COLLIDER_PLANE, param);
     }
 
+    void RigidBody::GiveCapsuleCollider(float radius, float length) {
+        if(hasCollider) {
+            GetApp()->GetPhysicServer()->RemoveCollider(this);
+        }
+        Collider::ColliderParameter param;
+        param.Capsule.Radius = radius;
+        param.Capsule.Length = length;
+        GetApp()->GetPhysicServer()->AddCollider(this, COLLIDER_CAPSULE, param);
+    }
+
     void RigidBody::AddForce(const glm::vec3 &force, const glm::vec3 &application) {
         m_Force += force;
 

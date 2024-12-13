@@ -84,6 +84,17 @@ namespace gigno {
 		EnvironmentLight env;
 		env.intensity = 0.1f;
 
+		/*
+		RigidBody phys_capsule{ModelData_t::FromObjFile("models/capsule.obj")};
+		phys_capsule.Transform.Position = glm::vec3{0.3f, 4.5f, 4.0f};
+		phys_capsule.Transform.Rotation = glm::vec3{0.1f, 0.0f, 0.0f};
+		phys_capsule.Transform.Scale = glm::vec3{0.5, 0.5f, 0.5f};
+		phys_capsule.GiveCapsuleCollider(0.5f, 1.5f);
+		phys_capsule.AddImpulse(glm::vec3{0.0f, -10.4f, -6.25f});
+		phys_capsule.Mass = 20.0f;
+		phys_capsule.Material = MAT_PLASTIC;
+		*/
+		
 		RigidBody phys_sphere{ModelData_t::FromObjFile("models/colored_uv_sphere.obj")};
 		phys_sphere.Transform.Position = glm::vec3{0.3f, 2.5f, 4.0f};
 		phys_sphere.Transform.Scale = glm::vec3{0.5, 0.5f, 0.5f};
@@ -107,6 +118,7 @@ namespace gigno {
 		phys_sphere3.AddImpulse(glm::vec3{6.0f, -6.0f, 1.0f});
 		phys_sphere3.Mass = 10.0f;
 		phys_sphere3.Material = MAT_PLASTIC;
+		
 
 		RigidBody phys_plane{ModelData_t::FromObjFile("models/plane_subdivided.obj")};
 		phys_plane.Transform.Position = glm::vec3{0.0f, -1.0f, 0.0f};
@@ -148,7 +160,7 @@ namespace gigno {
 		phys_plane5.Material = MAT_CONCRETE;
 
 
-		TestEntity test{&phys_sphere, &phys_sphere2};
+		//TestEntity test{&phys_sphere, &phys_sphere2};
 
 		auto last_update_time = std::chrono::steady_clock::now();
 
