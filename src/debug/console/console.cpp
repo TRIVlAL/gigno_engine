@@ -40,11 +40,13 @@ namespace gigno {
     }
 
     void Console::UpdateCommands(float dt) {
+    #if USE_CONSOLE
         Command *curr = Command::s_pCommands;
         while(curr) {
             curr->Update(dt);
             curr = curr->GetNext();
         }
+    #endif
     }
 
     void Console::LogInfo_Impl(const char *msg)

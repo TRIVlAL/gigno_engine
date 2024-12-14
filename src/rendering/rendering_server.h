@@ -49,9 +49,9 @@ namespace gigno {
 		void CreateModel(std::shared_ptr<giModel> &model, const ModelData_t &modelData);
 
 		//Debug Drawing ( need to active USE_DEBUG_DRAWING in features_usage.h )
-		void DrawPoint(glm::vec3 pos, glm::vec3 color, const std::string &uniqueName );
-		void DrawLine(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 color, const std::string &uniqueName);
-		void DrawLineGradient(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 startColor, glm::vec3 endColor, const std::string &uniqueName);
+		void DrawPoint(glm::vec3 pos, glm::vec3 color);
+		void DrawLine(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 color);
+		void DrawLineGradient(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 startColor, glm::vec3 endColor);
 
 		#if USE_DEBUG_DRAWING
 		bool ShowDD = true;
@@ -87,10 +87,5 @@ namespace gigno {
 
 		float m_RenderTime = 0.0f;
 	};
-
-	#define STRINGIFY1(a) STRINGIFY2(a)
-	#define STRINGIFY2(a) #a
-	#define UNIQUE_NAME STRINGIFY1( __LINE__ ) __FILE__
-
 }
 #endif

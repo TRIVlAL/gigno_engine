@@ -85,24 +85,24 @@ namespace gigno {
 	}
 
 	//Debug Drawing
-	void RenderingServer::DrawPoint(glm::vec3 pos, glm::vec3 color, const std::string &uniqueName) {
+	void RenderingServer::DrawPoint(glm::vec3 pos, glm::vec3 color) {
 #if USE_DEBUG_DRAWING
 		if(!ShowDD || !ShowDDPoints) { return; }
-		m_SwapChain.DrawPoint(pos, color, std::hash<std::string>{}(uniqueName) + std::hash<glm::vec3>{}(pos) + std::hash<glm::vec3>{}(color));
+		m_SwapChain.DrawPoint(pos, color, std::hash<glm::vec3>{}(pos) + std::hash<glm::vec3>{}(color));
 #endif
 	}
-	void RenderingServer::DrawLine(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 color, const std::string &uniqueName) {
+	void RenderingServer::DrawLine(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 color) {
 #if USE_DEBUG_DRAWING
 		if (!ShowDD || !ShowDDLines) { return; }
-		m_SwapChain.DrawLine(startPos, endPos, color, color, std::hash<std::string>{}(uniqueName)
-			+ std::hash<glm::vec3>{}(startPos) + std::hash<glm::vec3>{}(endPos) + std::hash<glm::vec3>{}(color));
+		m_SwapChain.DrawLine(startPos, endPos, color, color, 
+							std::hash<glm::vec3>{}(startPos) + std::hash<glm::vec3>{}(endPos) + std::hash<glm::vec3>{}(color));
 #endif
 	}
-	void RenderingServer::DrawLineGradient(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 startColor, glm::vec3 endColor, const std::string &uniqueName) {
+	void RenderingServer::DrawLineGradient(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 startColor, glm::vec3 endColor) {
 #if USE_DEBUG_DRAWING
 		if (!ShowDD || !ShowDDLines) { return; }
-		m_SwapChain.DrawLine(startPos, endPos, startColor, endColor, std::hash<std::string>{}(uniqueName) 
-			+ std::hash<glm::vec3>{}(startPos) + std::hash<glm::vec3>{}(endPos) + std::hash<glm::vec3>{}(startColor) + std::hash<glm::vec3>{}(endColor));
+		m_SwapChain.DrawLine(startPos, endPos, startColor, endColor, 
+							std::hash<glm::vec3>{}(startPos) + std::hash<glm::vec3>{}(endPos) + std::hash<glm::vec3>{}(startColor) + std::hash<glm::vec3>{}(endColor));
 #endif
 	}
 

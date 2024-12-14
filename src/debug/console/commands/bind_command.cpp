@@ -6,6 +6,8 @@
 
 namespace gigno {
 
+    #if USE_CONSOLE
+
     std::vector<std::pair<Key_t, char *>> s_BoundCommands{};
 
     CONSOLE_COMMAND_HELP_UPDATE(bind, "Usage : 'bind [KEY] [command] [?arg1] [?arg2] ...'"
@@ -72,5 +74,7 @@ namespace gigno {
         }
         Console::LogInfo("Erased %d bindings from the key '%s'", erased_count, args.GetArg(0));
     }
+
+    #endif
 }
 

@@ -92,11 +92,11 @@ namespace  gigno {
 				return;
 			}
 			renderer->DrawLine(Transform.Position, Transform.Position + Transform.ApplyRotate(glm::vec3{1.0f, 0.0f, 0.0f} * 2.0f), 
-							glm::vec3{1.0f, 0.0f, 0.0f}, UNIQUE_NAME);
+							glm::vec3{1.0f, 0.0f, 0.0f});
 			renderer->DrawLine(Transform.Position, Transform.Position + Transform.ApplyRotate(glm::vec3{0.0f, 1.0f, 0.0f} * 2.0f),
-							   glm::vec3{0.0f, 1.0f, 0.0f}, UNIQUE_NAME);
+							   glm::vec3{0.0f, 1.0f, 0.0f});
 			renderer->DrawLine(Transform.Position, Transform.Position + Transform.ApplyRotate(glm::vec3{0.0f, 0.0f, 1.0f} * 2.0f),
-							   glm::vec3{0.0f, 0.0f, 1.0f}, UNIQUE_NAME);
+							   glm::vec3{0.0f, 0.0f, 1.0f});
 		}
 		#endif
 	}

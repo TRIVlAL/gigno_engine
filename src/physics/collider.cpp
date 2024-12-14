@@ -145,7 +145,7 @@ namespace gigno {
         const glm::vec3 capsule_top = capsule.Position + capsule.parameters.Capsule.Length * 0.5f * capsule_orientation;
         const glm::vec3 sphere_to_capsule = PointToSegment(sphere.Position, capsule_bottom, capsule_top);
 
-        Application::Singleton()->GetRenderer()->DrawLine(sphere.Position, sphere.Position + sphere_to_capsule, glm::vec3{0.0f, 1.0f, 0.0f}, UNIQUE_NAME);
+        Application::Singleton()->GetRenderer()->DrawLine(sphere.Position, sphere.Position + sphere_to_capsule, glm::vec3{0.0f, 1.0f, 0.0f});
 
         const float distance = glm::length(sphere_to_capsule);
         const float col_depth = distance - sphere.parameters.Radius - capsule.parameters.Capsule.Radius;
@@ -202,7 +202,7 @@ namespace gigno {
 
         capsule_application_point += -plane.parameters.Normal * capsule.parameters.Radius;
 
-        Application::Singleton()->GetRenderer()->DrawLine(capsule.Position + capsule_application_point + glm::vec3{0.0f, -100.0f, 0.0f}, capsule.Position + capsule_application_point + glm::vec3{0.0f, 100.0f, 0.0f}, glm::vec3{1.0f, 0.0f, 0.0f}, UNIQUE_NAME);
+        Application::Singleton()->GetRenderer()->DrawLine(capsule.Position + capsule_application_point + glm::vec3{0.0f, -100.0f, 0.0f}, capsule.Position + capsule_application_point + glm::vec3{0.0f, 100.0f, 0.0f}, glm::vec3{1.0f, 0.0f, 0.0f});
 
         if(capsule.BoundRigidBody) {
             RespondCollision(plane, capsule, plane.parameters.Normal, glm::min(bottom_depth, top_depth),
@@ -226,7 +226,7 @@ namespace gigno {
         glm::vec3 point2{};
         SegmentsClosestPoints(bottom1, top1, bottom2, top2, point1, point2);
 
-        Application::Singleton()->GetRenderer()->DrawLine(point1 + glm::vec3{2.0f, 0.0f, 2.0f}, point2 + glm::vec3{2.0f, 0.0f, 2.0f}, glm::vec3{0.0f, 0.0f, 1.0f}, UNIQUE_NAME);
+        Application::Singleton()->GetRenderer()->DrawLine(point1 + glm::vec3{2.0f, 0.0f, 2.0f}, point2 + glm::vec3{2.0f, 0.0f, 2.0f}, glm::vec3{0.0f, 0.0f, 1.0f});
 
         const glm::vec3 dist = point2 - point1;
         const float dist_len = glm::length(dist);

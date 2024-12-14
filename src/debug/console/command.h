@@ -65,7 +65,7 @@ namespace gigno {
     static Command Command_##name(#name, name, name##_update, help_string);  \
     void name(const CommandToken_t &args) //{ }
 #else
-#define CONSOLE_COMMAND_HELP(name, help_string) /* Console diabled : Console Commands are stripped from this build. Enable them in features_usage.h*/
+#define CONSOLE_COMMAND_HELP_UPDATE(name, help_string) /* Console diabled : Console Commands are stripped from this build. Enable them in features_usage.h*/
 #endif
 
 #endif
