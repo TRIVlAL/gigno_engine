@@ -86,15 +86,15 @@ namespace gigno {
 
 		/*
 		RigidBody phys_capsule{ModelData_t::FromObjFile("models/capsule.obj")};
-		phys_capsule.Transform.Position = glm::vec3{0.3f, 4.5f, 4.0f};
-		phys_capsule.Transform.Rotation = glm::vec3{0.1f, 0.0f, 0.0f};
+		phys_capsule.Transform.Position = glm::vec3{-1.0f, 6.5f, 3.0f};
+		phys_capsule.Transform.Rotation = glm::vec3{0.0f, 0.0f, 0.0f};
 		phys_capsule.Transform.Scale = glm::vec3{0.5, 0.5f, 0.5f};
 		phys_capsule.GiveCapsuleCollider(0.5f, 1.5f);
 		phys_capsule.AddImpulse(glm::vec3{0.0f, -10.4f, -6.25f});
 		phys_capsule.Mass = 20.0f;
 		phys_capsule.Material = MAT_PLASTIC;
 		*/
-		
+
 		RigidBody phys_sphere{ModelData_t::FromObjFile("models/colored_uv_sphere.obj")};
 		phys_sphere.Transform.Position = glm::vec3{0.3f, 2.5f, 4.0f};
 		phys_sphere.Transform.Scale = glm::vec3{0.5, 0.5f, 0.5f};
@@ -159,7 +159,6 @@ namespace gigno {
 		phys_plane5.IsStaitc = true;
 		phys_plane5.Material = MAT_CONCRETE;
 
-
 		//TestEntity test{&phys_sphere, &phys_sphere2};
 
 		auto last_update_time = std::chrono::steady_clock::now();
@@ -170,7 +169,6 @@ namespace gigno {
 
 		Console::LogInfo (MESSAGE_NO_FILE_LOG_BIT, "Secret shhhhhh.");
 		while (!m_RenderingServer.WindowShouldClose() && !Close) {
-
 			Profiler::Begin("Main Loop");
 
 			m_RenderingServer.PollEvents();
@@ -187,10 +185,6 @@ namespace gigno {
 			delta_time = std::chrono::duration_cast<std::chrono::microseconds>(delta_time);
 
 			last_update_time = current_time;
-
-			//m_RenderingServer.DrawLine(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{1.0f, 0.0f, 0.0f}, glm::vec3{1.0f, 0.0f, 0.0f}, UNIQUE_NAME);
-			//m_RenderingServer.DrawLine(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, UNIQUE_NAME);
-			//m_RenderingServer.DrawLine(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, 1.0f}, glm::vec3{0.0f, 0.0f, 1.0f}, UNIQUE_NAME);
 
 			m_EntityServer.Tick(delta_time.count() * 10e-1f); // For some reason, it seems that to get second we need
 															  //  to multiply by 10e-1f and not the expected 10e-6f !

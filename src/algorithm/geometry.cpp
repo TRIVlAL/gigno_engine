@@ -34,13 +34,14 @@ namespace gigno {
         /*
         Thanks to Johnathon Selstad ! @https://zalo.github.io/blog/closest-point-between-segments/
         */
-
-        glm::vec3 A_norm = glm::normalize(a2 - a1);
-        glm::vec3 B = b2 - b1;
-        glm::vec3 a1b1_proj = b1 - a1 - A_norm * glm::dot(b1 - a1, A_norm);
-        glm::vec3 a1b2_proj = b2 - a1 - A_norm * glm::dot(b2 - a1, A_norm);
-        glm::vec3 B_proj = a1b2_proj - a1b1_proj;
-        float t = glm::dot(- a1b1_proj, B_proj) / glm::dot(B_proj, B_proj);
+       
+        const float A_len = glm::length(a2 - a1);
+        const glm::vec3 A_norm = (a2 - a1) / A_len;
+        const glm::vec3 B = b2 - b1;
+        const glm::vec3 a1b1_proj = b1 - a1 - A_norm * glm::dot(b1 - a1, A_norm);
+        const glm::vec3 a1b2_proj = b2 - a1 - A_norm * glm::dot(b2 - a1, A_norm);
+        const glm::vec3 B_proj = a1b2_proj - a1b1_proj;
+        float t = glm::dot(-a1b1_proj, B_proj) / glm::dot(B_proj, B_proj);
         if(B_proj.x == 0.0f && B_proj.y == 0.0f && B_proj.z == 0.0f || t < 0.0f) {
             t = 0.0f; //parallel
         }
@@ -48,7 +49,7 @@ namespace gigno {
 
         outBPoint = (1-t)*b1 + t*b2;
 
-        outAPoint = a1 + A_norm * glm::clamp(glm::dot(outBPoint - a1, A_norm), 0.0f, 1.0f);
+        outAPoint = a1 + A_norm * glm::clamp(glm::dot(outBPoint - a1, A_norm), 0.0f, A_len);
 
     }
 

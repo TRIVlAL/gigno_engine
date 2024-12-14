@@ -214,7 +214,40 @@ namespace gigno {
     }
 
     bool ResolveCollision_CapsuleCapsule(Collider &col1, Collider &col2) {
-        return false;
+        const glm::vec3 orientation1 = ApplyRotation(col1.Rotation, glm::vec3{0.0f, 1.0f, 0.0f});
+        const glm::vec3 bottom1 = col1.Position - col1.parameters.Capsule.Length * 0.5f * orientation1;
+        const glm::vec3 top1 = col1.Position + col1.parameters.Capsule.Length * 0.5f * orientation1;
+
+        const glm::vec3 orientation2 = ApplyRotation(col2.Rotation, glm::vec3{0.0f, 1.0f, 0.0f});
+        const glm::vec3 bottom2 = col2.Position - col2.parameters.Capsule.Length * 0.5f * orientation2;
+        const glm::vec3 top2 = col2.Position + col2.parameters.Capsule.Length * 0.5f * orientation2;
+
+        glm::vec3 point1{};
+        glm::vec3 point2{};
+        SegmentsClosestPoints(bottom1, top1, bottom2, top2, point1, point2);
+
+        Application::Singleton()->GetRenderer()->DrawLine(point1 + glm::vec3{2.0f, 0.0f, 2.0f}, point2 + glm::vec3{2.0f, 0.0f, 2.0f}, glm::vec3{0.0f, 0.0f, 1.0f}, UNIQUE_NAME);
+
+        const glm::vec3 dist = point2 - point1;
+        const float dist_len = glm::length(dist);
+
+        const float col_depth = dist_len - col1.parameters.Capsule.Radius - col2.parameters.Capsule.Radius;
+
+        if (col_depth >= 0)
+        {
+            // Not colliding
+            return false;
+        }
+
+        if (col1.BoundRigidBody && col2.BoundRigidBody)
+        {
+            const glm::vec3 dist_norm = dist / dist_len;
+
+            RespondCollision(col1, col2, dist_norm, col_depth,
+                             point1 - col1.Position + dist_norm * col1.parameters.Capsule.Radius, point2 - col2.Position - dist_norm * col2.parameters.Capsule.Radius);
+        }
+
+        return true;
     }
 
     void RespondCollision(Collider &col1, Collider &col2, const glm::vec3 &colNormal, const float &colDepth,
