@@ -6,8 +6,9 @@
 namespace gigno {
 
 	class DomeCamera : public Camera {
-		ENABLE_SERIALIZATION(DomeCamera);
+		ENTITY_DECLARATIONS(DomeCamera, Camera)
 	public:
+		DomeCamera();
 		DomeCamera(float moveSpeed);
 		DomeCamera(float moveSpeed, CAMERA_ORTHOGRAPHIC_ARGUMENTS_TYPED);
 		DomeCamera(float moveSpeed, CAMERA_PROJECTION_ARGUMENTS_TYPED);
@@ -23,9 +24,10 @@ namespace gigno {
 		float m_DistanceToTarget{};
 	};
 
-	DEFINE_SERIALIZATION(DomeCamera) {
-		SERIALIZE_BASE_CLASS(Camera);
-	}
+	BEGIN_KEY_TABLE(DomeCamera)
+		DEFINE_KEY_VALUE(float, Speed)
+		DEFINE_KEY_VALUE(float, MaxLower)
+	END_KEY_TABLE
 
 }
 

@@ -4,8 +4,10 @@
 
 namespace gigno {
 
+	ENTITY_DEFINITIONS(Camera, Entity);
+
 	Camera::Camera() : Entity() {
-		if (!GetApp()->GetRenderer()->HasCamera()) {
+		if (GetApp() && GetApp()->GetRenderer() && !GetApp()->GetRenderer()->HasCamera()) {
 			GetApp()->GetRenderer()->SetCurrentCamera(this);
 		}
 	}
@@ -59,7 +61,7 @@ namespace gigno {
 	glm::mat4 Camera::GetViewMatrix() const {
 		
 		if (m_LookMode == LOOK_MODE_POINT) {
-			const glm::vec3 direction = m_LookPoint - Transform.Position;
+			const glm::vec3 direction = m_LookPoint - Position;
 			const glm::vec3 up = { 0.0f, 1.0f, 0.0f };
 			const glm::vec3 w{ glm::normalize(direction) };
 			const glm::vec3 u{ glm::normalize(glm::cross(w, up)) };
@@ -75,17 +77,17 @@ namespace gigno {
 			matrix[0][2] = w.x;
 			matrix[1][2] = w.y;
 			matrix[2][2] = w.z;
-			matrix[3][0] = -glm::dot(u, Transform.Position);
-			matrix[3][1] = -glm::dot(v, Transform.Position);
-			matrix[3][2] = -glm::dot(w, Transform.Position);
+			matrix[3][0] = -glm::dot(u, Position);
+			matrix[3][1] = -glm::dot(v, Position);
+			matrix[3][2] = -glm::dot(w, Position);
 			return matrix;
 		} else if (m_LookMode == LOOK_MODE_TRANSFORM_FORWARD || true) {
-			const float c3 = glm::cos(Transform.Rotation.z);
-			const float s3 = glm::sin(Transform.Rotation.z);
-			const float c2 = glm::cos(Transform.Rotation.x);
-			const float s2 = glm::sin(Transform.Rotation.x);
-			const float c1 = glm::cos(Transform.Rotation.y);
-			const float s1 = glm::sin(Transform.Rotation.y);
+			const float c3 = glm::cos(Rotation.z);
+			const float s3 = glm::sin(Rotation.z);
+			const float c2 = glm::cos(Rotation.x);
+			const float s2 = glm::sin(Rotation.x);
+			const float c1 = glm::cos(Rotation.y);
+			const float s1 = glm::sin(Rotation.y);
 			const glm::vec3 u{ (c1 * c3 + s1 * s2 * s3), (c2 * s3), (c1 * s2 * s3 - c3 * s1) };
 			const glm::vec3 v{ (c3 * s1 * s2 - c1 * s3), (c2 * c3), (c1 * c3 * s2 + s1 * s3) };
 			const glm::vec3 w{ (c2 * s1), (-s2), (c1 * c2) };
@@ -99,9 +101,9 @@ namespace gigno {
 			matrix[0][2] = w.x;
 			matrix[1][2] = w.y;
 			matrix[2][2] = w.z;
-			matrix[3][0] = -glm::dot(u, Transform.Position);
-			matrix[3][1] = -glm::dot(v, Transform.Position);
-			matrix[3][2] = -glm::dot(w, Transform.Position);
+			matrix[3][0] = -glm::dot(u, Position);
+			matrix[3][1] = -glm::dot(v, Position);
+			matrix[3][2] = -glm::dot(w, Position);
 			return matrix;
 		}
 	}

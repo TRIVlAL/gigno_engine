@@ -13,7 +13,7 @@ namespace  gigno {
 
 	// translation -> rotation y -> rotation x -> rotation z -> scale
 	// Rotation Tait-Bryan YXZ (see @ https://en.wikipedia.org/wiki/Euler_angles (Rotation Matrix))
-	glm::mat4 Transform_t::TransformationMatrix() const {
+	glm::mat4 Entity::TransformationMatrix() const {
 		const float ca = glm::cos(Rotation.y);
 		const float sa = glm::sin(Rotation.y);
 		const float cb = glm::cos(Rotation.x);
@@ -44,11 +44,11 @@ namespace  gigno {
 	}
 
 
-	glm::mat3 Transform_t::NormalMatrix() const {
+	glm::mat3 Entity::NormalMatrix() const {
 		return glm::transpose(glm::inverse(glm::mat3(TransformationMatrix())));
 	}
 
-	glm::vec3 Transform_t::ApplyRotate(glm::vec3 v) const {
+	glm::vec3 Entity::ApplyRotate(glm::vec3 v) const {
 		const float ca = glm::cos(Rotation.y);
 		const float sa = glm::sin(Rotation.y);
 		const float cb = glm::cos(Rotation.x);
@@ -69,18 +69,34 @@ namespace  gigno {
 			(ca * cb)}} * v;
 	}
 
-	Application *Entity::GetApp() const{
-		return Application::Singleton();
+	std::vector<std::pair<const char *, Value_t>> Entity::KeyValues(){
+		std::vector<std::pair<const char *, Value_t>> ret{Entity::KeyValueCount()};
+		int i  = 0;
+		for (auto& [key, owned_value] : KeyTableAccessor<Entity>::KeyValues) {
+			ret[i++] = {key, FromOwnedValue(this, owned_value)};
+		}
+		return ret;
 	}
 
-	Entity::Entity() {
-		GetApp()->GetEntityServer()->AddEntity(this);
+    size_t Entity::KeyValueCount() const {
+		auto &a = KeyTableAccessor<Entity>::KeyValues;
+        return KeyTableAccessor<Entity>::KeyValues.size();
+    }
+
+    Application *Entity::GetApp() const
+	{
+        return Application::Singleton();
+    }
+
+    Entity::Entity() {
+		if(GetApp() && GetApp()->GetEntityServer()) {
+			GetApp()->GetEntityServer()->AddEntity(this);
+		}
 	}
 
 	Entity::~Entity() {
-		GetApp()->GetEntityServer()->RemoveEntity(this);
-		for(BaseSerializedProperty *prop : serializedProps) {
-			delete prop;
+		if(GetApp() && GetApp()->GetEntityServer()) {
+			GetApp()->GetEntityServer()->RemoveEntity(this);
 		}
 	}
 
@@ -91,20 +107,13 @@ namespace  gigno {
 			if(renderer->GetCameraHandle() == this) {
 				return;
 			}
-			renderer->DrawLine(Transform.Position, Transform.Position + Transform.ApplyRotate(glm::vec3{1.0f, 0.0f, 0.0f} * 2.0f), 
+			renderer->DrawLine(Position, Position + ApplyRotate(glm::vec3{1.0f, 0.0f, 0.0f} * 2.0f), 
 							glm::vec3{1.0f, 0.0f, 0.0f});
-			renderer->DrawLine(Transform.Position, Transform.Position + Transform.ApplyRotate(glm::vec3{0.0f, 1.0f, 0.0f} * 2.0f),
+			renderer->DrawLine(Position, Position + ApplyRotate(glm::vec3{0.0f, 1.0f, 0.0f} * 2.0f),
 							   glm::vec3{0.0f, 1.0f, 0.0f});
-			renderer->DrawLine(Transform.Position, Transform.Position + Transform.ApplyRotate(glm::vec3{0.0f, 0.0f, 1.0f} * 2.0f),
+			renderer->DrawLine(Position, Position + ApplyRotate(glm::vec3{0.0f, 0.0f, 1.0f} * 2.0f),
 							   glm::vec3{0.0f, 0.0f, 1.0f});
 		}
 		#endif
-	}
-
-	DEFINE_SERIALIZATION(Entity)
-	{
-		SERIALIZE(glm::vec3, Transform.Position);
-		SERIALIZE(glm::vec3, Transform.Rotation);
-		SERIALIZE(glm::vec3, Transform.Scale);
 	}
 }

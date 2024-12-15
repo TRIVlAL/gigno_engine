@@ -5,6 +5,7 @@
 #include "../../error_macros.h"
 #include "command.h"
 #include "convar.h"
+#include "../../rendering/gui.h"
 
 
 namespace gigno {

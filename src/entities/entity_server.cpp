@@ -65,7 +65,7 @@ namespace gigno {
 
 #if USE_IMGUI
 	void EntityServer::DrawEntityInspectorTab() {
-
+		
 		int open_action = -1;
 		if(ImGui::Button("Colapse All")) {
 			open_action = 0;
@@ -92,17 +92,11 @@ namespace gigno {
 			snprintf(header, header_size, "%d. %s (%s)", i, name, typeName);
 			if(ImGui::CollapsingHeader(header)) {
 				bool did_one = false;
-				for(BaseSerializedProperty *prop : Serialization::GetProperties(curr)) {
-
-					if(Serialization::IsSpecialToken(prop)) {
-						Serialization::HandleSpecialTokenForImGui(prop);
-						continue;
-					}
-
-					size_t value_str_size = prop->ValueToString(nullptr);
+				for(std::pair<const char *, Value_t> keyvalue : curr->KeyValues()) {
+					size_t value_str_size = ToString<Value_t>(nullptr, keyvalue.second);
 					char value_str[value_str_size];
-					prop->ValueToString(value_str);
-					ImGui::BulletText("%s : %s", prop->GetName(), value_str);
+					ToString<Value_t>(value_str, keyvalue.second);
+					ImGui::BulletText("%s : %s", keyvalue.first, value_str);
 					did_one = true;
 				}
 				if(!did_one) {

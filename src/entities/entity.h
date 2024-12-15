@@ -7,22 +7,10 @@
 #include "glm/gtc/constants.hpp"
 #include <string>
 #include "iostream"
-
-#include "serialization.h"
+#include "keyvalues/key_table.h"
 
 namespace gigno {
 	class Application;
-
-	struct Transform_t
-	{
-		glm::vec3 Position{};
-		glm::vec3 Scale{1.0f, 1.0f, 1.0f};
-		glm::vec3 Rotation{};
-
-		glm::mat4 TransformationMatrix() const;
-		glm::mat3 NormalMatrix() const;
-		glm::vec3 ApplyRotate(glm::vec3 v) const;
-	};
 
 	/*
 	Base object. Updated every frames by the giEnityServer.
@@ -65,7 +53,7 @@ namespace gigno {
 		Entity();
 		~Entity();
 
-		virtual void Start() { AddSerializedProperties(); };
+		virtual void Start() { /*AddSerializedProperties();*/ };
 		// Called Every Tick by the Entity Server
 		virtual void Think(float dt);
 		// Called Every physic Tick (fixed time interval)
@@ -74,24 +62,64 @@ namespace gigno {
 		virtual void LatePhysicThink(float dt) {};
 
 		const char *Name = "";
-		Transform_t Transform{};
+
+		glm::vec3 Position{};
+		glm::vec3 Rotation{};
+		glm::vec3 Scale{};
+
+		glm::mat4 TransformationMatrix() const;
+		glm::mat3 NormalMatrix() const;
+		glm::vec3 ApplyRotate(glm::vec3 v) const;
 
 		// Next entity in the EntityServer's chain of all entities (linked list). Set on construction.
 		// 'nullptr' if is last element.
 		Entity* pNextEntity;
+
+		/*
+		Returns a vector of all the key values of this Entity and all its bases.
+		*/
+		virtual std::vector<std::pair<const char *, Value_t>> KeyValues();
+		virtual size_t KeyValueCount() const;
+
 	protected:
 		Application *GetApp() const;
 
-		//SERIALIZATION--------------------------------------------------------------
-
-		/*
-		Pointers to heap-allocated serialized properties for every data that we want to serialize
-		*/
-		std::vector<BaseSerializedProperty *> serializedProps{};
-		virtual void AddSerializedProperties();
 	public:
 		virtual const char *GetTypeName() const { return "Entity"; };
 	};
 
+	BEGIN_KEY_TABLE(Entity)
+		DEFINE_KEY_VALUE(vec3, Position)
+		DEFINE_KEY_VALUE(vec3, Rotation)
+	END_KEY_TABLE
+
+#define ENTITY_DECLARATIONS(this_class, base_class)                             \
+public:                                                                         \
+	virtual std::vector<std::pair<const char *, Value_t>> KeyValues() override; \
+	virtual size_t KeyValueCount() const override;                              \
+	virtual const char *GetTypeName() const override;
+
+#define ENTITY_DEFINITIONS(this_class, base_class)                                           \
+	std::vector<std::pair<const char *, Value_t>> this_class::KeyValues()                    \
+	{                                                                                        \
+		std::vector<std::pair<const char *, Value_t>> ret{this_class::KeyValueCount()};      \
+		int i = 0;                                                                           \
+		for (auto &[key, owned_value] : KeyTableAccessor<this_class>::KeyValues)             \
+		{                                                                                    \
+			ret[i++] = {key, FromOwnedValue(this, owned_value)};                             \
+		}                                                                                    \
+		std::vector<std::pair<const char *, Value_t>> base = base_class::KeyValues();        \
+		for (auto &v : base)                                                                 \
+		{                                                                                    \
+			ret[i++] = v;                                                                    \
+		}                                                                                    \
+		return ret;                                                                          \
+	}                                                                                        \
+	size_t this_class::KeyValueCount() const                                                 \
+	{                                                                                        \
+		return base_class::KeyValueCount() + KeyTableAccessor<this_class>::KeyValues.size(); \
+	}                                                                                        \
+	const char *this_class::GetTypeName() const { return #this_class; }
 }
+
 #endif

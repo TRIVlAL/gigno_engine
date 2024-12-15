@@ -14,14 +14,14 @@ First: When we just apply the equation every frames:
 
 	//Called every frame (dt = frame delta time)
 	m_Velocity += dt * m_Force;
-	Transform.Position += dt * m_Velocity;
+	Position += dt * m_Velocity;
 
 Second:	When we average the speed every frames:
 	glm::vec3 avrg_vel = m_Velocity;
         m_Velocity += dt * m_Force;
         avrg_vel += m_Velocity;
         avrg_vel *= 0.5f;
-        Transform.Position += dt * avrg_vel;
+        Position += dt * avrg_vel;
 
 
 with a constant acceleration of 5.0

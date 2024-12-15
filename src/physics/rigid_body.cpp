@@ -3,11 +3,13 @@
 #include "../debug/console/convar.h"
 
 namespace gigno {
+    ENTITY_DEFINITIONS(RigidBody, RenderedEntity)
+
     #define DEFAULT_GRAVITY glm::vec3{0.0f, -9.81f, 0.0f}
     CONVAR(glm::vec3, phys_gravity, DEFAULT_GRAVITY, "");
 
-    RigidBody::RigidBody(ModelData_t model)
-    : RenderedEntity(model) {
+    RigidBody::RigidBody()
+    : RenderedEntity() {
     }
 
     RigidBody::~RigidBody() {
@@ -64,7 +66,7 @@ namespace gigno {
     }
 
     void RigidBody::LatePhysicThink(float dt) {
-        if(IsStaitc) {
+        if(IsStatic) {
             return;
         }
 
@@ -74,17 +76,17 @@ namespace gigno {
         m_Velocity += dt * m_Force / Mass;
         avrg_vel += m_Velocity;
         avrg_vel *= 0.5f;
-        Transform.Position += dt * avrg_vel;
+        Position += dt * avrg_vel;
 
         glm::vec3 avrg_rot_vel = m_RotationVelocity;
         m_RotationVelocity += dt * m_Torque / Mass;
         avrg_rot_vel += m_RotationVelocity;
         avrg_rot_vel *= 0.5f;
-        Transform.Rotation += dt * avrg_rot_vel;
+        Rotation += dt * avrg_rot_vel;
 
-        Transform.Rotation.x = glm::mod<float>(Transform.Rotation.x, glm::pi<float>()*2);
-        Transform.Rotation.y = glm::mod<float>(Transform.Rotation.y, glm::pi<float>()*2);
-        Transform.Rotation.z = glm::mod<float>(Transform.Rotation.z, glm::pi<float>()*2);
+        Rotation.x = glm::mod<float>(Rotation.x, glm::pi<float>()*2);
+        Rotation.y = glm::mod<float>(Rotation.y, glm::pi<float>()*2);
+        Rotation.z = glm::mod<float>(Rotation.z, glm::pi<float>()*2);
 
         m_Force = glm::vec3{0.0f};
         m_Torque = glm::vec3{0.0f};

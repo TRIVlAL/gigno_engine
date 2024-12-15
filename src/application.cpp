@@ -12,6 +12,8 @@
 #include "debug/profiler/profiler.h"
 #include "physics/rigid_body.h"
 #include "test_entity.h"
+#include "entities/keyvalues/key_table.h"
+#include "rendering/gui.h"
 
 namespace gigno {
 
@@ -54,8 +56,8 @@ namespace gigno {
 
 		DomeCamera camera(17.0f);
 		camera.SetPerspectiveProjection(glm::radians(50.0f), m_RenderingServer.GetAspectRatio(), -0.05f, 1.0f);
-		camera.Transform.Position = { 0.0f, 0.0f, -17.0f };
-		camera.Transform.Rotation.y = 0;
+		camera.Position = { 0.0f, 0.0f, -17.0f };
+		camera.Rotation.y = 0;
 		camera.MaxLower = 0.0f;
 		camera.SetTarget( glm::vec3{0.0f} );
 		camera.Name = "My Camera";
@@ -66,19 +68,19 @@ namespace gigno {
 		sun.Direction = glm::normalize(glm::vec3{0.0f, -1.0f, 0.01f});
 
 		PointLight bulb2;
-		bulb2.Transform.Position = glm::vec3{10.0f, 1.0f, 10.0f};
+		bulb2.Position = glm::vec3{10.0f, 1.0f, 10.0f};
 		bulb2.Intensity = 2.0f;
 
 		PointLight bulb3;
-		bulb3.Transform.Position = glm::vec3{-10.0f, 1.0f, 10.0f};
+		bulb3.Position = glm::vec3{-10.0f, 1.0f, 10.0f};
 		bulb3.Intensity = 2.0f;
 
 		PointLight bulb4;
-		bulb4.Transform.Position = glm::vec3{10.0f, 1.0f, -10.0f};
+		bulb4.Position = glm::vec3{10.0f, 1.0f, -10.0f};
 		bulb4.Intensity = 2.0f;
 
 		PointLight bulb5;
-		bulb5.Transform.Position = glm::vec3{-10.0f, 1.0f, -10.0f};
+		bulb5.Position = glm::vec3{-10.0f, 1.0f, -10.0f};
 		bulb5.Intensity = 2.0f;
 
 		EnvironmentLight env;
@@ -86,78 +88,90 @@ namespace gigno {
 
 		/*
 		RigidBody phys_capsule{ModelData_t::FromObjFile("models/capsule.obj")};
-		phys_capsule.Transform.Position = glm::vec3{-1.0f, 6.5f, 3.0f};
-		phys_capsule.Transform.Rotation = glm::vec3{0.0f, 0.0f, 0.0f};
-		phys_capsule.Transform.Scale = glm::vec3{0.5, 0.5f, 0.5f};
+		phys_capsule.Position = glm::vec3{-1.0f, 6.5f, 3.0f};
+		phys_capsule.Rotation = glm::vec3{0.0f, 0.0f, 0.0f};
+		phys_capsule.Scale = glm::vec3{0.5, 0.5f, 0.5f};
 		phys_capsule.GiveCapsuleCollider(0.5f, 1.5f);
 		phys_capsule.AddImpulse(glm::vec3{0.0f, -10.4f, -6.25f});
 		phys_capsule.Mass = 20.0f;
 		phys_capsule.Material = MAT_PLASTIC;
 		*/
 
-		RigidBody phys_sphere{ModelData_t::FromObjFile("models/colored_uv_sphere.obj")};
-		phys_sphere.Transform.Position = glm::vec3{0.3f, 2.5f, 4.0f};
-		phys_sphere.Transform.Scale = glm::vec3{0.5, 0.5f, 0.5f};
+		RigidBody phys_sphere{};
+		phys_sphere.ModelPath = "models/colored_uv_sphere.obj";
+		phys_sphere.Position = glm::vec3{0.3f, 2.5f, 4.0f};
+		phys_sphere.Scale = glm::vec3{0.5, 0.5f, 0.5f};
 		phys_sphere.GiveSphereCollider(0.5f);
 		phys_sphere.AddImpulse(glm::vec3{0.0f, -10.4f, -6.25f});
 		phys_sphere.Mass = 50.0f;
 		phys_sphere.Material = MAT_STEEL;
 
-		RigidBody phys_sphere2{ModelData_t::FromObjFile("models/uv_sphere.obj")};
-		phys_sphere2.Transform.Position = glm::vec3{-0.5f, -0.5f, -1.0f};
-		phys_sphere2.Transform.Scale = glm::vec3{0.5, 0.5f, 0.5f};
+		RigidBody phys_sphere2{};
+		phys_sphere2.ModelPath = "models/uv_sphere.obj";
+		phys_sphere2.Position = glm::vec3{-0.5f, -0.5f, -1.0f};
+		phys_sphere2.Scale = glm::vec3{0.5, 0.5f, 0.5f};
 		phys_sphere2.GiveSphereCollider(0.5f);
 		phys_sphere2.AddImpulse(glm::vec3{0.0f, 3.0f, 6.0f});
 		phys_sphere2.Mass = 10.0f;
 		phys_sphere2.Material = MAT_PLASTIC;
 
-		RigidBody phys_sphere3{ModelData_t::FromObjFile("models/uv_sphere.obj")};
-		phys_sphere3.Transform.Position = glm::vec3{-3.0f, 2.5f, 0.0f};
-		phys_sphere3.Transform.Scale = glm::vec3{0.5, 0.5f, 0.5f};
+		RigidBody phys_sphere3{};
+		phys_sphere3.ModelPath = "models/uv_sphere.obj";
+		phys_sphere3.Position = glm::vec3{-3.0f, 2.5f, 0.0f};
+		phys_sphere3.Scale = glm::vec3{0.5, 0.5f, 0.5f};
 		phys_sphere3.GiveSphereCollider(0.5f);
 		phys_sphere3.AddImpulse(glm::vec3{6.0f, -6.0f, 1.0f});
 		phys_sphere3.Mass = 10.0f;
 		phys_sphere3.Material = MAT_PLASTIC;
 		
 
-		RigidBody phys_plane{ModelData_t::FromObjFile("models/plane_subdivided.obj")};
-		phys_plane.Transform.Position = glm::vec3{0.0f, -1.0f, 0.0f};
-		phys_plane.Transform.Scale = glm::vec3{2.0f};
+		RigidBody phys_plane{};
+		phys_plane.ModelPath = "models/plane_subdivided.obj";
+		phys_plane.Position = glm::vec3{0.0f, -1.0f, 0.0f};
+		phys_plane.Scale = glm::vec3{2.0f};
 		phys_plane.GivePlaneCollider(glm::vec3{0.0f, 1.0f, 0.0f});
-		phys_plane.IsStaitc = true;
+		phys_plane.IsStatic = true;
 		phys_plane.Material = MAT_CONCRETE;
 
-		RigidBody phys_plane2{ModelData_t::FromObjFile("models/plane_subdivided.obj")};
-		phys_plane2.Transform.Position = glm::vec3{0.0f, 19.0f, -20.0f};
-		phys_plane2.Transform.Rotation = glm::vec3{glm::pi<float>() / 2.0f, 0.0f, 0.0f};
-		phys_plane2.Transform.Scale = glm::vec3{2.0f};
+		RigidBody phys_plane2{};
+		phys_plane2.ModelPath = "models/plane_subdivided.obj";
+		phys_plane2.Position = glm::vec3{0.0f, 19.0f, -20.0f};
+		phys_plane2.Rotation = glm::vec3{glm::pi<float>() / 2.0f, 0.0f, 0.0f};
+		phys_plane2.Scale = glm::vec3{2.0f};
 		phys_plane2.GivePlaneCollider(glm::vec3{0.0f, 0.0f, 1.0f});
-		phys_plane2.IsStaitc = true;
+		phys_plane2.IsStatic = true;
 		phys_plane2.Material = MAT_CONCRETE;
 
-		RigidBody phys_plane3{ModelData_t::FromObjFile("models/plane_subdivided.obj")};
-		phys_plane3.Transform.Position = glm::vec3{0.0f, 19.0f, 20.0f};
-		phys_plane3.Transform.Rotation = glm::vec3{-glm::pi<float>() / 2.0f, 0.0f, 0.0f};
-		phys_plane3.Transform.Scale = glm::vec3{2.0f};
+		RigidBody phys_plane3{};
+		phys_plane3.ModelPath = "models/plane_subdivided.obj";
+		phys_plane3.Position = glm::vec3{0.0f, 19.0f, 20.0f};
+		phys_plane3.Rotation = glm::vec3{-glm::pi<float>() / 2.0f, 0.0f, 0.0f};
+		phys_plane3.Scale = glm::vec3{2.0f};
 		phys_plane3.GivePlaneCollider(glm::vec3{0.0f, 0.0f, -1.0f});
-		phys_plane3.IsStaitc = true;
+		phys_plane3.IsStatic = true;
 		phys_plane3.Material = MAT_CONCRETE;
 
-		RigidBody phys_plane4{ModelData_t::FromObjFile("models/plane_subdivided.obj")};
-		phys_plane4.Transform.Position = glm::vec3{ -20.0f, 19.0f, 0.0f};
-		phys_plane4.Transform.Rotation = glm::vec3{0.0f, 0.0f, glm::pi<float>() / 2.0f};
-		phys_plane4.Transform.Scale = glm::vec3{2.0f};
+		RigidBody phys_plane4{};
+		phys_plane4.ModelPath = "models/plane_subdivided.obj";
+		phys_plane4.Position = glm::vec3{ -20.0f, 19.0f, 0.0f};
+		phys_plane4.Rotation = glm::vec3{0.0f, 0.0f, glm::pi<float>() / 2.0f};
+		phys_plane4.Scale = glm::vec3{2.0f};
 		phys_plane4.GivePlaneCollider(glm::vec3{1.0f, 0.0f, 0.0f});
-		phys_plane4.IsStaitc = true;
+		phys_plane4.IsStatic = true;
 		phys_plane4.Material = MAT_CONCRETE;
 
-		RigidBody phys_plane5{ModelData_t::FromObjFile("models/plane_subdivided.obj")};
-		phys_plane5.Transform.Position = glm::vec3{20.0f, 19.0f, 0.0f};
-		phys_plane5.Transform.Rotation = glm::vec3{0.0f, 0.0f, -glm::pi<float>() / 2.0f};
-		phys_plane5.Transform.Scale = glm::vec3{2.0f};
+		RigidBody phys_plane5{};
+		phys_plane5.ModelPath = "models/plane_subdivided.obj";
+		phys_plane5.Position = glm::vec3{20.0f, 19.0f, 0.0f};
+		phys_plane5.Rotation = glm::vec3{0.0f, 0.0f, -glm::pi<float>() / 2.0f};
+		phys_plane5.Scale = glm::vec3{2.0f};
 		phys_plane5.GivePlaneCollider(glm::vec3{-1.0f, 0.0f, 0.0f});
-		phys_plane5.IsStaitc = true;
+		phys_plane5.IsStatic = true;
 		phys_plane5.Material = MAT_CONCRETE;
+
+		Spinner spinner{};
+		spinner.ModelPath = "models/colored_cube.obj";
+		spinner.Speed = 2.0f;
 
 		//TestEntity test{&phys_sphere, &phys_sphere2};
 
@@ -166,6 +180,8 @@ namespace gigno {
 		m_EntityServer.Start();
 
 		auto start_time = std::chrono::steady_clock::now();
+
+		Work();
 
 		Console::LogInfo (MESSAGE_NO_FILE_LOG_BIT, "Secret shhhhhh.");
 		while (!m_RenderingServer.WindowShouldClose() && !Close) {

@@ -100,12 +100,12 @@ namespace gigno {
 		CreatePipeline(device.GetDevice(), vertShaderPath, fragShaderPath);
 	}
 
-	void SwapChain::RecordCommandBuffer(uint32_t currentFrame, uint32_t imageIndex, const SceneRenderingData_t &sceneData) {
+	void SwapChain::RecordCommandBuffer(uint32_t currentFrame, uint32_t imageIndex, SceneRenderingData_t &sceneData) {
 		ASSERT(currentFrame < MAX_FRAMES_IN_FLIGHT);
 		RecordCommandBuffer(m_CommandBuffers[currentFrame], currentFrame, imageIndex, sceneData);
 	}
 
-	void SwapChain::RecordCommandBuffer(VkCommandBuffer buffer, uint32_t currentFrame, uint32_t imageIndex, const SceneRenderingData_t &sceneData) {
+	void SwapChain::RecordCommandBuffer(VkCommandBuffer buffer, uint32_t currentFrame, uint32_t imageIndex, SceneRenderingData_t &sceneData) {
 		VkCommandBufferBeginInfo buffer_begin_info{};
 		buffer_begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		buffer_begin_info.flags = 0;
@@ -166,21 +166,21 @@ namespace gigno {
 		}
 	}
 
-	void SwapChain::RenderEntities(VkCommandBuffer buffer, const RenderedEntity * entities, uint32_t currentFrame) {
+	void SwapChain::RenderEntities(VkCommandBuffer buffer, RenderedEntity * entities, uint32_t currentFrame) {
 		vkCmdSetPrimitiveTopology(buffer, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 
 		vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline.get()->GetVkPipeline());
 
-		const RenderedEntity *curr = entities;
+		RenderedEntity *curr = entities;
 		while(curr) {
 			PushConstantData_t push{};
-			push.modelMatrix = curr->Transform.TransformationMatrix();
-			push.normalsMatrix = glm::mat4{curr->Transform.NormalMatrix()};
+			push.modelMatrix = curr->TransformationMatrix();
+			push.normalsMatrix = glm::mat4{curr->NormalMatrix()};
 			push.fullbright = (int)convar_r_fullbright;
 			vkCmdPushConstants(buffer, m_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstantData_t), &push);
 
-			curr->pModel->Bind(buffer);
-			curr->pModel->Draw(buffer);
+			curr->GetModel()->Bind(buffer);
+			curr->GetModel()->Draw(buffer);
 
 			curr = curr->pNextRenderedEntity;
 		}

@@ -18,7 +18,7 @@ namespace gigno {
 	class InputServer;
 
 	struct SceneRenderingData_t {
-		const RenderedEntity * RenderedEntities; // First entity in the chain.
+		RenderedEntity * RenderedEntities; // First entity in the chain.
 		const std::vector<const Light *> &LightEntities;
 		const Camera *pCamera;
 	};

@@ -6,7 +6,6 @@
 namespace gigno {
 
     class EnvironmentLight : Light {
-        ENABLE_SERIALIZATION(EnvironmentLight);
     public:
         EnvironmentLight() : Light() {}
         ~EnvironmentLight() {}
@@ -17,9 +16,6 @@ namespace gigno {
         virtual void FillDataSlots(glm::vec4 *data) const override;
     };
 
-    DEFINE_SERIALIZATION(EnvironmentLight) {
-        SERIALIZE_BASE_CLASS(Light);
-    }
 
 }
 

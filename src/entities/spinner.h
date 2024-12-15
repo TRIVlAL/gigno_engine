@@ -3,10 +3,11 @@
 
 namespace gigno {
 
+
     class Spinner : public RenderedEntity {
-        ENABLE_SERIALIZATION(Spinner);
+        ENTITY_DECLARATIONS(Spinner, RenderedEntity)
     public:
-        Spinner(ModelData_t modelData) : RenderedEntity(modelData) {}
+        Spinner() : RenderedEntity() {}
 
         float Speed = 2.0f;
 
@@ -15,14 +16,14 @@ namespace gigno {
     private:
         virtual void Think(float dt) override {
             RenderedEntity::Think(dt);
-            Transform.Rotation.y = glm::mod<float>(Transform.Rotation.y + (Speed * dt), glm::two_pi<float>());
+            Rotation.y = glm::mod<float>(Rotation.y + (Speed * dt), glm::two_pi<float>());
         }
     };
 
-    DEFINE_SERIALIZATION(Spinner) {
-        SERIALIZE_BASE_CLASS(RenderedEntity);
+    BEGIN_KEY_TABLE(Spinner)
+        DEFINE_KEY_VALUE(float, Speed)
+    END_KEY_TABLE
 
-        SERIALIZE(float, Speed);
-    }
+    ENTITY_DEFINITIONS(Spinner, RenderedEntity)
 
 }

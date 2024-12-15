@@ -8,21 +8,24 @@
 namespace gigno {
 
 	class RenderedEntity : public Entity {
-		ENABLE_SERIALIZATION(RenderedEntity);
+		ENTITY_DECLARATIONS(RenderedEntity, Entity)
 	public:
-		RenderedEntity(ModelData_t modelData);
+		RenderedEntity();
 		~RenderedEntity();
 
-		std::shared_ptr<giModel> pModel;
+		const char *ModelPath = "";
 
 		// Next rendered entity in the RenderingServer's chain of all rendered entities (linked list). Set on construction.
 		// 'nullptr' if is last element.
 		RenderedEntity *pNextRenderedEntity{};
+
+		const std::shared_ptr<giModel> &GetModel();
+	private:
+		std::shared_ptr<giModel> m_pModel{};
 	};
 
-	DEFINE_SERIALIZATION(RenderedEntity) {
-		SERIALIZE_BASE_CLASS(Entity);
-	}
+	BEGIN_KEY_TABLE(RenderedEntity)
+	END_KEY_TABLE
 
 }
 

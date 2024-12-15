@@ -10,7 +10,6 @@
 namespace gigno {
 
     class TestEntity : Entity {
-        ENABLE_SERIALIZATION(TestEntity);
     public:
         TestEntity(RigidBody *rb1, RigidBody *rb2) : Entity(), m_RB1{rb1}, m_RB2{rb2} {
             m_RB1->Mass = 1.0f;
@@ -37,9 +36,6 @@ namespace gigno {
         RigidBody *m_RB2{};
     };
 
-    DEFINE_SERIALIZATION(TestEntity) {
-        SERIALIZE_BASE_CLASS(Entity);
-    }
 
 }
 

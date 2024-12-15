@@ -3,15 +3,26 @@
 
 namespace gigno {
 
-	RenderedEntity::RenderedEntity(ModelData_t modelData) : 
-		Entity() {
+	ENTITY_DEFINITIONS(RenderedEntity, Entity)
 
-		GetApp()->GetRenderer()->SubscribeRenderedEntity(this);
-		GetApp()->GetRenderer()->CreateModel(pModel, modelData);
+	RenderedEntity::RenderedEntity() : 
+		Entity() {
+		if(GetApp() && GetApp()->GetRenderer()) {
+			GetApp()->GetRenderer()->SubscribeRenderedEntity(this);
+		}
 	}
 
 	RenderedEntity::~RenderedEntity() {
-		GetApp()->GetRenderer()->UnsubscribeRenderedEntity(this);
+		if(GetApp() && GetApp()->GetRenderer()) {
+			GetApp()->GetRenderer()->UnsubscribeRenderedEntity(this);
+		}
 	}
 
+    const std::shared_ptr<giModel> &RenderedEntity::GetModel() 
+    {	
+		if(m_pModel == nullptr) {
+			GetApp()->GetRenderer()->CreateModel(m_pModel, ModelData_t::FromObjFile(ModelPath));
+		}
+		return m_pModel;
+    }
 }

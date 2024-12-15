@@ -11,11 +11,11 @@ namespace gigno {
 
     void Collider::PollRigidBodyValues() {
         if(BoundRigidBody)  {
-            Position = BoundRigidBody->Transform.Position;
-            Rotation = BoundRigidBody->Transform.Rotation;
+            Position = BoundRigidBody->Position;
+            Rotation = BoundRigidBody->Rotation;
             Velocity = BoundRigidBody->GetVelocity();
             Mass = BoundRigidBody->Mass;
-            IsStatic = BoundRigidBody->IsStaitc;
+            IsStatic = BoundRigidBody->IsStatic;
             Material = BoundRigidBody->Material;
         }
     }
@@ -24,7 +24,7 @@ namespace gigno {
         if(BoundRigidBody) {
             BoundRigidBody->AddImpulse(Impulse);
             BoundRigidBody->AddRotationImpulse(AngularImpulse);
-            BoundRigidBody->Transform.Position += PosOffset;
+            BoundRigidBody->Position += PosOffset;
         }
 
         Impulse = glm::vec3{0};

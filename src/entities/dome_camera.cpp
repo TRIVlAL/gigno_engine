@@ -3,7 +3,13 @@
 
 namespace gigno {
 
-	DomeCamera::DomeCamera(float moveSpeed) : Camera(),
+	ENTITY_DEFINITIONS(DomeCamera, Camera)
+
+	DomeCamera::DomeCamera() : Camera()
+    {
+    }
+
+    DomeCamera::DomeCamera(float moveSpeed) : Camera(),
 		Speed{ moveSpeed }
 	{
 	}
@@ -20,8 +26,8 @@ namespace gigno {
 
 	void DomeCamera::SetTarget(glm::vec3 target) {
 		m_Target = target;
-		Transform.Position.y = target.y;
-		glm::vec3 to = target - Transform.Position;
+		Position.y = target.y;
+		glm::vec3 to = target - Position;
 		m_DistanceToTarget = glm::sqrt(to.x * to.x + to.y * to.y + to.z * to.z);
 		SetLookAtPoint(target);
 	}
@@ -39,21 +45,21 @@ namespace gigno {
 		if (input->GetKey(KEY_W)) up_move++;
 		if (input->GetKey(KEY_S)) up_move--;
 
-		glm::vec3 parralel = glm::vec3{ m_Target.z-Transform.Position.z, 0, -(m_Target.x-Transform.Position.x) } / m_DistanceToTarget;
+		glm::vec3 parralel = glm::vec3{ m_Target.z-Position.z, 0, -(m_Target.x-Position.x) } / m_DistanceToTarget;
 
 		if (glm::sqrt(parralel.x * parralel.x + parralel.z * parralel.z) < 0.15f) {
-			up_move -= glm::sign(Transform.Position.y - m_Target.y);
+			up_move -= glm::sign(Position.y - m_Target.y);
 		}
 
-		Transform.Position += parralel * right_move * Speed * dt;
+		Position += parralel * right_move * Speed * dt;
 
-		if(MaxLower >= 0.0f && Transform.Position.y + up_move * Speed * dt > m_Target.y - MaxLower) {
-			Transform.Position.y += up_move * Speed * dt;
+		if(MaxLower >= 0.0f && Position.y + up_move * Speed * dt > m_Target.y - MaxLower) {
+			Position.y += up_move * Speed * dt;
 		}
 
 
-		glm::vec3 targetToMe = Transform.Position - m_Target;
-		Transform.Position = m_Target + ( glm::normalize(targetToMe) * m_DistanceToTarget);
+		glm::vec3 targetToMe = Position - m_Target;
+		Position = m_Target + ( glm::normalize(targetToMe) * m_DistanceToTarget);
 	}
 
 }

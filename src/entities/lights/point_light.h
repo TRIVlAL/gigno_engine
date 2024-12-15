@@ -6,7 +6,6 @@
 namespace gigno {
 
     class PointLight : public Light {
-        ENABLE_SERIALIZATION(PointLight);
     public:
         PointLight();
         ~PointLight();
@@ -16,10 +15,6 @@ namespace gigno {
 
         float Intensity = 1.0f;
     };
-
-    DEFINE_SERIALIZATION(PointLight) {
-        SERIALIZE_BASE_CLASS(Light);
-    }
 
 }
 

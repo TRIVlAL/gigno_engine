@@ -7,9 +7,9 @@
 namespace gigno {
 
     class RigidBody : public RenderedEntity {
-        ENABLE_SERIALIZATION(RigidBody);
+        ENTITY_DECLARATIONS(RigidBody, RenderedEntity)
     public:
-        RigidBody(ModelData_t model);
+        RigidBody();
         ~RigidBody();
         void GiveSphereCollider(float radius);
         void GivePlaneCollider(glm::vec3 normal);
@@ -31,7 +31,7 @@ namespace gigno {
 
 
         float Mass{1.0f};
-        bool IsStaitc{false};
+        bool IsStatic{false};
         PhysicsMaterial_t Material{MAT_PLASTIC};
 
     private:
@@ -44,15 +44,10 @@ namespace gigno {
         glm::vec3 m_RotationVelocity{};
     };
 
-    DEFINE_SERIALIZATION(RigidBody) {
-        SERIALIZE_BASE_CLASS(RenderedEntity);
-
-        SERIALIZE(glm::vec3, m_Velocity);
-        SERIALIZE(glm::vec3, m_Force);
-
-        SERIALIZE(glm::vec3, m_Torque);
-        SERIALIZE(glm::vec3, m_RotationVelocity);
-    }
+    BEGIN_KEY_TABLE(RigidBody)
+        DEFINE_KEY_VALUE(float, Mass)
+        DEFINE_KEY_VALUE(bool, IsStatic)
+    END_KEY_TABLE
 
 }
 

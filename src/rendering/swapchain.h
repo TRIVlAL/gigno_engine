@@ -91,7 +91,7 @@ namespace gigno {
 		@brief Fills the command buffer so that it is ready to be Submitted to vulkan. Updates the data pushed to the shader (Push Constants, Uniform Buffer)
 		@param currentFrame smaller than MAX_FRAMES_IN_FLIGHT 
 		*/
-		void RecordCommandBuffer(uint32_t currentFrame, uint32_t imageIndex, const SceneRenderingData_t &sceneData);
+		void RecordCommandBuffer(uint32_t currentFrame, uint32_t imageIndex, SceneRenderingData_t &sceneData);
 
 		#if USE_DEBUG_DRAWING
 		void UpdateDebugDrawings(VkDevice device, VkPhysicalDevice physDevice, VkQueue graphicsQueue);
@@ -126,9 +126,9 @@ namespace gigno {
 							VkMemoryPropertyFlags props, VkImage &image, VkDeviceMemory &imageMemory);
 		VkImageView CreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 
-		void RecordCommandBuffer(VkCommandBuffer buffer, uint32_t currentFrame, uint32_t imageIndex, const SceneRenderingData_t &sceneData);
+		void RecordCommandBuffer(VkCommandBuffer buffer, uint32_t currentFrame, uint32_t imageIndex, SceneRenderingData_t &sceneData);
 
-		void RenderEntities(VkCommandBuffer buffer, const RenderedEntity * entities, uint32_t currentFrame);
+		void RenderEntities(VkCommandBuffer buffer, RenderedEntity * entities, uint32_t currentFrame);
 
 		#if USE_DEBUG_DRAWING
 		void RenderDebugDrawings(VkCommandBuffer buffer, const Camera *camera, uint32_t currentFrame);
