@@ -117,26 +117,6 @@ namespace gigno {
         return FromOwnedValue(owner, owned);
     };
 
-
-// Testing
-
-    class A {
-    public:
-        int i;
-        float j;
-        int k;
-        vec3 v;
-    };
-
-    void Work();
-
-    BEGIN_KEY_TABLE(A)
-    DEFINE_KEY_VALUE(int, i)
-    DEFINE_KEY_VALUE(float, j)
-    DEFINE_KEY_VALUE(int, k)
-    DEFINE_KEY_VALUE(vec3, v)
-    END_KEY_TABLE
-
 }
 
 #endif

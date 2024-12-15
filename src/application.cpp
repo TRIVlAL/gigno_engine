@@ -180,10 +180,7 @@ namespace gigno {
 		m_EntityServer.Start();
 
 		auto start_time = std::chrono::steady_clock::now();
-
-		Work();
-
-		Console::LogInfo (MESSAGE_NO_FILE_LOG_BIT, "Secret shhhhhh.");
+		
 		while (!m_RenderingServer.WindowShouldClose() && !Close) {
 			Profiler::Begin("Main Loop");
 
