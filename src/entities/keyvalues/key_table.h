@@ -11,15 +11,17 @@
 #include "../../algorithm/offset_of.h"
 
 namespace gigno {
-    using namespace glm;
+    typedef glm::vec3 vec3;
     struct Transform_t;
+    typedef const char * cstr;
 
     //List here every types avaliable for a keyvalue
     #define TYPE_LIST\
     Type(int)\
     Type(float)\
     Type(bool)\
-    Type(vec3)
+    Type(vec3)\
+    Type(cstr)
 
 
     #define Type(t) type_##t,

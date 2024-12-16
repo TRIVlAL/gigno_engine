@@ -170,10 +170,15 @@ namespace gigno {
 		phys_plane5.Material = MAT_CONCRETE;
 
 		Spinner spinner{};
+		spinner.Position = glm::vec3{0.0f, 4.0f, 0.0f};
 		spinner.ModelPath = "models/colored_cube.obj";
 		spinner.Speed = 2.0f;
 
 		//TestEntity test{&phys_sphere, &phys_sphere2};
+
+		cstr strings[3] = {"a", "b", "csd"};
+		auto res = FromString<cstr>((const char **)&strings, 3);
+		Console::LogInfo("Test result : %s", res.second);
 
 		auto last_update_time = std::chrono::steady_clock::now();
 

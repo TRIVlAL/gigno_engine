@@ -25,6 +25,7 @@ namespace gigno {
 	};
 
 	BEGIN_KEY_TABLE(RenderedEntity)
+		DEFINE_KEY_VALUE(cstr, ModelPath)
 	END_KEY_TABLE
 
 }

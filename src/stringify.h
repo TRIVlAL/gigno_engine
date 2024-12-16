@@ -15,6 +15,7 @@
 #include <string>
 #include <cstring>
 #include <cerrno>
+#include <string>
 #include "debug/console/command_token.h"
 #include "glm/glm.hpp"
 
@@ -90,6 +91,17 @@ namespace gigno {
         } else {
             return 6; //false\0
         }
+    }
+
+    typedef const char * cstr;
+
+    template<> inline
+    size_t ToString<cstr>(char *to, const cstr & from) {
+        size_t size = strlen(from) + 1;
+        if(to) {
+            memcpy(to, from, size);
+        }
+        return size;
     }
 
 // FROM STRING -----------------------------------------
@@ -228,6 +240,11 @@ namespace gigno {
         }
     }
 
+    template<> inline
+    std::pair<int, cstr> FromString<cstr>(const char **arguments, size_t argsCount) {
+        return std::pair<int, cstr>{FROM_STRING_SUCCESS, arguments[0]};
+    }
+
 //TYPE STRING -------------------------------------------------------------------------
     template<typename T>
     constexpr const char *TypeString();
@@ -246,6 +263,9 @@ namespace gigno {
 
     template<> inline
     constexpr const char *TypeString<bool>() { return "bool"; }
+
+    template<> inline
+    constexpr const char *TypeString<const char *>() { return "const char *"; }
 
 }
 
