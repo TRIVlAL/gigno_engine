@@ -6,6 +6,7 @@
 namespace gigno {
 
     class PointLight : public Light {
+    ENTITY_DECLARATIONS(PointLight, Light)
     public:
         PointLight();
         ~PointLight();
@@ -15,6 +16,10 @@ namespace gigno {
 
         float Intensity = 1.0f;
     };
+
+    BEGIN_KEY_TABLE(PointLight)
+        DEFINE_KEY_VALUE(float, Intensity)
+    END_KEY_TABLE
 
 }
 

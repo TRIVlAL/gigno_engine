@@ -83,8 +83,28 @@ namespace  gigno {
         return KeyTableAccessor<Entity>::KeyValues.size();
     }
 
+    Value_t Entity::GetKeyValue_t(const char *key) {
+        Value_t ret;
+		if(GetKeyvalue<Entity>(ret, this, key)) {
+			return ret;
+		} else {
+			Console::LogError("GetKeyValue_t : Entity has no key '%s'", key);
+			return Value_t{};
+		}
+    }
+
+    void Entity::SetKeyValue(const char *key, const char *valueAsString) {
+		if(!SetKeyvalueFromString<Entity>(this, key, valueAsString)) {
+			Console::LogWarning("SetKeyValue : Entity has no key '%s'", key);
+		}
+    }
+
+    Entity *Entity::CreateEntity(const char *entityType) {
+        return s_BuildEntityMap[entityType]();
+    }
+
     Application *Entity::GetApp() const
-	{
+    {
         return Application::Singleton();
     }
 

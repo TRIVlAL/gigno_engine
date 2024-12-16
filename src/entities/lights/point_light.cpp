@@ -2,6 +2,8 @@
 
 namespace gigno {
 
+    ENTITY_DEFINITIONS(PointLight, Light)
+
     PointLight::PointLight() : Light() {
 
     }

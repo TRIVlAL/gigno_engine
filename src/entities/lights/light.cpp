@@ -3,12 +3,17 @@
 
 namespace gigno {
 
+    ENTITY_DEFINITIONS(Light, Entity)
+
     Light::Light() : Entity() {
-        GetApp()->GetRenderer()->SubscribeLightEntity(this);
+        if(GetApp() && GetApp()->GetRenderer()) {
+            GetApp()->GetRenderer()->SubscribeLightEntity(this);
+        }
     }
 
     Light::~Light() {
-        GetApp()->GetRenderer()->UnsubscribeLightEntity(this);
+        if (GetApp() && GetApp()->GetRenderer()) {
+            GetApp()->GetRenderer()->UnsubscribeLightEntity(this);
+        }
     }
-
 }

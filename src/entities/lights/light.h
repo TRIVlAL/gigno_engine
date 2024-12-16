@@ -10,15 +10,19 @@ namespace gigno {
     const float LIGHT_DATA_ENVIRONMENT = 3.0f;
 
     class Light : public Entity {
+        ENTITY_DECLARATIONS(Light, Entity)
     public:
         Light();
         ~Light();
 
-        virtual uint32_t DataSlotsCount() const = 0;
-        virtual void FillDataSlots(glm::vec4 *data) const = 0;
+        virtual uint32_t DataSlotsCount() const { return 0; };
+        virtual void FillDataSlots(glm::vec4 *data) const {return;};
 
     private:
     };
+
+    BEGIN_KEY_TABLE(Light)
+    END_KEY_TABLE
 
 }
 

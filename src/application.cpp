@@ -82,8 +82,11 @@ namespace gigno {
 		bulb5.Position = glm::vec3{-10.0f, 1.0f, -10.0f};
 		bulb5.Intensity = 2.0f;
 
+		PointLight *p = &bulb5;
+		Entity *p2 = dynamic_cast<Entity *>(p);
+
 		EnvironmentLight env;
-		env.intensity = 0.1f;
+		env.Intensity = 0.1f;
 
 		/*
 		RigidBody phys_capsule{ModelData_t::FromObjFile("models/capsule.obj")};

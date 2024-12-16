@@ -2,7 +2,7 @@
 #define KEYVALUES_H
 
 #include <cstddef>
-#include <map>
+#include "../algorithm/cstr_map.h"
 #include <any>
 #include <cstring>
 #include "../../debug/console/console.h"
@@ -60,9 +60,7 @@ namespace gigno {
     };
 
 
-    struct CompareCharPtr_Func { bool operator()(const char *a, const char *b) const {return strcmp(a, b) < 0;}};
-
-    typedef std::map<const char *, OwnedValue_t, CompareCharPtr_Func> KeyValueMap_t;
+    typedef CstrMap_t<OwnedValue_t> KeyValueMap_t;
     
 
     // Allows to access the key values of a given type through KeyTableAccessor::KeyValues
@@ -114,17 +112,47 @@ namespace gigno {
 
 
     template <typename TOwner>
-    Value_t GetKeyvalue(TOwner *owner, const char *key) {
-        auto& a = KeyTableAccessor<TOwner>::KeyValues;
+    bool GetKeyvalue(Value_t &outValue, TOwner *owner, const char *key) {
         auto owned_iterator = KeyTableAccessor<TOwner>::KeyValues.find(key);
         if(owned_iterator == KeyTableAccessor<TOwner>::KeyValues.end()) {
-            Console::LogError("GetKeyValue : No value with key '%s' exists !", key);
-            return Value_t{};
+            return false;
         }
         OwnedValue_t owned = owned_iterator->second;
 
-        return FromOwnedValue(owner, owned);
+        outValue = FromOwnedValue(owner, owned);
+        return true;
     };
+
+#define Type(t)                                                        \
+    case type_##t:                                                     \
+    {                                                                  \
+        std::pair<int, t> from_string_res = FromString<t>(&string, 1); \
+        if (from_string_res.first == FROM_STRING_SUCCESS)              \
+        {                                                              \
+            t val = from_string_res.second;                            \
+            memcpy((char *)owner + owned.Offset, &val, owned.Size);    \
+        }                                                              \
+        return true;                                                   \
+    }
+
+    template<typename TOwner>
+    inline bool SetKeyvalueFromString(TOwner *owner, const char *key, const char *string) {
+        auto owned_iterator = KeyTableAccessor<TOwner>::KeyValues.find(key);
+        if (owned_iterator == KeyTableAccessor<TOwner>::KeyValues.end()) {
+            return false;
+        }
+
+        OwnedValue_t owned = owned_iterator->second;
+        switch(owned.Type) {
+            TYPE_LIST
+            default:
+                return true;
+        }
+    }
+
+#undef Type
+
+#undef TYPE_LIST
 
 }
 
