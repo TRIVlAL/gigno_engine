@@ -15,7 +15,12 @@ namespace gigno {
     struct Transform_t;
     typedef const char * cstr;
 
-    //List here every types avaliable for a keyvalue
+    /*
+    List here every types avaliable for a keyvalue
+    Before you add types here are the requirements:
+        - Type must specify ToString() and FromString() (see file stringify.h)
+        - The type must be a single word, not separated by '::'. If not possible, simply typedef it.
+    */
     #define TYPE_LIST\
     Type(int)\
     Type(float)\
@@ -31,6 +36,8 @@ namespace gigno {
     #undef Type
 
 
+    // VALUE_TYPE correspond to the ValueType_t enum value of T.
+    // Example : ValueTypeDeducer<int>::VALUE_TYPE == ValueType_t::type_int
     template<typename T> 
     class ValueTypeDeducer {
         enum { VALUE_TYPE };
@@ -44,9 +51,9 @@ namespace gigno {
 
 
     struct OwnedValue_t {
-
         ValueType_t Type;
 
+        //In bytes, the difference between the owners mem adress and the value.
         size_t Offset;
 
         size_t Size;
@@ -57,11 +64,11 @@ namespace gigno {
 
     typedef std::map<const char *, OwnedValue_t, CompareCharPtr_Func> KeyValueMap_t;
     
+
+    // Allows to access the key values of a given type through KeyTableAccessor::KeyValues
+    // KeyTableAccessor::KeyValues is a map corresponding the const char * key to a OwnedValue_t
     template <typename T>
-    class KeyTableAccessor;
-    /*{
-        public: static KeyValueMap_t KeyValues;
-    };*/
+    class KeyTableAccessor; /*Dont define anything to avoid implicit template instantiation*/
 
 #define BEGIN_KEY_TABLE(class_name)                    \
     template <>                                        \

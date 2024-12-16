@@ -6,14 +6,6 @@
 
 namespace gigno {
 
-	void EntityServer::Start() {
-		Entity *curr = m_pFirstEntity;
-		while(curr) {
-			curr->Start();
-			curr = curr->pNextEntity;
-		}
-	}
-
 	void EntityServer::Tick(float dt) {
 		Profiler::Begin("Entity Update");
 

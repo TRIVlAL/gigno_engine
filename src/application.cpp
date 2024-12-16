@@ -12,7 +12,6 @@
 #include "debug/profiler/profiler.h"
 #include "physics/rigid_body.h"
 #include "test_entity.h"
-#include "entities/keyvalues/key_table.h"
 #include "rendering/gui.h"
 
 namespace gigno {
@@ -174,15 +173,7 @@ namespace gigno {
 		spinner.ModelPath = "models/colored_cube.obj";
 		spinner.Speed = 2.0f;
 
-		//TestEntity test{&phys_sphere, &phys_sphere2};
-
-		cstr strings[3] = {"a", "b", "csd"};
-		auto res = FromString<cstr>((const char **)&strings, 3);
-		Console::LogInfo("Test result : %s", res.second);
-
 		auto last_update_time = std::chrono::steady_clock::now();
-
-		m_EntityServer.Start();
 
 		auto start_time = std::chrono::steady_clock::now();
 		

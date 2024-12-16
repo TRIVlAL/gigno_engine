@@ -79,7 +79,7 @@ namespace gigno {
                 if(strcmp(convar_current->GetName(), args.GetArg(0)) == 0) {
                     char valuestr[convar_current->ValToString(nullptr)];
                     convar_current->ValToString(valuestr);
-                    Console::LogInfo ("Convar '%s' = '%s' : %s", convar_current->GetName(), valuestr, convar_current->GetHelpString());
+                    Console::LogInfo ("Convar (%s) '%s' = '%s' : %s", convar_current->TypeToString(), convar_current->GetName(), valuestr, convar_current->GetHelpString());
                     return;
                 }
                 convar_current = convar_current->GetNext();

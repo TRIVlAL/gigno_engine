@@ -15,7 +15,6 @@ namespace gigno {
 		EntityServer() {};
 		~EntityServer() {};
 
-		void Start();
 		void Tick(float dt);
 		void PhysicTick(float dt);
 

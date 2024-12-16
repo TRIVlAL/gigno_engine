@@ -1,7 +1,5 @@
 
-#include "key_table.h"
-#include "../../debug/console/console.h"
-#include "../entity.h"
+#include "keyvalue.h"
 
 namespace gigno {
     

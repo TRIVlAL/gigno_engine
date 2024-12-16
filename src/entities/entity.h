@@ -7,40 +7,42 @@
 #include "glm/gtc/constants.hpp"
 #include <string>
 #include "iostream"
-#include "keyvalues/key_table.h"
+#include "keyvalue.h"
 
 namespace gigno {
 	class Application;
 
 	/*
-	Base object. Updated every frames by the giEnityServer.
-	Meant to be derived by any ojbect that needs to update.
+		ENTITY:
+	Base class for any dynamic object in the scene, that needs to be updated regularly.
+	To Update themselves, entity may override any of those methods :
+	-	void Think : Called every frame, the duration of said frame is passed as argument.
+	-	void PhysicThink : 	Called every physic tick, physic ticks are separated by a regular interval, 
+							value of which is passed as argument.
+	- 	void LatePhysicthink: Called after every entity are done with their PhysicThink.
 
-	Usage:
+	Every entities also have transformation infos : Position, Rotation and Scale.
 
-		* Inheriting: 
-			* Any class inheriting Entity should have, at the top of their declaration, the following macros:
-				``` 
-					BEGIN_SERIALIZE( Class, BaseClass )
-					SERIALIZE( type, value ) // If you want to serialize data, as many as you want
-					END_SERIALIZE()
-				```
-				----/OR/----
-				```
-					ENABLE_SERIALIZE( Class, BaseClass )
-				```
-				See top of the file serialization.h for more info.
-			* Any class inheriting Entity that overrides the constructor should call the base constructor.
-			* Any class inheriting Entity that overrides Start() should call the base start.
-		*Key Functions:
-			* Start() called before the main loop begins, after the constructor.
-			* Think( ... ) called every frame with the frame time as parameter.
-			* GetApp() returns the current app. Should be used if you need a reference to any core App
-			  System ( RenderingServer, InputServer, ...)
-	
-	Implementation:
-		* The Entity base class (here), unlike any class inheriting it, defines its serialized data with the base 
-		  function definition of AddSerializedProperties() ( See entity.cpp ).
+	AN entity may only derive from ONE entity.
+
+	To interface with the current application, use the method GetApp().
+
+	Evey entity declarations require all of the following macros :
+		At the top of the class declaration, use the macro ENTITY_DECLARATIONS() (that declares reqired methods)
+		In a cpp file, use macro ENTITY_DEFINITIONS() (that defines the method we declared)
+		Under the class declaration, use macro BEGIN_KEY_TABLE() and END_KEY_TABLE.
+
+	Keyvalues allows the engine to interface with the properties of your entity to, for example, 
+	show these values in the ENtity Inspector or load entities from a scene file (comming soon).
+
+	For any value for which you wish those features to be active, you must tell it using the macro
+	DEFINE_KEY_VALUE() in betweemn BEGIN_KEY_TABLE and END_KEY_TABLE, passing in the type of the value and its name
+	The value MUST be public (at least right now)
+
+	Even if you dont want to add any keyvalues, you MUST still add the macros BEGIN_KEY_TABLE() and END_KEY_TABLE.
+	In that case, you may leave them empty.
+
+	Some types may be unsupported. THe list of supported type is defined in file 'keyvalue.h'.
 	*/
 	class Entity {
 		friend class Serialization;
@@ -53,7 +55,6 @@ namespace gigno {
 		Entity();
 		~Entity();
 
-		virtual void Start() { /*AddSerializedProperties();*/ };
 		// Called Every Tick by the Entity Server
 		virtual void Think(float dt);
 		// Called Every physic Tick (fixed time interval)
