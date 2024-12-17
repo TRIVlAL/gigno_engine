@@ -86,7 +86,7 @@ namespace gigno {
 		virtual size_t KeyValueCount() const;
 		virtual Value_t GetKeyValue_t(const char *key);
 		// Converts the valueAsString and sets the keyvalue at key to is.
-		virtual void SetKeyValue(const char *key, const char *valueAsString);
+		virtual void SetKeyValue(const char *key, const char **args, int argC);
 		// Returns the keyvalue converted to this type. If it doesnt convert, return a default T object.
 		template<typename T>
 		T GetKeyValue(const char *key) {
@@ -110,6 +110,7 @@ namespace gigno {
 	BEGIN_KEY_TABLE(Entity)
 		DEFINE_KEY_VALUE(vec3, Position)
 		DEFINE_KEY_VALUE(vec3, Rotation)
+		DEFINE_KEY_VALUE(cstr, Name)
 	END_KEY_TABLE
 
 	template<typename TEntity>
@@ -134,7 +135,7 @@ public:                                                                         
 	virtual std::vector<std::pair<const char *, Value_t>> KeyValues() override; \
 	virtual size_t KeyValueCount() const override;                              \
 	virtual Value_t GetKeyValue_t(const char *key) override;              \
-	virtual void SetKeyValue(const char *key, const char *valueAsString) override;\
+	virtual void SetKeyValue(const char *key, const char **args, int argsC) override;\
 	virtual const char *GetTypeName() const override;
 
 #define ENTITY_DEFINITIONS(this_class, base_class)                                                     \
@@ -165,10 +166,10 @@ public:                                                                         
 			return base_class::GetKeyValue_t(key);                                                     \
 		}                                                                                              \
 	}                                                                                                  \
-	void this_class::SetKeyValue(const char *key, const char *valueAsString)                           \
+	void this_class::SetKeyValue(const char *key, const char **args, int argC)                           \
 	{                                                                                                  \
-		if(!SetKeyvalueFromString<this_class>(this, key, valueAsString)) {							   \
-			base_class::SetKeyValue(key, valueAsString);									   		   \
+		if(!SetKeyvalueFromString<this_class>(this, key, args, argC)) {							   \
+			base_class::SetKeyValue(key, args, argC);									   		   \
 		}																							   \
 	}                                                                                                  \
 	size_t this_class::KeyValueCount() const                                                           \

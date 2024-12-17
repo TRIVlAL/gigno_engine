@@ -93,8 +93,8 @@ namespace  gigno {
 		}
     }
 
-    void Entity::SetKeyValue(const char *key, const char *valueAsString) {
-		if(!SetKeyvalueFromString<Entity>(this, key, valueAsString)) {
+    void Entity::SetKeyValue(const char *key, const char **args, int argC) {
+		if(!SetKeyvalueFromString<Entity>(this, key, args, argC)) {
 			Console::LogWarning("SetKeyValue : Entity has no key '%s'", key);
 		}
     }

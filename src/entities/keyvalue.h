@@ -126,7 +126,7 @@ namespace gigno {
 #define Type(t)                                                        \
     case type_##t:                                                     \
     {                                                                  \
-        std::pair<int, t> from_string_res = FromString<t>(&string, 1); \
+        std::pair<int, t> from_string_res = FromString<t>(args, argC); \
         if (from_string_res.first == FROM_STRING_SUCCESS)              \
         {                                                              \
             t val = from_string_res.second;                            \
@@ -136,7 +136,7 @@ namespace gigno {
     }
 
     template<typename TOwner>
-    inline bool SetKeyvalueFromString(TOwner *owner, const char *key, const char *string) {
+    inline bool SetKeyvalueFromString(TOwner *owner, const char *key, const char **args, int argC) {
         auto owned_iterator = KeyTableAccessor<TOwner>::KeyValues.find(key);
         if (owned_iterator == KeyTableAccessor<TOwner>::KeyValues.end()) {
             return false;

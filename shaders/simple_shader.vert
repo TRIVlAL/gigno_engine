@@ -13,7 +13,7 @@ layout(push_constant) uniform Push {
 	int fullbright;
 } push;
 
-const int MAX_LIGHT_DATA_COUNT = 10; //MAX_LIGHT_DATA_COUNT hard-coded for now to reflect the one in swapchain.h
+const int MAX_LIGHT_DATA_COUNT = 15; //MAX_LIGHT_DATA_COUNT hard-coded for now to reflect the one in swapchain.h
 
 layout(binding=0) uniform UniformBufferObject {
 	mat4 view;
