@@ -5,15 +5,15 @@
 #include "../debug/profiler/profiler.h"
 #include <fstream>
 
+#include "../physics/rigid_body.h"
+
 namespace gigno {
 
 	void EntityServer::Tick(float dt) {
 		Profiler::Begin("Entity Update");
 
-		Entity *curr = m_pFirstEntity;
-		while(curr) {
-			curr->Think(dt);
-			curr = curr->pNextEntity;
+		for(Entity *ent : m_Scene) {
+			ent->Think(dt);
 		}
 
 		Console::Singleton()->UpdateCommands(dt);
@@ -22,15 +22,11 @@ namespace gigno {
 	}
 
 	void EntityServer::PhysicTick(float dt) {
-		Entity *curr = m_pFirstEntity;
-		while(curr) {
-			curr->PhysicThink(dt);
-			curr = curr->pNextEntity;
+		for(Entity *ent : m_Scene) {
+			ent->PhysicThink(dt);
 		}
-		curr = m_pFirstEntity;
-		while(curr) {
-			curr->LatePhysicThink(dt);
-			curr = curr->pNextEntity;
+		for(Entity *ent : m_Scene) {
+			ent->LatePhysicThink(dt);
 		}
 	}
 
@@ -56,10 +52,14 @@ namespace gigno {
 		ERR_MSG("Tried to remove entity '%s' but it was never added.", (*entity->Name == '\0' ? "No name" : entity->Name));
 	}
 
-    void EntityServer::LoadFromFile(std::ifstream &source) {
-		//TODO : Make this functino safer and call out/handle errors.
+    void EntityServer::UnloadMap() {
+		m_Scene.clear();
+    }
 
-		char curr;
+    bool EntityServer::LoadFromFile(std::ifstream &source)
+    {
+
+        char curr;
 
 		const size_t MAX_WORD_SIZE = 255;
 		const size_t MAX_VALUE_ARGC = 5;
@@ -110,6 +110,9 @@ namespace gigno {
 					if(finish_word) {
 						entity_name_buffer[entity_name_index++] = '\0';
 						curr_ent = m_Scene.emplace_back(Entity::CreateEntity(entity_name_buffer));
+						if(!curr_ent) {
+							Console::LogWarning("Parsing : Entity type '%s' does not exist !", entity_name_buffer);
+						}
 						entity_name_index = 0;
 						curr_key = AWAIT_OPEN_BRACE;
 					}
@@ -119,7 +122,7 @@ namespace gigno {
 					curr_key = AWAIT_KEY;
 				}
 				if(curr == '"') {
-					// Expected Opening brace.
+					Console::LogInfo("Parsing : Expected open brace '{' (Entity declaration %s)", entity_name_buffer);
 				}
 			} else if(curr_key == AWAIT_KEY) {
 				if(in_word && curr != '"') {
@@ -137,10 +140,14 @@ namespace gigno {
 			} else if(curr_key == AWAIT_COLON) {
 				if(curr == ':') {
 					curr_key = READING_VALUE;
-				} else if(curr != '\n' && curr != ' ') {
-					//Expected ':'
+				} else if(curr != '\n' && curr != ' ' && curr != '\t' != curr != '\v' && curr != '\r') {
+					Console::LogInfo("Parsing : Expected colon ':' but got character '%c' (entity declaration '%s')", curr, entity_name_buffer);
+					return false;
 				}
 			} else if(curr_key == READING_VALUE) {
+				if(curr == 'j') {
+					int v = 0;
+				}
 				if(curr == ',' || curr == '}') {
 					curr_key = curr == ',' ? AWAIT_KEY : AWAIT_ENTITY;
 					curr_ent->SetKeyValue(key_buffer, (const char **)value_buffers, value_word_index);
@@ -161,10 +168,21 @@ namespace gigno {
 			begin_word = finish_word = false;
 		}
 
+		if(curr_key != AWAIT_ENTITY) {
+			Console::LogInfo("Parsing : Entity declaration '%s' not finished!", entity_name_buffer);
+			return false;
+		}
+
 		for(int i = 0; i < MAX_VALUE_ARGC; i++) {
 			delete[] value_buffers[i];
 		}
 		delete[] value_buffers;
+
+		for(Entity *ent : m_Scene) {
+			ent->Init();
+		}
+
+		return true;
     }
 
 #if USE_IMGUI
@@ -179,9 +197,8 @@ namespace gigno {
 			open_action = 1;
 		}
 
-		Entity *curr = m_pFirstEntity;
 		int i = 0;
-		while(curr) {
+		for(Entity *curr : m_Scene) {
 			if (open_action >= 0) {
 				ImGui::SetNextItemOpen(open_action);
 			}
@@ -207,7 +224,6 @@ namespace gigno {
 					ImGui::Text("* nothing to serialize *");
 				}
 			}
-			curr = curr->pNextEntity;
 			i++;
 		}
 	}

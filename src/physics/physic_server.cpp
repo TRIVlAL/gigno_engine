@@ -4,6 +4,7 @@
 
 #include "../error_macros.h"
 #include "../application.h"
+#include "rigid_body.h"
 
 #include <thread>
 #include <chrono>
@@ -26,6 +27,25 @@ namespace gigno {
         m_LoopThread.join();
     }
 
+    void PhysicServer::SubscribeRigidBody(RigidBody *rb) {
+        rb->pNextRigidBody = RigidBodies;
+        RigidBodies = rb;
+    }
+
+    void PhysicServer::UnsubscribeRigidBody(RigidBody *rb) {
+        RigidBody *curr = RigidBodies;
+        if(curr == rb) {
+            RigidBodies = rb->pNextRigidBody;
+        }
+        while(curr) {
+            if(curr->pNextRigidBody == rb) {
+                curr->pNextEntity = rb->pNextRigidBody;
+                return;
+            }
+            curr = curr->pNextRigidBody;
+        }
+    }
+
     void PhysicServer::Loop() {
 
         std::chrono::time_point<std::chrono::high_resolution_clock> frame_start{};
@@ -42,7 +62,12 @@ namespace gigno {
             entity_serv->PhysicTick(frame_time.count() / 1e9);
 
             DetectCollisions();
-            ApplyDrag();
+
+            RigidBody *curr = RigidBodies;
+            while(curr) {
+                ApplyDrag(*curr);
+                curr = curr->pNextRigidBody;
+            }
 
             Profiler::End();
 
@@ -67,47 +92,17 @@ namespace gigno {
     {
         std::lock_guard<std::mutex>{m_WorldMutex};
 
-        for(Collider &col : m_World) {
-            col.PollRigidBodyValues();
-        }
-
-        for(int i = 0; i < m_World.size(); i++) {
-            for(int j = i+1; j < m_World.size(); j++) {
-                if(i != j) {
-                    ResolveCollision(m_World[i], m_World[j]);
+        RigidBody *rb1 = RigidBodies;
+        while(rb1) {
+            RigidBody *rb2 = rb1->pNextRigidBody;
+            while(rb2) {
+                if(rb1 != rb2) {
+                    ResolveCollision(*rb1, *rb2);
                 }
+                rb2 = rb2->pNextRigidBody;
             }
-        }
-
-        for (Collider &col : m_World) {
-            col.ApplyImpulse();
+            rb1 = rb1->pNextRigidBody;
         }
     }
 
-    void PhysicServer::ApplyDrag() {
-        for(Collider& col : m_World) {
-            col.ApplyDrag();
-        }
-    }
-
-    void PhysicServer::AddCollider(RigidBody *body, ColliderType_t type, Collider::ColliderParameter parameters) {
-        std::lock_guard<std::mutex>{m_WorldMutex};
-
-        Collider &coll = m_World.emplace_back();
-        coll.type = type;
-        coll.parameters = parameters;
-        coll.BoundRigidBody = body;
-    }
-
-    void PhysicServer::RemoveCollider(RigidBody *body) {
-        std::lock_guard<std::mutex>{m_WorldMutex};
-
-        for(int i = 0; i < m_World.size(); i++) {
-            if(m_World[i].BoundRigidBody == body) {
-                m_World.erase(m_World.begin() + i);
-                return;
-            }
-        }
-        ERR_MSG("Tried to remove collider of a body that never had a collider !");
-    }
 }

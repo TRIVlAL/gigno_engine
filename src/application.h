@@ -37,6 +37,11 @@ namespace gigno {
 		bool m_ShowMainUIWindow = true;
 		void DrawMainUIWindow();
 
+		const char *m_CurrentMapFilepath;
+		const char *m_NextMapFilepath;
+		void LoadMap(const char * filepath);
+		bool m_ShouldLoadMap = true;
+
         const float MAX_FRAME_TIME = 1000.0f;
 
 		DebugServer m_DebugServer;

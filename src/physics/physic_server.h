@@ -4,13 +4,14 @@
 #include <thread>
 #include <mutex>
 #include <vector>
-#include "collider.h"
+#include "collision.h"
 
 namespace gigno {
+    const size_t MAX_RIGIDBODY_COUNT = 50;
 
     class PhysicServer {
-    friend class RigidBody;
     public:
+
         /*
         On creation, the PhysicServer wil start his physic loop (Start()) with a fixed rate per second of convar_phys_loop_rate
         This loop is ran on a separate thread. 
@@ -19,6 +20,8 @@ namespace gigno {
         PhysicServer();
         ~PhysicServer();
 
+        void SubscribeRigidBody(RigidBody *rb);
+        void UnsubscribeRigidBody(RigidBody *rb);
         
     private:
         std::mutex m_WorldMutex{};
@@ -26,16 +29,12 @@ namespace gigno {
         std::thread m_LoopThread;
         volatile bool m_LoopContinue = true;
 
+        RigidBody *RigidBodies{};
+
         void Loop();
 
         void ApplyGlobalForces();
         void DetectCollisions();
-        void ApplyDrag();
-
-        void AddCollider(RigidBody *body, ColliderType_t type, Collider::ColliderParameter parameters);
-        void RemoveCollider(RigidBody *body);
-
-        std::vector<Collider> m_World{};
     };
 
 }

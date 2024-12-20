@@ -20,6 +20,7 @@ namespace gigno {
 
     BEGIN_KEY_TABLE(DirectionalLight)
         DEFINE_KEY_VALUE(float, Intensity)
+        DEFINE_KEY_VALUE(vec3, Direction)
     END_KEY_TABLE
 
 

@@ -242,7 +242,10 @@ namespace gigno {
 
     template<> inline
     std::pair<int, cstr> FromString<cstr>(const char **arguments, size_t argsCount) {
-        return std::pair<int, cstr>{FROM_STRING_SUCCESS, arguments[0]};
+        size_t len = strlen(arguments[0]);
+        char *ret = new char[len];
+        strcpy(ret, arguments[0]);
+        return std::pair<int, cstr>{FROM_STRING_SUCCESS, ret};
     }
 
 //TYPE STRING -------------------------------------------------------------------------

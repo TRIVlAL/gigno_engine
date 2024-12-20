@@ -24,8 +24,18 @@ namespace gigno {
 		
 	}
 
-	void Camera::SetOrthographicProjection(float left, float right, float top, float bottom, float near, float far) {
-		m_ProjMode = PROJECTION_MODE_ORTHOGRAPHIC;
+    void Camera::Init() {
+		const float aspect = GetApp()->GetRenderer()->GetAspectRatio();
+		
+		if(ProjMode == PROJECTION_MODE_PERSPECTIVE) {
+			SetPerspectiveProjection(glm::radians<float>(FovY), aspect, Near, Far);
+		} else if(ProjMode == PROJECTION_MODE_ORTHOGRAPHIC) {
+			SetOrthographicProjection(Left, Right, Top, Bottom, Near, Far);
+		}
+    }
+
+    void Camera::SetOrthographicProjection(float left, float right, float top, float bottom, float near, float far) {
+		ProjMode = PROJECTION_MODE_ORTHOGRAPHIC;
 
 		m_ProjectionMatrix = glm::mat4{ 1.0f };
 		m_ProjectionMatrix[0][0] = 2.f / (right - left);
@@ -37,8 +47,8 @@ namespace gigno {
 	}
 
 	void Camera::SetPerspectiveProjection(float fovy, float aspect, float near, float far) {
-		m_ProjMode = PROJECTION_MODE_PERSPECTIVE;
-		m_CurrentFovy = fovy;
+		ProjMode = PROJECTION_MODE_PERSPECTIVE;
+		CurrentFovy = fovy;
 
 		const float tan_half_fovy = tan(fovy / 2.f);
 		m_ProjectionMatrix = glm::mat4{ 1.0f };
@@ -50,18 +60,18 @@ namespace gigno {
 	}
 
 	void Camera::SetLookAtPoint(glm::vec3 point) {
-		m_LookMode = LOOK_MODE_POINT;
-		m_LookPoint = point;
+		LookMode = LOOK_MODE_POINT;
+		LookPoint = point;
 	}
 
 	void Camera::SetLookInTransformForward() {
-		m_LookMode = LOOK_MODE_TRANSFORM_FORWARD;
+		LookMode = LOOK_MODE_TRANSFORM_FORWARD;
 	}
 
 	glm::mat4 Camera::GetViewMatrix() const {
 		
-		if (m_LookMode == LOOK_MODE_POINT) {
-			const glm::vec3 direction = m_LookPoint - Position;
+		if (LookMode == LOOK_MODE_POINT) {
+			const glm::vec3 direction = LookPoint - Position;
 			const glm::vec3 up = { 0.0f, 1.0f, 0.0f };
 			const glm::vec3 w{ glm::normalize(direction) };
 			const glm::vec3 u{ glm::normalize(glm::cross(w, up)) };
@@ -81,7 +91,7 @@ namespace gigno {
 			matrix[3][1] = -glm::dot(v, Position);
 			matrix[3][2] = -glm::dot(w, Position);
 			return matrix;
-		} else if (m_LookMode == LOOK_MODE_TRANSFORM_FORWARD || true) {
+		} else if (LookMode == LOOK_MODE_TRANSFORM_FORWARD || true) {
 			const float c3 = glm::cos(Rotation.z);
 			const float s3 = glm::sin(Rotation.z);
 			const float c2 = glm::cos(Rotation.x);
@@ -113,15 +123,15 @@ namespace gigno {
 
 		// Partial rebuild of the Projection matrix to account for the change of aspect ratio
 
-		if (m_ProjMode == PROJECTION_MODE_ORTHOGRAPHIC) {
+		if (ProjMode == PROJECTION_MODE_ORTHOGRAPHIC) {
 			Application *app = GetApp();
 			const float aspect = app->GetRenderer()->GetAspectRatio();
 			m_ProjectionMatrix[0][0] = 2.f / (2 * aspect);
 			m_ProjectionMatrix[3][0] = 0;
 		}
-		else if (m_ProjMode == PROJECTION_MODE_PERSPECTIVE && m_CurrentFovy != 0) {
+		else if (ProjMode == PROJECTION_MODE_PERSPECTIVE && CurrentFovy != 0) {
 			const float aspect = GetApp()->GetRenderer()->GetAspectRatio();
-			const float tanHalfFovy = tan( m_CurrentFovy / 2.f);
+			const float tanHalfFovy = tan( CurrentFovy / 2.f);
 			m_ProjectionMatrix[0][0] = 1.f / (aspect * tanHalfFovy);
 			m_ProjectionMatrix[1][1] = 1.f / (tanHalfFovy);
 		}

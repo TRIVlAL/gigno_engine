@@ -10,7 +10,7 @@ namespace gigno {
 	class Entity;
 
 	class EntityServer {
-		friend class Entity;
+		friend class Application;
 	public:
 		EntityServer() {};
 		~EntityServer() {};
@@ -26,7 +26,8 @@ namespace gigno {
 		void AddEntity(Entity *entity);
 		void RemoveEntity(Entity *entity);
 
-		void LoadFromFile(std::ifstream &source);
+		void UnloadMap();
+		bool LoadFromFile(std::ifstream &source);
 
 		std::vector<Entity*> m_Scene{};
 

@@ -13,8 +13,11 @@
 #include "physics/rigid_body.h"
 #include "test_entity.h"
 #include "rendering/gui.h"
+#include "application.h"
 
 namespace gigno {
+
+	CONVAR(const char *, start_map, "maps/demo_01.map", "the first loaded map when the app stats.")
 
 	Application *Application::MakeApp() {
 		Application *app = new Application(1000, 1000, "Gigno Engine Demo", "shaders/simple_shader.vert.spv", "shaders/simple_shader.frag.spv");
@@ -31,11 +34,13 @@ namespace gigno {
 		m_InputServer{},
 		m_RenderingServer{ winw, winh, title, &m_InputServer, vertShaderPath, fragShaderPath },
 		m_EntityServer{},
-		m_PhysicServer{} {
+		m_PhysicServer{}, 
+		m_CurrentMapFilepath{(const char *)convar_start_map} {
 			if(s_Instance) {
 				ERR_MSG("Multiple applications created !");
 			}
 			s_Instance = this;
+			m_NextMapFilepath = m_CurrentMapFilepath;
 		}
 
 	Application::~Application() {
@@ -53,6 +58,7 @@ namespace gigno {
 
 		ASSERT_MSG_V(glfwInit(), 1, "GLFW Failed to init");
 
+		/*
 		DomeCamera camera(17.0f);
 		camera.SetPerspectiveProjection(glm::radians(50.0f), m_RenderingServer.GetAspectRatio(), -0.05f, 1.0f);
 		camera.Position = { 0.0f, 0.0f, -17.0f };
@@ -87,6 +93,7 @@ namespace gigno {
 
 		EnvironmentLight env;
 		env.Intensity = 0.1f;
+		*/
 
 		/*
 		RigidBody phys_capsule{ModelData_t::FromObjFile("models/capsule.obj")};
@@ -99,6 +106,7 @@ namespace gigno {
 		phys_capsule.Material = MAT_PLASTIC;
 		*/
 
+		/*
 		RigidBody phys_sphere{};
 		phys_sphere.ModelPath = "models/colored_uv_sphere.obj";
 		phys_sphere.Position = glm::vec3{0.3f, 2.5f, 4.0f};
@@ -175,6 +183,7 @@ namespace gigno {
 		spinner.Position = glm::vec3{0.0f, 4.0f, 0.0f};
 		spinner.ModelPath = "models/colored_cube.obj";
 		spinner.Speed = 2.0f;
+		*/
 
 		auto last_update_time = std::chrono::steady_clock::now();
 
@@ -182,6 +191,24 @@ namespace gigno {
 		
 		while (!m_RenderingServer.WindowShouldClose() && !Close) {
 			Profiler::Begin("Main Loop");
+
+			if(m_ShouldLoadMap) {
+				Console::LogInfo("Loading map file '%s'", m_NextMapFilepath);
+				std::ifstream map_stream{m_NextMapFilepath};
+				if(!map_stream) {
+					Console::LogWarning("Failed to open map file !");
+				} else {
+					m_EntityServer.UnloadMap();
+					if (!m_EntityServer.LoadFromFile(map_stream)) {
+						Console::LogWarning("Error when parsing map file !");
+						//Fallback to the last map.
+						std::ifstream old_filestream{m_CurrentMapFilepath};
+						m_EntityServer.UnloadMap();
+						m_EntityServer.LoadFromFile(old_filestream);
+					}
+				}
+				m_ShouldLoadMap = false;
+			}
 
 			m_RenderingServer.PollEvents();
 			m_InputServer.UpdateInput();
@@ -240,4 +267,9 @@ namespace gigno {
 		ImGui::End();
 	#endif
 	}
+}
+
+void gigno::Application::LoadMap(const char *filepath) {
+	m_ShouldLoadMap = true;
+	m_NextMapFilepath = filepath;
 }

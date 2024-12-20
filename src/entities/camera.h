@@ -12,15 +12,14 @@
 namespace gigno {
 
 	enum ProjectionMode_t {
-		PROJECTION_MODE_NONE,
-		PROJECTION_MODE_PERSPECTIVE,
-		PROJECTION_MODE_ORTHOGRAPHIC,
+		PROJECTION_MODE_PERSPECTIVE = 0,
+		PROJECTION_MODE_ORTHOGRAPHIC = 1,
 		PROJECTION_MODE_MAX_ENUM
 	};
 
 	enum LookMode_t {
-		LOOK_MODE_TRANSFORM_FORWARD,
-		LOOK_MODE_POINT
+		LOOK_MODE_TRANSFORM_FORWARD = 0,
+		LOOK_MODE_POINT = 1
 	};
 
 	class Camera : public Entity {
@@ -30,6 +29,8 @@ namespace gigno {
 		Camera(float left, float right, float top, float bottom, float near, float far);
 		Camera(float fovy, float aspect, float near, float far);
 		~Camera();
+
+		virtual void Init() override;
 
 		void SetOrthographicProjection(float left, float right, float top, float bottom, float near, float far );
 		void SetPerspectiveProjection(float fovy, float aspect, float near, float far);
@@ -44,17 +45,37 @@ namespace gigno {
 
 		virtual void Think(float dt) override;
 
+		// Perspective Projection :
+		float FovY = 50.0f;
+		float Near = -0.05f;
+		float Far = 1.0f;
+
+		// Orthographic Porjection :
+		float Left;
+		float Right;
+		float Top;
+		float Bottom;
+
+		int ProjMode = (int)PROJECTION_MODE_PERSPECTIVE;
+		float CurrentFovy = 0.0f;
+		int LookMode = (int)LOOK_MODE_TRANSFORM_FORWARD;
+		glm::vec3 LookPoint = {};
 	private:
-		ProjectionMode_t m_ProjMode = PROJECTION_MODE_NONE;
-		float m_CurrentFovy = 0.0f;
-
-		LookMode_t m_LookMode = LOOK_MODE_TRANSFORM_FORWARD;
-		glm::vec3 m_LookPoint = {};
-
 		glm::mat4 m_ProjectionMatrix = { 1.0f };
 	};
 
 	BEGIN_KEY_TABLE(Camera)
+		DEFINE_KEY_VALUE(int, ProjMode)
+		DEFINE_KEY_VALUE(float, CurrentFovy)
+		DEFINE_KEY_VALUE(int, LookMode)
+		DEFINE_KEY_VALUE(vec3, LookPoint)
+		DEFINE_KEY_VALUE(float, FovY)
+		DEFINE_KEY_VALUE(float, Near)
+		DEFINE_KEY_VALUE(float, Far)
+		DEFINE_KEY_VALUE(float, Left)
+		DEFINE_KEY_VALUE(float, Right)
+		DEFINE_KEY_VALUE(float, Top)
+		DEFINE_KEY_VALUE(float, Bottom)
 	END_KEY_TABLE
 
 }

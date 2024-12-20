@@ -23,6 +23,13 @@ foreach(OBJ ${OBJ_FILES})
     configure_file(${OBJ} ${CMAKE_CURRENT_BINARY_DIR}/models/${OBJ_NAME} COPYONLY)
 endforeach(OBJ ${OBJ_FILES})
 
+#Copy maps
+file(GLOB_RECURSE MAP_FILES "${PROJECT_SOURCE_DIR}/maps/*.map")
+foreach(MAP ${MAP_FILES})
+    cmake_path(GET MAP FILENAME MAP_NAME)
+    configure_file(${MAP} ${CMAKE_CURRENT_BINARY_DIR}/maps/${MAP_NAME} COPYONLY)
+endforeach(MAP ${MAP_FILES})
+
 
 set (EXCLUDE_DIR "/vendor/glm/")
 file (GLOB_RECURSE SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")

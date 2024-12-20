@@ -51,18 +51,17 @@ namespace gigno {
 		friend class AddBuildEntityMethod;
 	public:
 		Entity(const Entity &) = delete;
-		Entity &operator=(const Entity &) = delete;
-		Entity(Entity &&) = default;
-		Entity &operator=(Entity &&) = default;
+		Entity & operator=(const Entity &) = delete;
+		
 
 		Entity();
 		~Entity();
 
+		virtual void Init() {};
 		// Called Every Tick by the Entity Server
 		virtual void Think(float dt);
 		// Called Every physic Tick (fixed time interval)
 		virtual void PhysicThink(float dt) {};
-		// Called Every physic Tick after PhysicThink.
 		virtual void LatePhysicThink(float dt) {};
 
 		const char *Name = "";
@@ -110,6 +109,7 @@ namespace gigno {
 	BEGIN_KEY_TABLE(Entity)
 		DEFINE_KEY_VALUE(vec3, Position)
 		DEFINE_KEY_VALUE(vec3, Rotation)
+		DEFINE_KEY_VALUE(vec3, Scale)
 		DEFINE_KEY_VALUE(cstr, Name)
 	END_KEY_TABLE
 

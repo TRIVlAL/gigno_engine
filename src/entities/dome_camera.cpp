@@ -24,8 +24,13 @@ namespace gigno {
 	{
 	}
 
-	void DomeCamera::SetTarget(glm::vec3 target) {
-		m_Target = target;
+    void DomeCamera::Init() {
+		Camera::Init();
+		SetTarget(Target);
+    }
+
+    void DomeCamera::SetTarget(glm::vec3 target) {
+		Target = target;
 		Position.y = target.y;
 		glm::vec3 to = target - Position;
 		m_DistanceToTarget = glm::sqrt(to.x * to.x + to.y * to.y + to.z * to.z);
@@ -45,21 +50,21 @@ namespace gigno {
 		if (input->GetKey(KEY_W)) up_move++;
 		if (input->GetKey(KEY_S)) up_move--;
 
-		glm::vec3 parralel = glm::vec3{ m_Target.z-Position.z, 0, -(m_Target.x-Position.x) } / m_DistanceToTarget;
+		glm::vec3 parralel = glm::vec3{ Target.z-Position.z, 0, -(Target.x-Position.x) } / m_DistanceToTarget;
 
 		if (glm::sqrt(parralel.x * parralel.x + parralel.z * parralel.z) < 0.15f) {
-			up_move -= glm::sign(Position.y - m_Target.y);
+			up_move -= glm::sign(Position.y - Target.y);
 		}
 
 		Position += parralel * right_move * Speed * dt;
 
-		if(MaxLower >= 0.0f && Position.y + up_move * Speed * dt > m_Target.y - MaxLower) {
+		if(MaxLower >= 0.0f && Position.y + up_move * Speed * dt > Target.y - MaxLower) {
 			Position.y += up_move * Speed * dt;
 		}
 
 
-		glm::vec3 targetToMe = Position - m_Target;
-		Position = m_Target + ( glm::normalize(targetToMe) * m_DistanceToTarget);
+		glm::vec3 targetToMe = Position - Target;
+		Position = Target + ( glm::normalize(targetToMe) * m_DistanceToTarget);
 	}
 
 }

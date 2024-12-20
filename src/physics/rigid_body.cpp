@@ -10,39 +10,15 @@ namespace gigno {
 
     RigidBody::RigidBody()
     : RenderedEntity() {
+        if(GetApp() && GetApp()->GetPhysicServer()) {
+            GetApp()->GetPhysicServer()->SubscribeRigidBody(this);
+        }
     }
 
     RigidBody::~RigidBody() {
-
-    }
-
-    void RigidBody::GiveSphereCollider(float radius) {
-        if(hasCollider) {
-            GetApp()->GetPhysicServer()->RemoveCollider(this);
+        if(GetApp() && GetApp()->GetPhysicServer()) {
+            GetApp()->GetPhysicServer()->UnsubscribeRigidBody(this);
         }
-        Collider::ColliderParameter param;
-        param.Radius = radius;
-        GetApp()->GetPhysicServer()->AddCollider(this, COLLIDER_SPHERE, param);
-        hasCollider = true;
-    }
-
-    void RigidBody::GivePlaneCollider(glm::vec3 normal) {
-        if(hasCollider) {
-            GetApp()->GetPhysicServer()->RemoveCollider(this);
-        }
-        Collider::ColliderParameter param;
-        param.Normal = normal;
-        GetApp()->GetPhysicServer()->AddCollider(this, COLLIDER_PLANE, param);
-    }
-
-    void RigidBody::GiveCapsuleCollider(float radius, float length) {
-        if(hasCollider) {
-            GetApp()->GetPhysicServer()->RemoveCollider(this);
-        }
-        Collider::ColliderParameter param;
-        param.Capsule.Radius = radius;
-        param.Capsule.Length = length;
-        GetApp()->GetPhysicServer()->AddCollider(this, COLLIDER_CAPSULE, param);
     }
 
     void RigidBody::AddForce(const glm::vec3 &force, const glm::vec3 &application) {
@@ -65,6 +41,10 @@ namespace gigno {
         m_RotationVelocity += rotation;
     }
 
+    void RigidBody::Init() {
+        m_Velocity += StartVelocity;
+    }
+
     void RigidBody::LatePhysicThink(float dt) {
         if(IsStatic) {
             return;
@@ -77,6 +57,9 @@ namespace gigno {
         avrg_vel += m_Velocity;
         avrg_vel *= 0.5f;
         Position += dt * avrg_vel;
+        
+        Position += PositionOffset;
+        PositionOffset = glm::vec3{0.0f};
 
         glm::vec3 avrg_rot_vel = m_RotationVelocity;
         m_RotationVelocity += dt * m_Torque / Mass;

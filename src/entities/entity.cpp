@@ -100,7 +100,12 @@ namespace  gigno {
     }
 
     Entity *Entity::CreateEntity(const char *entityType) {
-        return s_BuildEntityMap[entityType]();
+		auto build_function = s_BuildEntityMap.find(entityType);
+		if(build_function == s_BuildEntityMap.end()) {
+			return nullptr;
+		} else {
+        	return (build_function->second)();
+		}
     }
 
     Application *Entity::GetApp() const
@@ -109,15 +114,9 @@ namespace  gigno {
     }
 
     Entity::Entity() {
-		if(GetApp() && GetApp()->GetEntityServer()) {
-			GetApp()->GetEntityServer()->AddEntity(this);
-		}
 	}
 
 	Entity::~Entity() {
-		if(GetApp() && GetApp()->GetEntityServer()) {
-			GetApp()->GetEntityServer()->RemoveEntity(this);
-		}
 	}
 
 	void Entity::Think(float dt) {
