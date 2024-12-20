@@ -1,6 +1,6 @@
 ﻿# Gigno Engine
 
-## Simple real-time 3d renderer / Engine powered by Vulkan.
+## Real-time 3d renderer / Engine powered by Vulkan.
 
 This project is a real-time renderer / Engine using the Vulkan Rendering API and glfw. 
 The rendering architercture inspired by the amazing tutorial series by [vulkan-tutorial](https://vulkan-tutorial.com/Introduction) and [video series](https://www.youtube.com/playlist?list=PL8327DO66nu9qYVKLDmdLW_84-yE4auCR) by Brendan Galea.
@@ -66,12 +66,12 @@ And then, from the BUILD directory, call
 cd BUILD
 cmake ..
 ```
-If everything goes well, all of the CMake files will be generated in the BUILD directory, as well as a /shaders folder containing the required .spv files and a gigno executable.
+If everything goes well, all of the CMake files will be generated in the BUILD directory, as well as a /shaders folder containing the required .spv files, a /models folder with all the models, a /maps folder with all the maps and a gigno executable.
 
 #### Note
-The executable requires two folders to be placed in the same dir as it to work : /models, which contains the .OBJ models used by the program, and /shaders, which contains the .SPV shader files used by the program.
+The executable requires three folders to be placed in the same dir as it to work : /models, which contains the .OBJ models used by the program, /shaders, which contains the .SPV shader files used by the program and /maps which contains the .map files from which the entities are loaded.
 The CMake compile process should copy these folders to the binary directory automatically but, in case it doesn't, you can do it mannualy.
-Said /models and /shaders folders are in the main directory of the project.
+Said /models, /shaders and /maps folders are in the main directory of the project.
 
 #### Note
 Shader must be recompiled using ```compile_shaders.bat``` or the commands every time one is modified. 
