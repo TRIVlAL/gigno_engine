@@ -9,6 +9,7 @@
 #include "../../stringify.h"
 #include "glm/glm.hpp"
 #include "../../algorithm/offset_of.h"
+#include "../physics/collider_type.h"
 
 namespace gigno {
     typedef glm::vec3 vec3;
@@ -26,7 +27,8 @@ namespace gigno {
     Type(float)\
     Type(bool)\
     Type(vec3)\
-    Type(cstr)
+    Type(cstr)\
+    Type(ColliderType_t)
 
 
     #define Type(t) type_##t,

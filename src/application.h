@@ -7,6 +7,7 @@
 #include "debug/debug_server.h"
 #include "rendering/model.h"
 #include "physics/physic_server.h"
+#include <string>
 
 namespace gigno {
 
@@ -28,6 +29,7 @@ namespace gigno {
 
 		bool Close = false; // When true, finish loop then close the app.
 
+		void LoadMap(const char * filepath);
 	private:
 		static inline Application *s_Instance = nullptr;
 
@@ -37,9 +39,8 @@ namespace gigno {
 		bool m_ShowMainUIWindow = true;
 		void DrawMainUIWindow();
 
-		const char *m_CurrentMapFilepath;
-		const char *m_NextMapFilepath;
-		void LoadMap(const char * filepath);
+		std::string m_CurrentMapFilepath;
+		std::string m_NextMapFilepath;
 		bool m_ShouldLoadMap = true;
 
         const float MAX_FRAME_TIME = 1000.0f;

@@ -34,8 +34,8 @@ namespace gigno {
 		m_InputServer{},
 		m_RenderingServer{ winw, winh, title, &m_InputServer, vertShaderPath, fragShaderPath },
 		m_EntityServer{},
-		m_PhysicServer{}, 
-		m_CurrentMapFilepath{(const char *)convar_start_map} {
+		m_PhysicServer{},
+		m_CurrentMapFilepath{convar_start_map} {
 			if(s_Instance) {
 				ERR_MSG("Multiple applications created !");
 			}
@@ -66,7 +66,7 @@ namespace gigno {
 			Profiler::Begin("Main Loop");
 
 			if(m_ShouldLoadMap) {
-				Console::LogInfo("Loading map file '%s'", m_NextMapFilepath);
+				Console::LogInfo("Loading map file '%s'", m_NextMapFilepath.c_str());
 				std::ifstream map_stream{m_NextMapFilepath};
 				if(!map_stream) {
 					Console::LogWarning("Failed to open map file !");
@@ -79,6 +79,7 @@ namespace gigno {
 					}
 				}
 				m_ShouldLoadMap = false;
+				m_CurrentMapFilepath = m_NextMapFilepath;
 			}
 
 			m_RenderingServer.PollEvents();
