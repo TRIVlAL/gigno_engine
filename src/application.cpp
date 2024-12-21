@@ -58,133 +58,6 @@ namespace gigno {
 
 		ASSERT_MSG_V(glfwInit(), 1, "GLFW Failed to init");
 
-		/*
-		DomeCamera camera(17.0f);
-		camera.SetPerspectiveProjection(glm::radians(50.0f), m_RenderingServer.GetAspectRatio(), -0.05f, 1.0f);
-		camera.Position = { 0.0f, 0.0f, -17.0f };
-		camera.Rotation.y = 0;
-		camera.MaxLower = 0.0f;
-		camera.SetTarget( glm::vec3{0.0f} );
-		camera.Name = "My Camera";
-
-
-		DirectionalLight sun;
-		sun.Intensity = 0.4f;
-		sun.Direction = glm::normalize(glm::vec3{0.0f, -1.0f, 0.01f});
-
-		PointLight bulb2;
-		bulb2.Position = glm::vec3{10.0f, 1.0f, 10.0f};
-		bulb2.Intensity = 2.0f;
-
-		PointLight bulb3;
-		bulb3.Position = glm::vec3{-10.0f, 1.0f, 10.0f};
-		bulb3.Intensity = 2.0f;
-
-		PointLight bulb4;
-		bulb4.Position = glm::vec3{10.0f, 1.0f, -10.0f};
-		bulb4.Intensity = 2.0f;
-
-		PointLight bulb5;
-		bulb5.Position = glm::vec3{-10.0f, 1.0f, -10.0f};
-		bulb5.Intensity = 2.0f;
-
-		PointLight *p = &bulb5;
-		Entity *p2 = dynamic_cast<Entity *>(p);
-
-		EnvironmentLight env;
-		env.Intensity = 0.1f;
-		*/
-
-		/*
-		RigidBody phys_capsule{ModelData_t::FromObjFile("models/capsule.obj")};
-		phys_capsule.Position = glm::vec3{-1.0f, 6.5f, 3.0f};
-		phys_capsule.Rotation = glm::vec3{0.0f, 0.0f, 0.0f};
-		phys_capsule.Scale = glm::vec3{0.5, 0.5f, 0.5f};
-		phys_capsule.GiveCapsuleCollider(0.5f, 1.5f);
-		phys_capsule.AddImpulse(glm::vec3{0.0f, -10.4f, -6.25f});
-		phys_capsule.Mass = 20.0f;
-		phys_capsule.Material = MAT_PLASTIC;
-		*/
-
-		/*
-		RigidBody phys_sphere{};
-		phys_sphere.ModelPath = "models/colored_uv_sphere.obj";
-		phys_sphere.Position = glm::vec3{0.3f, 2.5f, 4.0f};
-		phys_sphere.Scale = glm::vec3{0.5, 0.5f, 0.5f};
-		phys_sphere.GiveSphereCollider(0.5f);
-		phys_sphere.AddImpulse(glm::vec3{0.0f, -10.4f, -6.25f});
-		phys_sphere.Mass = 50.0f;
-		phys_sphere.Material = MAT_STEEL;
-
-		RigidBody phys_sphere2{};
-		phys_sphere2.ModelPath = "models/uv_sphere.obj";
-		phys_sphere2.Position = glm::vec3{-0.5f, -0.5f, -1.0f};
-		phys_sphere2.Scale = glm::vec3{0.5, 0.5f, 0.5f};
-		phys_sphere2.GiveSphereCollider(0.5f);
-		phys_sphere2.AddImpulse(glm::vec3{0.0f, 3.0f, 6.0f});
-		phys_sphere2.Mass = 10.0f;
-		phys_sphere2.Material = MAT_PLASTIC;
-
-		RigidBody phys_sphere3{};
-		phys_sphere3.ModelPath = "models/uv_sphere.obj";
-		phys_sphere3.Position = glm::vec3{-3.0f, 2.5f, 0.0f};
-		phys_sphere3.Scale = glm::vec3{0.5, 0.5f, 0.5f};
-		phys_sphere3.GiveSphereCollider(0.5f);
-		phys_sphere3.AddImpulse(glm::vec3{6.0f, -6.0f, 1.0f});
-		phys_sphere3.Mass = 10.0f;
-		phys_sphere3.Material = MAT_PLASTIC;
-		
-
-		RigidBody phys_plane{};
-		phys_plane.ModelPath = "models/plane_subdivided.obj";
-		phys_plane.Position = glm::vec3{0.0f, -1.0f, 0.0f};
-		phys_plane.Scale = glm::vec3{2.0f};
-		phys_plane.GivePlaneCollider(glm::vec3{0.0f, 1.0f, 0.0f});
-		phys_plane.IsStatic = true;
-		phys_plane.Material = MAT_CONCRETE;
-
-		RigidBody phys_plane2{};
-		phys_plane2.ModelPath = "models/plane_subdivided.obj";
-		phys_plane2.Position = glm::vec3{0.0f, 19.0f, -20.0f};
-		phys_plane2.Rotation = glm::vec3{glm::pi<float>() / 2.0f, 0.0f, 0.0f};
-		phys_plane2.Scale = glm::vec3{2.0f};
-		phys_plane2.GivePlaneCollider(glm::vec3{0.0f, 0.0f, 1.0f});
-		phys_plane2.IsStatic = true;
-		phys_plane2.Material = MAT_CONCRETE;
-
-		RigidBody phys_plane3{};
-		phys_plane3.ModelPath = "models/plane_subdivided.obj";
-		phys_plane3.Position = glm::vec3{0.0f, 19.0f, 20.0f};
-		phys_plane3.Rotation = glm::vec3{-glm::pi<float>() / 2.0f, 0.0f, 0.0f};
-		phys_plane3.Scale = glm::vec3{2.0f};
-		phys_plane3.GivePlaneCollider(glm::vec3{0.0f, 0.0f, -1.0f});
-		phys_plane3.IsStatic = true;
-		phys_plane3.Material = MAT_CONCRETE;
-
-		RigidBody phys_plane4{};
-		phys_plane4.ModelPath = "models/plane_subdivided.obj";
-		phys_plane4.Position = glm::vec3{ -20.0f, 19.0f, 0.0f};
-		phys_plane4.Rotation = glm::vec3{0.0f, 0.0f, glm::pi<float>() / 2.0f};
-		phys_plane4.Scale = glm::vec3{2.0f};
-		phys_plane4.GivePlaneCollider(glm::vec3{1.0f, 0.0f, 0.0f});
-		phys_plane4.IsStatic = true;
-		phys_plane4.Material = MAT_CONCRETE;
-
-		RigidBody phys_plane5{};
-		phys_plane5.ModelPath = "models/plane_subdivided.obj";
-		phys_plane5.Position = glm::vec3{20.0f, 19.0f, 0.0f};
-		phys_plane5.Rotation = glm::vec3{0.0f, 0.0f, -glm::pi<float>() / 2.0f};
-		phys_plane5.Scale = glm::vec3{2.0f};
-		phys_plane5.GivePlaneCollider(glm::vec3{-1.0f, 0.0f, 0.0f});
-		phys_plane5.IsStatic = true;
-		phys_plane5.Material = MAT_CONCRETE;
-
-		Spinner spinner{};
-		spinner.Position = glm::vec3{0.0f, 4.0f, 0.0f};
-		spinner.ModelPath = "models/colored_cube.obj";
-		spinner.Speed = 2.0f;
-		*/
-
 		auto last_update_time = std::chrono::steady_clock::now();
 
 		auto start_time = std::chrono::steady_clock::now();
@@ -198,12 +71,10 @@ namespace gigno {
 				if(!map_stream) {
 					Console::LogWarning("Failed to open map file !");
 				} else {
-					m_EntityServer.UnloadMap();
 					if (!m_EntityServer.LoadFromFile(map_stream)) {
 						Console::LogWarning("Error when parsing map file !");
 						//Fallback to the last map.
 						std::ifstream old_filestream{m_CurrentMapFilepath};
-						m_EntityServer.UnloadMap();
 						m_EntityServer.LoadFromFile(old_filestream);
 					}
 				}
@@ -217,6 +88,13 @@ namespace gigno {
 				m_ShowMainUIWindow = true;
 			}
 			DrawMainUIWindow();
+
+			if(m_InputServer.GetKeyDown(KEY_2)) {
+				LoadMap("maps/demo_02.map");
+			}
+			if (m_InputServer.GetKeyDown(KEY_1)) {
+				LoadMap("maps/demo_01.map");
+			}
 
 			auto current_time = std::chrono::steady_clock::now();
 			std::chrono::duration<float> delta_time = current_time - last_update_time;

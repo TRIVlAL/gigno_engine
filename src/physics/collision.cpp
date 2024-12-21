@@ -11,9 +11,11 @@ namespace gigno {
 
     void ApplyDrag(RigidBody &rb) {
         float velocity_len = glm::length(rb.GetVelocity());
-        rb.AddForce(-rb.GetVelocity() * velocity_len * 0.5f * 
-                                (float)convar_phys_air_density * GetDragCoefficient(rb) * 
-                                GetAreaCrossSection(rb, -rb.GetVelocity()/velocity_len));
+        if(velocity_len != 0) {
+            rb.AddForce(-rb.GetVelocity() * velocity_len * 0.5f * 
+                                    (float)convar_phys_air_density * GetDragCoefficient(rb) * 
+                                    GetAreaCrossSection(rb, -rb.GetVelocity()/velocity_len));
+        }
 
         // TODO : Also apply angular drag.
         

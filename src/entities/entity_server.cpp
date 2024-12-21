@@ -7,7 +7,11 @@
 
 #include "../physics/rigid_body.h"
 
+#include <mutex>
+
 namespace gigno {
+
+	std::mutex s_EntityUnloadMutex;
 
 	void EntityServer::Tick(float dt) {
 		Profiler::Begin("Entity Update");
@@ -53,13 +57,17 @@ namespace gigno {
 	}
 
     void EntityServer::UnloadMap() {
+		for(Entity *ent : m_Scene) {
+			delete ent;
+		}
 		m_Scene.clear();
     }
 
-    bool EntityServer::LoadFromFile(std::ifstream &source)
-    {
+    bool EntityServer::LoadFromFile(std::ifstream &source) {
+		std::lock_guard<std::mutex> lock{s_EntityUnloadMutex};
+		UnloadMap();
 
-        char curr;
+		char curr;
 
 		const size_t MAX_WORD_SIZE = 255;
 		const size_t MAX_VALUE_ARGC = 5;

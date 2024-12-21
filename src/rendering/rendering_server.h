@@ -19,7 +19,7 @@ namespace gigno {
 
 	struct SceneRenderingData_t {
 		RenderedEntity * RenderedEntities; // First entity in the chain.
-		const std::vector<const Light *> &LightEntities;
+		Light *LightEntities; // First light in the chain.
 		const Camera *pCamera;
 	};
 
@@ -74,9 +74,11 @@ namespace gigno {
 		// If this is null, there are no rendered entity. If next is null, it is the last rendered entity.
 		RenderedEntity *m_pFirstRenderedEntity{};
 
-		std::vector<const Light *> m_LightEntities;
+		Light *m_pFirstLight{};
 
 		const Camera *m_pCamera = nullptr;
+
+		std::vector<std::shared_ptr<giModel>> m_CreatedModels;
 
 		std::vector<VkSemaphore> m_ImageAvaliableSemaphores;
 		std::vector<VkSemaphore> m_RenderFinishedSemaphores;

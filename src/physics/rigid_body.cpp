@@ -42,6 +42,7 @@ namespace gigno {
     }
 
     void RigidBody::Init() {
+        RenderedEntity::Init();
         m_Velocity += StartVelocity;
     }
 

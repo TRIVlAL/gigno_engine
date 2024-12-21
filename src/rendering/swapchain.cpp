@@ -284,7 +284,7 @@ namespace gigno {
 	}
 	#endif
 
-	void SwapChain::UpdateUniformBuffer(VkCommandBuffer commandBuffer, const Camera *camera, const std::vector<const Light *> &lights, uint32_t currentFrame)
+	void SwapChain::UpdateUniformBuffer(VkCommandBuffer commandBuffer, const Camera *camera, Light *lights, uint32_t currentFrame)
 	{
 		ASSERT(currentFrame < MAX_FRAMES_IN_FLIGHT);
 
@@ -296,14 +296,17 @@ namespace gigno {
 		ub.view = view;
 
 		uint32_t i = 0;
-		for(const Light *light : lights) {
+		Light *light = lights;
+		while(light) {
 			const uint32_t advance = light->DataSlotsCount();
-			if(i + advance > MAX_LIGHT_DATA_COUNT) {
+			if (i + advance > MAX_LIGHT_DATA_COUNT)
+			{
 				Console::LogError("Rendering : Max Light Data exceeded ! Some lights will be ignored !");
 				break;
 			}
 			light->FillDataSlots(&ub.lightDatas[i]);
 			i += advance;
+			light = light->pNextLight;
 		}
 
 		std::memcpy(m_UniformBuffersMapped[currentFrame], &ub, sizeof(ub));

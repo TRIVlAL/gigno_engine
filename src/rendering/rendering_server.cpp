@@ -43,6 +43,11 @@ namespace gigno {
 			vkDestroySemaphore(m_Device.GetDevice(), m_RenderFinishedSemaphores[i], nullptr);
 			vkDestroyFence(m_Device.GetDevice(), m_InFlightFences[i], nullptr);
 		}
+
+		for(auto model : m_CreatedModels) {
+			model->CleanUp(m_Device.GetDevice());
+		}
+		m_CreatedModels.clear();
 	}
 
 	void RenderingServer::PollEvents() {
@@ -72,16 +77,29 @@ namespace gigno {
 
 	void RenderingServer::SubscribeLightEntity(Light *light)
 	{
-		m_LightEntities.push_back(light);
+		light->pNextLight = m_pFirstLight;
+		m_pFirstLight = light;
 	}
 
 	void RenderingServer::UnsubscribeLightEntity(Light *light)
 	{
-		m_LightEntities.erase(std::remove(m_LightEntities.begin(), m_LightEntities.end(), light), m_LightEntities.end());
+		Light *curr = m_pFirstLight;
+		if(light == curr) {
+			m_pFirstLight = curr->pNextLight;
+			return;
+		}
+		while(curr) {
+			if(curr->pNextLight == light) {
+				curr->pNextLight = light->pNextLight;
+				return;
+			}
+			curr = curr->pNextLight;
+		}
 	}
 
 	void RenderingServer::CreateModel(std::shared_ptr<giModel> &model, const ModelData_t &modelData) {
 		model = std::make_shared<giModel>(giModel{ m_Device, modelData, m_SwapChain.GetCommandPool() });
+		m_CreatedModels.push_back(model);
 	}
 
 	//Debug Drawing
@@ -153,7 +171,7 @@ namespace gigno {
 		m_SwapChain.UpdateDebugDrawings(m_Device.GetDevice(), m_Device.GetPhysicalDevice(), m_Device.GetGraphicsQueue());
 		#endif
 
-		SceneRenderingData_t scene_data{m_pFirstRenderedEntity, m_LightEntities, m_pCamera};
+		SceneRenderingData_t scene_data{m_pFirstRenderedEntity, m_pFirstLight, m_pCamera};
 		m_SwapChain.RecordCommandBuffer(m_CurrentFrame, image_index, scene_data);
 
 		VkSemaphore wait_semaphores[] = { m_ImageAvaliableSemaphores[m_CurrentFrame]};

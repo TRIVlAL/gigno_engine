@@ -18,6 +18,7 @@ namespace gigno {
         virtual uint32_t DataSlotsCount() const { return 0; };
         virtual void FillDataSlots(glm::vec4 *data) const {return;};
 
+        Light *pNextLight;
     private:
     };
 

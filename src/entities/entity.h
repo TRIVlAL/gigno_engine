@@ -55,7 +55,7 @@ namespace gigno {
 		
 
 		Entity();
-		~Entity();
+		virtual ~Entity();
 
 		virtual void Init() {};
 		// Called Every Tick by the Entity Server

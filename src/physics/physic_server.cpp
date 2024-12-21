@@ -16,6 +16,8 @@
 
 namespace gigno {
 
+    extern std::mutex s_EntityUnloadMutex;
+
     CONVAR(uint32_t, phys_loop_rate, 120, "How many times per second is the physics called.");
 
     PhysicServer::PhysicServer() 
@@ -39,7 +41,7 @@ namespace gigno {
         }
         while(curr) {
             if(curr->pNextRigidBody == rb) {
-                curr->pNextEntity = rb->pNextRigidBody;
+                curr->pNextRigidBody = rb->pNextRigidBody;
                 return;
             }
             curr = curr->pNextRigidBody;
@@ -59,6 +61,7 @@ namespace gigno {
 
             frame_start = std::chrono::high_resolution_clock::now();
 
+            s_EntityUnloadMutex.lock();
             entity_serv->PhysicTick(frame_time.count() / 1e9);
 
             DetectCollisions();
@@ -68,6 +71,7 @@ namespace gigno {
                 ApplyDrag(*curr);
                 curr = curr->pNextRigidBody;
             }
+            s_EntityUnloadMutex.unlock();
 
             Profiler::End();
 

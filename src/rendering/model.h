@@ -48,8 +48,8 @@ namespace std {
 namespace gigno{
 
 	struct ModelData_t {
-		std::vector<Vertex> Vertices;
-		std::vector<indice_t> Indices;
+		std::vector<Vertex> Vertices{};
+		std::vector<indice_t> Indices{};
 
 		static ModelData_t FromObjFile(const char *path);
 	};

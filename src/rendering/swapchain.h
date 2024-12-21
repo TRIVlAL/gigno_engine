@@ -134,7 +134,7 @@ namespace gigno {
 		void RenderDebugDrawings(VkCommandBuffer buffer, const Camera *camera, uint32_t currentFrame);
 		#endif
 
-		void UpdateUniformBuffer(VkCommandBuffer commandBuffer, const Camera *camera, const std::vector<const Light *> &lights, uint32_t currentFrame);
+		void UpdateUniformBuffer(VkCommandBuffer commandBuffer, const Camera *camera, Light *lights, uint32_t currentFrame);
 
 		VkFormat m_Format;
 		VkExtent2D m_Extent;

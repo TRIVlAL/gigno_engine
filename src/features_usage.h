@@ -7,7 +7,7 @@ Some features depends/require on other features. Those precede the '1' or '0' va
 Some features (namely Console, Profiler, m.b. other) still define theirpulbic method. In these cases, the methods are most likely empty.
 */
 
-//LOGGING PREFERENCES
+//LOGGING PREFE RENCES
 #define VERBOSE 0
 #define LOG_VULKAN_INFOS 0
 

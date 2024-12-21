@@ -21,7 +21,9 @@ namespace gigno {
 	}
 
 	Camera::~Camera() {
-		
+		if (GetApp() && GetApp()->GetRenderer() && GetApp()->GetRenderer()->GetCameraHandle() == this) {
+			GetApp()->GetRenderer()->SetCurrentCamera(nullptr);
+		}
 	}
 
     void Camera::Init() {

@@ -1,0 +1,73 @@
+"DomeCamera" {
+    "Position"  : "0" "0" "-17",
+    "ProjMode"  : "0",
+    "MaxLower"  : "0",
+    "Target"    : "0" "0" "0",
+    "Speed"     : "50"
+}
+
+"DirectionalLight" {
+    "Intensity" : "0.4",
+    "Direction" : "0" "-1" "0.01"
+}
+
+"PointLight" {
+    "Position"  : "10" "1" "10",
+    "Intensity" : "2"
+}
+
+"PointLight" {
+    "Position"  : "-10" "1" "10",
+    "Intensity" : "2"
+}
+
+"PointLight" {
+    "Position"  : "10" "1" "-10",
+    "Intensity" : "2"
+}
+
+"PointLight" {
+    "Position"  : "-10" "1" "-10",
+    "Intensity" : "2"
+}
+
+"EnvironmentLight" {
+    "Intensity"  : "0.1"
+}
+
+"Spinner" {
+    "ModelPath" : "models/colored_cube.obj",
+    "Position"  : "0" "4" "0",
+    "Speed"     : "2"
+}
+
+"RigidBody" {
+    "Name"      : "floor",
+    "ColliderType" : "2",
+    "Position"  : "0" "-1" "0",
+    "Scale"     : "4" "4" "4",
+    "Normal"    : "0" "1" "0",
+    "IsStatic"  : "true",
+    "ModelPath" : "models/plane_subdivided.obj"
+}
+
+"RigidBody" {
+    "Name"      : "a",
+    "ColliderType" : "3",
+    "Position"  : "0" "1" "0",
+    "Scale"     : "0.5" "0.5" "0.5",
+    "Radius"    : "0.5",
+    "Length"    : "1.5",
+    "IsStatic"  : "false",
+    "ModelPath" : "models/capsule.obj"
+}
+
+"RigidBody" {
+    "Name"      : "floor",
+    "ColliderType" : "2",
+    "Position"  : "0" "12" "0",
+    "Scale"     : "4" "4" "4",
+    "Normal"    : "0" "-1" "0",
+    "IsStatic"  : "true",
+    "ModelPath" : "models/plane_subdivided.obj"
+}
