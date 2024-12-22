@@ -34,28 +34,6 @@ namespace gigno {
 		}
 	}
 
-	void EntityServer::AddEntity(Entity *entity) {
-		entity->pNextEntity = m_pFirstEntity;
-		m_pFirstEntity = entity;
-	}
-
-	void EntityServer::RemoveEntity(Entity *entity) {
-		Entity *curr = m_pFirstEntity;
-		if(curr == entity) {
-			m_pFirstEntity = entity->pNextEntity;
-			return;
-		}
-		while(curr) {
-			if(curr->pNextEntity == entity) {
-				curr->pNextEntity = entity->pNextEntity;
-				entity->pNextEntity = nullptr;
-				return;
-			}
-			curr = curr->pNextEntity;
-		}
-		ERR_MSG("Tried to remove entity '%s' but it was never added.", (*entity->Name == '\0' ? "No name" : entity->Name));
-	}
-
     void EntityServer::UnloadMap() {
 		for(Entity *ent : m_Scene) {
 			delete ent;

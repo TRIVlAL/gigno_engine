@@ -54,8 +54,8 @@ namespace gigno {
 		Entity & operator=(const Entity &) = delete;
 		
 
-		Entity();
-		virtual ~Entity();
+		Entity() {};
+		virtual ~Entity() {};
 
 		virtual void Init() {};
 		// Called Every Tick by the Entity Server
@@ -73,10 +73,6 @@ namespace gigno {
 		glm::mat4 TransformationMatrix() const;
 		glm::mat3 NormalMatrix() const;
 		glm::vec3 ApplyRotate(glm::vec3 v) const;
-
-		// Next entity in the EntityServer's chain of all entities (linked list). Set on construction.
-		// 'nullptr' if is last element.
-		Entity* pNextEntity;
 
 		
 		// Returns a vector of all the key values of this Entity and all its bases.

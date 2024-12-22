@@ -90,13 +90,6 @@ namespace gigno {
 			}
 			DrawMainUIWindow();
 
-			if(m_InputServer.GetKeyDown(KEY_2)) {
-				LoadMap("maps/demo_02.map");
-			}
-			if (m_InputServer.GetKeyDown(KEY_1)) {
-				LoadMap("maps/demo_01.map");
-			}
-
 			auto current_time = std::chrono::steady_clock::now();
 			std::chrono::duration<float> delta_time = current_time - last_update_time;
 			delta_time = std::chrono::duration<float>{glm::min(delta_time.count(), MAX_FRAME_TIME)};

@@ -30,10 +30,6 @@ namespace gigno {
 		bool LoadFromFile(std::ifstream &source);
 
 		std::vector<Entity*> m_Scene{};
-
-		// First entity in the chain of all entities (linked list). Use entity->pNextEntity for next element in the list.
-		// If this is null, there are no entity. If next is null, it is the last entity.
-		Entity *m_pFirstEntity{};
 	};
 
 }

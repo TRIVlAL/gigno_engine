@@ -108,16 +108,9 @@ namespace  gigno {
 		}
     }
 
-    Application *Entity::GetApp() const
-    {
+    Application *Entity::GetApp() const {
         return Application::Singleton();
     }
-
-    Entity::Entity() {
-	}
-
-	Entity::~Entity() {
-	}
 
 	void Entity::Think(float dt) {
 		#if USE_DEBUG_DRAWING
