@@ -47,6 +47,7 @@ namespace gigno {
 		float GetAspectRatio() { return static_cast<float>(m_SwapChain.GetWidth()) / static_cast<float>(m_SwapChain.GetHeight()); }
 
 		void CreateModel(std::shared_ptr<giModel> &model, const ModelData_t &modelData);
+		void ClenUpModel(std::shared_ptr<giModel> &model);
 
 		//Debug Drawing ( need to active USE_DEBUG_DRAWING in features_usage.h )
 		void DrawPoint(glm::vec3 pos, glm::vec3 color);
@@ -77,8 +78,6 @@ namespace gigno {
 		Light *m_pFirstLight{};
 
 		const Camera *m_pCamera = nullptr;
-
-		std::vector<std::shared_ptr<giModel>> m_CreatedModels;
 
 		std::vector<VkSemaphore> m_ImageAvaliableSemaphores;
 		std::vector<VkSemaphore> m_RenderFinishedSemaphores;

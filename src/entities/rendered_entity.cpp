@@ -16,6 +16,9 @@ namespace gigno {
 		if(GetApp() && GetApp()->GetRenderer()) {
 			GetApp()->GetRenderer()->UnsubscribeRenderedEntity(this);
 		}
+		if(m_pModel != nullptr && GetApp() && GetApp()->GetRenderer()) {
+			GetApp()->GetRenderer()->ClenUpModel(m_pModel);
+		}
 	}
 
     const std::shared_ptr<giModel> &RenderedEntity::GetModel() 

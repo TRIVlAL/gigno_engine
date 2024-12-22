@@ -43,11 +43,6 @@ namespace gigno {
 			vkDestroySemaphore(m_Device.GetDevice(), m_RenderFinishedSemaphores[i], nullptr);
 			vkDestroyFence(m_Device.GetDevice(), m_InFlightFences[i], nullptr);
 		}
-
-		for(auto model : m_CreatedModels) {
-			model->CleanUp(m_Device.GetDevice());
-		}
-		m_CreatedModels.clear();
 	}
 
 	void RenderingServer::PollEvents() {
@@ -99,10 +94,13 @@ namespace gigno {
 
 	void RenderingServer::CreateModel(std::shared_ptr<giModel> &model, const ModelData_t &modelData) {
 		model = std::make_shared<giModel>(giModel{ m_Device, modelData, m_SwapChain.GetCommandPool() });
-		m_CreatedModels.push_back(model);
 	}
 
-	//Debug Drawing
+    void RenderingServer::ClenUpModel(std::shared_ptr<giModel> &model) {
+		model->CleanUp(m_Device.GetDevice());
+    }
+
+    //Debug Drawing
 	void RenderingServer::DrawPoint(glm::vec3 pos, glm::vec3 color) {
 #if USE_DEBUG_DRAWING
 		if(!ShowDD || !ShowDDPoints) { return; }

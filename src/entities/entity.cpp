@@ -112,8 +112,9 @@ namespace  gigno {
         return Application::Singleton();
     }
 
-	void Entity::Think(float dt) {
-		#if USE_DEBUG_DRAWING
+    void Entity::Think(float dt)
+    {
+#if USE_DEBUG_DRAWING
 		if((bool)convar_draw_transform_debug) {
 			RenderingServer *renderer = GetApp()->GetRenderer();
 			if(renderer->GetCameraHandle() == this) {
@@ -127,5 +128,5 @@ namespace  gigno {
 							   glm::vec3{0.0f, 0.0f, 1.0f});
 		}
 		#endif
-	}
+    }
 }
