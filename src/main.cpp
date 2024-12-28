@@ -10,11 +10,10 @@ int main() {
 	int result = 0;
  
 	do {
-		gigno::Application *app = gigno::Application::MakeApp();
-
-		result = app->run();
-
-		gigno::Application::ShutdownApp();
+		{
+			gigno::Application app{1000, 1000, "Gigno Engine Demo", "shaders/simple_shader.vert.spv", "shaders/simple_shader.frag.spv"};
+			result = app.run();
+		}
 
 		gigno::Console::LogInfo("Gigno Engine exited with code %d.", result);
 

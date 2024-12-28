@@ -19,16 +19,6 @@ namespace gigno {
 
 	CONVAR(const char *, start_map, "maps/demo_01.map", "the first loaded map when the app stats.")
 
-	Application *Application::MakeApp() {
-		Application *app = new Application(1000, 1000, "Gigno Engine Demo", "shaders/simple_shader.vert.spv", "shaders/simple_shader.frag.spv");
-		return app;
-	}
-	
-	void Application::ShutdownApp() {
-		ASSERT_MSG(s_Instance, "MakeApp() must be called before ShutdownApp() !");
-		delete(s_Instance);
-	}
-
 	Application::Application(int winw, int winh, const char *title, const std::string &vertShaderPath, const std::string &fragShaderPath) :
 		m_DebugServer{},
 		m_InputServer{},
@@ -36,9 +26,7 @@ namespace gigno {
 		m_EntityServer{},
 		m_PhysicServer{},
 		m_CurrentMapFilepath{convar_start_map} {
-			if(s_Instance) {
-				ERR_MSG("Multiple applications created !");
-			}
+			ASSERT_MSG(!s_Instance, "Multiple applications created !");
 			s_Instance = this;
 			m_NextMapFilepath = m_CurrentMapFilepath;
 		}

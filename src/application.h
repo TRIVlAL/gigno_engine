@@ -13,9 +13,6 @@ namespace gigno {
 
 	class Application {
 	public:
-		static Application *MakeApp();
-		static void ShutdownApp();
-
 		static Application *Singleton();
 
 	public:
