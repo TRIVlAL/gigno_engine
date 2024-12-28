@@ -23,6 +23,7 @@ namespace gigno {
         virtual void LatePhysicThink(float dt) override;
 
         glm::vec3 GetVelocity() { return m_Velocity; };
+        glm::vec3 GetAngularVelocity() { return m_RotationVelocity; }
         glm::vec3 GetForce() { return m_Force; };
 
         ColliderType_t ColliderType = COLLIDER_PLANE;

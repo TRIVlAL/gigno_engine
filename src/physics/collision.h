@@ -25,12 +25,16 @@ namespace gigno {
     /*
     colNormal : unit vector from rb1 to rb2
     colDepth : NEGATIVE number representing how deep inside objects are.
-    rb1ApplyPoint, rb2ApplyPoint : where the collision force is apply (local space)
+    rb1ApplyPoint : Position where the collision is applied, relative to rb1's center of rotation (i.e. world position)
     */
     void RespondCollision(RigidBody &rb1, RigidBody &rb2, const glm::vec3 &colNormal, const float &colDepth, 
                         const glm::vec3 &rb1ApplyPoint, const glm::vec3 &rb2ApplyPoint);
 
-    void ApplyFriction(float normalImpulse, RigidBody &col, const glm::vec3 &surfaceNormal, const glm::vec3 &applyPoint, float frictionCoefficient);
+    /*
+    applyPoint : Position where the collision is appening, relative to the rigidbody's center of rotation (i.e. world position).
+                It is thus where the frictional force is applied.
+    */
+    void ApplyFriction(float normalImpulse, RigidBody &rb, const glm::vec3 &surfaceNormal, const glm::vec3 &applyPoint, float frictionCoefficient);
 }
 
 #endif

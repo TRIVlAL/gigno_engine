@@ -290,13 +290,14 @@ namespace gigno {
     }
 
     void ApplyFriction(float normalImpulse, RigidBody &rb, const glm::vec3 &surfaceNormal, const glm::vec3 &applyPoint, float frictionCoefficient) {
-        glm::vec3 tangent_move = rb.GetVelocity() - surfaceNormal * glm::dot(surfaceNormal, rb.GetVelocity());
-        float tangent_move_len = glm::length(tangent_move);
+        const glm::vec3 point_velocity = rb.GetVelocity() + glm::cross(rb.GetAngularVelocity(), applyPoint);
+        glm::vec3 tangent_velocity = point_velocity - surfaceNormal * glm::dot(surfaceNormal, point_velocity);
+        const float tangent_vel_len = glm::length(tangent_velocity);
         
-        if(tangent_move_len != 0.0f) { 
-            tangent_move = tangent_move/tangent_move_len;
-            float impulse = glm::clamp(glm::abs(normalImpulse * frictionCoefficient), 0.0f, tangent_move_len);
-            rb.AddImpulse(-tangent_move * impulse, applyPoint);
+        if(tangent_vel_len != 0.0f) { 
+            tangent_velocity = tangent_velocity/tangent_vel_len;
+            float impulse = glm::clamp(glm::abs(normalImpulse * frictionCoefficient), 0.0f, tangent_vel_len);
+            rb.AddImpulse(-tangent_velocity * impulse, applyPoint);
         }
 
     }
