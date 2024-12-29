@@ -29,28 +29,8 @@ namespace gigno {
         return line;
     }
 
-    void SegmentsClosestPoints(glm::vec3 a1, glm::vec3 a2, glm::vec3 b1, glm::vec3 b2, glm::vec3 &outAPoint, glm::vec3 &outBPoint)
-    {
-        /*
-        Thanks to Johnathon Selstad ! @https://zalo.github.io/blog/closest-point-between-segments/
-        */
-       
-        const float A_len = glm::length(a2 - a1);
-        const glm::vec3 A_norm = (a2 - a1) / A_len;
-        const glm::vec3 B = b2 - b1;
-        const glm::vec3 a1b1_proj = b1 - a1 - A_norm * glm::dot(b1 - a1, A_norm);
-        const glm::vec3 a1b2_proj = b2 - a1 - A_norm * glm::dot(b2 - a1, A_norm);
-        const glm::vec3 B_proj = a1b2_proj - a1b1_proj;
-        float t = glm::dot(-a1b1_proj, B_proj) / glm::dot(B_proj, B_proj);
-        if(B_proj.x == 0.0f && B_proj.y == 0.0f && B_proj.z == 0.0f || t < 0.0f) {
-            t = 0.0f; //parallel
-        }
-        t = glm::clamp(t, 0.0f, 1.0f);
-
-        outBPoint = (1-t)*b1 + t*b2;
-
-        outAPoint = a1 + A_norm * glm::clamp(glm::dot(outBPoint - a1, A_norm), 0.0f, A_len);
-
+    glm::vec3 ProjectToPlane(glm::vec3 vector, glm::vec3 normal) {
+        return vector - normal * glm::dot(vector, normal);
     }
 
     glm::vec3 PointToSegment(glm::vec3 point, glm::vec3 seg1, glm::vec3 seg2) {
@@ -60,6 +40,24 @@ namespace gigno {
         const float t = glm::clamp(glm::dot(point - seg1, dir), 0.0f, seg_len);
 
         return -(point - seg1 - dir * t);
+    }
+
+    void SegmentsClosestPoints(glm::vec3 a1, glm::vec3 a2, glm::vec3 b1, glm::vec3 b2, glm::vec3 &outAPoint, glm::vec3 &outBPoint)
+    {
+        /*
+        Thanks to Johnathon Selstad ! @https://zalo.github.io/blog/closest-point-between-segments/
+        */
+       
+        const glm::vec3 A = a2 - a1;
+        const float A_len = glm::length(A);
+        const glm::vec3 a1b1_proj = ProjectToPlane(b1 - a1, A / A_len);
+        const glm::vec3 a1b2_proj = ProjectToPlane(b2 - a1, A / A_len);
+        
+        float t = glm::dot(-a1b1_proj, glm::normalize(a1b2_proj - a1b1_proj));
+        t = glm::clamp(t, 0.0f, 1.0f);
+
+        outBPoint = b1 * (1.0f - t) + (b2 * t);
+        outAPoint = outBPoint + PointToSegment(outBPoint, a1, a2);
     }
 
     float LenSquared(glm::vec3 &vec) {

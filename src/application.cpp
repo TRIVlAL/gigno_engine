@@ -69,6 +69,7 @@ namespace gigno {
 				m_ShouldLoadMap = false;
 				m_CurrentMapFilepath = m_NextMapFilepath;
 			}
+			
 
 			m_RenderingServer.PollEvents();
 			m_InputServer.UpdateInput();

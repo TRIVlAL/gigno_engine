@@ -7,51 +7,6 @@
 
 namespace gigno {
 
-    CONVAR(float, phys_air_density, 1.225f, "Higher means higher drag");
-
-    void ApplyDrag(RigidBody &rb) {
-        float velocity_len = glm::length(rb.GetVelocity());
-        if(velocity_len != 0) {
-            rb.AddForce(-rb.GetVelocity() * velocity_len * 0.5f * 
-                                    (float)convar_phys_air_density * GetDragCoefficient(rb) * 
-                                    GetAreaCrossSection(rb, -rb.GetVelocity()/velocity_len));
-        }
-
-        // TODO : Also apply angular drag.
-        
-    }
-
-    float GetDragCoefficient(RigidBody &rb) {
-        switch(rb.ColliderType) {
-            case COLLIDER_SPHERE:
-                return 0.48f;
-            case COLLIDER_PLANE:
-                return 0.0f; // Planes area static so we wont use it anyway.
-            case COLLIDER_CAPSULE:
-                return 0.7f;
-            case COLLIDER_NONE:
-                return 0.0;
-        }
-
-        ERR_MSG_V(0.0f, "Collider with no type is querrying DragCoefficient !");
-    }
-
-    float GetAreaCrossSection(RigidBody &rb, const glm::vec3 &direction)
-    {
-        if(rb.ColliderType == COLLIDER_SPHERE) {
-            return glm::pi<float>() * rb.Radius *rb.Radius;
-        } else if(rb.ColliderType == COLLIDER_PLANE) {
-            return INFINITY; // Planes are static so we wont use it anyway.
-        } else if(rb.ColliderType == COLLIDER_CAPSULE) {
-            // If moving vertically, only pi * r^2. If moving horizontally, add r * length.
-            const float t = glm::dot(direction, ApplyRotation(rb.Rotation, glm::vec3{0.0f, 1.0f, 0.0f}));
-            return rb.Length * rb.Radius * 2.0f * t 
-                    + glm::pi<float>() * rb.Radius * rb.Radius;  
-        } else {
-            ERR_MSG_V(0.0f, "Collider with no type is querrying GetAreaCrossSection !");
-        }
-    }
-
     bool ResolveCollision(RigidBody &rb1, RigidBody &rb2) {
         if(rb1.ColliderType == COLLIDER_NONE || rb2.ColliderType == COLLIDER_NONE) {
             return false;
@@ -121,8 +76,6 @@ namespace gigno {
         const glm::vec3 capsule_top = capsule.Position + capsule.Length * 0.5f * capsule_orientation;
         const glm::vec3 sphere_to_capsule = PointToSegment(sphere.Position, capsule_bottom, capsule_top);
 
-        Application::Singleton()->GetRenderer()->DrawLine(sphere.Position, sphere.Position + sphere_to_capsule, glm::vec3{0.0f, 1.0f, 0.0f});
-
         const float distance = glm::length(sphere_to_capsule);
         const float col_depth = distance - sphere.Radius - capsule.Radius;
 
@@ -176,8 +129,6 @@ namespace gigno {
 
         capsule_application_point += -plane.Normal * capsule.Radius;
 
-        Application::Singleton()->GetRenderer()->DrawLine(capsule.Position + capsule_application_point + glm::vec3{0.0f, -100.0f, 0.0f}, capsule.Position + capsule_application_point + glm::vec3{0.0f, 100.0f, 0.0f}, glm::vec3{1.0f, 0.0f, 0.0f});
-
         RespondCollision(plane, capsule, plane.Normal, glm::min(bottom_depth, top_depth),
                         capsule.Position + capsule_application_point - plane.Position - plane.Normal * glm::dot(capsule.Position + capsule_application_point - plane.Position, plane.Normal),
                         capsule_application_point);
@@ -197,8 +148,6 @@ namespace gigno {
         glm::vec3 point1{};
         glm::vec3 point2{};
         SegmentsClosestPoints(bottom1, top1, bottom2, top2, point1, point2);
-
-        Application::Singleton()->GetRenderer()->DrawLine(point1 + glm::vec3{2.0f, 0.0f, 2.0f}, point2 + glm::vec3{2.0f, 0.0f, 2.0f}, glm::vec3{0.0f, 0.0f, 1.0f});
 
         const glm::vec3 dist = point2 - point1;
         const float dist_len = glm::length(dist);

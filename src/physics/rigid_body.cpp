@@ -51,7 +51,15 @@ namespace gigno {
             return;
         }
 
+        //Gravity
         AddForce((glm::vec3)convar_phys_gravity * Mass);
+
+        //Drag
+        // Uses a linear approximation as can be seen in Unity or Godot.
+        float ldrag = glm::clamp(1.0f - (Drag * dt), 0.0f, 1.0f);
+        m_Velocity *= ldrag;
+        float rdrag = glm::clamp(1.0f - (AngularDrag * dt), 0.0f, 1.0f);
+        m_RotationVelocity *= rdrag;
 
         glm::vec3 avrg_vel = m_Velocity;
         m_Velocity += dt * m_Force / Mass;

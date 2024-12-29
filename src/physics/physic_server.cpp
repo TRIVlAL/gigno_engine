@@ -65,12 +65,6 @@ namespace gigno {
             entity_serv->PhysicTick(frame_time.count() / 1e9);
 
             DetectCollisions();
-
-            RigidBody *curr = RigidBodies;
-            while(curr) {
-                ApplyDrag(*curr);
-                curr = curr->pNextRigidBody;
-            }
             s_EntityUnloadMutex.unlock();
 
             Profiler::End();

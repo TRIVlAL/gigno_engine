@@ -52,19 +52,10 @@
 }
 
 "RigidBody" {
-    "Name"      : "floor",
-    "ColliderType" : "2",
-    "Position"  : "0" "12" "0",
-    "Scale"     : "4" "4" "4",
-    "Normal"    : "0" "-1" "0",
-    "IsStatic"  : "true",
-    "ModelPath" : "models/plane_subdivided.obj"
-}
-
-"RigidBody" {
     "Name"      : "a",
     "ColliderType" : "COLLIDER_CAPSULE",
-    "Position"  : "0" "1" "0",
+    "Position"  : "2" "4" "0",
+    "Rotation"  : "0.1" "0" "0.1",
     "Scale"     : "0.5" "0.5" "0.5",
     "Radius"    : "0.5",
     "Length"    : "1.5",
@@ -75,7 +66,8 @@
 "RigidBody" {
     "Name"      : "b",
     "ColliderType" : "COLLIDER_CAPSULE",
-    "Position"  : "2" "1" "0",
+    "Position"  : "1" "1" "0",
+    "Rotation"  : "0.2" "0" "0.3",
     "Scale"     : "0.5" "0.5" "0.5",
     "Radius"    : "0.5",
     "Length"    : "1.5",

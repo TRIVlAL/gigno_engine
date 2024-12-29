@@ -18,6 +18,8 @@ namespace gigno {
     */
     Line PlaneIntersect(glm::vec3 point1, glm::vec3 normal1, glm::vec3 point2, glm::vec3 normal2);
 
+    glm::vec3 ProjectToPlane(glm::vec3 vector, glm::vec3 normal);
+
     /*
     @param outAPoint the start of the shortest segment between a and b
     @param outBPoint the end of the shortes segment between a and b

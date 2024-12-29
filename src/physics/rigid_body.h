@@ -36,6 +36,9 @@ namespace gigno {
         bool IsStatic{false};
         int Material = (int)MAT_PLASTIC;
 
+        float Drag = 3.0f;
+        float AngularDrag = 3.0f;
+
         glm::vec3 StartVelocity{};
 
         RigidBody *pNextRigidBody{};
@@ -55,6 +58,7 @@ namespace gigno {
         DEFINE_KEY_VALUE(float, Mass)
         DEFINE_KEY_VALUE(bool, IsStatic)
         DEFINE_KEY_VALUE(int, Material)
+        DEFINE_KEY_VALUE(float, Drag)
         DEFINE_KEY_VALUE(vec3, StartVelocity)
         DEFINE_KEY_VALUE(ColliderType_t, ColliderType)
         DEFINE_KEY_VALUE(float, Radius)

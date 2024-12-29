@@ -33,7 +33,6 @@ namespace gigno {
 
         void Loop();
 
-        void ApplyGlobalForces();
         void DetectCollisions();
     };
 

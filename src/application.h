@@ -9,9 +9,12 @@
 #include "physics/physic_server.h"
 #include <string>
 
+int main();
+
 namespace gigno {
 
 	class Application {
+		friend int ::main();
 	public:
 		static Application *Singleton();
 

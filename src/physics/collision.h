@@ -10,10 +10,6 @@ namespace gigno {
         float Radius, Length;
     };
 
-    void ApplyDrag(RigidBody &rb);
-    float GetDragCoefficient(RigidBody &rb);
-    float GetAreaCrossSection(RigidBody &rb, const glm::vec3 &direction);
-
     bool ResolveCollision(RigidBody &rb1, RigidBody &rb2);
 
     bool ResolveCollision_SphereSphere(RigidBody &rb1, RigidBody &rb2);
