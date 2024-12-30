@@ -4,6 +4,7 @@
 #include "entities/rendered_entity.h"
 #include "physics_material.h"
 #include "collider_type.h"
+#include "algorithm/geometry.h"
 
 namespace gigno {
 
@@ -19,7 +20,6 @@ namespace gigno {
         void AddRotationImpulse(const glm::vec3 &rotation);
 
         virtual void Init() override;
-
         virtual void LatePhysicThink(float dt) override;
 
         glm::vec3 GetVelocity() { return m_Velocity; };

@@ -138,12 +138,12 @@ namespace gigno {
 
     bool ResolveCollision_CapsuleCapsule(RigidBody &rb1, RigidBody &rb2) {
         const glm::vec3 orientation1 = ApplyRotation(rb1.Rotation, glm::vec3{0.0f, 1.0f, 0.0f});
-        const glm::vec3 bottom1 = rb1.Position - rb1.Length * 0.5f * orientation1;
-        const glm::vec3 top1 = rb1.Position + rb1.Length * 0.5f * orientation1;
+        const glm::vec3 bottom1 = rb1.Position - (rb1.Length * 0.5f * orientation1);
+        const glm::vec3 top1 = rb1.Position + (rb1.Length * 0.5f * orientation1);
 
         const glm::vec3 orientation2 = ApplyRotation(rb2.Rotation, glm::vec3{0.0f, 1.0f, 0.0f});
-        const glm::vec3 bottom2 = rb2.Position - rb2.Length * 0.5f * orientation2;
-        const glm::vec3 top2 = rb2.Position + rb2.Length * 0.5f * orientation2;
+        const glm::vec3 bottom2 = rb2.Position - (rb2.Length * 0.5f * orientation2);
+        const glm::vec3 top2 = rb2.Position + (rb2.Length * 0.5f * orientation2);
 
         glm::vec3 point1{};
         glm::vec3 point2{};
@@ -154,16 +154,20 @@ namespace gigno {
 
         const float col_depth = dist_len - rb1.Radius - rb2.Radius;
 
-        if (col_depth >= 0)
-        {
+        if (col_depth >= 0) {
             // Not colliding
             return false;
         }
 
         const glm::vec3 dist_norm = dist / dist_len;
 
+        const glm::vec3 edge_point1 = point1 + (dist_norm * rb1.Radius);
+        const glm::vec3 edge_point2 = point2 - (dist_norm * rb2.Radius);
+
+        const glm::vec3 middle = (edge_point1 + edge_point2) * 0.5f;
+
         RespondCollision(rb1, rb2, dist_norm, col_depth,
-                        point1 - rb1.Position + dist_norm * rb1.Radius, point2 - rb2.Position - dist_norm * rb2.Radius);
+                        middle - rb1.Position, middle - rb2.Position - (dist_norm * rb2.Radius));
 
         return true;
     }

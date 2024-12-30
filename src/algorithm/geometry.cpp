@@ -34,12 +34,12 @@ namespace gigno {
     }
 
     glm::vec3 PointToSegment(glm::vec3 point, glm::vec3 seg1, glm::vec3 seg2) {
-        const float seg_len = glm::length(seg2-seg1);
+        const float seg_len = glm::length(seg2 - seg1);
         const glm::vec3 dir = (seg2 - seg1) / seg_len;
 
         const float t = glm::clamp(glm::dot(point - seg1, dir), 0.0f, seg_len);
 
-        return -(point - seg1 - dir * t);
+        return seg1 + (dir * t);
     }
 
     void SegmentsClosestPoints(glm::vec3 a1, glm::vec3 a2, glm::vec3 b1, glm::vec3 b2, glm::vec3 &outAPoint, glm::vec3 &outBPoint)
@@ -52,12 +52,16 @@ namespace gigno {
         const float A_len = glm::length(A);
         const glm::vec3 a1b1_proj = ProjectToPlane(b1 - a1, A / A_len);
         const glm::vec3 a1b2_proj = ProjectToPlane(b2 - a1, A / A_len);
+
+        const glm::vec3 B_proj = a1b2_proj - a1b1_proj;
+        const float B_proj_len = glm::length(B_proj);
         
-        float t = glm::dot(-a1b1_proj, glm::normalize(a1b2_proj - a1b1_proj));
+        float t = glm::dot(-a1b1_proj, B_proj/B_proj_len);
+        t /= B_proj_len;
         t = glm::clamp(t, 0.0f, 1.0f);
 
-        outBPoint = b1 * (1.0f - t) + (b2 * t);
-        outAPoint = outBPoint + PointToSegment(outBPoint, a1, a2);
+        outAPoint = PointToSegment(b1 * (1.0f - t) + (b2 * t), a1, a2);
+        outBPoint = PointToSegment(outAPoint, b1, b2);
     }
 
     float LenSquared(glm::vec3 &vec) {

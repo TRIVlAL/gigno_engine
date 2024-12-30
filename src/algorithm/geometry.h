@@ -18,6 +18,10 @@ namespace gigno {
     */
     Line PlaneIntersect(glm::vec3 point1, glm::vec3 normal1, glm::vec3 point2, glm::vec3 normal2);
 
+    /*
+    perpendicular projection of the plane given by the normal vector. normal MUST BE normalized.
+    Returns vector 0 if the vectors are colinear.
+    */
     glm::vec3 ProjectToPlane(glm::vec3 vector, glm::vec3 normal);
 
     /*
@@ -27,14 +31,14 @@ namespace gigno {
     void SegmentsClosestPoints(glm::vec3 a1, glm::vec3 a2, glm::vec3 b1, glm::vec3 b2, glm::vec3 &outAPoint, glm::vec3 &outBPoint);
 
     /*
-    returns the shortest vector from the point to the segment.
+    returns the point on the segment that is closest to the point.
     */
     glm::vec3 PointToSegment(glm::vec3 point, glm::vec3 seg1, glm::vec3 seg2);
 
     float LenSquared(glm::vec3 &vec);
 
     /*
-    Return the result of the given vecctor after being rotated following the 
+    Return the result of the given vector after being rotated following the 
     Tait-Bryan YXZ (see @ https://en.wikipedia.org/wiki/Euler_angles (Rotation Matrix)) convention
     */
     glm::vec3 ApplyRotation(glm::vec3 rotation, glm::vec3 vector);

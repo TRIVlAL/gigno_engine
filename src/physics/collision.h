@@ -6,10 +6,11 @@
 
 namespace gigno {
 
-    struct CapsuleParameters{
-        float Radius, Length;
-    };
-
+    /*
+    Checks collision of the rigidbodies (by dispatching according to the ColliderType Keyvalue)
+    Responds to the collision if they are colliding (add collision impulses and friction)
+    Returns whether or not the two bodies did collide. 
+    */
     bool ResolveCollision(RigidBody &rb1, RigidBody &rb2);
 
     bool ResolveCollision_SphereSphere(RigidBody &rb1, RigidBody &rb2);
