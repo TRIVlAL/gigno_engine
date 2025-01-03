@@ -97,6 +97,14 @@ namespace gigno {
 
     template<> inline
     size_t ToString<cstr>(char *to, const cstr & from) {
+
+        if(from == nullptr) {
+            if(to) {
+                memcpy(to, "NULL", 5);
+            }
+            return 5;
+        }
+
         size_t size = strlen(from) + 1;
         if(to) {
             memcpy(to, from, size);

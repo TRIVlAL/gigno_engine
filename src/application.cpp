@@ -17,7 +17,7 @@
 
 namespace gigno {
 
-	CONVAR(const char *, start_map, "maps/demo_01.map", "the first loaded map when the app stats.")
+	CONVAR(const char *, start_map, "maps/demo_03.map", "the first loaded map when the app stats.")
 
 	Application::Application(int winw, int winh, const char *title, const std::string &vertShaderPath, const std::string &fragShaderPath) :
 		m_DebugServer{},

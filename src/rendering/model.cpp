@@ -41,11 +41,13 @@ namespace gigno
 		std::string err;
 
 		if(!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path)) {
-			ERR_MSG_V(ModelData_t{}, "Tiny Object Loader Error : %s", err.c_str());
+			Console::LogError("! Failed to load a model ! \n Tiny Object Loader Error :    '%s'", err.c_str());
+			return ErrorModel();
 		}
 
 		ModelData_t data{};
 		std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+		data.Vertices.reserve(attrib.vertices.size());
 		for(const tinyobj::shape_t &shape : shapes) {
 			data.Indices.reserve(shape.mesh.indices.size());
 			for(const tinyobj::index_t& index : shape.mesh.indices) {
@@ -80,7 +82,7 @@ namespace gigno
 		return data;
 	}
 
-	giModel::giModel(const Device &device, const ModelData_t &data, VkCommandPool commandPool) :
+    giModel::giModel(const Device &device, const ModelData_t &data, VkCommandPool commandPool) :
 		m_Vertices{ data.Vertices }, 
 		m_Indices{ data.Indices } {
 		CreateVertexBuffer(device.GetDevice(), device.GetPhysicalDevice(), commandPool, device.GetGraphicsQueue());
@@ -88,7 +90,7 @@ namespace gigno
 	}
 
 	giModel::~giModel() {
-
+		
 	}
 
 	void giModel::CleanUp(VkDevice device) {

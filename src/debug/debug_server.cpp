@@ -8,6 +8,10 @@ namespace gigno {
 
     void DebugServer::Update() {
     #if USE_DEBUG_SERVER && USE_IMGUI
+        bool grave_pressed = Application::Singleton()->GetInputServer()->GetKeyDown(KEY_GRAVE_ACCENT);
+        if(grave_pressed) {
+            m_ShowDebugWindow = true;
+        }
         if(m_ShowDebugWindow) {
             ImGui::SetNextWindowSizeConstraints(ImVec2{650.0f, 500.0f}, ImVec2{FLT_MAX, FLT_MAX});
             if(!ImGui::Begin("Debug Window", &m_ShowDebugWindow)) {
@@ -21,7 +25,7 @@ namespace gigno {
                 #endif
                 if(ImGui::BeginTabBar("##debug_tabs")) {
                     #if USE_CONSOLE
-                    if(ImGui::BeginTabItem("Console")) {
+                    if(ImGui::BeginTabItem("Console", nullptr, grave_pressed ? ImGuiTabItemFlags_SetSelected : 0)) {
                         if(Console *cons = Console::Singleton()) {
                              cons->DrawConsoleTab();
                         }

@@ -42,8 +42,8 @@
 }
 
 "RigidBody" {
-    "Name"      : "sphere1",
-    "ColliderType" : "1",
+    "Name"      : "phys_sphere1",
+    "ColliderType" : "COLLIDER_SPHERE",
     "Position"  : "5" "0" "0",
     "Scale"     : "0.5" "0.5" "0.5",
     "Radius"    : "0.5",
@@ -53,7 +53,7 @@
 
 "RigidBody" {
     "Name"      : "phys_sphere2",
-    "ColliderType" : "1",
+    "ColliderType" : "COLLIDER_SPHERE",
     "Position"  : "-5" "0" "0",
     "Scale"     : "0.5" "0.5" "0.5",
     "Radius"    : "0.5",
@@ -63,7 +63,7 @@
 
 "RigidBody" {
     "Name"      : "phys_sphere3",
-    "ColliderType" : "1",
+    "ColliderType" : "COLLIDER_SPHERE",
     "Position"  : "-3.0" "2.5" "0",
     "Scale"     : "0.5" "0.5" "0.5",
     "Radius"    : "0.5",
@@ -73,7 +73,7 @@
 
 "RigidBody" {
     "Name"      : "floor",
-    "ColliderType" : "2",
+    "ColliderType" : "COLLIDER_PLANE",
     "Position"  : "0" "-1" "0",
     "Scale"     : "4" "4" "4",
     "Normal"    : "0" "1" "0",

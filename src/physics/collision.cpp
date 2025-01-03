@@ -4,6 +4,7 @@
 #include "../debug/console/convar.h"
 #include "../algorithm/geometry.h"
 #include <utility>
+#include "gjk.h"
 
 namespace gigno {
 
@@ -15,7 +16,14 @@ namespace gigno {
         RigidBody &a = rb1.ColliderType <= rb2.ColliderType ? rb1 : rb2;
         RigidBody &b = rb1.ColliderType <= rb2.ColliderType ? rb2 : rb1;
 
-        if(a.ColliderType == COLLIDER_SPHERE) {
+        // COLLIDER_HULL is the first enum entry
+        if(a.ColliderType == COLLIDER_HULL) {
+            if(b.ColliderType == COLLIDER_PLANE) {
+                return ResolveCollision_HullPlane(a, b);
+            } else {
+                return ResolveCollision_HullNonPlane(a, b);
+            }
+        } else if(a.ColliderType == COLLIDER_SPHERE) {
             if(b.ColliderType == COLLIDER_SPHERE) {
                 return ResolveCollision_SphereSphere(a, b);
             } else if(b.ColliderType == COLLIDER_PLANE) {
@@ -172,11 +180,26 @@ namespace gigno {
         return true;
     }
 
+    bool ResolveCollision_HullNonPlane(RigidBody &hull, RigidBody &nonPlane) {
+        Simplex_t simplex{};
+        bool collide = GJK(hull, nonPlane, simplex);
+        
+        if(collide) {
+            Console::LogInfo("Colliding !!!");
+        }
+
+        return collide;
+    }
+
+    bool ResolveCollision_HullPlane(RigidBody &hull, RigidBody &Plane) {
+        return false;
+    }
+
     void RespondCollision(RigidBody &rb1, RigidBody &rb2, const glm::vec3 &colNormal, const float &colDepth,
                           const glm::vec3 &col1ApplyPoint, const glm::vec3 &col2ApplyPoint)
     {
 
-        if (glm::dot(rb1.GetVelocity(), colNormal) <= 0 && glm::dot(rb2.GetVelocity(), -colNormal) <= 0)
+        if (glm::dot(rb1.Velocity, colNormal) <= 0 && glm::dot(rb2.Velocity, -colNormal) <= 0)
         {
             // Object are moving away from each other,
             // Don't re-add any impulse.
@@ -186,7 +209,7 @@ namespace gigno {
         if(rb1.IsStatic && rb2.IsStatic) {
             return;
         } else {
-            glm::vec3 Delta_v = rb2.GetVelocity() - rb1.GetVelocity();
+            glm::vec3 Delta_v = rb2.Velocity - rb1.Velocity;
             float ProjD_v = glm::dot(Delta_v, colNormal);
 
             float e = GetBounciness((PhysicsMaterial_t)rb1.Material) * GetBounciness((PhysicsMaterial_t)rb2.Material);
@@ -243,7 +266,7 @@ namespace gigno {
     }
 
     void ApplyFriction(float normalImpulse, RigidBody &rb, const glm::vec3 &surfaceNormal, const glm::vec3 &applyPoint, float frictionCoefficient) {
-        const glm::vec3 point_velocity = rb.GetVelocity() + glm::cross(rb.GetAngularVelocity(), applyPoint);
+        const glm::vec3 point_velocity = rb.Velocity + glm::cross(rb.AngularVelocity, applyPoint);
         glm::vec3 tangent_velocity = point_velocity - surfaceNormal * glm::dot(surfaceNormal, point_velocity);
         const float tangent_vel_len = glm::length(tangent_velocity);
         

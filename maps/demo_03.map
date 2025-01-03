@@ -1,0 +1,60 @@
+"DomeCamera" {
+    "Position"  : "0" "0" "-17",
+    "ProjMode"  : "0",
+    "MaxLower"  : "0",
+    "Target"    : "0" "0" "0",
+    "Speed"     : "50"
+}
+
+"DirectionalLight" {
+    "Intensity" : "0.4",
+    "Direction" : "0" "-1" "0.01"
+}
+
+"PointLight" {
+    "Position"  : "10" "1" "10",
+    "Intensity" : "2"
+}
+
+"PointLight" {
+    "Position"  : "-10" "1" "10",
+    "Intensity" : "2"
+}
+
+"PointLight" {
+    "Position"  : "10" "1" "-10",
+    "Intensity" : "2"
+}
+
+"PointLight" {
+    "Position"  : "-10" "1" "-10",
+    "Intensity" : "2"
+}
+
+"EnvironmentLight" {
+    "Intensity"  : "0.1"
+}
+
+"RigidBody" {
+    "Name"      : "a",
+    "ColliderType" : "COLLIDER_HULL",
+    "CollisionModelPath" : "models/cube.obj",
+    "Position"  : "3" "4" "0",
+    "Rotation"  : "0.1" "0" "0.1",
+    "Radius"    : "0.5",
+    "Length"    : "1.5",
+    "IsStatic"  : "false",
+    "ModelPath" : "models/cube.obj"
+}
+
+"RigidBody" {
+    "Name"      : "b",
+    "ColliderType" : "COLLIDER_HULL",
+    "CollisionModelPath" : "models/cube.obj",
+    "Position"  : "2" "2" "0",
+    "Rotation"  : "0.2" "0" "0.3",
+    "Radius"    : "0.5",
+    "Length"    : "1.5",
+    "IsStatic"  : "false",
+    "ModelPath" : "models/cube.obj"
+}

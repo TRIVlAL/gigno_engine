@@ -19,7 +19,9 @@ namespace gigno {
 		// 'nullptr' if is last element.
 		RenderedEntity *pNextRenderedEntity{};
 
-		const std::shared_ptr<giModel> &GetModel();
+		const std::shared_ptr<giModel> GetModel();
+
+		bool DoRender = true;
 	private:
 		std::shared_ptr<giModel> m_pModel{};
 	};

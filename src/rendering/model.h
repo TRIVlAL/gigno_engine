@@ -52,6 +52,7 @@ namespace gigno{
 		std::vector<indice_t> Indices{};
 
 		static ModelData_t FromObjFile(const char *path);
+		static ModelData_t ErrorModel(); //Defined in error_model.cpp
 	};
 
 	class giModel {

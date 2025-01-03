@@ -349,6 +349,9 @@ namespace gigno {
             m_InputBuffer[0] = '\0';
             ImGui::SetKeyboardFocusHere(-1);
         }
+        if(Application::Singleton()->GetInputServer()->GetKeyUp(KEY_GRAVE_ACCENT)) {
+            ImGui::SetKeyboardFocusHere(-1);
+        }
         #endif
     }
     #endif

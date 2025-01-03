@@ -173,14 +173,17 @@ namespace gigno {
 
 		RenderedEntity *curr = entities;
 		while(curr) {
-			PushConstantData_t push{};
-			push.modelMatrix = curr->TransformationMatrix();
-			push.normalsMatrix = glm::mat4{curr->NormalMatrix()};
-			push.fullbright = (int)convar_r_fullbright;
-			vkCmdPushConstants(buffer, m_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstantData_t), &push);
+			const std::shared_ptr<giModel> model = curr->GetModel();
+			if(model != nullptr) {
+				PushConstantData_t push{};
+				push.modelMatrix = curr->TransformationMatrix();
+				push.normalsMatrix = glm::mat4{curr->NormalMatrix()};
+				push.fullbright = (int)convar_r_fullbright;
+				vkCmdPushConstants(buffer, m_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstantData_t), &push);
 
-			curr->GetModel()->Bind(buffer);
-			curr->GetModel()->Draw(buffer);
+				model->Bind(buffer);
+				model->Draw(buffer);
+			}
 
 			curr = curr->pNextRenderedEntity;
 		}

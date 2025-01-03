@@ -18,6 +18,8 @@ namespace gigno {
     bool ResolveCollision_SphereCapsule(RigidBody &sphere, RigidBody &capsule);
     bool ResolveCollision_PlaneCapsule(RigidBody &plane, RigidBody &capsule);
     bool ResolveCollision_CapsuleCapsule(RigidBody &rb1, RigidBody &rb2);
+    bool ResolveCollision_HullNonPlane(RigidBody &hull, RigidBody &nonPlane);
+    bool ResolveCollision_HullPlane(RigidBody &hull, RigidBody &Plane);
 
     /*
     colNormal : unit vector from rb1 to rb2
