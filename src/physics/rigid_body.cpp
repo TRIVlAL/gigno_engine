@@ -31,9 +31,9 @@ namespace gigno {
             GetApp()->GetPhysicServer()->UnsubscribeRigidBody(this);
         }
 
-        if(CollisionModelPath) {
+        /*if(CollisionModelPath) {
             delete[] CollisionModelPath;
-        }
+        }*/ //cannot, fsr?
     }
 
     void RigidBody::AddForce(const glm::vec3 &force, const glm::vec3 &application) {
@@ -118,25 +118,26 @@ namespace gigno {
             }
         }
 
+        //HACK HACK : For demo_3.map, no clean impl. for now :)
         if(strcmp(Name, "a") == 0) {
             const float pow = 1.0f * dt;
             if(GetApp()->GetInputServer()->GetKey(KEY_T)) {
-                AddImpulse(glm::vec3{1.0f, 0.0f, 0.0f} * pow);
+                AddImpulse(glm::vec3{2.0f, 0.0f, 0.0f} * pow);
             }
             if(GetApp()->GetInputServer()->GetKey(KEY_G)) {
-                AddImpulse(glm::vec3{-1.0f, 0.0f, 0.0f} * pow);
+                AddImpulse(glm::vec3{-2.0f, 0.0f, 0.0f} * pow);
             }
             if(GetApp()->GetInputServer()->GetKey(KEY_F)) {
-                AddImpulse(glm::vec3{0.0f, 0.0f, 1.0f} * pow);
+                AddImpulse(glm::vec3{0.0f, 0.0f, 2.0f} * pow);
             }
             if(GetApp()->GetInputServer()->GetKey(KEY_H)) {
-                AddImpulse(glm::vec3{0.0f, 0.0f, -1.0f} * pow);
+                AddImpulse(glm::vec3{0.0f, 0.0f, -2.0f} * pow);
             }
             if(GetApp()->GetInputServer()->GetKey(KEY_SPACE)) {
-                AddImpulse(glm::vec3{0.0f, 1.0f, 0.0f} * pow);
+                AddImpulse(glm::vec3{0.0f, 2.0f, 0.0f} * pow);
             }
             if(GetApp()->GetInputServer()->GetKey(KEY_LEFT_CONTROL)) {
-                AddImpulse(glm::vec3{0.0f, -1.0f, 0.0f} * pow);
+                AddImpulse(glm::vec3{0.0f, -2.0f, 0.0f} * pow);
             }
         }
     }

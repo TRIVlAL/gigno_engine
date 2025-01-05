@@ -42,6 +42,18 @@ namespace gigno {
     Tait-Bryan YXZ (see @ https://en.wikipedia.org/wiki/Euler_angles (Rotation Matrix)) convention
     */
     glm::vec3 ApplyRotation(glm::vec3 rotation, glm::vec3 vector);
+
+    /*
+    Returns the distance of a face from the origin.
+    outputs the normalized normal vector of the face
+    */
+    float DistanceToOrigin(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 &outNormal);
+
+    /*
+    Outputs the barycentric coordinates (u, v, w) for
+    point p on a triangle a b c
+    */
+    void Barycentric(glm::vec3 p, glm::vec3 a, glm::vec3 b, glm::vec3 c, float &u, float &v, float &w);
 }
 
 #endif

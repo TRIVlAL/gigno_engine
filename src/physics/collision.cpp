@@ -183,15 +183,32 @@ namespace gigno {
     bool ResolveCollision_HullNonPlane(RigidBody &hull, RigidBody &nonPlane) {
         Simplex_t simplex{};
         bool collide = GJK(hull, nonPlane, simplex);
+
+        //TODO : test if SAT is faster than GJK?
+        //TODO : try out GJK with a margin to avoid calling EPA for small penetration...
         
-        if(collide) {
-            Console::LogInfo("Colliding !!!");
+        if(!collide) {
+            return false;
         }
 
-        return collide;
+        glm::vec3 pointA{};
+        glm::vec3 pointB{};
+        glm::vec3 dir{};
+        float depth;
+        EPA(hull, nonPlane, simplex, pointA, pointB, dir, depth);
+
+        RenderingServer *r = Application::Singleton()->GetRenderer();
+
+        r->DrawLine(pointA, pointA - dir * depth, glm::vec3{0.0f, 1.0f, 0.0f});
+        r->DrawLine(pointB, pointB + dir * depth, glm::vec3{0.0f, 1.0f, 0.0f});
+
+        RespondCollision(hull, nonPlane, -dir, depth, pointA, pointB);
+
+        return true;
     }
 
     bool ResolveCollision_HullPlane(RigidBody &hull, RigidBody &Plane) {
+        //TODO : Implement>>>
         return false;
     }
 
@@ -199,7 +216,7 @@ namespace gigno {
                           const glm::vec3 &col1ApplyPoint, const glm::vec3 &col2ApplyPoint)
     {
 
-        if (glm::dot(rb1.Velocity, colNormal) <= 0 && glm::dot(rb2.Velocity, -colNormal) <= 0)
+        if (glm::dot(rb1.Velocity, colNormal) < 0 && glm::dot(rb2.Velocity, -colNormal) < 0)
         {
             // Object are moving away from each other,
             // Don't re-add any impulse.

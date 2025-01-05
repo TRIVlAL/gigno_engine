@@ -36,11 +36,33 @@
 }
 
 "RigidBody" {
+    "Name"      : "floor",
+    "ColliderType" : "COLLIDER_PLANE",
+    "Position"  : "0" "-2" "0",
+    "Scale"     : "4" "4" "4",
+    "Normal"    : "0" "1" "0",
+    "IsStatic"  : "true",
+    "ModelPath" : "models/plane_subdivided.obj"
+}
+
+"RigidBody" {
     "Name"      : "a",
-    "ColliderType" : "COLLIDER_HULL",
+    "ColliderType" : "COLLIDER_SPHERE",
     "CollisionModelPath" : "models/cube.obj",
     "Position"  : "3" "4" "0",
     "Rotation"  : "0.1" "0" "0.1",
+    "Radius"    : "1",
+    "Length"    : "1.5",
+    "IsStatic"  : "false",
+    "ModelPath" : "models/uv_sphere.obj"
+}
+
+"RigidBody" {
+    "Name"      : "b",
+    "ColliderType" : "COLLIDER_HULL",
+    "CollisionModelPath" : "models/cube.obj",
+    "Position"  : "1" "2" "0",
+    "Rotation"  : "0.2" "0" "0.3",
     "Radius"    : "0.5",
     "Length"    : "1.5",
     "IsStatic"  : "false",
@@ -48,10 +70,10 @@
 }
 
 "RigidBody" {
-    "Name"      : "b",
+    "Name"      : "c",
     "ColliderType" : "COLLIDER_HULL",
     "CollisionModelPath" : "models/cube.obj",
-    "Position"  : "2" "2" "0",
+    "Position"  : "3" "2" "3",
     "Rotation"  : "0.2" "0" "0.3",
     "Radius"    : "0.5",
     "Length"    : "1.5",

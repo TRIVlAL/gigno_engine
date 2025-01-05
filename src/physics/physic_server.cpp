@@ -75,8 +75,8 @@ namespace gigno {
             frame_time = std::chrono::nanoseconds((int64_t)(1e9 / convar_phys_loop_rate));
 
             if(dur > frame_time) {
-                Console::LogError ("Physic Server : Late on process. Could not keep the cadence of %u frames per seconds. "
-                                                                        "This frame took %d nanoseconds too long.", dur.count());
+                //Console::LogError ("Physic Server : Late on process. Could not keep the cadence of %u frames per seconds. "
+                                                                        //"This frame took %d nanoseconds too long.", dur.count());
                 frame_time += dur;
             } else {
                 while((std::chrono::high_resolution_clock::now() - frame_start) < frame_time) {
