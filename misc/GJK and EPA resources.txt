@@ -1,0 +1,13 @@
+GJK:
+- https://www.youtube.com/watch?v=ajv46BSqcK4&list=PLIuz3Ozdstp5tMtBbgJljuxumyy9gD2uN
+- https://graphics.stanford.edu/courses/cs164-09-spring/Handouts/paper_GJKoriginal.pdf
+- https://dyn4j.org/2010/05/epa-expanding-polytope-algorithm/
+- https://blog.hamaluik.ca/posts/building-a-collision-engine-part-3-3d-gjk-collision-detection/
+
+EPA:
+- https://allenchou.net/2013/12/game-physics-contact-generation-epa/
+- https://stackoverflow.com/questions/31764305/im-implementing-the-expanding-polytope-algorithm-and-i-am-unsure-how-to-deduce
+- https://www.youtube.com/watch?v=0XQ2FSz3EK8
+- https://gamedev.stackexchange.com/questions/23743/whats-the-most-efficient-way-to-find-barycentric-coordinates
+- https://www.toptal.com/game/video-game-physics-part-ii-collision-detection-for-solid-objects
+- 
