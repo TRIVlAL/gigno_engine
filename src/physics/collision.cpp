@@ -272,7 +272,7 @@ namespace gigno {
             return false;
         }
 
-        RespondCollision(hull, Plane, -Plane.Normal, max_depth, slice_sum / (float)slice_vert_count - hull.Position, glm::vec3{0.0f});
+        RespondCollision(hull, Plane, Plane.Normal, -max_depth, slice_sum / (float)slice_vert_count - hull.Position, glm::vec3{0.0f});
 
         return false;
     }
