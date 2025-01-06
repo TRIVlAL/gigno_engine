@@ -199,13 +199,81 @@ namespace gigno {
 
         dir = glm::dot(pointB - pointA, dir) >= 0 ? -dir : dir;
 
-        RespondCollision(hull, nonPlane, glm::normalize(pointB - pointA), depth, pointA, pointB);
+        RespondCollision(hull, nonPlane, glm::normalize(pointB - pointA), depth, pointA - hull.Position, pointB - nonPlane.Position);
         
         return true;
     }
 
     bool ResolveCollision_HullPlane(RigidBody &hull, RigidBody &Plane) {
-        //TODO : Implement>>>
+
+        //TODO : Compute hull vertices in world space ONE per iteraration instead of on the fly.
+
+        std::vector<glm::vec3> &vert = hull.Hull.Vertices;
+        std::vector<int> &ind = hull.Hull.Indices;
+
+        std::vector<std::pair<bool, float>> heights(vert.size());
+
+        size_t slice_vert_count{};
+        glm::vec3 slice_sum{};
+
+        float max_depth = 0;
+        bool got_under = false;
+
+        for(size_t i = 0; i < ind.size(); i += 3) {
+            for(int j = 0; j < 3; j++) {
+                int indice_a = ind[i+j];
+                int indice_b = ind[j == 2 ? i : i+j+1];
+                
+
+                if(!heights[indice_a].first) {
+                    //Need to calculate the height
+                    heights[indice_a].first = true;
+                    heights[indice_a].second = glm::dot(hull.Position + ApplyRotation(hull.Rotation, vert[indice_a]) - Plane.Position, Plane.Normal);
+                    if(heights[indice_a].second < max_depth) {
+                        max_depth = heights[indice_a].second;
+                    }
+                }
+                if(!heights[indice_b].first) {
+                    //Need to calculate the height
+                    heights[indice_b].first = true;
+                    heights[indice_b].second = glm::dot(hull.Position + ApplyRotation(hull.Rotation, vert[indice_b]) - Plane.Position, Plane.Normal);
+                    if(heights[indice_b].second < max_depth) {
+                        max_depth = heights[indice_b].second;
+                    }
+                }
+
+                if(!got_under) {
+                    got_under = heights[indice_a].second <= 0.0f || heights[indice_b].second <= 0.0f;
+                }
+
+                if((heights[indice_a].second > 0.0f && heights[indice_b].second > 0.0f /*Above*/)
+                || (heights[indice_a].second <= 0.0f && heights[indice_b].second <= 0.0f /*Bellow*/)) {
+                    continue;
+                }
+
+                if(i== 0) {
+                    int k = 0;
+                }
+
+
+                float total_height = glm::abs(heights[indice_a].second - heights[indice_b].second);
+                float floor_height = glm::abs(heights[indice_a].second);
+
+                glm::vec3 slice_pos = ((total_height - floor_height) * (hull.Position + ApplyRotation(hull.Rotation, vert[indice_a]))
+                             +  floor_height * (hull.Position + ApplyRotation(hull.Rotation, vert[indice_b]))) / total_height;
+
+                slice_sum += slice_pos;
+
+                slice_vert_count++;
+            }
+        }
+
+        if(!got_under) {
+            return false;
+        }
+
+        RespondCollision(hull, Plane, -Plane.Normal, max_depth, slice_sum / (float)slice_vert_count - hull.Position, glm::vec3{0.0f});
+
         return false;
     }
 
