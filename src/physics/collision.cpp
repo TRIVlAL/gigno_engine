@@ -197,13 +197,10 @@ namespace gigno {
         float depth;
         EPA(hull, nonPlane, simplex, pointA, pointB, dir, depth);
 
-        RenderingServer *r = Application::Singleton()->GetRenderer();
+        dir = glm::dot(pointB - pointA, dir) >= 0 ? -dir : dir;
 
-        r->DrawLine(pointA, pointA - dir * depth, glm::vec3{0.0f, 1.0f, 0.0f});
-        r->DrawLine(pointB, pointB + dir * depth, glm::vec3{0.0f, 1.0f, 0.0f});
-
-        RespondCollision(hull, nonPlane, -dir, depth, pointA, pointB);
-
+        RespondCollision(hull, nonPlane, glm::normalize(pointB - pointA), depth, pointA, pointB);
+        
         return true;
     }
 
@@ -215,8 +212,12 @@ namespace gigno {
     void RespondCollision(RigidBody &rb1, RigidBody &rb2, const glm::vec3 &colNormal, const float &colDepth,
                           const glm::vec3 &col1ApplyPoint, const glm::vec3 &col2ApplyPoint)
     {
+        const float epsilon = 0.0000000001;
 
-        if (glm::dot(rb1.Velocity, colNormal) < 0 && glm::dot(rb2.Velocity, -colNormal) < 0)
+        //Is this ok???
+        const glm::vec3 point_velocity1 = rb1.Velocity + glm::cross(rb1.AngularVelocity, col1ApplyPoint);
+        const glm::vec3 point_velocity2 = rb2.Velocity + glm::cross(rb2.AngularVelocity, col2ApplyPoint);
+        if (glm::dot(point_velocity1, colNormal) < -epsilon && glm::dot(point_velocity2, -colNormal) < -epsilon)
         {
             // Object are moving away from each other,
             // Don't re-add any impulse.

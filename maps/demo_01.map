@@ -42,7 +42,7 @@
 }
 
 "RigidBody" {
-    "Name"      : "phys_sphere1",
+    "Name"      : "a",
     "ColliderType" : "COLLIDER_SPHERE",
     "Position"  : "5" "0" "0",
     "Scale"     : "0.5" "0.5" "0.5",

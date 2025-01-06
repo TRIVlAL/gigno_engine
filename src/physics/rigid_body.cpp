@@ -75,6 +75,10 @@ namespace gigno {
             return;
         }
 
+        if(!strcmp(Name, "b")) {
+            int i = 0;
+        }
+
         //Gravity
         AddForce((glm::vec3)convar_phys_gravity * Mass);
 
@@ -84,6 +88,14 @@ namespace gigno {
         Velocity *= ldrag;
         float rdrag = glm::clamp(1.0f - (AngularDrag * dt), 0.0f, 1.0f);
         AngularVelocity *= rdrag;
+
+        const float epsilon = 0.00000000001;
+        if(LenSquared(Velocity) < epsilon) {
+            Velocity  = glm::vec3{0.0f};
+        }
+        if(LenSquared(AngularVelocity) < epsilon) {
+            AngularVelocity = glm::vec3{0.0f};
+        }
 
         glm::vec3 avrg_vel = Velocity;
         Velocity += dt * Force / Mass;

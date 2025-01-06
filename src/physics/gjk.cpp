@@ -111,12 +111,6 @@ namespace gigno {
             new_point.ASupport = PointA;
             new_point.BSupport = PointB;
 
-            for(auto &v : polytope.Vertices) {
-                if(v.Point == new_point.Point && i == 0) {
-                    int k = 0;
-                }
-            }
-
             float new_point_distance = glm::dot(new_point.Point, face_normal);
 
             if(new_point_distance - face_distance < epsilon) {

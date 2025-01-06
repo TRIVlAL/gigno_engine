@@ -63,7 +63,7 @@
     "CollisionModelPath" : "models/cube.obj",
     "Position"  : "1" "2" "0",
     "Rotation"  : "0.2" "0" "0.3",
-    "Radius"    : "0.5",
+    "Radius"    : "1",
     "Length"    : "1.5",
     "IsStatic"  : "false",
     "ModelPath" : "models/cube.obj"
