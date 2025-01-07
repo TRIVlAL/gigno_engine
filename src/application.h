@@ -13,8 +13,13 @@ int main();
 
 namespace gigno {
 
+	static void status(const CommandToken_t &args); //command 'status'
+
 	class Application {
 		friend int ::main();
+		#if USE_CONSOLE
+		friend void status(const CommandToken_t &args); //command 'status'
+		#endif
 	public:
 		static Application *Singleton();
 

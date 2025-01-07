@@ -4,6 +4,8 @@
 
 #include "../../features_usage.h"
 
+#include <assert.h>
+
 #if USE_CONSOLE
 namespace gigno {
 
@@ -92,6 +94,13 @@ namespace gigno {
     CONSOLE_COMMAND_HELP(exit, "closes the app") {
         if(Application *app = Application::Singleton()) {
             app->Close = true;
+        }
+    }
+
+    CONSOLE_COMMAND_HELP(status, "prints infos to the console") {
+        if(Application *app = Application::Singleton()) {
+            Console::LogInfo("Current map : '%s'"
+            , app->m_CurrentMapFilepath.c_str());
         }
     }
 }
