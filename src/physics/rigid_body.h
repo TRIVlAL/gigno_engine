@@ -12,6 +12,8 @@ namespace gigno {
     struct Hull_t {
         std::vector<glm::vec3> Vertices{};
         std::vector<int> Indices{};
+
+        std::vector<glm::vec3> RotatedVertices{}; 
     };
 
     class RigidBody : public RenderedEntity {
@@ -62,6 +64,7 @@ namespace gigno {
         bool hasCollider = false;
 
         void LoadColliderModel(const char *path);
+        void UpdateRotatedModel();
     };
 
     BEGIN_KEY_TABLE(RigidBody)

@@ -235,10 +235,10 @@ namespace gigno {
                     + glm::normalize(direction) * rb.Radius;
         } 
         else if(rb.ColliderType == COLLIDER_HULL) {
-            glm::vec3 best_point = ApplyRotation(rb.Rotation, rb.Hull.Vertices[0]);
+            glm::vec3 best_point = rb.Hull.RotatedVertices[0];
             float max_dot = glm::dot(best_point, direction);
             for(int i = 1; i < rb.Hull.Vertices.size(); i++) {
-                const glm::vec3 new_point = ApplyRotation(rb.Rotation, rb.Hull.Vertices[i]);
+                const glm::vec3 new_point = rb.Hull.RotatedVertices[i];
                 const float new_dot = glm::dot(new_point, direction);
                 if ( new_dot > max_dot) {
                     max_dot = new_dot;

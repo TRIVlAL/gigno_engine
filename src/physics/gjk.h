@@ -35,7 +35,7 @@ namespace gigno {
     /*
     Given two rbs and a Simplex on their Minkowski difference contining the origin (obtained with GJK), outputs
     their collision informations :
-        outPointA/outPointB : Points of collision.
+        outPointA/outPointB : Points of collision in world space.
         outDirection        : normalized colision normal from A to B
         outDepth            : Collision depth.
     */

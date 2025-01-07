@@ -72,6 +72,9 @@ namespace gigno {
 
     void RigidBody::LatePhysicThink(float dt) {
         if(IsStatic) {
+            if(ColliderType == COLLIDER_HULL) {
+                UpdateRotatedModel();
+            }
             return;
         }
 
@@ -116,6 +119,10 @@ namespace gigno {
         Rotation.y = glm::mod<float>(Rotation.y, glm::pi<float>()*2);
         Rotation.z = glm::mod<float>(Rotation.z, glm::pi<float>()*2);
 
+        if(ColliderType == COLLIDER_HULL && avrg_rot_vel != glm::vec3{0.0f}) {
+            UpdateRotatedModel();
+        }
+
         Force = glm::vec3{0.0f};
         Torque = glm::vec3{0.0f};
     }
@@ -157,6 +164,7 @@ namespace gigno {
     void RigidBody::LoadColliderModel(const char *path) {
         Hull.Indices.clear();
         Hull.Vertices.clear();
+        Hull.RotatedVertices.clear();
 
         tinyobj::attrib_t attrib{};
         std::vector<tinyobj::shape_t> shapes{};
@@ -197,6 +205,18 @@ namespace gigno {
             }
         }
 
+        UpdateRotatedModel();
+
+    }
+
+    void RigidBody::UpdateRotatedModel() {
+        ASSERT(ColliderType == COLLIDER_HULL);
+
+        Hull.RotatedVertices.resize(Hull.Vertices.size());
+
+        for(size_t i = 0; i < Hull.Vertices.size(); i++) {
+            Hull.RotatedVertices[i] = ApplyRotation(Rotation, Hull.Vertices[i]);
+        }
     }
 
     void DrawRigidbodyCollider(RigidBody &rb) {

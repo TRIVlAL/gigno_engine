@@ -208,7 +208,7 @@ namespace gigno {
 
         //TODO : Compute hull vertices in world space ONE per iteraration instead of on the fly.
 
-        std::vector<glm::vec3> &vert = hull.Hull.Vertices;
+        std::vector<glm::vec3> &vert = hull.Hull.RotatedVertices;
         std::vector<int> &ind = hull.Hull.Indices;
 
         std::vector<std::pair<bool, float>> heights(vert.size());
@@ -228,7 +228,7 @@ namespace gigno {
                 if(!heights[indice_a].first) {
                     //Need to calculate the height
                     heights[indice_a].first = true;
-                    heights[indice_a].second = glm::dot(hull.Position + ApplyRotation(hull.Rotation, vert[indice_a]) - Plane.Position, Plane.Normal);
+                    heights[indice_a].second = glm::dot(hull.Position + vert[indice_a] - Plane.Position, Plane.Normal);
                     if(heights[indice_a].second < max_depth) {
                         max_depth = heights[indice_a].second;
                     }
@@ -236,7 +236,7 @@ namespace gigno {
                 if(!heights[indice_b].first) {
                     //Need to calculate the height
                     heights[indice_b].first = true;
-                    heights[indice_b].second = glm::dot(hull.Position + ApplyRotation(hull.Rotation, vert[indice_b]) - Plane.Position, Plane.Normal);
+                    heights[indice_b].second = glm::dot(hull.Position + vert[indice_b] - Plane.Position, Plane.Normal);
                     if(heights[indice_b].second < max_depth) {
                         max_depth = heights[indice_b].second;
                     }
@@ -259,8 +259,8 @@ namespace gigno {
                 float total_height = glm::abs(heights[indice_a].second - heights[indice_b].second);
                 float floor_height = glm::abs(heights[indice_a].second);
 
-                glm::vec3 slice_pos = ((total_height - floor_height) * (hull.Position + ApplyRotation(hull.Rotation, vert[indice_a]))
-                             +  floor_height * (hull.Position + ApplyRotation(hull.Rotation, vert[indice_b]))) / total_height;
+                glm::vec3 slice_pos = ((total_height - floor_height) * (hull.Position + vert[indice_a])
+                             +  floor_height * (hull.Position + vert[indice_b])) / total_height;
 
                 slice_sum += slice_pos;
 
