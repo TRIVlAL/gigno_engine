@@ -33,9 +33,11 @@ namespace gigno {
             GetApp()->GetPhysicServer()->UnsubscribeRigidBody(this);
         }
 
-        /*if(CollisionModelPath) {
+        /*
+        if(CollisionModelPath) {
             delete[] CollisionModelPath;
-        }*/ //cannot, fsr?
+        }
+        */ //cannot, fsr?
     }
 
     void RigidBody::AddForce(const glm::vec3 &force, const glm::vec3 &application) {
@@ -220,6 +222,7 @@ namespace gigno {
     }
 
     void DrawRigidbodyCollider(RigidBody &rb) {
+        #if USE_DEBUG_DRAWING
         RenderingServer *r = Application::Singleton()->GetRenderer();
 
         const glm::vec3 up = ApplyRotation(rb.Rotation, glm::vec3{0.0f, 1.0f, 0.0f});
@@ -293,5 +296,6 @@ namespace gigno {
                 r->DrawLine(c, a, color);
             }
         }
+        #endif
     }
 }

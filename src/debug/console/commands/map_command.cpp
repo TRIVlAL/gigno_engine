@@ -3,10 +3,13 @@
 #include <filesystem>
 #include "../convar.h"
 #include <string>
+#include "features_usage.h"
 
 namespace gigno {
 
     CONVAR(const char *, map_path, "maps/", "Path from application directory where maps are found by map command. Default is 'maps/'");
+
+    #if USE_CONSOLE
 
     CONSOLE_COMMAND_HELP(map, "Loads the map file passed as argument. If no arguments given, lists the avaliable map files.") {
         if(args.GetArgC() > 0) {
@@ -25,5 +28,7 @@ namespace gigno {
             }
         }
     }
+
+    #endif
 
 }
