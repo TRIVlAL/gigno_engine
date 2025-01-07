@@ -2586,21 +2586,21 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
              std::string *err, std::istream *inStream,
              MaterialReader *readMatFn /*= NULL*/, bool triangulate,
              bool default_vcols_fallback) {
-  std::stringstream errss;
+  std::stringstream errss{};
 
-  std::vector<real_t> v;
-  std::vector<real_t> vertex_weights;  // optional [w] component in `v`
-  std::vector<real_t> vn;
-  std::vector<real_t> vt;
-  std::vector<real_t> vc;
-  std::vector<skin_weight_t> vw;  // tinyobj extension: vertex skin weights
-  std::vector<tag_t> tags;
-  PrimGroup prim_group;
-  std::string name;
+  std::vector<real_t> v{};
+  std::vector<real_t> vertex_weights{};  // optional [w] component in `v`
+  std::vector<real_t> vn{};
+  std::vector<real_t> vt{};
+  std::vector<real_t> vc{};
+  std::vector<skin_weight_t> vw{};  // tinyobj extension: vertex skin weights
+  std::vector<tag_t> tags{};
+  PrimGroup prim_group{};
+  std::string name{};
 
   // material
-  std::set<std::string> material_filenames;
-  std::map<std::string, int> material_map;
+  std::set<std::string> material_filenames{};
+  std::map<std::string, int> material_map{};
   int material = -1;
 
   // smoothing group id
@@ -2611,7 +2611,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
   int greatest_vn_idx = -1;
   int greatest_vt_idx = -1;
 
-  shape_t shape;
+  shape_t shape{};
 
   bool found_all_colors = true;  // check if all 'v' line has color info
 
@@ -2649,8 +2649,8 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
     // vertex
     if (token[0] == 'v' && IS_SPACE((token[1]))) {
       token += 2;
-      real_t x, y, z;
-      real_t r, g, b;
+      real_t x{}, y{}, z{};
+      real_t r{}, g{}, b{};
 
       int num_components = parseVertexWithColor(&x, &y, &z, &r, &g, &b, &token);
       found_all_colors &= (num_components == 6);
@@ -2674,7 +2674,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
     // normal
     if (token[0] == 'v' && token[1] == 'n' && IS_SPACE((token[2]))) {
       token += 3;
-      real_t x, y, z;
+      real_t x{}, y{}, z{};
       parseReal3(&x, &y, &z, &token);
       vn.push_back(x);
       vn.push_back(y);
@@ -2685,7 +2685,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
     // texcoord
     if (token[0] == 'v' && token[1] == 't' && IS_SPACE((token[2]))) {
       token += 3;
-      real_t x, y;
+      real_t x{}, y{};
       parseReal2(&x, &y, &token);
       vt.push_back(x);
       vt.push_back(y);
@@ -2704,7 +2704,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
       int vid = 0;
       vid = parseInt(&token);
 
-      skin_weight_t sw;
+      skin_weight_t sw{};
 
       sw.vertex_id = vid;
 
@@ -2725,7 +2725,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
           return false;
         }
 
-        joint_and_weight_t jw;
+        joint_and_weight_t jw{};
 
         jw.joint_id = int(j);
         jw.weight = w;
@@ -2739,7 +2739,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
       vw.push_back(sw);
     }
 
-    warning_context context;
+    warning_context context{};
     context.warn = warn;
     context.line_number = line_num;
 
@@ -2747,7 +2747,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
     if (token[0] == 'l' && IS_SPACE((token[1]))) {
       token += 2;
 
-      __line_t line;
+      __line_t line{};
 
       while (!IS_NEW_LINE(token[0])) {
         vertex_index_t vi;
@@ -2778,7 +2778,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
     if (token[0] == 'p' && IS_SPACE((token[1]))) {
       token += 2;
 
-      __points_t pts;
+      __points_t pts{};
 
       while (!IS_NEW_LINE(token[0])) {
         vertex_index_t vi;
@@ -2810,7 +2810,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
       token += 2;
       token += strspn(token, " \t");
 
-      face_t face;
+      face_t face{};
 
       face.smoothing_group_id = current_smoothing_id;
       face.vertex_indices.reserve(3);
@@ -2881,12 +2881,12 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
       if (readMatFn) {
         token += 7;
 
-        std::vector<std::string> filenames;
+        std::vector<std::string> filenames{};
         SplitString(std::string(token), ' ', '\\', filenames);
 
         if (filenames.empty()) {
           if (warn) {
-            std::stringstream ss;
+            std::stringstream ss{};
             ss << "Looks like empty filename for mtllib. Use default "
                   "material (line "
                << line_num << ".)\n";
@@ -2962,13 +2962,13 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
       if (names.size() < 2) {
         // 'g' with empty names
         if (warn) {
-          std::stringstream ss;
+          std::stringstream ss{};
           ss << "Empty group name. line: " << line_num << "\n";
           (*warn) += ss.str();
           name = "";
         }
       } else {
-        std::stringstream ss;
+        std::stringstream ss{};
         ss << names[1];
 
         // tinyobjloader does not support multiple groups for a primitive.
@@ -3003,7 +3003,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
 
       // @todo { multiple object name? }
       token += 2;
-      std::stringstream ss;
+      std::stringstream ss{};
       ss << token;
       name = ss.str();
 
@@ -3012,7 +3012,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
 
     if (token[0] == 't' && IS_SPACE(token[1])) {
       const int max_tag_nums = 8192;  // FIXME(syoyo): Parameterize.
-      tag_t tag;
+      tag_t tag{};
 
       token += 2;
 

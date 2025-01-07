@@ -305,7 +305,7 @@ namespace gigno {
             if(rb1.IsStatic) {
                 rb2.AddImpulse(-colNormal * J * (rb1.Mass + rb2.Mass), col2ApplyPoint);
 
-                if(colDepth < 0.2f) {
+                if(colDepth < 2.0f) {
                     rb2.PositionOffset += -colNormal * colDepth;
                     if(glm::length(rb1.PositionOffset) > 5.0f || glm::length(rb2.PositionOffset) > 5.0f) {
                         int i = 0;
@@ -317,7 +317,7 @@ namespace gigno {
             else if(rb2.IsStatic) {
                 rb1.AddImpulse(colNormal * J * (rb1.Mass + rb2.Mass), col1ApplyPoint);
 
-                if(colDepth < 0.2f) {
+                if(colDepth < 2.0f) {
                     rb1.PositionOffset += colNormal * colDepth;
                     if(glm::length(rb1.PositionOffset) > 5.0f || glm::length(rb2.PositionOffset) > 5.0f) {
                         int i = 0;
@@ -333,7 +333,7 @@ namespace gigno {
                 rb2.AddImpulse(-colNormal * J * rb1.Mass, col2ApplyPoint);
                 /*col2ApplyPoint * J * col2.Mass*/
 
-                if (colDepth < 0.2f)
+                if (colDepth < 2.0f)
                 {
                     // Offset the object out of the collision to avoid double apply on consecutive frame when working witih tiny velocity!
                     rb1.PositionOffset += colNormal * colDepth / 2.0f;

@@ -9,6 +9,8 @@
 
 #include "gjk.h"
 
+#include <exception>
+
 namespace gigno {
     ENTITY_DEFINITIONS(RigidBody, RenderedEntity)
 
@@ -58,8 +60,6 @@ namespace gigno {
 
     void RigidBody::Init() {
         RenderedEntity::Init();
-        Velocity += StartVelocity;
-
         if(ColliderType == COLLIDER_HULL) {
             if(CollisionModelPath) {
                 LoadColliderModel(CollisionModelPath);
@@ -166,6 +166,7 @@ namespace gigno {
         std::string err{};
 
         if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path)) {
+            ColliderType = COLLIDER_SPHERE;
             ERR_MSG("LoadColliderModel : Tiny Object Loader Error : %s", err.c_str());
         }
 
