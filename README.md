@@ -3,7 +3,8 @@
 ## Simple real-time 3d renderer / Engine powered by Vulkan.
 
 This project is a real-time renderer / Engine using the Vulkan Rendering API and glfw. 
-The rendering architercture inspired by the amazing tutorial series by [vulkan-tutorial](https://vulkan-tutorial.com/Introduction) and [video series](https://www.youtube.com/playlist?list=PL8327DO66nu9qYVKLDmdLW_84-yE4auCR) by Brendan Galea.
+The rendering architercture inspired by the amazing tutorial series by [vulkan-tutorial](https://vulkan-tutorial.com/Introduction) and [video series](https://www.youtube.com/playlist?list=PL8327DO66nu9qYVKLDmdLW_84-yE4auCR) by Brendan Galea. 
+See the physics branch for the latest development of the engine, including a work-in-progress physics engine.
 
 ## Compiling
 
