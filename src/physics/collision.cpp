@@ -282,15 +282,11 @@ namespace gigno {
     {
         const float epsilon = 0.0000000001;
 
-        //Is this ok???
-        const glm::vec3 point_velocity1 = rb1.Velocity + glm::cross(rb1.AngularVelocity, col1ApplyPoint);
-        const glm::vec3 point_velocity2 = rb2.Velocity + glm::cross(rb2.AngularVelocity, col2ApplyPoint);
-        if (glm::dot(point_velocity1, colNormal) < -epsilon && glm::dot(point_velocity2, -colNormal) < -epsilon)
-        {
-            // Object are moving away from each other,
-            // Don't re-add any impulse.
-            return;
-        }
+        /*
+        I used to check if objects were moving away from each other before responding
+        but it seemed to be irrelevent and to cause 'skipping' of some collision reponses.
+        This has now been removed.
+        */
 
         if(rb1.IsStatic && rb2.IsStatic) {
             return;
@@ -306,7 +302,7 @@ namespace gigno {
                 rb2.AddImpulse(-colNormal * J * (rb1.Mass + rb2.Mass), col2ApplyPoint);
 
                 if(colDepth < 2.0f) {
-                    rb2.PositionOffset += -colNormal * colDepth;
+                    rb2.PositionOffset += -colNormal * (colDepth + 0.00001f);
                     if(glm::length(rb1.PositionOffset) > 5.0f || glm::length(rb2.PositionOffset) > 5.0f) {
                         int i = 0;
                     }
@@ -318,7 +314,7 @@ namespace gigno {
                 rb1.AddImpulse(colNormal * J * (rb1.Mass + rb2.Mass), col1ApplyPoint);
 
                 if(colDepth < 2.0f) {
-                    rb1.PositionOffset += colNormal * colDepth;
+                    rb1.PositionOffset += colNormal * (colDepth + 0.00001f);
                     if(glm::length(rb1.PositionOffset) > 5.0f || glm::length(rb2.PositionOffset) > 5.0f) {
                         int i = 0;
                     }
@@ -328,16 +324,14 @@ namespace gigno {
             } 
             else {
                 rb1.AddImpulse(colNormal * J * rb2.Mass, col1ApplyPoint);
-                /*col1ApplyPoint * J * col2.Mass*/
 
                 rb2.AddImpulse(-colNormal * J * rb1.Mass, col2ApplyPoint);
-                /*col2ApplyPoint * J * col2.Mass*/
 
                 if (colDepth < 2.0f)
                 {
                     // Offset the object out of the collision to avoid double apply on consecutive frame when working witih tiny velocity!
-                    rb1.PositionOffset += colNormal * colDepth / 2.0f;
-                    rb2.PositionOffset += -colNormal * colDepth / 2.0f;
+                    rb1.PositionOffset += colNormal * (colDepth + 0.00001f) * 0.5f;
+                    rb2.PositionOffset += -colNormal * (colDepth + 0.00001f) * 0.5f;
                     if(glm::length(rb1.PositionOffset) > 5.0f || glm::length(rb2.PositionOffset) > 5.0f) {
                         int i = 0;
                     }
