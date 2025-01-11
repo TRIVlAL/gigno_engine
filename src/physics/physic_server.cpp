@@ -14,6 +14,8 @@
 
 #include "../debug/profiler/profiler.h"
 
+using namespace std::chrono_literals;
+
 namespace gigno {
 
     extern std::mutex s_EntityUnloadMutex;
@@ -53,8 +55,9 @@ namespace gigno {
         std::chrono::time_point<std::chrono::high_resolution_clock> frame_start{};
         std::chrono::time_point<std::chrono::high_resolution_clock> frame_end{};
         std::chrono::nanoseconds to_wait{0};
-        std::chrono::nanoseconds frame_time((int64_t)(1e9/convar_phys_loop_rate));
+        std::chrono::nanoseconds target_dur((int64_t)(1e9/convar_phys_loop_rate));
         EntityServer* entity_serv = Application::Singleton()->GetEntityServer();
+        std::chrono::nanoseconds time_overflow{0};
     
         while(m_LoopContinue) {
             Profiler::Begin("Physics Loop");
@@ -62,7 +65,7 @@ namespace gigno {
             frame_start = std::chrono::high_resolution_clock::now();
 
             s_EntityUnloadMutex.lock();
-            entity_serv->PhysicTick(frame_time.count() / 1e9);
+            entity_serv->PhysicTick((target_dur.count() + time_overflow.count()) / 1e9);
 
             DetectCollisions();
             s_EntityUnloadMutex.unlock();
@@ -72,15 +75,17 @@ namespace gigno {
             frame_end = std::chrono::high_resolution_clock::now();
             std::chrono::nanoseconds dur = frame_end - frame_start;
 
-            frame_time = std::chrono::nanoseconds((int64_t)(1e9 / convar_phys_loop_rate));
+            target_dur = std::chrono::nanoseconds((int64_t)(1e9 / convar_phys_loop_rate));
 
-            if(dur > frame_time) {
-                //Console::LogError ("Physic Server : Late on process. Could not keep the cadence of %u frames per seconds. "
-                                                                        //"This frame took %d nanoseconds too long.", dur.count());
-                frame_time += dur;
+            if(dur > target_dur) {
+                time_overflow = dur - target_dur;
+                Console::LogError ("Physic Server : Late on process. Could not keep the cadence of %d frames per seconds. "
+                                                                        "This frame took %f ms too long.", (uint32_t)convar_phys_loop_rate, (float)time_overflow.count()/1e6f);
             } else {
-                while((std::chrono::high_resolution_clock::now() - frame_start) < frame_time) {
-                    // SPIN
+                time_overflow = 0ns;
+
+                while((std::chrono::high_resolution_clock::now() - frame_start) < target_dur) {
+                    /* --- SPIN ---*/
                 }
             }
         }
