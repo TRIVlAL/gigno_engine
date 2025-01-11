@@ -37,7 +37,7 @@ namespace gigno {
     their collision informations :
         outPointA/outPointB : Points of collision in world space.
         outDirection        : normalized colision normal from A to B
-        outDepth            : Collision depth.
+        outDepth            : POSITIVE number representing how deep inside themselves the objects are.
     */
     void EPA(const RigidBody &A, const RigidBody &B, const Simplex_t &Simplex, 
             glm::vec3 &outPointA, glm::vec3 &outPointB, glm::vec3 &outDirection, float & outDepth);

@@ -197,9 +197,7 @@ namespace gigno {
         float depth;
         EPA(hull, nonPlane, simplex, pointA, pointB, dir, depth);
 
-        dir = glm::dot(pointB - pointA, dir) >= 0 ? -dir : dir;
-
-        RespondCollision(hull, nonPlane, glm::normalize(pointB - pointA), depth, pointA - hull.Position, pointB - nonPlane.Position);
+        RespondCollision(hull, nonPlane, dir, -depth, pointA - hull.Position, pointB - nonPlane.Position);
         
         return true;
     }
@@ -277,11 +275,11 @@ namespace gigno {
         return false;
     }
 
+    CONVAR(float, phys_response_epsilon, 1e-5f, "Very small value. Object are pushed out of each other with this leaway.")
+
     void RespondCollision(RigidBody &rb1, RigidBody &rb2, const glm::vec3 &colNormal, const float &colDepth,
                           const glm::vec3 &col1ApplyPoint, const glm::vec3 &col2ApplyPoint)
     {
-        const float epsilon = 0.0000000001;
-
         /*
         I used to check if objects were moving away from each other before responding
         but it seemed to be irrelevent and to cause 'skipping' of some collision reponses.
@@ -302,7 +300,7 @@ namespace gigno {
                 rb2.AddImpulse(-colNormal * J * (rb1.Mass + rb2.Mass), col2ApplyPoint);
 
                 if(colDepth < 2.0f) {
-                    rb2.PositionOffset += -colNormal * (colDepth + 0.00001f);
+                    rb2.PositionOffset += -colNormal * (colDepth - convar_phys_response_epsilon);
                     if(glm::length(rb1.PositionOffset) > 5.0f || glm::length(rb2.PositionOffset) > 5.0f) {
                         int i = 0;
                     }
@@ -314,7 +312,7 @@ namespace gigno {
                 rb1.AddImpulse(colNormal * J * (rb1.Mass + rb2.Mass), col1ApplyPoint);
 
                 if(colDepth < 2.0f) {
-                    rb1.PositionOffset += colNormal * (colDepth + 0.00001f);
+                    rb1.PositionOffset += colNormal * (colDepth - convar_phys_response_epsilon);
                     if(glm::length(rb1.PositionOffset) > 5.0f || glm::length(rb2.PositionOffset) > 5.0f) {
                         int i = 0;
                     }
@@ -330,8 +328,8 @@ namespace gigno {
                 if (colDepth < 2.0f)
                 {
                     // Offset the object out of the collision to avoid double apply on consecutive frame when working witih tiny velocity!
-                    rb1.PositionOffset += colNormal * (colDepth + 0.00001f) * 0.5f;
-                    rb2.PositionOffset += -colNormal * (colDepth + 0.00001f) * 0.5f;
+                    rb1.PositionOffset += colNormal * (colDepth - convar_phys_response_epsilon) * 0.5f;
+                    rb2.PositionOffset += -colNormal * (colDepth - convar_phys_response_epsilon) * 0.5f;
                     if(glm::length(rb1.PositionOffset) > 5.0f || glm::length(rb2.PositionOffset) > 5.0f) {
                         int i = 0;
                     }
