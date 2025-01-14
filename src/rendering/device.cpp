@@ -44,8 +44,8 @@ namespace gigno {
 		VkApplicationInfo appinfo;
 		appinfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 		appinfo.pNext = nullptr;
-		appinfo.pApplicationName = "Gigno Engine App";
-		appinfo.applicationVersion = VK_MAKE_API_VERSION(0, 0, 0, 0);
+		appinfo.pApplicationName = "Gigno Engine Physics Demo";
+		appinfo.applicationVersion = VK_MAKE_API_VERSION(0, 4, 0, 0);
 		appinfo.pEngineName = "Gigno Engine";
 		// Note for later : DO NOT CHANGE THE API VERSION UNLESS U SURE WHAT U DOING (More than myself anyway)
 		appinfo.apiVersion = VK_MAKE_API_VERSION(1, 0, 0, 0); 
