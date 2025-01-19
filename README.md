@@ -5,6 +5,10 @@
 This project is a real-time renderer / Engine using the Vulkan Rendering API and glfw. 
 The rendering architercture inspired by the amazing tutorial series by [vulkan-tutorial](https://vulkan-tutorial.com/Introduction) and [video series](https://www.youtube.com/playlist?list=PL8327DO66nu9qYVKLDmdLW_84-yE4auCR) by Brendan Galea.
 
+## Directly Running
+
+If you just want to run the demo scene without compiling the code yourself, you may download the executable from the release section.
+
 ## Compiling
 
 Download the code of this repository or clone it. if you do clone it, do it recursively with the ```--recursive``` parameter, as there are submodules that must be included.
