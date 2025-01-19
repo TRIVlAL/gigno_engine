@@ -45,6 +45,7 @@ namespace gigno {
         Hull_t Hull{}; // Points of the convex hull (in local space)
 
         float Mass{1.0f};
+        float InertiaMoment{1.0f};
         bool IsStatic{false};
         int Material = (int)MAT_PLASTIC;
 
@@ -55,12 +56,27 @@ namespace gigno {
 
         glm::vec3 PositionOffset{};
 
+        /*
+        HINGE : The object is locked on an axis positioned at HingePosition. 
+                Set HingeDirection to (0,0,0) to disable (default)
+        */
+        //Local Hinge Position
+        glm::vec3 HingePosition{};
+        //Axis on which the hinge rotates
+        glm::vec3 HingeDirection{};
+        // If 0.0, the object snaps to the hinge. 
+        // Else, a force is applied to keep the object close to the hinge, proporional to power.
+        float HingePower{10.0f};
+
         glm::vec3 Force{};
         glm::vec3 Velocity{};
 
         glm::vec3 Torque{};
         glm::vec3 AngularVelocity{};
     private:
+
+        glm::vec3 m_WorldTargetHinge{};// The world position of the hinge. is set on Init
+
         bool hasCollider = false;
 
         void LoadColliderModel(const char *path);
@@ -69,6 +85,7 @@ namespace gigno {
 
     BEGIN_KEY_TABLE(RigidBody)
         DEFINE_KEY_VALUE(float, Mass)
+        DEFINE_KEY_VALUE(float, InertiaMoment)
         DEFINE_KEY_VALUE(bool, IsStatic)
         DEFINE_KEY_VALUE(int, Material)
         DEFINE_KEY_VALUE(float, Drag)

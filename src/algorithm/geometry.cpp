@@ -100,8 +100,7 @@ namespace gigno {
     }
 
     
-    void Barycentric(glm::vec3 p, glm::vec3 a, glm::vec3 b, glm::vec3 c, float &u, float &v, float &w)
-    {
+    void Barycentric(glm::vec3 p, glm::vec3 a, glm::vec3 b, glm::vec3 c, float &u, float &v, float &w) {
         // Thanks to John Calsbeek : @ https://gamedev.stackexchange.com/questions/23743/whats-the-most-efficient-way-to-find-barycentric-coordinates
 
         glm::vec3 v0 = b - a, v1 = c - a, v2 = p - a;
@@ -115,4 +114,5 @@ namespace gigno {
         w = (d00 * d21 - d01 * d20) / denom;
         u = 1.0f - v - w;
     }
+
 }

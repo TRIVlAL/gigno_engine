@@ -244,21 +244,21 @@ namespace gigno {
                     got_under = heights[indice_a].second <= 0.0f || heights[indice_b].second <= 0.0f;
                 }
 
-                if((heights[indice_a].second > 0.0f && heights[indice_b].second > 0.0f /*Above*/)
-                || (heights[indice_a].second <= 0.0f && heights[indice_b].second <= 0.0f /*Bellow*/)) {
+                glm::vec3 slice_pos{};
+
+                if(heights[indice_a].second > 0.0f && heights[indice_b].second > 0.0f /*Above*/) {
                     continue;
+                } 
+                else if(heights[indice_a].second <= 0.0f && heights[indice_b].second <= 0.0f /*Bellow*/) {
+                    slice_pos = (hull.Position + vert[indice_a] + hull.Position + vert[indice_b]) * 0.5f + glm::vec3{0.0f, glm::min(-heights[indice_a].second, -heights[indice_b].second), 0.0f};
+                } 
+                else { /*Above and bellow*/
+                    float total_height = glm::abs(heights[indice_a].second - heights[indice_b].second);
+                    float floor_height = glm::abs(heights[indice_a].second);
+
+                    slice_pos = ((total_height - floor_height) * (hull.Position + vert[indice_a])
+                                +  floor_height * (hull.Position + vert[indice_b])) / total_height;
                 }
-
-                if(i== 0) {
-                    int k = 0;
-                }
-
-
-                float total_height = glm::abs(heights[indice_a].second - heights[indice_b].second);
-                float floor_height = glm::abs(heights[indice_a].second);
-
-                glm::vec3 slice_pos = ((total_height - floor_height) * (hull.Position + vert[indice_a])
-                             +  floor_height * (hull.Position + vert[indice_b])) / total_height;
 
                 slice_sum += slice_pos;
 

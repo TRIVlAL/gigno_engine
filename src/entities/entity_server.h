@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <type_traits>
 #include "../features_usage.h"
 
 namespace gigno {
@@ -18,6 +19,9 @@ namespace gigno {
 		void Tick(float dt);
 		void PhysicTick(float dt);
 
+		template<typename TEntity>
+		TEntity *CreateEntity();
+
 	#if USE_IMGUI
 		void DrawEntityInspectorTab();
 	#endif
@@ -31,6 +35,15 @@ namespace gigno {
 
 		std::vector<Entity*> m_Scene{};
 	};
+
+    template <typename TEntity>
+    inline TEntity *EntityServer::CreateEntity() {
+		static_assert(std::is_convertible<TEntity*, Entity*>::value, "CreateEntity : The class must inherit from entity!");
+
+		TEntity *entity = new TEntity();
+		m_Scene.emplace_back(entity);
+		return entity;
+    }
 
 }
 

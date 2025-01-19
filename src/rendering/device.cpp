@@ -38,7 +38,7 @@ namespace gigno {
 
 	void Device::CreateInstance() {
 		if (m_EnableValidationLayer && !CheckValidationLayerSupport()) {
-			printf("ERROR ! VULKAN Validation layer requested, but not avaliable !");
+			Console::LogError("Device::CreateInstance : ERROR ! VULKAN Validation layer requested, but not avaliable !");
 		}
 
 		VkApplicationInfo appinfo;
