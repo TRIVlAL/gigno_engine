@@ -21,6 +21,7 @@ namespace gigno {
     extern std::mutex s_EntityUnloadMutex;
 
     CONVAR(uint32_t, phys_loop_rate, 120, "How many times per second is the physics called.");
+    CONVAR(float, phys_timescale, 1.0f, "physics is slowed down by that amount.");
 
     PhysicServer::PhysicServer() 
         : m_LoopThread{&PhysicServer::Loop, this} {
@@ -28,6 +29,7 @@ namespace gigno {
 
     PhysicServer::~PhysicServer() {
         m_LoopContinue = false;
+        m_Pause = false;
         m_LoopThread.join();
     }
 
@@ -60,6 +62,14 @@ namespace gigno {
         std::chrono::nanoseconds time_overflow{0};
     
         while(m_LoopContinue) {
+            while(m_Pause) {
+                if(m_Step) {
+                    m_Step = false;
+                    break;
+                }
+                /* --- SPIN ---*/
+            }
+
             Profiler::Begin("Physics Loop");
 
             frame_start = std::chrono::high_resolution_clock::now();
@@ -80,11 +90,13 @@ namespace gigno {
             if(dur > target_dur) {
                 time_overflow = dur - target_dur;
                 Console::LogError ("Physic Server : Late on process. Could not keep the cadence of %d frames per seconds. "
-                                                                        "This frame took %f ms too long.", (uint32_t)convar_phys_loop_rate, (float)time_overflow.count()/1e6f);
+                                                                        "This frame took %f ms too long. (timescale : %f)", (uint32_t)convar_phys_loop_rate, 
+                                                                        (float)time_overflow.count()/1e6f, (float)convar_phys_timescale);
             } else {
                 time_overflow = 0ns;
 
-                while((std::chrono::high_resolution_clock::now() - frame_start) < target_dur) {
+                while ((std::chrono::high_resolution_clock::now() - frame_start) < target_dur / ((float)convar_phys_timescale != 0.0f ? (float)convar_phys_timescale : 0.001f))
+                {
                     /* --- SPIN ---*/
                 }
             }

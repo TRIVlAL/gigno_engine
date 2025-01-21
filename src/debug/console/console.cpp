@@ -214,7 +214,7 @@ namespace gigno {
         #endif
     }
 
-    void Console::CallCommand(const char *line) {
+    void Console::CallCommand_Impl(const char *line) {
         #if USE_CONSOLE
         CommandToken_t token{line};
         if(!token.GetName()) {
@@ -345,7 +345,7 @@ namespace gigno {
         ImGui::Separator();
         if (ImGui::InputText("Enter command", m_InputBuffer, CONSOLE_INPUT_BUFFER_SIZE, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll)) {
             LogFormat(" -> %s", CONSOLE_MESSAGE_ECHO, (ConsoleMessageFlags_t)0, m_InputBuffer);
-            CallCommand(m_InputBuffer);
+            CallCommand_Impl(m_InputBuffer);
             m_InputBuffer[0] = '\0';
             ImGui::SetKeyboardFocusHere(-1);
         }

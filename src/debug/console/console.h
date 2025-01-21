@@ -49,6 +49,7 @@ namespace gigno {
     static void cls(const CommandToken_t&); // Defined in command.cpp. Method of the cls console command to clear the console.
                                             // forward-declared here so it can be made a friend of Console.
     static void bind_update(float);         // Defined in bind_command. forward-declared here so it can be made a friend of Console.
+    static void phys_remote_update(float) ; // Defined in phys_remote_command.h
 
     class Console {
         friend class DebugServer;
@@ -106,6 +107,10 @@ namespace gigno {
         template <typename... Args>
         static void LogError(ConsoleMessageFlags_t flags, const char *formatted, Args... args) { Singleton()->LogError_Impl(flags, formatted, args...); }
 
+        static void CallCommand(const char *line) {
+            return Singleton()->CallCommand_Impl(line);
+        }
+
     private:
         static Console s_Instance;
 
@@ -160,7 +165,7 @@ namespace gigno {
         void LogWarning_Impl(const char *msg);
         void LogError_Impl(const char *msg);
 
-        void CallCommand(const char *line);
+        void CallCommand_Impl(const char *line);
 
         void LogFormat(const char *fmt, ConsoleMessageType_t type, ConsoleMessageFlags_t flags, ...);
         void Log(const char *msg, ConsoleMessageType_t type, ConsoleMessageFlags_t flags);
