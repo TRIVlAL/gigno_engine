@@ -26,9 +26,10 @@ namespace gigno {
 
     /*
     Gilbert–Johnson–Keerthi algorithm
-    Given two rbs, returns wheter or not they collide.
-    outSimplex is set to a fully-built simplex (i.e. all vetices are set) 
+    Given two rbs, returns the distance between them or 0.0f if they collide.
+    if they collide, outSimplex is set to a fully-built simplex (i.e. all vetices are set) 
                enclosing the origin in the Minkowski difference of both shapes.
+    if they dont, outPointA and outPointB are the closest points on the surface of the objects (in world space).
     */
     float GJK(const RigidBody &A, const RigidBody &B, Simplex_t &outSimplex, glm::vec3 &outPointA, glm::vec3 outPointB);
 
