@@ -6,7 +6,8 @@
 
 namespace gigno {
 
-    bool GJK(const RigidBody &A, const RigidBody &B, Simplex_t &outSimplex) {
+    float GJK(const RigidBody &A, const RigidBody &B, Simplex_t &outSimplex, glm::vec3 &outPointA, glm::vec3 outPointB)
+    {
 
         glm::vec3 dir = A.Position - B.Position; //Can be any default direction.
         glm::vec3 SupA = Support(dir, A);
@@ -24,7 +25,9 @@ namespace gigno {
         outSimplex.b.ASupport = SupA;
         outSimplex.b.BSupport = SupB;
         if(glm::dot(extreme, dir) < 0) {
-            return false;
+            outPointA = SupA;
+            outPointB = SupB;
+            return glm::length(extreme);
         }
 
         //Line case
@@ -38,7 +41,9 @@ namespace gigno {
         outSimplex.c.ASupport = SupA;
         outSimplex.c.BSupport = SupB;
         if(glm::dot(extreme, dir) < 0) {
-            return false;
+            outPointA = SupA;
+            outPointB = SupB;
+            return glm::length(extreme);
         }
 
         dir = glm::cross(outSimplex.b.Point - outSimplex.a.Point, outSimplex.c.Point - outSimplex.a.Point);
@@ -51,7 +56,9 @@ namespace gigno {
             SupB = Support(-dir, B);
             extreme = SupA - SupB;
             if(glm::dot(extreme, dir) < 0) {
-                return false;
+                outPointA = SupA;
+                outPointB = SupB;
+                return glm::length(extreme);
             }
             outSimplex.d.ASupport = SupA;
             outSimplex.d.BSupport = SupB;
@@ -79,7 +86,7 @@ namespace gigno {
             } else {
                 RenderingServer *r = Application::Singleton()->GetRenderer();
                 const glm::vec3 color{0.0f, 1.0f, 0.0f};
-                return true; //Origin is inside simplex.
+                return 0.0f; //Origin is inside simplex.
             }
         }
     }
@@ -96,10 +103,12 @@ namespace gigno {
             0, 3, 2
         }; // Winding order : Counter clockwise.
 
-        const float epsilon = 0.0001f;
+        const float epsilon = 0.00015f;
 
-        int i = 0;
-        while(i++ < 100 /*safety*/) {
+        int safety_count = 0;
+        while(true) {
+            safety_count++;
+
             float face_distance{};
             glm::vec3 face_normal{};
             size_t face_index = polytope.GetClosestFace(face_distance, face_normal);
@@ -113,7 +122,12 @@ namespace gigno {
 
             float new_point_distance = glm::dot(new_point.Point, face_normal);
 
-            if(new_point_distance - face_distance < epsilon) {
+            if(new_point_distance - face_distance < epsilon || safety_count > 125) {
+
+                if(safety_count > 125) {
+                    Console::LogWarning("Physics Collision : EPA max loop iteration exceeded ! Is epsilon = %f too small ?", epsilon);
+                    Console::LogInfo("face_index = %u", face_index);
+                }
 
                 float u{};
                 float v{};
@@ -140,7 +154,7 @@ namespace gigno {
             polytope.AddVertex(new_point);
         }
 
-        ERR_MSG("Physics collision : EPA has too many loop iterations !!! is epsilon too small ?");
+
     }
     
     size_t Polytope_t::GetClosestFace(float &outFaceDistance, glm::vec3 &outFaceNormal) {
@@ -160,6 +174,14 @@ namespace gigno {
                 outFaceNormal = new_face_normal;
             }
         }
+
+        if(closest_index == -1) {
+            // Apparently, some positions are nan fsr.
+            // No time to fix yet, ill do it later.
+            Console::LogError("Physics : Collision Detection : GetClosestFace FAILURE ! Needs to be fixed !");
+            closest_index = 0;
+        }
+
         return closest_index;
     }
     

@@ -30,7 +30,7 @@ namespace gigno {
     outSimplex is set to a fully-built simplex (i.e. all vetices are set) 
                enclosing the origin in the Minkowski difference of both shapes.
     */
-    bool GJK(const RigidBody &A, const RigidBody &B, Simplex_t &outSimplex);
+    float GJK(const RigidBody &A, const RigidBody &B, Simplex_t &outSimplex, glm::vec3 &outPointA, glm::vec3 outPointB);
 
     /*
     Given two rbs and a Simplex on their Minkowski difference contining the origin (obtained with GJK), outputs

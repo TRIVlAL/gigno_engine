@@ -180,32 +180,35 @@ namespace gigno {
         return true;
     }
 
+    CONVAR(float, phys_gjk_margin, 0.01f, "Hull extend outward by that amount. Lower means higher precision but higher cost.");
+
     bool ResolveCollision_HullNonPlane(RigidBody &hull, RigidBody &nonPlane) {
         Simplex_t simplex{};
-        bool collide = GJK(hull, nonPlane, simplex);
-
-        //TODO : test if SAT is faster than GJK?
-        //TODO : try out GJK with a margin to avoid calling EPA for small penetration...
-        
-        if(!collide) {
-            return false;
-        }
-
         glm::vec3 pointA{};
         glm::vec3 pointB{};
-        glm::vec3 dir{};
-        float depth;
-        EPA(hull, nonPlane, simplex, pointA, pointB, dir, depth);
-
-        RespondCollision(hull, nonPlane, dir, -depth, pointA - hull.Position, pointB - nonPlane.Position);
+        float distance = GJK(hull, nonPlane, simplex, pointA, pointB);
         
-        return true;
+        if(distance > (float)convar_phys_gjk_margin) {
+            return false;
+        } else if(distance > 0.0f) {
+            RespondCollision(hull, nonPlane, glm::normalize(pointB - pointA), -distance, pointA - hull.Position, pointB - nonPlane.Position);
+
+            return true;
+        } else {
+            glm::vec3 pointA{};
+            glm::vec3 pointB{};
+            glm::vec3 dir{};
+            float depth;
+            EPA(hull, nonPlane, simplex, pointA, pointB, dir, depth);
+
+            RespondCollision(hull, nonPlane, dir, -depth - (float)convar_phys_gjk_margin, pointA - hull.Position, pointB - nonPlane.Position);
+            
+            return true;
+        }
+
     }
 
     bool ResolveCollision_HullPlane(RigidBody &hull, RigidBody &Plane) {
-
-        //TODO : Compute hull vertices in world space ONE per iteraration instead of on the fly.
-
         std::vector<glm::vec3> &vert = hull.Hull.RotatedVertices;
         std::vector<int> &ind = hull.Hull.Indices;
 
@@ -270,7 +273,7 @@ namespace gigno {
             return false;
         }
 
-        RespondCollision(hull, Plane, Plane.Normal, -max_depth, slice_sum / (float)slice_vert_count - hull.Position, glm::vec3{0.0f});
+        RespondCollision(hull, Plane, Plane.Normal, -max_depth-(float)convar_phys_gjk_margin, slice_sum / (float)slice_vert_count - hull.Position, glm::vec3{0.0f});
 
         return false;
     }
