@@ -27,6 +27,7 @@ namespace gigno {
         if(glm::dot(extreme, dir) < 0) {
             outPointA = SupA;
             outPointB = SupB;
+
             return glm::length(extreme);
         }
 
@@ -43,6 +44,7 @@ namespace gigno {
         if(glm::dot(extreme, dir) < 0) {
             outPointA = SupA;
             outPointB = SupB;
+
             return glm::length(extreme);
         }
 
@@ -58,6 +60,7 @@ namespace gigno {
             if(glm::dot(extreme, dir) < 0) {
                 outPointA = SupA;
                 outPointB = SupB;
+
                 return glm::length(extreme);
             }
             outSimplex.d.ASupport = SupA;
@@ -86,6 +89,7 @@ namespace gigno {
             } else {
                 RenderingServer *r = Application::Singleton()->GetRenderer();
                 const glm::vec3 color{0.0f, 1.0f, 0.0f};
+
                 return 0.0f; //Origin is inside simplex.
             }
         }
@@ -95,6 +99,9 @@ namespace gigno {
              glm::vec3 &outPointA, glm::vec3 &outPointB, glm::vec3 &outDirection, float &outDepth) {
 
         Polytope_t polytope{};
+        if(Simplex.a.Point != Simplex.a.Point || Simplex.b.Point != Simplex.b.Point || Simplex.c.Point != Simplex.c.Point || Simplex.d.Point != Simplex.d.Point) {
+            Console::LogInfo("SIMPLEX IS NAN");
+        }
         polytope.Vertices = {Simplex.a, Simplex.b, Simplex.c, Simplex.d};
         polytope.Indices = {
             0, 2, 1,
@@ -189,6 +196,10 @@ namespace gigno {
         std::vector<std::pair<size_t, size_t>> edges{};
         std::vector<size_t> faces_to_remove_indices{};
 
+        if(vertex.Point != vertex.Point) {
+            Console::LogInfo("NEW VERTEX IS NAN");
+        }
+
         Vertices.emplace_back(vertex);
         size_t new_vert_index = Vertices.size() - 1;
 
@@ -244,6 +255,11 @@ namespace gigno {
 
     glm::vec3 Support(glm::vec3 direction, const RigidBody &rb)
     {
+        //ASSERT_MSG_V(direction != glm::vec3{0.0f}, glm::vec3{0.0f}, "dir = %f %f %f", direction.x, direction.y, direction.z);
+        if(direction == glm::vec3{0.0f}) {
+            direction = glm::vec3{0.0f, 1.0f, 0.0f};
+        }
+
         if(rb.ColliderType == COLLIDER_PLANE) {
             ERR_MSG_V(glm::vec3{}, "Physics collision : Support function for plane collider not implemented !");
         } 

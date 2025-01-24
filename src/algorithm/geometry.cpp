@@ -1,4 +1,5 @@
 #include "geometry.h"
+#include "../debug/console/console.h"
 
 namespace gigno {
 
@@ -96,7 +97,13 @@ namespace gigno {
         outNormal = glm::cross(b - a, c - a);
         outNormal = glm::normalize(outNormal);
 
-        return glm::dot(-a, glm::dot(a, outNormal) < 0 ? outNormal : -outNormal);
+        float ret = glm::dot(-a, glm::dot(a, outNormal) < 0 ? outNormal : -outNormal);
+        if(ret != ret) {
+            Console::LogWarning("DistanceToOrigin NaN with parameters : a = (%f, %f, %f), b = (%f, %f, %f), c = (%f, %f, %f), outNormal = (%f, %f, %f)", a.x, a.y, a.z,
+            b.x, b.y, b.z, c.x, c.y, c.z, outNormal.x, outNormal.y, outNormal.z);
+            ret = FLT_MAX;
+        }
+        return ret;
     }
 
     

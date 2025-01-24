@@ -24,6 +24,7 @@ namespace gigno
                     rb->Position = glm::vec3{ExtentBegin.x + MARGIN + x_step * i,
                                             ExtentBegin.y + y_step * v,
                                             ExtentBegin.z + MARGIN + z_step * j};
+                    rb->Mass = 25.0f;
                     
                     switch(alternate) {
                         case 0:
