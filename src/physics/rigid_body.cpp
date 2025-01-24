@@ -74,6 +74,8 @@ namespace gigno {
         m_WorldTargetHinge = ApplyRotation(Rotation, HingePosition) + Position;
     }
 
+    CONVAR(bool, phys_new_pos_offset, true, "Whether to use the new method for applying the position offset.");
+
     void RigidBody::LatePhysicThink(float dt) {
         if(IsStatic) {
             if(ColliderType == COLLIDER_HULL) {
@@ -129,9 +131,20 @@ namespace gigno {
         Velocity += dt * Force / Mass;
         avrg_vel += Velocity;
         avrg_vel *= 0.5f;
-        Position += dt * avrg_vel;
+        glm::vec3 applied_vel = dt * avrg_vel;
+        Position += applied_vel;
         
-        Position += PositionOffset;
+        if((bool)convar_phys_new_pos_offset) {
+            // New Pos Offset : Only apply the Offset that has't been applied by velocity.
+            float pos_offset_len = glm::length(PositionOffset);
+            if(pos_offset_len > 0.0f) {
+                glm::vec3 pos_offset_norm = PositionOffset/pos_offset_len;
+                glm::vec3 unapplied_pos_offset = (pos_offset_len - glm::max(glm::dot(pos_offset_norm, applied_vel), 0.0f)) * pos_offset_norm;
+                Position += unapplied_pos_offset; 
+            }
+        } else {
+            Position += PositionOffset;
+        }
         PositionOffset = glm::vec3{0.0f};
 
         glm::vec3 avrg_rot_vel = AngularVelocity;

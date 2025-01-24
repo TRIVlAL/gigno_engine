@@ -129,7 +129,17 @@ namespace gigno {
 
             float new_point_distance = glm::dot(new_point.Point, face_normal);
 
-            if(new_point_distance - face_distance < epsilon || safety_count > 125) {
+            // Check if the new point already exists. If it does, stop the algorithm
+            // See issue #9 @ https://github.com/TRIVlAL/gigno_engine/issues/9
+            bool vertex_exists = false;
+            for(auto &mv : polytope.Vertices) {
+                if(mv.Point == new_point.Point) {
+                    vertex_exists = true;
+                    break;
+                }
+            }
+
+            if(new_point_distance - face_distance < epsilon || safety_count > 125 || vertex_exists) {
 
                 if(safety_count > 125) {
                     Console::LogWarning("Physics Collision : EPA max loop iteration exceeded ! Is epsilon = %f too small ?", epsilon);
@@ -175,7 +185,7 @@ namespace gigno {
                                               Vertices[Indices[i + 1]].Point,
                                               Vertices[Indices[i + 2]].Point, new_face_normal);
 
-            if (new_dist < outFaceDistance) {
+            if (new_dist <= outFaceDistance) {
                 outFaceDistance = new_dist;
                 closest_index = i;
                 outFaceNormal = new_face_normal;
@@ -184,7 +194,7 @@ namespace gigno {
 
         if(closest_index == -1) {
             // Apparently, some positions are nan fsr.
-            // No time to fix yet, ill do it later.
+            // This is an important bug that will need to be sorted out ! -> issue #9
             Console::LogError("Physics : Collision Detection : GetClosestFace FAILURE ! Needs to be fixed !");
             closest_index = 0;
         }
