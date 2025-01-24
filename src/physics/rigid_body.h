@@ -54,8 +54,6 @@ namespace gigno {
 
         RigidBody *pNextRigidBody{};
 
-        glm::vec3 PositionOffset{};
-
         /*
         HINGE : The object is locked on an axis positioned at HingePosition. 
                 Set HingeDirection to (0,0,0) to disable (default)
