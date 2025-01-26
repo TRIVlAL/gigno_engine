@@ -108,7 +108,8 @@ namespace gigno {
 
     
     void Barycentric(glm::vec3 p, glm::vec3 a, glm::vec3 b, glm::vec3 c, float &u, float &v, float &w) {
-        // Thanks to John Calsbeek : @ https://gamedev.stackexchange.com/questions/23743/whats-the-most-efficient-way-to-find-barycentric-coordinates
+        // From Chris Ericson's book - Real Time Collision Detection - p.47
+        // @ https://www.r-5.org/files/books/computers/algo-list/realtime-3d/Christer_Ericson-Real-Time_Collision_Detection-EN.pdf
 
         glm::vec3 v0 = b - a, v1 = c - a, v2 = p - a;
         float d00 = glm::dot(v0, v0);
@@ -117,6 +118,10 @@ namespace gigno {
         float d20 = glm::dot(v2, v0);
         float d21 = glm::dot(v2, v1);
         float denom = d00 * d11 - d01 * d01;
+        if(denom == 0.0f) {
+            Console::LogWarning("Barycentric should return NaN with arguments : p = (%f, %f, %f), a = (%f, %f, %f), b = (%f, %f, %f), c = (%f, %f, %f)!");
+            denom = 1.0f;
+        }
         v = (d11 * d20 - d01 * d21) / denom;
         w = (d00 * d21 - d01 * d20) / denom;
         u = 1.0f - v - w;

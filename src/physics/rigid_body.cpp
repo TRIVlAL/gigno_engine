@@ -48,7 +48,12 @@ namespace gigno {
     }
 
     void RigidBody::AddImpulse(const glm::vec3 &impulse, const glm::vec3 &application) {
+        if(impulse != impulse) {
+            Console::LogInfo("NaN IMpulse");
+        }
+        
         Velocity += impulse;
+
 
         AngularVelocity += glm::cross(application, impulse) / InertiaMoment;
     }
@@ -91,7 +96,7 @@ namespace gigno {
             const glm::vec3 current_hinge_pos = ApplyRotation(Rotation, HingePosition) + Position;
             const glm::vec3 diff = m_WorldTargetHinge - current_hinge_pos;
             const glm::vec3 diff_plane = ProjectToPlane(diff, HingeDirection);
-            const float dist = glm::length(diff_plane);
+            float dist = glm::length(diff_plane);
 
             if(HingePower == 0.0f) {
                 Position += diff_plane;

@@ -6,7 +6,14 @@
 
 namespace gigno {
 
-    float GJK(const RigidBody &A, const RigidBody &B, Simplex_t &outSimplex, glm::vec3 &outPointA, glm::vec3 outPointB)
+    bool IsNan(const MinkowskiVertex &v) {
+        return v.Point != v.Point || v.ASupport != v.ASupport || v.BSupport != v.BSupport;
+    }
+    bool IsNan(const Simplex_t &s) {
+        return IsNan(s.a) || IsNan(s.b) || IsNan(s.c) || IsNan(s.d);
+    }
+
+    bool GJK(const RigidBody &A, const RigidBody &B, Simplex_t &outSimplex)
     {
 
         glm::vec3 dir = A.Position - B.Position; //Can be any default direction.
@@ -25,10 +32,7 @@ namespace gigno {
         outSimplex.b.ASupport = SupA;
         outSimplex.b.BSupport = SupB;
         if(glm::dot(extreme, dir) < 0) {
-            outPointA = SupA;
-            outPointB = SupB;
-
-            return glm::length(extreme);
+            return false;
         }
 
         //Line case
@@ -42,10 +46,7 @@ namespace gigno {
         outSimplex.c.ASupport = SupA;
         outSimplex.c.BSupport = SupB;
         if(glm::dot(extreme, dir) < 0) {
-            outPointA = SupA;
-            outPointB = SupB;
-
-            return glm::length(extreme);
+            return false;
         }
 
         dir = glm::cross(outSimplex.b.Point - outSimplex.a.Point, outSimplex.c.Point - outSimplex.a.Point);
@@ -58,10 +59,7 @@ namespace gigno {
             SupB = Support(-dir, B);
             extreme = SupA - SupB;
             if(glm::dot(extreme, dir) < 0) {
-                outPointA = SupA;
-                outPointB = SupB;
-
-                return glm::length(extreme);
+                return false;
             }
             outSimplex.d.ASupport = SupA;
             outSimplex.d.BSupport = SupB;
@@ -87,10 +85,7 @@ namespace gigno {
                 outSimplex.b = outSimplex.d;
                 dir = dca;
             } else {
-                RenderingServer *r = Application::Singleton()->GetRenderer();
-                const glm::vec3 color{0.0f, 1.0f, 0.0f};
-
-                return 0.0f; //Origin is inside simplex.
+                return true; //Origin is inside simplex.
             }
         }
     }
@@ -139,11 +134,10 @@ namespace gigno {
                 }
             }
 
-            if(new_point_distance - face_distance < epsilon || safety_count > 125 || vertex_exists) {
+            if(new_point_distance - face_distance < epsilon || safety_count > 50 || vertex_exists) {
 
-                if(safety_count > 125) {
+                if(safety_count > 50) {
                     Console::LogWarning("Physics Collision : EPA max loop iteration exceeded ! Is epsilon = %f too small ?", epsilon);
-                    Console::LogInfo("face_index = %u", face_index);
                 }
 
                 float u{};
