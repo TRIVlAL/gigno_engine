@@ -44,6 +44,8 @@ namespace gigno {
                                                   //  if ColliderType is set to COLLIDER_HULL
         Hull_t Hull{}; // Points of the convex hull (in local space)
 
+        /*------------------------------------------*/
+
         float Mass{1.0f};
         float InertiaMoment{1.0f};
         bool IsStatic{false};
@@ -54,10 +56,19 @@ namespace gigno {
 
         RigidBody *pNextRigidBody{};
 
-        /*
+
+        /*--------------------------------------------
+        Bounding Box (BB) : An axis aligned box define by two points (the two extreme corners)
+                            That fully encloses the collider.
+                            Updated every Late Physics Tick
+        --------------------------------------------*/
+        glm::vec3 BBMin{}; //Corner of the Bounding Box with smallest x y and z coordinate
+        glm::vec3 BBMax{}; //           ''              with biggest  x y and z coordinate
+
+        /*--------------------------------------------
         HINGE : The object is locked on an axis positioned at HingePosition. 
                 Set HingeDirection to (0,0,0) to disable (default)
-        */
+        --------------------------------------------*/
         //Local Hinge Position
         glm::vec3 HingePosition{};
         //Axis on which the hinge rotates
@@ -65,6 +76,7 @@ namespace gigno {
         // If 0.0, the object snaps to the hinge. 
         // Else, a force is applied to keep the object close to the hinge, proporional to power.
         float HingePower{10.0f};
+        /*------------------------------------------*/
 
         glm::vec3 Force{};
         glm::vec3 Velocity{};
@@ -79,6 +91,8 @@ namespace gigno {
 
         void LoadColliderModel(const char *path);
         void UpdateRotatedModel();
+
+        void UpdateBoundingBox();
     };
 
     BEGIN_KEY_TABLE(RigidBody)
@@ -97,6 +111,9 @@ namespace gigno {
         DEFINE_KEY_VALUE(vec3, Velocity)
         DEFINE_KEY_VALUE(vec3, Torque)
         DEFINE_KEY_VALUE(vec3, AngularVelocity)
+
+        DEFINE_KEY_VALUE(vec3, BBMin)
+        DEFINE_KEY_VALUE(vec3, BBMax)
     END_KEY_TABLE
 
     void DrawRigidbodyCollider(RigidBody &rb);
