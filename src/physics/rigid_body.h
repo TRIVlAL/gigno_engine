@@ -83,11 +83,16 @@ namespace gigno {
 
         glm::vec3 Torque{};
         glm::vec3 AngularVelocity{};
+
+        //Testing
+        bool IsBBCollide = false;
     private:
 
         glm::vec3 m_WorldTargetHinge{};// The world position of the hinge. is set on Init
 
         bool hasCollider = false;
+
+
 
         void LoadColliderModel(const char *path);
         void UpdateRotatedModel();

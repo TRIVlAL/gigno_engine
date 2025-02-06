@@ -20,7 +20,7 @@ namespace gigno {
     CONVAR(int, phys_draw_colliders, 0, "1 : Wireframe of the collider, models are drawn." 
                                         "2 : Wireframe of the collider, models are not drawn.")
     CONVAR(bool, phys_draw_hinges, false, "Red : Hinges targets, Green : Hinges current position.");
-    CONVAR(bool, phys_draw_bounding_box, true, "Draws Wireframe of the bounding boxes of the objects (except planes).")
+    CONVAR(bool, phys_draw_bounding_box, false, "Draws Wireframe of the bounding boxes of the objects (except planes).")
 
 
     RigidBody::RigidBody()
@@ -82,9 +82,9 @@ namespace gigno {
 
     void RigidBody::LatePhysicThink(float dt) {
         if(IsStatic) {
+            UpdateBoundingBox();
             if(ColliderType == COLLIDER_HULL) {
                 UpdateRotatedModel();
-                UpdateBoundingBox();
             }
             return;
         }
@@ -160,6 +160,7 @@ namespace gigno {
     }
 
     void RigidBody::UpdateBoundingBox() {
+        IsBBCollide = false;
         float epsilon = 0.0001f;
         switch(ColliderType) {
             case COLLIDER_SPHERE : {
@@ -250,6 +251,7 @@ namespace gigno {
 
         UpdateRotatedModel();
 
+
     }
 
     void RigidBody::UpdateRotatedModel() {
@@ -306,7 +308,7 @@ namespace gigno {
             const glm::vec3 g = glm::vec3{BBMax.x, BBMax.y, BBMin.z};
             const glm::vec3 h = BBMax;
 
-            const glm::vec3 col{0.0f, 0.0f, 1.0f};
+            const glm::vec3 col = IsBBCollide ? glm::vec3{1.0f, 0.0f, 0.0f} : glm::vec3{0.0f, 0.0f, 1.0f};
 
             r->DrawLine(a, b, col);
             r->DrawLine(a, c, col);

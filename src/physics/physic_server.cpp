@@ -36,6 +36,8 @@ namespace gigno {
     void PhysicServer::SubscribeRigidBody(RigidBody *rb) {
         rb->pNextRigidBody = RigidBodies;
         RigidBodies = rb;
+        m_BoundingBoxCorners.emplace_back(BoundingBoxCorner_t{rb, true});
+        m_BoundingBoxCorners.emplace_back(BoundingBoxCorner_t{rb, false});
     }
 
     void PhysicServer::UnsubscribeRigidBody(RigidBody *rb) {
@@ -77,7 +79,7 @@ namespace gigno {
             s_EntityUnloadMutex.lock();
             entity_serv->PhysicTick((target_dur.count() + time_overflow.count()) / 1e9);
 
-            DetectCollisions();
+            ResolveCollisions();
             s_EntityUnloadMutex.unlock();
 
             Profiler::End();
@@ -103,20 +105,77 @@ namespace gigno {
         }
     }
 
-    void PhysicServer::DetectCollisions()
+    void PhysicServer::ResolveCollisions()
     {
         std::lock_guard<std::mutex>{m_WorldMutex};
 
-        RigidBody *rb1 = RigidBodies;
-        while(rb1) {
-            RigidBody *rb2 = rb1->pNextRigidBody;
-            while(rb2) {
-                if(rb1 != rb2) {
-                    ResolveCollision(*rb1, *rb2);
+        /* -----------------------------------------------
+        BROAD PHASE
+        -------------------------------------------------*/
+        std::vector<std::pair<RigidBody *, RigidBody *>> possible_pairs{};
+
+        {
+            auto point = [](BoundingBoxCorner_t &c) { return c.opens ? c.RB->BBMin : c.RB->BBMax; };
+
+            // Sort the Bounding Box corners in ascending order of the x coordinate
+            // (Insertion Sort)
+            for(int i = 0; i < m_BoundingBoxCorners.size(); i++) {
+                BoundingBoxCorner_t compare =m_BoundingBoxCorners[i];
+                int j = i;
+                
+                while(j > 0 && point(m_BoundingBoxCorners[j - 1]).x > point(compare).x) {
+                    m_BoundingBoxCorners[j] = m_BoundingBoxCorners[j-1];
+                    j--;
                 }
-                rb2 = rb2->pNextRigidBody;
+                m_BoundingBoxCorners[j] = compare;
             }
-            rb1 = rb1->pNextRigidBody;
+
+            std::vector<std::pair<RigidBody *, RigidBody *>> possible_x_pairs{};
+            std::vector<RigidBody *> currently_open{};
+            for(BoundingBoxCorner_t corner : m_BoundingBoxCorners) {
+                if(corner.opens) {
+                    currently_open.emplace_back(corner.RB);
+                } else {
+                    RigidBody *closed = corner.RB;
+                    int closed_index = -1;
+
+                    for(int i = 0; i < currently_open.size(); i++) {
+                        if(currently_open[i] == closed) {
+                            closed_index = i;
+                        } else {
+                            possible_x_pairs.emplace_back(currently_open[i], closed);
+                        }
+                    }
+
+                    ASSERT(closed_index != -1);
+                    currently_open.erase(currently_open.begin() + closed_index);
+                }
+            }
+            // At this point, possible_x_pairs contains every pairs overlapping on the x axis.
+
+            //Add every pairs to possible_pair if they overlap on y and z.
+            possible_pairs.reserve(possible_x_pairs.size());
+            for(std::pair<RigidBody *, RigidBody*> &pair : possible_x_pairs) {
+                if(((pair.first->BBMin.y <= pair.second->BBMin.y && pair.first->BBMax.y >= pair.second->BBMin.y) || 
+                    (pair.first->BBMin.y <= pair.second->BBMax.y && pair.first->BBMax.y >= pair.second->BBMax.y)) &&
+                    (pair.first->BBMin.z <= pair.second->BBMin.z && pair.first->BBMax.z >= pair.second->BBMin.z) || 
+                    (pair.first->BBMin.z <= pair.second->BBMax.z && pair.first->BBMax.z >= pair.second->BBMax.z)) {
+                    
+                    possible_pairs.emplace_back(pair);
+                    pair.first->IsBBCollide = true;
+                    pair.second->IsBBCollide = true;
+
+                }
+            }
+        }
+
+
+        /* -----------------------------------------------
+        NARROW PHASE
+        -------------------------------------------------*/
+
+        for(std::pair<RigidBody *, RigidBody *> pair : possible_pairs) {
+            ResolveCollision(*pair.first, *pair.second);
         }
     }
 
