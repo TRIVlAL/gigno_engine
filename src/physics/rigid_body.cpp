@@ -265,6 +265,10 @@ namespace gigno {
     }
 
     void RigidBody::Think(float dt) {
+        GetApp()->GetRenderer()->DrawLine(glm::vec3{0.0f, 3.0f, 0.0f}, glm::vec3{1.0f, 3.0f, 0.0f}, glm::vec3{1.0f, 0.0, 0.0f});
+        GetApp()->GetRenderer()->DrawLine(glm::vec3{0.0f, 3.0f, 0.0f}, glm::vec3{0.0f, 4.0f, 0.0f}, glm::vec3{0.0f, 1.0, 0.0f});
+        GetApp()->GetRenderer()->DrawLine(glm::vec3{0.0f, 3.0f, 0.0f}, glm::vec3{0.0f, 3.0f, 1.0f}, glm::vec3{0.0f, 0.0, 1.0f});
+
         DoRender = ((int)convar_phys_draw_colliders != 2 || ColliderType == COLLIDER_PLANE);
         if((int)convar_phys_draw_colliders != 0) {
             DrawRigidbodyCollider(*this);

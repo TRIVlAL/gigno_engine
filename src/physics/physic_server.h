@@ -37,20 +37,10 @@ namespace gigno {
         // modified by friend command phys_remote
         bool m_Pause = false;
         bool m_Step = false;
-
-        struct BoundingBoxCorner_t {
-            RigidBody *RB; // This a corner of the RB of this RigidBody.
-            bool opens; //This represents the smallest corner of the BB
-        };
-
-        /*
-            Every RifidBody has two coresponding Corners in this vector.
-            One is Open and the other is Closed.
-            This vector is sorted in ascending order of the x coodinate of the position of the BB
-            If it is open, we use the BBMin, else we use the BBMax. 
-            RigidBodies add their corner to the vector when the call SubscribeRigidBody() (and remove when Unsubscribe)
-        */
-        std::vector<BoundingBoxCorner_t> m_BoundingBoxCorners{};
+        
+        // Container of the pairs of RigidBodies having their AABB overlapping.
+        // Kept as a member variable to not dealocate it's memory and keep it for the next iteration.
+        std::vector<std::pair<RigidBody*, RigidBody*>> m_PossiblePairs;
 
         void Loop();
 

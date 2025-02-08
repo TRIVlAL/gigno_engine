@@ -2,3 +2,8 @@ Temps de la loop sur mon pc au 19/01/25 (avant les optimisations):
 -   6200 us dans demo_04.map avec 2 * 4 * 6 objets
 -   12500 us 		     avec 2 * 6 * 6 objets
 -   35500 us                 avec 2 * 8 * 8 objets
+
+Temps de la loop sur mon pc au 08/02/25 apres avoir implementé les AABB
+-   3900 us dans demo_04.map avec 2 * 4 * 6 objets
+-   6300 us 		     avec 2 * 6 * 6 objets
+-   16000 us                 avec 2 * 8 * 8 objets
