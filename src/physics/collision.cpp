@@ -8,6 +8,12 @@
 
 namespace gigno {
 
+    /*
+    -------------------------------------------------------------------------------------------------------
+                    COLLISION DETECTION
+    -------------------------------------------------------------------------------------------------------
+    */
+
     bool ResolveCollision(RigidBody &rb1, RigidBody &rb2) {
         if(rb1.ColliderType == COLLIDER_NONE || rb2.ColliderType == COLLIDER_NONE) {
             return false;
@@ -271,6 +277,12 @@ namespace gigno {
         return false;
     }
 
+    /*
+    -------------------------------------------------------------------------------------------------------
+                    COLLISION RESPONSE
+    -------------------------------------------------------------------------------------------------------
+    */
+
     CONVAR(float, phys_response_epsilon, 1e-5f, "Very small value. Object are pushed out of each other with this leaway.");
 
     void RespondCollision(RigidBody &rb1, RigidBody &rb2, const glm::vec3 &colNormal, const float &colDepth,
@@ -288,7 +300,7 @@ namespace gigno {
             glm::vec3 Delta_v = rb2.Velocity - rb1.Velocity;
             float ProjD_v = glm::dot(Delta_v, colNormal);
 
-            float e = GetBounciness((PhysicsMaterial_t)rb1.Material) * GetBounciness((PhysicsMaterial_t)rb2.Material);
+            float e = GetBounciness(rb1, rb2);
     
             float J = (1.0 + e) * ProjD_v / (rb1.Mass + rb2.Mass);
 
@@ -299,7 +311,7 @@ namespace gigno {
                     rb2.Position += -colNormal * (colDepth - convar_phys_response_epsilon);
                 }
 
-                ApplyFriction(J * (rb1.Mass + rb2.Mass), rb2, colNormal, col2ApplyPoint, GetDynamicFrictionCoefficient((PhysicsMaterial_t)rb1.Material, (PhysicsMaterial_t)rb2.Material));
+                ApplyFriction(J * (rb1.Mass + rb2.Mass), rb2, colNormal, col2ApplyPoint, GetFriction(rb1, rb2), GetStaticFriction(rb1, rb2));
             } 
             else if(rb2.IsStatic) {
                 rb1.AddImpulse(colNormal * J * (rb1.Mass + rb2.Mass), col1ApplyPoint);
@@ -308,7 +320,7 @@ namespace gigno {
                     rb1.Position += colNormal * (colDepth - convar_phys_response_epsilon);
                 }
 
-                ApplyFriction(J * (rb1.Mass + rb2.Mass), rb1, -colNormal, col1ApplyPoint,  GetDynamicFrictionCoefficient((PhysicsMaterial_t)rb1.Material, (PhysicsMaterial_t)rb2.Material));
+                ApplyFriction(J * (rb1.Mass + rb2.Mass), rb1, -colNormal, col1ApplyPoint, GetFriction(rb1, rb2), GetStaticFriction(rb1, rb2));
             } 
             else {
                 rb1.AddImpulse(colNormal * J * rb2.Mass, col1ApplyPoint);
@@ -322,24 +334,85 @@ namespace gigno {
                     rb2.Position += -colNormal * (colDepth - convar_phys_response_epsilon) * 0.5f;
                 }
 
-                ApplyFriction(J * rb2.Mass, rb1, -colNormal, col1ApplyPoint,  GetDynamicFrictionCoefficient((PhysicsMaterial_t)rb1.Material, (PhysicsMaterial_t)rb2.Material));
+                ApplyFriction(J * rb2.Mass, rb1, -colNormal, col1ApplyPoint, GetFriction(rb1, rb2), GetStaticFriction(rb1, rb2));
 
-                ApplyFriction(J * rb1.Mass, rb2, colNormal, col2ApplyPoint,  GetDynamicFrictionCoefficient((PhysicsMaterial_t)rb1.Material, (PhysicsMaterial_t)rb2.Material));
+                ApplyFriction(J * rb1.Mass, rb2, colNormal, col2ApplyPoint, GetFriction(rb1, rb2), GetStaticFriction(rb1, rb2));
             }
 
         }
     }
 
-    void ApplyFriction(float normalImpulse, RigidBody &rb, const glm::vec3 &surfaceNormal, const glm::vec3 &applyPoint, float frictionCoefficient) {
+    void ApplyFriction(float normalImpulse, RigidBody &rb, const glm::vec3 &surfaceNormal,
+        const glm::vec3 &applyPoint, float frictionCoefficient, float staticFrictionCoefficient)
+        {
+            
         const glm::vec3 point_velocity = rb.Velocity + glm::cross(rb.AngularVelocity, applyPoint);
         glm::vec3 tangent_velocity = point_velocity - surfaceNormal * glm::dot(surfaceNormal, point_velocity);
         const float tangent_vel_len = glm::length(tangent_velocity);
         
-        if(tangent_vel_len != 0.0f) { 
-            tangent_velocity = tangent_velocity/tangent_vel_len;
-            float impulse = glm::clamp(glm::abs(normalImpulse * frictionCoefficient), 0.0f, tangent_vel_len);
-            rb.AddImpulse(-tangent_velocity * impulse, applyPoint);
-        }
+        if(tangent_vel_len != 0.0f) {
+            
+            float static_threshold = normalImpulse * staticFrictionCoefficient;
+            if(tangent_vel_len <= static_threshold) {
+                rb.AddImpulse(-tangent_velocity, applyPoint);
+            } else {
+                tangent_velocity = tangent_velocity/tangent_vel_len;
+                float impulse = glm::clamp(glm::abs(normalImpulse * frictionCoefficient), 0.0f, tangent_vel_len);
+                rb.AddImpulse(-tangent_velocity * impulse, applyPoint);
+            }
 
+        }
     }
+
+    /*
+    -------------------------------------------------------------------------------------------------------
+                    MATERIAL PROPERTIES
+    -------------------------------------------------------------------------------------------------------
+    */
+
+    CONVAR(int, phys_material_property_mix_type, 0, 
+        "Defines how Bounciness/firction are calculated in collision, given two objects with each their own coefficient\n"
+        "   0 : Multiplies both\n"
+        "   1 : adds both (and clamps)\n"
+        "   2 : takes the average.")
+
+    float GetBounciness(RigidBody &rb1, RigidBody &rb2) {
+        switch(convar_phys_material_property_mix_type) {
+            case 0:
+                return rb1.Bounciness * rb2.Bounciness;
+            case 1:
+                return glm::clamp(rb1.Bounciness + rb2.Bounciness, 0.0f, 1.0f);
+            case 2:
+                return (rb1.Bounciness + rb2.Bounciness) * 0.5f;
+            default:
+                return rb1.Bounciness * rb2.Bounciness;
+        }
+    }
+    
+    float GetFriction(RigidBody &rb1, RigidBody &rb2) {
+        switch(convar_phys_material_property_mix_type) {
+            case 0:
+                return rb1.Friction * rb2.Friction;
+            case 1:
+                return glm::clamp(rb1.Friction + rb2.Friction, 0.0f, 1.0f);
+            case 2:
+                return (rb1.Friction + rb2.Friction) * 0.5f;
+            default:
+                return rb1.Friction * rb2.Friction;
+        }
+    }
+    
+    float GetStaticFriction(RigidBody &rb1, RigidBody &rb2) {
+        switch(convar_phys_material_property_mix_type) {
+            case 0:
+                return rb1.Friction * rb1.StaticFrictionMultiplier * rb2.Friction * rb2.StaticFrictionMultiplier;
+            case 1:
+                return glm::clamp(rb1.Friction * rb1.StaticFrictionMultiplier + rb2.Friction * rb2.StaticFrictionMultiplier, 0.0f, 1.0f);
+            case 2:
+                return (rb1.Friction * rb1.StaticFrictionMultiplier + rb2.Friction * rb2.StaticFrictionMultiplier) * 0.5f;
+            default:
+                return rb1.Friction * rb1.StaticFrictionMultiplier * rb2.Friction * rb2.StaticFrictionMultiplier;
+        }
+    }
+
 }

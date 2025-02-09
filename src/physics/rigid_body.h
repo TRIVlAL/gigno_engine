@@ -2,7 +2,6 @@
 #define RIGID_BODY_H
 
 #include "entities/rendered_entity.h"
-#include "physics_material.h"
 #include "collider_type.h"
 #include "algorithm/geometry.h"
 
@@ -48,8 +47,20 @@ namespace gigno {
 
         float Mass{1.0f};
         float InertiaMoment{1.0f};
-        bool IsStatic{false};
-        int Material = (int)MAT_PLASTIC;
+
+        bool IsStatic{false}; //Static objects are considered like having "infinite mass".
+
+        //Bounciness and friction are combined with the other object during collision
+        //Following the Method in collision.cpp
+        float Bounciness{0.5f};   //coefficient of return of enery in collision (1.0 means no enegry loss)
+        float Friction{0.6f};     //coefficient of friction
+        /*
+        If vel smaller than friction that the friction that would be applied with
+        Friction * StaticFrictionMultiplier as friction coefficient, that static friction
+        is aplied, i.e. friction equals to the velocity to make the object stop.
+        ! smaller than 1 !
+        */
+        float StaticFrictionMultiplier{0.3f};
 
         float Drag = 3.0f;
         float AngularDrag = 3.0f;
@@ -104,7 +115,9 @@ namespace gigno {
         DEFINE_KEY_VALUE(float, Mass)
         DEFINE_KEY_VALUE(float, InertiaMoment)
         DEFINE_KEY_VALUE(bool, IsStatic)
-        DEFINE_KEY_VALUE(int, Material)
+        DEFINE_KEY_VALUE(float, Bounciness)
+        DEFINE_KEY_VALUE(float, Friction)
+        DEFINE_KEY_VALUE(float, StaticFrictionMultiplier)
         DEFINE_KEY_VALUE(float, Drag)
         DEFINE_KEY_VALUE(ColliderType_t, ColliderType)
         DEFINE_KEY_VALUE(float, Radius)

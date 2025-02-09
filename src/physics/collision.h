@@ -29,11 +29,17 @@ namespace gigno {
     void RespondCollision(RigidBody &rb1, RigidBody &rb2, const glm::vec3 &colNormal, const float &colDepth, 
                         const glm::vec3 &rb1ApplyPoint, const glm::vec3 &rb2ApplyPoint);
 
+
+    float GetBounciness(RigidBody &rb1, RigidBody &rb2);
+    float GetFriction(RigidBody &rb1, RigidBody &rb2);
+    float GetStaticFriction(RigidBody &rb1, RigidBody &rb2);
+
     /*
     applyPoint : Position where the collision is appening, relative to the rigidbody's center of rotation (i.e. world position).
                 It is thus where the frictional force is applied.
     */
-    void ApplyFriction(float normalImpulse, RigidBody &rb, const glm::vec3 &surfaceNormal, const glm::vec3 &applyPoint, float frictionCoefficient);
+    void ApplyFriction(float normalImpulse, RigidBody &rb, const glm::vec3 &surfaceNormal, 
+                        const glm::vec3 &applyPoint, float frictionCoefficient, float staticFrictionCoefficient);
 }
 
 #endif
