@@ -27,15 +27,28 @@ namespace gigno {
 
     const size_t PROFILER_RESOLUTION = 500;
     const float PROFILER_FROM_NANOSECOND_CONVERTION = 1e-3;
-
+    
     class Profiler {
-    class ProfileThread;
+        class ProfileThread;
     friend class ProfileThread;
     public:
-        static void Begin(const char *name);
-        static void End();
-
-        static void DrawProfilerTab();
+    static void Begin(const char *name);
+    static void End();
+    
+    static void DrawProfilerTab();
+    
+    /*
+    Helper that calls Begin on construction and End on destruction.
+    To use in functions with multiple exits to auto-close when function is done.
+    */
+    struct CreateScope {
+        CreateScope(const char *name) {
+            Profiler::Begin(name);
+        }
+        ~CreateScope() {
+            Profiler::End();
+        }
+    };
 
     #if USE_PROFILER
 
@@ -67,6 +80,7 @@ namespace gigno {
             int m_ThreadHash{};
             int m_ThreadID{};
         };
+
 
 #endif
     };

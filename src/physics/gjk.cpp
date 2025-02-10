@@ -6,16 +6,9 @@
 
 namespace gigno {
 
-    bool IsNan(const MinkowskiVertex &v) {
-        return v.Point != v.Point || v.ASupport != v.ASupport || v.BSupport != v.BSupport;
-    }
-    bool IsNan(const Simplex_t &s) {
-        return IsNan(s.a) || IsNan(s.b) || IsNan(s.c) || IsNan(s.d);
-    }
-
-    bool GJK(const RigidBody &A, const RigidBody &B, Simplex_t &outSimplex)
-    {
-
+    bool GJK(const RigidBody &A, const RigidBody &B, Simplex_t &outSimplex) {
+        Profiler::CreateScope profiler{"GJK"};
+        
         glm::vec3 dir = A.Position - B.Position; //Can be any default direction.
         glm::vec3 SupA = Support(dir, A);
         glm::vec3 SupB = Support(-dir, B);
@@ -23,7 +16,7 @@ namespace gigno {
         outSimplex.a.Point = extreme;
         outSimplex.a.ASupport = SupA;
         outSimplex.a.BSupport = SupB;
-
+        
         dir = -extreme;
         SupA = Support(dir, A);
         SupB = Support(-dir, B);
@@ -34,7 +27,7 @@ namespace gigno {
         if(glm::dot(extreme, dir) < 0) {
             return false;
         }
-
+        
         //Line case
         const glm::vec3 ab = outSimplex.b.Point - outSimplex.a.Point;
         const glm::vec3 ao = -extreme;
@@ -48,12 +41,12 @@ namespace gigno {
         if(glm::dot(extreme, dir) < 0) {
             return false;
         }
-
+        
         dir = glm::cross(outSimplex.b.Point - outSimplex.a.Point, outSimplex.c.Point - outSimplex.a.Point);
         if(glm::dot(outSimplex.a.Point, dir) > 0) {
             dir = -dir;
         }
-
+        
         while(true) {
             SupA = Support(dir, A);
             SupB = Support(-dir, B);
@@ -64,17 +57,17 @@ namespace gigno {
             outSimplex.d.ASupport = SupA;
             outSimplex.d.BSupport = SupB;
             outSimplex.d.Point = extreme;
-
+            
             const glm::vec3 d0 = -outSimplex.d.Point;
 
             const glm::vec3 da = outSimplex.a.Point - outSimplex.d.Point;
             const glm::vec3 db = outSimplex.b.Point - outSimplex.d.Point;
             const glm::vec3 dc = outSimplex.c.Point - outSimplex.d.Point;
-
+            
             const glm::vec3 dab = glm::cross(da, db);
             const glm::vec3 dbc = glm::cross(db, dc);
             const glm::vec3 dca = glm::cross(dc, da);
-
+            
             if(glm::dot(dab, d0) > 0) {
                 outSimplex.c = outSimplex.d;
                 dir = dab;
@@ -88,15 +81,14 @@ namespace gigno {
                 return true; //Origin is inside simplex.
             }
         }
+
     }
-
+    
     void EPA(const RigidBody &A, const RigidBody &B, const Simplex_t &Simplex,
-             glm::vec3 &outPointA, glm::vec3 &outPointB, glm::vec3 &outDirection, float &outDepth) {
-
+        glm::vec3 &outPointA, glm::vec3 &outPointB, glm::vec3 &outDirection, float &outDepth) {
+        Profiler::CreateScope profiler{"EPA"};
+        
         Polytope_t polytope{};
-        if(Simplex.a.Point != Simplex.a.Point || Simplex.b.Point != Simplex.b.Point || Simplex.c.Point != Simplex.c.Point || Simplex.d.Point != Simplex.d.Point) {
-            Console::LogInfo("SIMPLEX IS NAN");
-        }
         polytope.Vertices = {Simplex.a, Simplex.b, Simplex.c, Simplex.d};
         polytope.Indices = {
             0, 2, 1,
@@ -104,67 +96,75 @@ namespace gigno {
             1, 2, 3,
             0, 3, 2
         }; // Winding order : Counter clockwise.
-
+        
         const float epsilon = 0.00015f;
-
+        
         int safety_count = 0;
         while(true) {
             safety_count++;
-
+            
             float face_distance{};
             glm::vec3 face_normal{};
             size_t face_index = polytope.GetClosestFace(face_distance, face_normal);
-
+            
             const glm::vec3 PointA = Support(face_normal, A);
             const glm::vec3 PointB = Support(-face_normal, B);
             MinkowskiVertex new_point{};
             new_point.Point = PointA - PointB;
             new_point.ASupport = PointA;
             new_point.BSupport = PointB;
-
+            
             float new_point_distance = glm::dot(new_point.Point, face_normal);
-
+            
+            /*
+            This fix was removed because it cost arguably too much (3% of the loop)
+            ----------------------------------------------------------------------
             // Check if the new point already exists. If it does, stop the algorithm
             // See issue #9 @ https://github.com/TRIVlAL/gigno_engine/issues/9
+            Profiler::Begin("Dirty Fix");
             bool vertex_exists = false;
             for(auto &mv : polytope.Vertices) {
                 if(mv.Point == new_point.Point) {
                     vertex_exists = true;
                     break;
-                }
-            }
-
-            if(new_point_distance - face_distance < epsilon || safety_count > 50 || vertex_exists) {
-
+                    }
+                    }
+                    Profiler::End();
+                    */
+                   
+                   
+                   if(new_point_distance - face_distance < epsilon || safety_count > 50 /*|| vertex_exists*/) {
+                       
                 if(safety_count > 50) {
                     Console::LogWarning("Physics Collision : EPA max loop iteration exceeded ! Is epsilon = %f too small ?", epsilon);
                 }
-
+                
                 float u{};
                 float v{};
                 float w{};
-
+                
                 const MinkowskiVertex a = polytope.Vertices[polytope.Indices[face_index]];
                 const MinkowskiVertex b = polytope.Vertices[polytope.Indices[face_index+1]];
                 const MinkowskiVertex c = polytope.Vertices[polytope.Indices[face_index+2]];
-
+                
                 Barycentric(glm::vec3{0.0f}, 
                     a.Point,
                     b.Point,
                     c.Point,
                     u, v, w
                 );
-
+                
                 outPointA = u * a.ASupport + v * b.ASupport + w * c.ASupport;
                 outPointB = u * a.BSupport + v * b.BSupport + w * c.BSupport;
                 outDirection = face_normal;
                 outDepth = face_distance;
+
                 return;
             }
-
+            
             polytope.AddVertex(new_point);
         }
-
+        
 
     }
     
@@ -199,10 +199,6 @@ namespace gigno {
     void Polytope_t::AddVertex(MinkowskiVertex vertex) {
         std::vector<std::pair<size_t, size_t>> edges{};
         std::vector<size_t> faces_to_remove_indices{};
-
-        if(vertex.Point != vertex.Point) {
-            Console::LogInfo("NEW VERTEX IS NAN");
-        }
 
         Vertices.emplace_back(vertex);
         size_t new_vert_index = Vertices.size() - 1;

@@ -111,6 +111,8 @@ namespace gigno {
         BROAD PHASE
         -------------------------------------------------*/
 
+        Profiler::Begin("Collision - Broad Phase");
+        
         //Checking Axis Aligned Bounding Boxes and adding each overlapping pairs
         // to m_PossiblePairs 
         RigidBody *rb1 = RigidBodies;
@@ -121,26 +123,33 @@ namespace gigno {
                     rb1->BBMin.y <= rb2->BBMax.y && rb1->BBMax.y >= rb2->BBMin.y &&
                     rb1->BBMin.z <= rb2->BBMax.z && rb1->BBMax.z >= rb2->BBMin.z)
                 {
-
+                        
                     m_PossiblePairs.emplace_back(rb1, rb2);
                     rb1->IsBBCollide = true;
                     rb2->IsBBCollide = true;
                 }
+                    
                 rb2 = rb2->pNextRigidBody;
             }
             rb1 = rb1->pNextRigidBody;
         }
-
-
+        
+        Profiler::End();
+            
         /* -----------------------------------------------
         NARROW PHASE
         -------------------------------------------------*/
+
+        Profiler::Begin("Collision - Narrow Phase");
 
         for(std::pair<RigidBody *, RigidBody *> pair : m_PossiblePairs) {
             ResolveCollision(*pair.first, *pair.second);
         }
 
+        Profiler::End();
+        
         m_PossiblePairs.clear();
+
     }
 
 }

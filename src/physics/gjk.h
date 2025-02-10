@@ -23,10 +23,6 @@ namespace gigno {
         MinkowskiVertex d;
     };
 
-    //Helper functions for debugging
-    bool IsNan(const MinkowskiVertex &v);
-    bool IsNan(const Simplex_t &v);
-
 
     /*
     Gilbert–Johnson–Keerthi algorithm
