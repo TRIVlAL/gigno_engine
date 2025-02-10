@@ -116,24 +116,18 @@ namespace gigno {
             
             float new_point_distance = glm::dot(new_point.Point, face_normal);
             
-            /*
-            This fix was removed because it cost arguably too much (3% of the loop)
-            ----------------------------------------------------------------------
             // Check if the new point already exists. If it does, stop the algorithm
             // See issue #9 @ https://github.com/TRIVlAL/gigno_engine/issues/9
-            Profiler::Begin("Dirty Fix");
             bool vertex_exists = false;
             for(auto &mv : polytope.Vertices) {
                 if(mv.Point == new_point.Point) {
                     vertex_exists = true;
                     break;
-                    }
-                    }
-                    Profiler::End();
-                    */
+                }
+            }
                    
                    
-                   if(new_point_distance - face_distance < epsilon || safety_count > 50 /*|| vertex_exists*/) {
+            if(new_point_distance - face_distance < epsilon || safety_count > 50 || vertex_exists) {
                        
                 if(safety_count > 50) {
                     Console::LogWarning("Physics Collision : EPA max loop iteration exceeded ! Is epsilon = %f too small ?", epsilon);
