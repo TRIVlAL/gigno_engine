@@ -1,3 +1,4 @@
 .vscode
 BUILD
 shaders/*.spv
+.history
