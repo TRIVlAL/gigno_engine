@@ -167,6 +167,7 @@ namespace gigno {
     }
     
     size_t Polytope_t::GetClosestFace(float &outFaceDistance, glm::vec3 &outFaceNormal) {
+        Profiler::CreateScope profiler{"GetClosestFace"};
 
         size_t closest_index = -1;
         outFaceDistance = FLT_MAX;
@@ -199,6 +200,7 @@ namespace gigno {
     std::vector<size_t> faces_to_remove_indices{};
 
     void Polytope_t::AddVertex(MinkowskiVertex vertex) {
+        Profiler::CreateScope profiler{"AddVertex"};
 
         edges.clear();
         faces_to_remove_indices.clear();

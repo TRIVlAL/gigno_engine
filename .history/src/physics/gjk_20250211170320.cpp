@@ -84,13 +84,11 @@ namespace gigno {
 
     }
     
-    //Kept global to not dealocate memory.
-    Polytope_t polytope{};
-
     void EPA(const RigidBody &A, const RigidBody &B, const Simplex_t &Simplex,
         glm::vec3 &outPointA, glm::vec3 &outPointB, glm::vec3 &outDirection, float &outDepth) {
         Profiler::CreateScope profiler{"EPA"};
-    
+        
+        static Polytope_t polytope{}; //Static to not need to reallocate memory
         polytope.Vertices.clear();
         polytope.Indices.clear();
         polytope.Vertices.insert(polytope.Vertices.end(), {Simplex.a, Simplex.b, Simplex.c, Simplex.d});
@@ -167,7 +165,7 @@ namespace gigno {
     }
     
     size_t Polytope_t::GetClosestFace(float &outFaceDistance, glm::vec3 &outFaceNormal) {
-
+        
         size_t closest_index = -1;
         outFaceDistance = FLT_MAX;
 
@@ -194,14 +192,12 @@ namespace gigno {
         return closest_index;
     }
     
-    //Kept global to not dealocate memory.
-    std::vector<std::pair<size_t, size_t>> edges{};
-    std::vector<size_t> faces_to_remove_indices{};
-
     void Polytope_t::AddVertex(MinkowskiVertex vertex) {
-
-        edges.clear();
-        faces_to_remove_indices.clear();
+        //static to not dealocate memory.
+        /*static*/ std::vector<std::pair<size_t, size_t>> edges{};
+        /*static*/ std::vector<size_t> faces_to_remove_indices{};
+        //edges.clear();
+        //faces_to_remove_indices.clear();
 
         Vertices.emplace_back(vertex);
         size_t new_vert_index = Vertices.size() - 1;

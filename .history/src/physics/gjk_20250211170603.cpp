@@ -167,7 +167,7 @@ namespace gigno {
     }
     
     size_t Polytope_t::GetClosestFace(float &outFaceDistance, glm::vec3 &outFaceNormal) {
-
+        
         size_t closest_index = -1;
         outFaceDistance = FLT_MAX;
 
@@ -199,7 +199,6 @@ namespace gigno {
     std::vector<size_t> faces_to_remove_indices{};
 
     void Polytope_t::AddVertex(MinkowskiVertex vertex) {
-
         edges.clear();
         faces_to_remove_indices.clear();
 

@@ -84,22 +84,18 @@ namespace gigno {
 
     }
     
-    //Kept global to not dealocate memory.
-    Polytope_t polytope{};
-
     void EPA(const RigidBody &A, const RigidBody &B, const Simplex_t &Simplex,
         glm::vec3 &outPointA, glm::vec3 &outPointB, glm::vec3 &outDirection, float &outDepth) {
         Profiler::CreateScope profiler{"EPA"};
-    
-        polytope.Vertices.clear();
-        polytope.Indices.clear();
-        polytope.Vertices.insert(polytope.Vertices.end(), {Simplex.a, Simplex.b, Simplex.c, Simplex.d});
-        polytope.Indices.insert(polytope.Indices.end(), {
+        
+        Polytope_t polytope{};
+        polytope.Vertices = {Simplex.a, Simplex.b, Simplex.c, Simplex.d};
+        polytope.Indices = {
             0, 2, 1,
             0, 1, 3,
             1, 2, 3,
             0, 3, 2
-        }); // Winding order : Counter clockwise.
+        }; // Winding order : Counter clockwise.
         
         const float epsilon = 0.00015f;
         
@@ -167,7 +163,7 @@ namespace gigno {
     }
     
     size_t Polytope_t::GetClosestFace(float &outFaceDistance, glm::vec3 &outFaceNormal) {
-
+        
         size_t closest_index = -1;
         outFaceDistance = FLT_MAX;
 
@@ -194,14 +190,9 @@ namespace gigno {
         return closest_index;
     }
     
-    //Kept global to not dealocate memory.
-    std::vector<std::pair<size_t, size_t>> edges{};
-    std::vector<size_t> faces_to_remove_indices{};
-
     void Polytope_t::AddVertex(MinkowskiVertex vertex) {
-
-        edges.clear();
-        faces_to_remove_indices.clear();
+        std::vector<std::pair<size_t, size_t>> edges{};
+        std::vector<size_t> faces_to_remove_indices{};
 
         Vertices.emplace_back(vertex);
         size_t new_vert_index = Vertices.size() - 1;
@@ -248,7 +239,7 @@ namespace gigno {
         }
 
         //Remains in edges only the edges that should build the new faces.
-        //Indices.reserve(edges.size() * 3);
+        Indices.reserve(edges.size() * 3);
         for(std::pair<size_t, size_t> &edge : edges) {
             Indices.emplace_back(edge.first);
             Indices.emplace_back(edge.second);
