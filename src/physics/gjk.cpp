@@ -84,8 +84,10 @@ namespace gigno {
 
     }
     
-    //Kept global to not dealocate memory.
-    Polytope_t polytope{};
+    namespace {
+        //Kept global to not dealocate memory.
+        Polytope_t polytope{};
+    }
 
     void EPA(const RigidBody &A, const RigidBody &B, const Simplex_t &Simplex,
         glm::vec3 &outPointA, glm::vec3 &outPointB, glm::vec3 &outDirection, float &outDepth) {
@@ -194,9 +196,11 @@ namespace gigno {
         return closest_index;
     }
     
-    //Kept global to not dealocate memory.
-    std::vector<std::pair<size_t, size_t>> edges{};
-    std::vector<size_t> faces_to_remove_indices{};
+    namespace {
+        //Kept global to not dealocate memory.
+        std::vector<std::pair<size_t, size_t>> edges{};
+        std::vector<size_t> faces_to_remove_indices{};
+    }
 
     void Polytope_t::AddVertex(MinkowskiVertex vertex) {
 
