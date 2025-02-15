@@ -31,7 +31,7 @@ void main() {
 	} else {
 		for(int i = 0; i < MAX_LIGHT_DATA_COUNT; i++) {
 			if(ubo.lightDatas[i].w == 1.0f) { // DIRECTIONAL LIGHT
-				lightPower += max(dot(mat3(push.normalMatrix) * inNormal, vec3(ubo.lightDatas[i])), 0);
+				lightPower += max(dot(normalize(mat3(push.normalMatrix) * inNormal), vec3(ubo.lightDatas[i])), 0);
 			} 
 			else if(ubo.lightDatas[i].w == 2.0f)  { // POINT LIGHT
 				vec3 meToLight = vec3(ubo.lightDatas[i]) - vec3(worldPos);
