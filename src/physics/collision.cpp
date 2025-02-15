@@ -5,6 +5,7 @@
 #include "../algorithm/geometry.h"
 #include <utility>
 #include "gjk.h"
+#include "physic_server.h"
 
 namespace gigno {
 
@@ -208,8 +209,12 @@ namespace gigno {
     }
 
     bool ResolveCollision_HullPlane(RigidBody &hull, RigidBody &Plane) {
-        std::vector<glm::vec3> &vert = hull.Hull.RotatedVertices;
-        std::vector<int> &ind = hull.Hull.Indices;
+        const std::vector<glm::vec3> &vert = hull.TransformedModel;
+        const CollisionModel_t *model = hull.GetModel();
+        if(!model) {
+            return false;
+        }
+        const std::vector<int> &ind = model->Indices;
 
         std::vector<std::pair<bool, float>> heights(vert.size());
 

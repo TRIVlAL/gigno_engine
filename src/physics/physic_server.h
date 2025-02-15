@@ -4,12 +4,18 @@
 #include <thread>
 #include <mutex>
 #include <vector>
+#include "../algorithm/cstr_map.h"
 #include "collision.h"
 
 namespace gigno {
     const size_t MAX_RIGIDBODY_COUNT = 50;
 
     static void phys_remote_update(float); //defined in phys_remote_command.cpp
+
+    struct CollisionModel_t {
+        std::vector<glm::vec3> Vertices{};
+        std::vector<int> Indices{};
+    };
 
     class PhysicServer {
         friend void phys_remote_update(float);
@@ -25,8 +31,30 @@ namespace gigno {
 
         void SubscribeRigidBody(RigidBody *rb);
         void UnsubscribeRigidBody(RigidBody *rb);
+
+        /*
+        Allocates the collision Model using the .obj file at path.
+        Returns false if the allocation wasn't successful. Can be because the path does not exist
+        or if the .obj file cannot be parsed. 
+        If this CollisionModel was already allocated, will return true and leave.
+        */
+        bool AllocateCollisionModel(const char *path);
+        /*
+        Returns the collision Model using the .obj file at path. 
+        Allocates it if it wasn't already. 
+        Returns nullptr if the allocation was not successfull. 
+
+        Pointer can be invalidated by any call to AllocateCollisionModel, GetCollisionModel and, thus, 
+        any construction of a RigidBody. For that reason, use it once in YOUR SCOPE and LEAVE IT.
+        */
+        const CollisionModel_t *GetCollisionModel(const char *path);
         
     private:
+        /*
+        Map matching the path to the .obj model file to the CollisionModel_t instance.
+        */
+        CstrUnorderedMap_t<CollisionModel_t> m_Models{};
+
         std::mutex m_WorldMutex{};
 
         std::thread m_LoopThread;

@@ -7,13 +7,7 @@
 
 
 namespace gigno {
-
-    struct Hull_t {
-        std::vector<glm::vec3> Vertices{};
-        std::vector<int> Indices{};
-
-        std::vector<glm::vec3> RotatedVertices{}; 
-    };
+    struct CollisionModel_t;
 
     class RigidBody : public RenderedEntity {
         ENTITY_DECLARATIONS(RigidBody, RenderedEntity)
@@ -39,10 +33,11 @@ namespace gigno {
         float Radius{};     // For sphere or capsule
         vec3 Normal{};      // normalized plane normal.
         float Length{};     // Full-length of the capsule
-        const char *CollisionModelPath = nullptr; // Uses this path to load the convex hull 
+        const char *CollisionModelPath = nullptr; //  Path to the file loading the convex hull CollisionModel_t 
                                                   //  if ColliderType is set to COLLIDER_HULL
-        Hull_t Hull{}; // Points of the convex hull (in local space)
-
+        std::vector<glm::vec3> TransformedModel{}; // Points of the CollisionModel_t transformed (rotated and scaled)
+                                                     // in local space. Updated by UpdateTransformedModel every PhysicThink
+                                                     // if CollioderType is COLLIDER_HULL
         /*------------------------------------------*/
 
         float Mass{1.0f};
@@ -97,18 +92,19 @@ namespace gigno {
 
         //Testing
         bool IsBBCollide = false;
+
+        const CollisionModel_t *GetModel();
     private:
 
         glm::vec3 m_WorldTargetHinge{};// The world position of the hinge. is set on Init
 
         bool hasCollider = false;
 
-
-
-        void LoadColliderModel(const char *path);
-        void UpdateRotatedModel();
+        void UpdateTransformedModel();
 
         void UpdateBoundingBox();
+
+        void DrawCollider();
     };
 
     BEGIN_KEY_TABLE(RigidBody)
@@ -134,7 +130,6 @@ namespace gigno {
         DEFINE_KEY_VALUE(vec3, BBMax)
     END_KEY_TABLE
 
-    void DrawRigidbodyCollider(RigidBody &rb);
 
 }
 

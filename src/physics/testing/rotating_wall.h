@@ -11,10 +11,11 @@ namespace gigno {
     public:
 
         virtual void Init() override {
-            ModelPath = "models/wall.obj";
+            ModelPath = "models/cube.obj";
             ColliderType = COLLIDER_HULL;
-            CollisionModelPath = "models/wall.obj";
+            CollisionModelPath = "models/cube.obj";
             IsStatic = true;
+            Scale = glm::vec3{0.5f, 4.0f, 7.0f};
 
             RigidBody::Init();
         }

@@ -14,6 +14,8 @@
 
 #include "../debug/profiler/profiler.h"
 
+#include "../vendor/tiny_object_loader/tiny_obj_loader.h"
+
 using namespace std::chrono_literals;
 
 namespace gigno {
@@ -51,7 +53,7 @@ namespace gigno {
             curr = curr->pNextRigidBody;
         }
     }
-
+    
     void PhysicServer::Loop() {
 
         std::chrono::time_point<std::chrono::high_resolution_clock> frame_start{};
@@ -103,8 +105,7 @@ namespace gigno {
         }
     }
 
-    void PhysicServer::ResolveCollisions()
-    {
+    void PhysicServer::ResolveCollisions() {
         std::lock_guard<std::mutex>{m_WorldMutex};
 
         /* -----------------------------------------------
@@ -152,4 +153,65 @@ namespace gigno {
 
     }
 
+    bool PhysicServer::AllocateCollisionModel(const char *path) {
+        if(m_Models.find(path) != m_Models.end()) {
+            return true; //Model already allocated.
+        }
+
+        tinyobj::attrib_t attrib{};
+        std::vector<tinyobj::shape_t> shapes{};
+        std::vector<tinyobj::material_t> materials{};
+
+        std::string warn{};
+        std::string err{};
+
+        if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path)) {
+            ERR_MSG_V(false, "AllocateCollisionModel : Tiny Object Loader Error : %s", err.c_str());
+        }
+
+        std::unordered_map<glm::vec3, size_t> unique_vertices{}; // Vertex coordinate to vertex index.
+        
+        size_t indices_count = 0;
+        for (tinyobj::shape_t &shape : shapes) {
+            indices_count += shape.mesh.indices.size();
+        }
+
+        size_t vertices_count = attrib.vertices.size() / 3;
+
+        m_Models[path] = CollisionModel_t{};
+        CollisionModel_t &model = m_Models[path];
+        model.Indices.reserve(indices_count);
+        model.Vertices.reserve(vertices_count);
+
+        size_t vertex_index = 0;
+        for (tinyobj::shape_t &shape : shapes)
+        {
+            for (tinyobj::index_t &index : shape.mesh.indices)
+            {
+                glm::vec3 vertex = {attrib.vertices[index.vertex_index * 3 + 0],
+                                    attrib.vertices[index.vertex_index * 3 + 1],
+                                    attrib.vertices[index.vertex_index * 3 + 2]};
+
+                if (unique_vertices.count(vertex) == 0)
+                {
+                    unique_vertices[vertex] = model.Vertices.size();
+                    model.Vertices.emplace_back(vertex);
+                }
+
+                model.Indices.emplace_back(unique_vertices[vertex]);
+            }
+        }
+
+        return true;
+    }
+
+    const CollisionModel_t *PhysicServer::GetCollisionModel(const char *path) {
+        if(m_Models.find(path) == m_Models.end()) {
+            if(!AllocateCollisionModel(path)) {
+                return nullptr;
+            }
+        }
+
+        return &m_Models[path];
+    }
 }
