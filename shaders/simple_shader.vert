@@ -23,7 +23,7 @@ layout(binding=0) uniform UniformBufferObject {
 
 void main() {
 	vec4 worldPos = push.model * vec4(inPosition, 1.0);
-	gl_Position = ubo.projection * ubo.view * push.model * vec4(inPosition, 1.0);
+	gl_Position = ubo.projection * ubo.view * worldPos;
 
 	float lightPower = 0.0f;
 	if(push.fullbright == 1) {
@@ -36,7 +36,7 @@ void main() {
 			else if(ubo.lightDatas[i].w == 2.0f)  { // POINT LIGHT
 				vec3 meToLight = vec3(ubo.lightDatas[i]) - vec3(worldPos);
 				float distanceSquared = meToLight.x * meToLight.x + meToLight.y * meToLight.y + meToLight.z * meToLight.z + 0.00001f;
-				meToLight = normalize(meToLight);
+				meToLight = meToLight / sqrt(distanceSquared);
 				i++;
 				lightPower += max(dot(mat3(push.normalMatrix) * inNormal, meToLight), 0) / distanceSquared * ubo.lightDatas[i].x;
 			}

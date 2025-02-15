@@ -36,8 +36,9 @@ namespace gigno
                             break;
                         case 1:
                             rb->ColliderType = COLLIDER_HULL;
-                            rb->ModelPath = "models/tiny_cube.obj";
-                            rb->CollisionModelPath = "models/tiny_cube.obj";
+                            rb->ModelPath = "models/cube.obj";
+                            rb->CollisionModelPath = "models/cube.obj";
+                            rb->Scale = glm::vec3{0.5f};
                             alternate++;
                             break;
                         case 2:
