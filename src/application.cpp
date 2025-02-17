@@ -14,6 +14,7 @@
 #include "test_entity.h"
 #include "rendering/gui.h"
 #include "application.h"
+#include "algorithm/arena.h"
 
 namespace gigno {
 

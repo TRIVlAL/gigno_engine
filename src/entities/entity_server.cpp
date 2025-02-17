@@ -36,9 +36,10 @@ namespace gigno {
 
     void EntityServer::UnloadMap() {
 		for(Entity *ent : m_Scene) {
-			delete ent;
+			ent->~Entity();
 		}
 		m_Scene.clear();
+		m_EntityArena.FreeAll();
     }
 
     bool EntityServer::LoadFromFile(std::ifstream &source) {
@@ -95,10 +96,16 @@ namespace gigno {
 				} else {
 					if(finish_word) {
 						entity_name_buffer[entity_name_index++] = '\0';
-						curr_ent = m_Scene.emplace_back(Entity::CreateEntity(entity_name_buffer));
+						
+						void *position = m_EntityArena.Alloc(Entity::EntitySizeOf(entity_name_buffer));
+						curr_ent = Entity::CreateEntityAt(entity_name_buffer, position);
+
 						if(!curr_ent) {
 							Console::LogWarning("Parsing : Entity type '%s' does not exist !", entity_name_buffer);
+						} else {
+							m_Scene.emplace_back(curr_ent);
 						}
+
 						entity_name_index = 0;
 						curr_key = AWAIT_OPEN_BRACE;
 					}

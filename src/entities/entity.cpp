@@ -100,11 +100,33 @@ namespace  gigno {
     }
 
     Entity *Entity::CreateEntity(const char *entityType) {
-		auto build_function = s_BuildEntityMap.find(entityType);
-		if(build_function == s_BuildEntityMap.end()) {
+		auto new_function = s_NewEntityMethodMap.find(entityType);
+		if (new_function == s_NewEntityMethodMap.end())
+		{
+			return nullptr;
+		}
+		else
+		{
+			return (new_function->second)();
+		}
+	}
+
+    Entity *Entity::CreateEntityAt(const char *entityType, void *position) {
+		auto placement_new_function = s_PlacementNewEntityMethodMap.find(entityType);
+		if(placement_new_function == s_PlacementNewEntityMethodMap.end()) {
 			return nullptr;
 		} else {
-        	return (build_function->second)();
+			return (placement_new_function->second)(position);
+		}
+    }
+
+    size_t Entity::EntitySizeOf(const char *entityType) {
+		auto size = s_SizeOfMap.find(entityType);
+		if(size == s_SizeOfMap.end()) {
+			Console::LogError("Querrying size of an entity type that does not exist : %s", entityType);
+			return 0;
+		} else {
+			return size->second; 
 		}
     }
 

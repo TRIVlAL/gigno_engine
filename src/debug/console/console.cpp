@@ -82,7 +82,9 @@ namespace gigno {
     #endif
         {
             printf(msg);
-            printf("\n");
+            if(!(flags & MESSAGE_NO_NEW_LINE_BIT)) {
+                printf("\n");
+            }
         }
 
         m_LogMutex.unlock();
@@ -136,13 +138,17 @@ namespace gigno {
         if(CONSOLE_TO_PRINTF) 
         {
             printf(res_message);
-            printf("\n");
+            if(!(flags & MESSAGE_NO_NEW_LINE_BIT)) {
+                printf("\n");
+            }
         }
     #else
         va_list params;
         va_start(params, flags);
         vprintf(fmt, params);
-        printf("\n");
+        if (!(flags | MESSAGE_NO_NEW_LINE_BIT)) {
+            printf("\n");
+        }
     #endif
         m_LogMutex.unlock();
     }

@@ -91,9 +91,9 @@ namespace gigno {
 
             if(dur > target_dur) {
                 time_overflow = dur - target_dur;
-                Console::LogError ("Physic Server : Late on process. Could not keep the cadence of %d frames per seconds. "
-                                                                        "This frame took %f ms too long. (timescale : %f)", (uint32_t)convar_phys_loop_rate, 
-                                                                        (float)time_overflow.count()/1e6f, (float)convar_phys_timescale);
+                /*Console::LogError ("Physic Server : Late on process. Could not keep the cadence of %d frames per seconds. "
+                                                                        "This frame took %f ms too long", (uint32_t)convar_phys_loop_rate, 
+                                                                        (float)time_overflow.count()/1e6f);*/
             } else {
                 time_overflow = 0ns;
 

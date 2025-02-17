@@ -48,7 +48,9 @@ namespace gigno {
 	Some types may be unsupported. THe list of supported type is defined in file 'keyvalue.h'.
 	*/
 	class Entity {
-		friend class AddBuildEntityMethod;
+		friend class AddNewEntityMethods;
+		friend class AddEntitySizeOf;
+
 	public:
 		Entity(const Entity &) = delete;
 		Entity & operator=(const Entity &) = delete;
@@ -88,18 +90,33 @@ namespace gigno {
 			return FromValue<T>(GetKeyValue_t(key));
 		}
 
+		//Returns sizeof of the outermost Entity child class.
+		virtual size_t SizeOf() const {return sizeof(Entity);};
+
 		virtual const char *GetTypeName() const { return "Entity"; };
 
 		//Creates an entity of the given type. You take ownership of said entity.
 		static Entity* CreateEntity(const char *entityType);
+		//Creates an entity of the given type at the given memory location. 
+		//The required memory must have already been alocated by you. You take ownership of the entity.
+		static Entity* CreateEntityAt(const char *entityType, void *position);
 
-		typedef Entity *(*BuildEntityFunc)(void);
+		//Returns the sizeof of an entity of the given type.
+		static size_t EntitySizeOf(const char *entityType);
+
+		typedef Entity *(*NewEntityFunc)(void);
+		typedef Entity *(*PlacementNewEntityFunc)(void *);
 
 	protected:
 		Application *GetApp() const;
 	private:
-		// Matches every entity type name to the "BuildEntity" func that builds said entity.
-		inline static CstrUnorderedMap_t<BuildEntityFunc> s_BuildEntityMap{};
+		// Matches every entity type name to the "NewEntity" func that builds said entity.
+		inline static CstrUnorderedMap_t<NewEntityFunc> s_NewEntityMethodMap{};
+		// Matches every entity type name to the "PlacementNewEntity" func that builds said entity.
+		inline static CstrUnorderedMap_t<PlacementNewEntityFunc> s_PlacementNewEntityMethodMap{};
+
+		//Matches every entity type name to the sizeof of said type.
+		inline static CstrUnorderedMap_t<size_t> s_SizeOfMap{};
 	};
 
 	BEGIN_KEY_TABLE(Entity)
@@ -110,14 +127,25 @@ namespace gigno {
 	END_KEY_TABLE
 
 	template<typename TEntity>
-	inline Entity *BuildEntity();
+	inline Entity *NewEntity();
+	template<typename TEntity>
+	inline Entity *PlacementNewEntity(void *placement);
 
-	// To add values to s_BuildEntityMap from global scope through the constructor.
-	class AddBuildEntityMethod {
+	// To add values to s_NewEntityMap from global scope through the constructor.
+	class AddNewEntityMethods {
 	public:
-		template<class Fn>
-		AddBuildEntityMethod(const char *name, Fn &&method) {
-			Entity::s_BuildEntityMap[name] = method;
+		template <class NewFunc, class PlacementNewFunc>
+		AddNewEntityMethods(const char *name, NewFunc &&newFunc, PlacementNewFunc &&placementNewFunc)
+		{
+			Entity::s_NewEntityMethodMap[name] = newFunc;
+			Entity::s_PlacementNewEntityMethodMap[name] = placementNewFunc;
+		}
+	};
+
+	class AddEntitySizeOf {
+	public:
+		AddEntitySizeOf(const char *name, size_t size) {
+			Entity::s_SizeOfMap[name] = size;
 		}
 	};
 
@@ -132,53 +160,60 @@ public:                                                                         
 	virtual size_t KeyValueCount() const override;                              \
 	virtual Value_t GetKeyValue_t(const char *key) override;              \
 	virtual void SetKeyValue(const char *key, const char **args, int argsC) override;\
+	virtual size_t SizeOf() const override;\
 	virtual const char *GetTypeName() const override;
 
-#define ENTITY_DEFINITIONS(this_class, base_class)                                                     \
-	std::vector<std::pair<const char *, Value_t>> this_class::KeyValues()                              \
-	{                                                                                                  \
-		std::vector<std::pair<const char *, Value_t>> ret{this_class::KeyValueCount()};                \
-		int i = 0;                                                                                     \
-		for (auto &[key, owned_value] : KeyTableAccessor<this_class>::KeyValues)                       \
-		{                                                                                              \
-			ret[i++] = {key, FromOwnedValue(this, owned_value)};                                       \
-		}                                                                                              \
-		std::vector<std::pair<const char *, Value_t>> base = base_class::KeyValues();                  \
-		for (auto &v : base)                                                                           \
-		{                                                                                              \
-			ret[i++] = v;                                                                              \
-		}                                                                                              \
-		return ret;                                                                                    \
-	}                                                                                                  \
-	Value_t this_class::GetKeyValue_t(const char *key)                                                 \
-	{                                                                                                  \
-		Value_t ret{};                                                                                 \
-		if (GetKeyvalue<this_class>(ret, this, key))                                                   \
-		{                                                                                              \
-			return ret;                                                                                \
-		}                                                                                              \
-		else                                                                                           \
-		{                                                                                              \
-			return base_class::GetKeyValue_t(key);                                                     \
-		}                                                                                              \
-	}                                                                                                  \
-	void this_class::SetKeyValue(const char *key, const char **args, int argC)                           \
-	{                                                                                                  \
-		if(!SetKeyvalueFromString<this_class>(this, key, args, argC)) {							   \
-			base_class::SetKeyValue(key, args, argC);									   		   \
-		}																							   \
-	}                                                                                                  \
-	size_t this_class::KeyValueCount() const                                                           \
-	{                                                                                                  \
-		return base_class::KeyValueCount() + KeyTableAccessor<this_class>::KeyValues.size();           \
-	}                                                                                                  \
-	const char *this_class::GetTypeName() const { return #this_class; }                                \
-	template <>                                                                                        \
-	inline Entity *BuildEntity<this_class>() { return new this_class(); };                             \
-	namespace                                                                                          \
-	{                                                                                                  \
-		AddBuildEntityMethod AddBuildEntityMethod_##this_class(#this_class, &BuildEntity<this_class>); \
+#define ENTITY_DEFINITIONS(this_class, base_class)                                                                                    \
+	std::vector<std::pair<const char *, Value_t>> this_class::KeyValues()                                                             \
+	{                                                                                                                                 \
+		std::vector<std::pair<const char *, Value_t>> ret{this_class::KeyValueCount()};                                               \
+		int i = 0;                                                                                                                    \
+		for (auto &[key, owned_value] : KeyTableAccessor<this_class>::KeyValues)                                                      \
+		{                                                                                                                             \
+			ret[i++] = {key, FromOwnedValue(this, owned_value)};                                                                      \
+		}                                                                                                                             \
+		std::vector<std::pair<const char *, Value_t>> base = base_class::KeyValues();                                                 \
+		for (auto &v : base)                                                                                                          \
+		{                                                                                                                             \
+			ret[i++] = v;                                                                                                             \
+		}                                                                                                                             \
+		return ret;                                                                                                                   \
+	}                                                                                                                                 \
+	Value_t this_class::GetKeyValue_t(const char *key)                                                                                \
+	{                                                                                                                                 \
+		Value_t ret{};                                                                                                                \
+		if (GetKeyvalue<this_class>(ret, this, key))                                                                                  \
+		{                                                                                                                             \
+			return ret;                                                                                                               \
+		}                                                                                                                             \
+		else                                                                                                                          \
+		{                                                                                                                             \
+			return base_class::GetKeyValue_t(key);                                                                                    \
+		}                                                                                                                             \
+	}                                                                                                                                 \
+	void this_class::SetKeyValue(const char *key, const char **args, int argC)                                                        \
+	{                                                                                                                                 \
+		if (!SetKeyvalueFromString<this_class>(this, key, args, argC))                                                                \
+		{                                                                                                                             \
+			base_class::SetKeyValue(key, args, argC);                                                                                 \
+		}                                                                                                                             \
+	}                                                                                                                                 \
+	size_t this_class::KeyValueCount() const                                                                                          \
+	{                                                                                                                                 \
+		return base_class::KeyValueCount() + KeyTableAccessor<this_class>::KeyValues.size();                                          \
+	}                                                                                                                                 \
+	size_t this_class::SizeOf() const { return sizeof(this_class); }                                                                              \
+	const char *this_class::GetTypeName() const { return #this_class; }                                                               \
+	template <>                                                                                                                       \
+	inline Entity *NewEntity<this_class>() { return new this_class(); };                                                              \
+	template <>                                                                                                                       \
+	inline Entity *PlacementNewEntity<this_class>(void *placement) { return new (placement) this_class(); };                          \
+	namespace                                                                                                                         \
+	{                                                                                                                                 \
+		AddNewEntityMethods AddNewEntityMethods_##this_class(#this_class, &NewEntity<this_class>, &PlacementNewEntity<this_class>); \
+		AddEntitySizeOf AddEntitySizeOf_##this_class(#this_class, sizeof(this_class));                                          \
 	}
+
 }
 
 #endif

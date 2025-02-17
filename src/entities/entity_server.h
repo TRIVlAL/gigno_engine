@@ -5,6 +5,7 @@
 #include <memory>
 #include <type_traits>
 #include "../features_usage.h"
+#include "../algorithm/arena.h"
 
 namespace gigno {
 
@@ -26,9 +27,7 @@ namespace gigno {
 		void DrawEntityInspectorTab();
 	#endif
 	private:
-		// Called by the base entity constructor and destructor, limit visibility to Entity friend class only.
-		void AddEntity(Entity *entity);
-		void RemoveEntity(Entity *entity);
+		Arena m_EntityArena{1024 * 1024 * 1024};
 
 		void UnloadMap();
 		bool LoadFromFile(std::ifstream &source);
@@ -40,7 +39,8 @@ namespace gigno {
     inline TEntity *EntityServer::CreateEntity() {
 		static_assert(std::is_convertible<TEntity*, Entity*>::value, "CreateEntity : The class must inherit from entity!");
 
-		TEntity *entity = new TEntity();
+		void *position = m_EntityArena.Alloc(sizeof(TEntity));
+		TEntity *entity = new(position) TEntity();
 		m_Scene.emplace_back(entity);
 		return entity;
     }
