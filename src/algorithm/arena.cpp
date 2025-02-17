@@ -9,13 +9,20 @@ namespace gigno {
         m_Capactity = capactity;
         m_pData = (char*)malloc(capactity);
         m_Bounds = {{MEM_USED, 0},{MEM_FREE, 0}};
+        m_pNext = nullptr;
     }
 
     Arena::~Arena() {
+        if(m_pNext) {
+            delete m_pNext;
+        }
+
         free(m_pData);
     }
 
     void *Arena::Alloc(size_t size) {
+        ASSERT_V(size <= m_Capactity, nullptr);
+
         int i = m_Bounds.size();
         while(--i >= 0) {
             if(m_Bounds[i].Usage == MEM_FREE) {
@@ -45,16 +52,29 @@ namespace gigno {
                 }
             }
         }
-        ASSERT_V(false, nullptr);
-        return nullptr;
+
+        //no avaliable space !
+        if(!m_pNext) {
+            Console::LogWarning("Warning : Arena of '%d' bytes ran out of space and duplicated!"
+                                " You may want to consider upping the default capacity!", m_Capactity);
+            m_pNext = new Arena{m_Capactity};
+        }
+        return m_pNext->Alloc(size);
     }
 
     void Arena::Free(void *position, size_t size) {
-        size_t index_position = (char*)position - m_pData;
+        if((char*)position > m_pData && (char *)position < m_pData + m_Capactity) {
+            // position is inside this arena.
+            size_t index_position = (char*)position - m_pData;
+            Free(index_position, size);
+        } else {
+            //position is in another side arena
+            if(m_pNext) {
+                return m_pNext->Free(position, size);
+            }
 
-        ASSERT(index_position < m_Capactity);
-
-        Free(index_position, size);
+            ASSERT(false) //There is no side arena ! position was never allocated in an arena.
+        }
     }
 
     void Arena::Free(size_t position, size_t size) {
@@ -102,15 +122,25 @@ namespace gigno {
 
     void Arena::FreeAll() {
         m_Bounds = {{MEM_USED, 0}, {MEM_FREE, 0}};
+
+        if(m_pNext) {
+            delete m_pNext;
+            m_pNext = nullptr;
+        }
     }
 
-    void Arena::DebugPrint()
+    void Arena::DebugPrint(int hierarchyIndex)
     {
-        Console::LogInfo("Arena :");
+        Console::LogInfo("%d - Arena :", hierarchyIndex);
         Console::LogInfo(ConsoleMessageFlags_t(MESSAGE_NO_NEW_LINE_BIT | MESSAGE_NO_TIME_CODE_BIT), "Bounds :");
         for(MemoryBound_t b : m_Bounds) {
             Console::LogInfo(ConsoleMessageFlags_t(MESSAGE_NO_NEW_LINE_BIT | MESSAGE_NO_TIME_CODE_BIT), "| (At  %zu) %s ", b.Position, b.Usage == MEM_USED ? "USED" : "FREE");
         }
         Console::LogInfo(MESSAGE_NO_TIME_CODE_BIT, "|\n");
+
+        if(m_pNext) {
+            Console::LogInfo("Contains another arena :");
+            m_pNext->DebugPrint(hierarchyIndex + 1);
+        }
     }
 }

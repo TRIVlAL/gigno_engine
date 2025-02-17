@@ -35,7 +35,7 @@ namespace gigno {
         */
         void FreeAll();
         
-        void DebugPrint();
+        void DebugPrint(int hierarchy_index = 0);
         
     private:
 
@@ -71,6 +71,12 @@ namespace gigno {
             etc...
         */
         std::vector<MemoryBound_t> m_Bounds;
+
+        /*
+        If This arena runs out of space, a new arena is build and used in parallel.
+        is nullptr if no new arena was necessary up to now.
+        */
+        Arena *m_pNext;
     };
 
 }
