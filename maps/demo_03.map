@@ -39,10 +39,10 @@
     "Name"      : "floor",
     "ColliderType" : "COLLIDER_PLANE",
     "Position"  : "0" "-2" "0",
-    "Scale"     : "4" "4" "4",
+    "Scale"     : "30" "30" "30",
     "Normal"    : "0" "1" "0",
     "IsStatic"  : "true",
-    "ModelPath" : "models/plane_subdivided.obj"
+    "ModelPath" : "models/plane.obj"
 }
 
 "RigidBody" {

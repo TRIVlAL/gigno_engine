@@ -6,6 +6,8 @@ layout(location = 2) in vec3 inNormal;
 layout(location = 3) in vec2 inUV;
 
 layout(location = 0) out vec3 outColor;
+layout(location = 1) out vec3 outFragPos;
+layout(location = 2) out vec3 outFragNormal;
 
 layout(push_constant) uniform Push {
 	mat4 model;
@@ -13,7 +15,10 @@ layout(push_constant) uniform Push {
 	int fullbright;
 } push;
 
-const int MAX_LIGHT_DATA_COUNT = 15; //MAX_LIGHT_DATA_COUNT hard-coded for now to reflect the one in swapchain.h
+/*
+MAX_LIGHT_DATA_COUNT hard-coded for now to reflect the one in swapchain.h
+*/
+const int MAX_LIGHT_DATA_COUNT = 15;
 
 layout(binding=0) uniform UniformBufferObject {
 	mat4 view;
@@ -25,35 +30,9 @@ void main() {
 	vec4 worldPos = push.model * vec4(inPosition, 1.0);
 	gl_Position = ubo.projection * ubo.view * worldPos;
 
-	float lightPower = 0.0f;
-	if(push.fullbright == 1) {
-		lightPower = 1.0f;
-	} else {
-		for(int i = 0; i < MAX_LIGHT_DATA_COUNT; i++) {
-			if(ubo.lightDatas[i].w == 1.0f) { // DIRECTIONAL LIGHT
-				lightPower += max(dot(normalize(mat3(push.normalMatrix) * inNormal), vec3(ubo.lightDatas[i])), 0);
-			} 
-			else if(ubo.lightDatas[i].w == 2.0f)  { // POINT LIGHT
-				vec3 meToLight = vec3(ubo.lightDatas[i]) - vec3(worldPos);
-				float distanceSquared = meToLight.x * meToLight.x + meToLight.y * meToLight.y + meToLight.z * meToLight.z + 0.00001f;
-				meToLight = meToLight / sqrt(distanceSquared);
-				i++;
-				lightPower += max(dot(mat3(push.normalMatrix) * inNormal, meToLight), 0) / distanceSquared * ubo.lightDatas[i].x;
-			}
-			else if(ubo.lightDatas[i].w == 3.0f) { // ENVIRONMENT LIGHT
-				lightPower += ubo.lightDatas[i].x;
-			}
-			else{ //As more light types get introduces, we will check for them here and handle them accordingly.
-				break;
-			}
-		}
-	}
-
-	if(push.fullbright == 2) {
-		outColor = vec3(1.0f, 1.0f, 1.0f) * lightPower;
-	} else {
-		outColor = inColor * lightPower;
-	}
+	outFragNormal = normalize(mat3(push.normalMatrix) * inNormal);
+	outFragPos = worldPos.xyz;
+	outColor = inColor;
 
 	gl_PointSize = 5.0f;
 }
