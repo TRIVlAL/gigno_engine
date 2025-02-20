@@ -25,6 +25,7 @@ layout(binding=0) uniform UniformBufferObject {
 
 void main() {
 
+
 	float lightPower = 0.0f;
 	if(push.fullbright == 1) 
 	{
@@ -32,11 +33,13 @@ void main() {
 	} 
 	else 
 	{
+		vec3 Normal = normalize(inNormal);	
+
 		for(int i = 0; i < MAX_LIGHT_DATA_COUNT; i++) 
 		{
 			if(ubo.lightDatas[i].w == 1.0f) // DIRECTIONAL LIGHT
 			{
-				lightPower += max(dot(inNormal, vec3(ubo.lightDatas[i])), 0);
+				lightPower += max(dot(Normal, vec3(ubo.lightDatas[i])), 0);
 			} 
 			else if(ubo.lightDatas[i].w == 2.0f)  // POINT LIGHT 
 			{ 
@@ -44,7 +47,7 @@ void main() {
 				float distanceSquared = meToLight.x * meToLight.x + meToLight.y * meToLight.y + meToLight.z * meToLight.z + 0.00001f;
 				meToLight = meToLight / sqrt(distanceSquared);
 				i++;
-				lightPower += max(dot(inNormal, meToLight), 0) / distanceSquared * ubo.lightDatas[i].x;
+				lightPower += max(dot(Normal, meToLight), 0) / distanceSquared * ubo.lightDatas[i].x;
 			}
 			else if(ubo.lightDatas[i].w == 3.0f) // ENVIRONMENT LIGHT
 			{
