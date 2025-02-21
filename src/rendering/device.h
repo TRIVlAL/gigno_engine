@@ -52,7 +52,11 @@ namespace gigno {
 
 //--------------------------------------------------------------------------------------------------------------
 		
-		std::vector<const char *> GetRequiredExtensions();
+		/*
+			Returns a vector of name of extensions.
+			Asserts that every required extension is available.
+		*/
+		std::vector<const char *> GetExtensions();
 
 		//Validation Layer
 #ifdef NDEBUG
@@ -85,6 +89,8 @@ namespace gigno {
 		const std::vector<const char *> m_DeviceExtensions = {
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME
 		};
+
+		bool m_RayTracingEnabled = true;
 
 #ifdef NDEBUG
 		const bool m_EnableValidationLayer = false;

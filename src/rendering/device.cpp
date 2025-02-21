@@ -50,13 +50,12 @@ namespace gigno {
 		// Note for later : DO NOT CHANGE THE API VERSION UNLESS U SURE WHAT U DOING (More than myself anyway)
 		appinfo.apiVersion = VK_MAKE_API_VERSION(1, 0, 0, 0); 
 		appinfo.applicationVersion = VK_MAKE_API_VERSION(0, 0, 0, 0);
-
-		std::vector<const char *> extensions = GetRequiredExtensions();
-
+		
 		VkInstanceCreateInfo createinfo{};
 		createinfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		createinfo.pApplicationInfo = &appinfo;
 		VkDebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo{};
+
 		if (m_EnableValidationLayer) {
 			createinfo.enabledLayerCount = static_cast<uint32_t>(m_ValidationLayers.size());
 			createinfo.ppEnabledLayerNames = m_ValidationLayers.data();
@@ -69,6 +68,9 @@ namespace gigno {
 			createinfo.enabledLayerCount = 0;
 			createinfo.pNext = nullptr;
 		}
+
+		const std::vector<const char *> extensions = GetExtensions();
+
 		createinfo.enabledLayerCount = 0;
 		createinfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
 		createinfo.ppEnabledExtensionNames = extensions.data();
@@ -216,19 +218,47 @@ namespace gigno {
 		}
 		return VK_FALSE;
 	}
-
-	std::vector<const char *> Device::GetRequiredExtensions() {
+	
+	std::vector<const char *> Device::GetExtensions() {
+		uint32_t avaliable_extensions_count = 0;
+		vkEnumerateInstanceExtensionProperties(nullptr, &avaliable_extensions_count, nullptr);
+		std::vector<VkExtensionProperties> avaliable_extensions{avaliable_extensions_count};
+		vkEnumerateInstanceExtensionProperties(nullptr, &avaliable_extensions_count, avaliable_extensions.data());
+		
+		//Get glfw required extensions
 		uint32_t glfw_extension_count = 0;
 		const char **glfw_extensions;
 		glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
-
-		std::vector<const char *> extensions{glfw_extensions, glfw_extensions + glfw_extension_count};
-
+		std::vector<const char *> required_extensions{glfw_extensions, glfw_extensions + glfw_extension_count};
+		
+		//Get Validation Layer Required extension
 		if (m_EnableValidationLayer) {
-			extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+			required_extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+		}
+		
+		//Check if required extensions are avaliable
+		for(const char *req : required_extensions) {
+			bool found = false;
+			for (VkExtensionProperties avail : avaliable_extensions) {
+				if(strcmp(req, avail.extensionName) == 0) {
+					found = true;
+					break;
+				}
+			}
+			ASSERT_MSG_V((found), required_extensions, "VULKAN : Requires extension %s but it is not avaliable !", req);
 		}
 
-		return extensions;
+		std::vector<const char *> all_extensions = required_extensions;
+
+		//Debug
+		/*
+		Console::LogInfo("VULKAN avaliable extensions :");
+		for(VkExtensionProperties ext : avaliable_extensions) {
+			Console::LogInfo("\t - %s", ext.extensionName);
+		}
+		*/
+		
+		return all_extensions;
 	}
 
 	void Device::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &info) {
