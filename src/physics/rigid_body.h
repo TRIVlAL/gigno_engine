@@ -84,6 +84,8 @@ namespace gigno {
         float HingePower{10.0f};
         /*------------------------------------------*/
 
+        bool LockRotation = false;
+
         glm::vec3 Force{};
         glm::vec3 Velocity{};
 
@@ -99,6 +101,8 @@ namespace gigno {
         glm::vec3 m_WorldTargetHinge{};// The world position of the hinge. is set on Init
 
         bool hasCollider = false;
+
+        bool m_WasRendered = true; // What was DoRender value before it got modified by convar_phys_draw_colliders
 
         void UpdateTransformedModel();
 
@@ -120,6 +124,8 @@ namespace gigno {
         DEFINE_KEY_VALUE(vec3, Normal)
         DEFINE_KEY_VALUE(float, Length)
         DEFINE_KEY_VALUE(cstr, CollisionModelPath)
+
+        DEFINE_KEY_VALUE(bool, LockRotation)
 
         DEFINE_KEY_VALUE(vec3, Force)
         DEFINE_KEY_VALUE(vec3, Velocity)

@@ -35,16 +35,17 @@ namespace gigno {
 		glm::vec3 to = target - Position;
 		m_DistanceToTarget = glm::sqrt(to.x * to.x + to.y * to.y + to.z * to.z);
 		SetLookAtPoint(target);
+		SetLookInTransformForward();
 	}
 
 	void DomeCamera::Think(float dt) {
 		Camera::Think(dt);
-
+		
 		float right_move = 0;
 		float up_move = 0;
-
+		
 		InputServer *input = GetApp()->GetInputServer();
-
+		
 		if (input->GetKey(KEY_D)) right_move++;
 		if (input->GetKey(KEY_A)) right_move--;
 		if (input->GetKey(KEY_W)) up_move++;

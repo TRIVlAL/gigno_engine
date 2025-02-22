@@ -10,7 +10,10 @@ namespace gigno {
     #if USE_DEBUG_SERVER && USE_IMGUI
         bool grave_pressed = Application::Singleton()->GetInputServer()->GetKeyDown(KEY_GRAVE_ACCENT);
         if(grave_pressed) {
-            m_ShowDebugWindow = true;
+            InputServer *in = Application::Singleton()->GetInputServer();
+            in->SetReaccessMouse(!m_ShowDebugWindow);
+
+            m_ShowDebugWindow = !m_ShowDebugWindow;
         }
         if(m_ShowDebugWindow) {
             ImGui::SetNextWindowSizeConstraints(ImVec2{650.0f, 500.0f}, ImVec2{FLT_MAX, FLT_MAX});

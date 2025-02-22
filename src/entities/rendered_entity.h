@@ -21,7 +21,7 @@ namespace gigno {
 
 		const std::shared_ptr<giModel> GetModel();
 
-		bool DoRender = true;
+		bool DoRender = true; //Visibility of this entity
 	private:
 		std::shared_ptr<giModel> m_pModel{};
 	};

@@ -1,0 +1,38 @@
+"FPController" {
+    "Position"  : "0" "0" "0"
+}
+
+"DirectionalLight" {
+    "Intensity" : "0.4",
+    "Direction" : "0.3" "-0.95" "0.05"
+}
+
+"PointLight" {
+    "Position"  : "0" "8" "0",
+    "Intensity" : "10"
+}
+
+
+"EnvironmentLight" {
+    "Intensity"  : "0.1"
+}
+
+"RigidBody" {
+    "Name"      : "floor",
+    "ColliderType" : "COLLIDER_PLANE",
+    "Position"  : "0" "-2" "0",
+    "Scale"     : "30" "30" "30",
+    "Normal"    : "0" "1" "0",
+    "IsStatic"  : "true",
+    "ModelPath" : "models/plane.obj"
+}
+
+"RigidBody" {
+    "Name"      : "wall",
+    "ColliderType" : "COLLIDER_HULL",
+    "Scale"     : "0.5" "4" "7",
+    "CollisionModelPath" : "models/cube.obj",
+    "Position"  : "-7" "-0.5" "0",
+    "IsStatic"  : "true",
+    "ModelPath" : "models/cube.obj"
+}

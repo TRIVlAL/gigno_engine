@@ -22,7 +22,7 @@ namespace gigno {
 	}
 
    	const std::shared_ptr<giModel> RenderedEntity::GetModel() {	
-		if(m_pModel == nullptr) {
+		if(DoRender && m_pModel == nullptr) {
 			GetApp()->GetRenderer()->CreateModel(m_pModel, ModelData_t::FromObjFile(ModelPath));
 		}
 		return DoRender ? m_pModel : nullptr;

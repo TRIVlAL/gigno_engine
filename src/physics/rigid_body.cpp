@@ -83,6 +83,8 @@ namespace gigno {
         }
 
         m_WorldTargetHinge = ApplyRotation(Rotation, HingePosition) + Position;
+
+        m_WasRendered = DoRender;
     }
 
     void RigidBody::LatePhysicThink(float dt) {
@@ -148,11 +150,14 @@ namespace gigno {
         AngularVelocity+= dt * Torque / Mass / InertiaMoment;
         avrg_rot_vel += AngularVelocity;
         avrg_rot_vel *= 0.5f;
-        Rotation += dt * avrg_rot_vel;
 
-        Rotation.x = glm::mod<float>(Rotation.x, glm::pi<float>()*2);
-        Rotation.y = glm::mod<float>(Rotation.y, glm::pi<float>()*2);
-        Rotation.z = glm::mod<float>(Rotation.z, glm::pi<float>()*2);
+        if(!LockRotation) {
+            Rotation += dt * avrg_rot_vel;
+    
+            Rotation.x = glm::mod<float>(Rotation.x, glm::pi<float>()*2);
+            Rotation.y = glm::mod<float>(Rotation.y, glm::pi<float>()*2);
+            Rotation.z = glm::mod<float>(Rotation.z, glm::pi<float>()*2);
+        }
 
         Force = glm::vec3{0.0f};
         Torque = glm::vec3{0.0f};
@@ -165,7 +170,7 @@ namespace gigno {
 
     const CollisionModel_t *RigidBody::GetModel() {
         if(GetApp() && GetApp()->GetPhysicServer()) {
-            return GetApp()->GetPhysicServer()->GetCollisionModel(ModelPath);
+            return GetApp()->GetPhysicServer()->GetCollisionModel(CollisionModelPath);
         } else {
             return nullptr;
         }
@@ -173,9 +178,6 @@ namespace gigno {
 
     void RigidBody::UpdateTransformedModel()
     {
-        if(!strcmp(Name, "wall")) {
-            int i = 0;
-        }
 
         ASSERT(ColliderType == COLLIDER_HULL);
 
@@ -241,7 +243,12 @@ namespace gigno {
 
     void RigidBody::Think(float dt) {
 
-        DoRender = ((int)convar_phys_draw_colliders != 2 || ColliderType == COLLIDER_PLANE);
+        if((int)convar_phys_draw_colliders == 2 || ColliderType == COLLIDER_PLANE) {
+            DoRender = false;
+        } else {
+            DoRender = m_WasRendered;
+        }
+
         if((int)convar_phys_draw_colliders != 0) {
             DrawCollider();
 
