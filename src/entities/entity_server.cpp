@@ -35,8 +35,10 @@ namespace gigno {
 	}
 
     void EntityServer::UnloadMap() {
+		static volatile int i = 0;
 		for(Entity *ent : m_Scene) {
 			ent->~Entity();
+			i++;
 		}
 		m_Scene.clear();
 		m_EntityArena.FreeAll();

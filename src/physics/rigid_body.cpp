@@ -243,7 +243,7 @@ namespace gigno {
 
     void RigidBody::Think(float dt) {
 
-        if((int)convar_phys_draw_colliders == 2 || ColliderType == COLLIDER_PLANE) {
+        if((int)convar_phys_draw_colliders == 2 && ColliderType != COLLIDER_PLANE) {
             DoRender = false;
         } else {
             DoRender = m_WasRendered;
