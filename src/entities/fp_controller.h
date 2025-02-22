@@ -27,12 +27,16 @@ namespace gigno {
         float DecelMultiplier = 0.025f;
 
         float Height = 2.0f;
+
+        float JumpPower = 5.0f;
     private:
         int m_MoveForward{};
         int m_MoveRight{};
 
         float m_LookUp{};
         float m_LookRight{};
+
+        bool m_PressedJump{};
 
         Camera *m_pCamera;
     };

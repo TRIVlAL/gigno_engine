@@ -32,6 +32,8 @@ namespace gigno {
 
         LockRotation = true;
 
+        Mass = 70.0f;
+
         RigidBody::Init();
 
         GetApp()->GetInputServer()->SetMouseMode(MOUSE_MOVE_INFINITE);
@@ -83,6 +85,9 @@ namespace gigno {
                 m_LookRight -= 1.0f;
             }
         }
+
+        //Query Jump Input
+        m_PressedJump = m_PressedJump || in->GetKeyDown(KEY_SPACE);
 
         //Update Camera
         m_pCamera->Position = Position + glm::vec3{0.0f, Height * 0.5f, 0.0f};
@@ -150,8 +155,14 @@ namespace gigno {
 
         }
 
+        //Apply Jump
+        if(m_PressedJump) {
+            AddImpulse(glm::vec3{0.0f, JumpPower, 0.0f});
+        }
+
         m_MoveForward = 0;
         m_MoveRight = 0;
+        m_PressedJump = false;
 
         RigidBody::PhysicThink(dt);
     }
