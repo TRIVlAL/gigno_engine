@@ -149,6 +149,10 @@ namespace gigno {
 	}
 
 	void RenderingServer::DrawFrame() {
+		if(!m_pCamera) {
+			Console::LogInfo("No Cam");
+		}
+
 		vkWaitForFences(m_Device.GetDevice(), 1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT64_MAX);
 
 		uint32_t image_index = 0;

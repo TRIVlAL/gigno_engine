@@ -6,6 +6,9 @@
 
 namespace gigno {
 
+    /*
+    First Person Character Controller
+    */
     class FPController : public RigidBody {
         ENTITY_DECLARATIONS(FPController, RigidBody);
     public:

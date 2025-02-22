@@ -11,6 +11,9 @@ namespace gigno {
     }
 
     FPController::~FPController() {
+        if(GetApp() && GetApp()->GetInputServer()) {
+            GetApp()->GetInputServer()->SetMouseMode(MOUSE_DEFAULT);
+        }
     }
 
     void FPController::Init() {

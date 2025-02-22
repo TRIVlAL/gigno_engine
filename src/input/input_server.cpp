@@ -64,6 +64,7 @@ namespace gigno {
 
     void InputServer::SetMouseMode(MouseMode_t mode) {
 		glfwSetInputMode(m_pWindow, GLFW_CURSOR, mode);
+		m_MouseModeWithoutReaccess = mode;
     }
 
     MouseMode_t InputServer::GetMouseMode() {
@@ -72,8 +73,9 @@ namespace gigno {
 
     void InputServer::SetReaccessMouse(bool reaccess) {
 		if(reaccess && !m_IsMouseInReaccessMode) {
-			m_MouseModeWithoutReaccess = GetMouseMode();
+			MouseMode_t without_reaccess = GetMouseMode();
 			SetMouseMode(MOUSE_DEFAULT);
+			m_MouseModeWithoutReaccess = without_reaccess;
 			m_IsMouseInReaccessMode = true;
 		} else if(!reaccess && m_IsMouseInReaccessMode) {
 			SetMouseMode(m_MouseModeWithoutReaccess);
