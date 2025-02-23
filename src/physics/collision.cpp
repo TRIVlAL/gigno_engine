@@ -15,12 +15,12 @@ namespace gigno {
     -------------------------------------------------------------------------------------------------------
     */
 
-    CollisionData_t DetectCollision(RigidBody &rb1, RigidBody &rb2) {
-        ASSERT_V(rb1.ColliderType != COLLIDER_NONE && rb2.ColliderType != COLLIDER_NONE, CollisionData_t{});
+    CollisionData_t DetectCollision(const Collider_t &col1, const Collider_t &col2) {
+        ASSERT_V(col1.ColliderType != COLLIDER_NONE && col2.ColliderType != COLLIDER_NONE, CollisionData_t{});
 
         // Swaping Bodies to limit possible combinations when dispatching.
-        RigidBody &a = rb1.ColliderType <= rb2.ColliderType ? rb1 : rb2;
-        RigidBody &b = rb1.ColliderType <= rb2.ColliderType ? rb2 : rb1;
+        const Collider_t &a = col1.ColliderType <= col2.ColliderType ? col1 : col2;
+        const Collider_t &b = col1.ColliderType <= col2.ColliderType ? col2 : col1;
 
         // COLLIDER_HULL is the first enum entry
         if(a.ColliderType == COLLIDER_HULL) {
@@ -51,11 +51,11 @@ namespace gigno {
         return CollisionData_t{};
     }
 
-    CollisionData_t DetectCollision_SphereSphere(RigidBody &rb1, RigidBody &rb2) {
+    CollisionData_t DetectCollision_SphereSphere(const Collider_t &col1, const Collider_t &col2) {
 
-        glm::vec3 dis = rb2.Position - rb1.Position;
+        glm::vec3 dis = col2.Position - col1.Position;
         float dis_len = glm::length(dis);
-        float col_depth = dis_len - rb1.Radius - rb2.Radius;
+        float col_depth = dis_len - col1.Radius - col2.Radius;
 
         if(col_depth >= 0) {
             // Not Colliding
@@ -64,10 +64,10 @@ namespace gigno {
 
         glm::vec3 dis_norm = dis / dis_len;
 
-        return CollisionData_t{true, dis_norm, col_depth, dis_norm * rb1.Radius, -dis_norm * rb2.Radius};
+        return CollisionData_t{true, dis_norm, col_depth, dis_norm * col1.Radius, -dis_norm * col2.Radius};
     }
 
-    CollisionData_t DetectCollision_SpherePlane(RigidBody &sphere, RigidBody &plane) {
+    CollisionData_t DetectCollision_SpherePlane(const Collider_t &sphere, const Collider_t &plane) {
 
         float height = glm::dot(sphere.Position - plane.Position, plane.Normal);
         float col_depth = height - sphere.Radius;
@@ -83,7 +83,7 @@ namespace gigno {
         return CollisionData_t{true, -plane.Normal, col_depth, -plane.Normal * sphere.Radius, point_on_plane};
     }
 
-    CollisionData_t DetectCollision_SphereCapsule(RigidBody &sphere, RigidBody &capsule) {
+    CollisionData_t DetectCollision_SphereCapsule(const Collider_t &sphere, const Collider_t &capsule) {
         const glm::vec3 capsule_orientation = ApplyRotation(capsule.Rotation, glm::vec3{0.0f, 1.0f, 0.0f});
         const glm::vec3 capsule_bottom = capsule.Position - capsule.Length * 0.5f * capsule_orientation;
         const glm::vec3 capsule_top = capsule.Position + capsule.Length * 0.5f * capsule_orientation;
@@ -102,7 +102,7 @@ namespace gigno {
         return CollisionData_t{true, sphere_to_capsule / distance, col_depth, sphere_to_capsule_norm * sphere.Radius, -sphere_to_capsule_norm * capsule.Radius};
     }
 
-    CollisionData_t DetectCollision_PlaneCapsule(RigidBody &plane, RigidBody &capsule) {
+    CollisionData_t DetectCollision_PlaneCapsule(const Collider_t &plane, const Collider_t &capsule) {
         const glm::vec3 capsule_orientation = ApplyRotation(capsule.Rotation, glm::vec3{0.0f, 1.0f, 0.0f});
         const glm::vec3 capsule_bottom = capsule.Position - capsule.Length * 0.5f * capsule_orientation;
         const glm::vec3 capsule_top = capsule.Position + capsule.Length * 0.5f * capsule_orientation;
@@ -144,14 +144,14 @@ namespace gigno {
         return CollisionData_t{true, plane.Normal, glm::min(bottom_depth, top_depth), plane_apply_point, capsule_apply_point};
     }
 
-    CollisionData_t DetectCollision_CapsuleCapsule(RigidBody &rb1, RigidBody &rb2) {
-        const glm::vec3 orientation1 = ApplyRotation(rb1.Rotation, glm::vec3{0.0f, 1.0f, 0.0f});
-        const glm::vec3 bottom1 = rb1.Position - (rb1.Length * 0.5f * orientation1);
-        const glm::vec3 top1 = rb1.Position + (rb1.Length * 0.5f * orientation1);
+    CollisionData_t DetectCollision_CapsuleCapsule(const Collider_t &col1, const Collider_t &col2) {
+        const glm::vec3 orientation1 = ApplyRotation(col1.Rotation, glm::vec3{0.0f, 1.0f, 0.0f});
+        const glm::vec3 bottom1 = col1.Position - (col1.Length * 0.5f * orientation1);
+        const glm::vec3 top1 = col1.Position + (col1.Length * 0.5f * orientation1);
 
-        const glm::vec3 orientation2 = ApplyRotation(rb2.Rotation, glm::vec3{0.0f, 1.0f, 0.0f});
-        const glm::vec3 bottom2 = rb2.Position - (rb2.Length * 0.5f * orientation2);
-        const glm::vec3 top2 = rb2.Position + (rb2.Length * 0.5f * orientation2);
+        const glm::vec3 orientation2 = ApplyRotation(col2.Rotation, glm::vec3{0.0f, 1.0f, 0.0f});
+        const glm::vec3 bottom2 = col2.Position - (col2.Length * 0.5f * orientation2);
+        const glm::vec3 top2 = col2.Position + (col2.Length * 0.5f * orientation2);
 
         glm::vec3 point1{};
         glm::vec3 point2{};
@@ -160,7 +160,7 @@ namespace gigno {
         const glm::vec3 dist = point2 - point1;
         const float dist_len = glm::length(dist);
 
-        const float col_depth = dist_len - rb1.Radius - rb2.Radius;
+        const float col_depth = dist_len - col1.Radius - col2.Radius;
 
         if (col_depth >= 0) {
             // Not colliding
@@ -169,15 +169,15 @@ namespace gigno {
 
         const glm::vec3 dist_norm = dist / dist_len;
 
-        const glm::vec3 edge_point1 = point1 + (dist_norm * rb1.Radius);
-        const glm::vec3 edge_point2 = point2 - (dist_norm * rb2.Radius);
+        const glm::vec3 edge_point1 = point1 + (dist_norm * col1.Radius);
+        const glm::vec3 edge_point2 = point2 - (dist_norm * col2.Radius);
 
         const glm::vec3 middle = (edge_point1 + edge_point2) * 0.5f;
 
-        return CollisionData_t{true, dist_norm, col_depth, middle - rb1.Position, middle - rb2.Position - (dist_norm * rb2.Radius)};
+        return CollisionData_t{true, dist_norm, col_depth, middle - col1.Position, middle - col2.Position - (dist_norm * col2.Radius)};
     }
 
-    CollisionData_t DetectCollision_HullNonPlane(RigidBody &hull, RigidBody &nonPlane) {
+    CollisionData_t DetectCollision_HullNonPlane(const Collider_t &hull, const Collider_t &nonPlane) {
         Simplex_t simplex{};
 
         bool collide = GJK(hull, nonPlane, simplex);
@@ -195,13 +195,13 @@ namespace gigno {
         return CollisionData_t{true, dir, -depth, pointA - hull.Position, pointB - nonPlane.Position};
     }
 
-    CollisionData_t DetectCollision_HullPlane(RigidBody &hull, RigidBody &Plane) {
+    CollisionData_t DetectCollision_HullPlane(const Collider_t &hull, const Collider_t &Plane) {
         const std::vector<glm::vec3> &vert = hull.TransformedModel;
-        const CollisionModel_t *model = hull.GetModel();
-        if(!model) {
+
+        if(!hull.Model) {
             return CollisionData_t{};
         }
-        const std::vector<int> &ind = model->Indices;
+        const std::vector<int> &ind = hull.Model->Indices;
 
         std::vector<std::pair<bool, float>> heights(vert.size());
 
@@ -265,6 +265,7 @@ namespace gigno {
         }
 
         glm::vec3 plane_apply_point = ProjectToPlane(slice_sum / (float)slice_vert_count, Plane.Normal) - Plane.Position;
+        plane_apply_point = glm::vec3{0.0f};
 
         return CollisionData_t{true, Plane.Normal, -max_depth, slice_sum / (float)slice_vert_count - hull.Position, plane_apply_point};
     }
@@ -276,6 +277,7 @@ namespace gigno {
     */
 
     CONVAR(float, phys_response_epsilon, 1e-5f, "Very small value. Object are pushed out of each other with this leaway.");
+    CONVAR(bool, test, false, "testing");
 
     void RespondCollision(RigidBody &rb1, RigidBody &rb2, const CollisionData_t &collision)
     {

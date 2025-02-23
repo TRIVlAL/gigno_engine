@@ -168,7 +168,24 @@ namespace gigno {
         UpdateBoundingBox();
     }
 
-    const CollisionModel_t *RigidBody::GetModel() {
+    Collider_t RigidBody::AsCollider() const {
+        Collider_t ret{};
+        ret.ColliderType = ColliderType;
+        ret.Position = Position;
+        ret.Rotation = Rotation;
+        ret.Radius = Radius;
+        ret.Length = Length;
+        ret.Normal = Normal;
+        if(ColliderType == COLLIDER_HULL) {
+            ret.Model = GetModel();
+            ret.TransformedModel = TransformedModel; //TODO : Avoid Copy
+        }
+        return ret;
+    }
+
+    const CollisionModel_t *RigidBody::GetModel() const
+    {
+        ASSERT_V(ColliderType == COLLIDER_HULL, nullptr);
         if(GetApp() && GetApp()->GetPhysicServer()) {
             return GetApp()->GetPhysicServer()->GetCollisionModel(CollisionModelPath);
         } else {

@@ -1,6 +1,7 @@
 #include "camera.h"
 #include "../application.h"
 #include "glm/geometric.hpp"
+#include "../algorithm/geometry.h"
 
 namespace gigno {
 

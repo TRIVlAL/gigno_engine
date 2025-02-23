@@ -22,7 +22,7 @@ namespace gigno {
         m_pCamera->ProjMode = PROJECTION_MODE_PERSPECTIVE;
         m_pCamera->Init();
         
-        Friction = 0.0f;
+        Friction = 0.3f;
         Drag = 0.0f;
 
         DoRender = false;

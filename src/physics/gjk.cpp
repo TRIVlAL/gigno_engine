@@ -6,7 +6,7 @@
 
 namespace gigno {
 
-    bool GJK(const RigidBody &A, const RigidBody &B, Simplex_t &outSimplex) {
+    bool GJK(const Collider_t &A, const Collider_t &B, Simplex_t &outSimplex) {
         Profiler::CreateScope profiler{"GJK"};
         
         glm::vec3 dir = A.Position - B.Position; //Can be any default direction.
@@ -89,7 +89,7 @@ namespace gigno {
         Polytope_t polytope{};
     }
 
-    void EPA(const RigidBody &A, const RigidBody &B, const Simplex_t &Simplex,
+    void EPA(const Collider_t &A, const Collider_t &B, const Simplex_t &Simplex,
         glm::vec3 &outPointA, glm::vec3 &outPointB, glm::vec3 &outDirection, float &outDepth) {
         Profiler::CreateScope profiler{"EPA"};
     
@@ -260,8 +260,7 @@ namespace gigno {
         }
     }
 
-    glm::vec3 Support(glm::vec3 direction, const RigidBody &rb)
-    {
+    glm::vec3 Support(glm::vec3 direction, const Collider_t &col) {
         Profiler::CreateScope scope{"Support"};
 
         //ASSERT_MSG_V(direction != glm::vec3{0.0f}, glm::vec3{0.0f}, "dir = %f %f %f", direction.x, direction.y, direction.z);
@@ -269,30 +268,30 @@ namespace gigno {
             direction = glm::vec3{0.0f, 1.0f, 0.0f};
         }
 
-        if(rb.ColliderType == COLLIDER_PLANE) {
+        if(col.ColliderType == COLLIDER_PLANE) {
             ERR_MSG_V(glm::vec3{}, "Physics collision : Support function for plane collider not implemented !");
         } 
-        else if(rb.ColliderType == COLLIDER_SPHERE) {
-            return rb.Position + glm::normalize(direction) * rb.Radius;
+        else if(col.ColliderType == COLLIDER_SPHERE) {
+            return col.Position + glm::normalize(direction) * col.Radius;
         } 
-        else if(rb.ColliderType == COLLIDER_CAPSULE) {
-            const glm::vec3 up = ApplyRotation(rb.Rotation, glm::vec3{0.0f, 1.0f, 0.0f});
-            return rb.Position 
-                    + (glm::dot(up, direction) >= 0 ? up : -up) * rb.Length * 0.5f 
-                    + glm::normalize(direction) * rb.Radius;
+        else if(col.ColliderType == COLLIDER_CAPSULE) {
+            const glm::vec3 up = ApplyRotation(col.Rotation, glm::vec3{0.0f, 1.0f, 0.0f});
+            return col.Position 
+                    + (glm::dot(up, direction) >= 0 ? up : -up) * col.Length * 0.5f 
+                    + glm::normalize(direction) * col.Radius;
         } 
-        else if(rb.ColliderType == COLLIDER_HULL) {
-            glm::vec3 best_point = rb.TransformedModel[0];
+        else if(col.ColliderType == COLLIDER_HULL) {
+            glm::vec3 best_point = col.TransformedModel[0];
             float max_dot = glm::dot(best_point, direction);
-            for(int i = 1; i < rb.TransformedModel.size(); i++) {
-                const glm::vec3 new_point = rb.TransformedModel[i];
+            for(int i = 1; i < col.TransformedModel.size(); i++) {
+                const glm::vec3 new_point = col.TransformedModel[i];
                 const float new_dot = glm::dot(new_point, direction);
                 if ( new_dot > max_dot) {
                     max_dot = new_dot;
                     best_point = new_point;
                 }
             }
-            return rb.Position + best_point;
+            return col.Position + best_point;
         }
         else {
             return glm::vec3{};

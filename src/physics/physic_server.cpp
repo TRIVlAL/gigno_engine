@@ -144,7 +144,7 @@ namespace gigno {
         Profiler::Begin("Collision - Narrow Phase");
 
         for(std::pair<RigidBody *, RigidBody *> pair : m_PossiblePairs) {
-            CollisionData_t collision = DetectCollision(*pair.first, *pair.second);
+            CollisionData_t collision = DetectCollision(pair.first->AsCollider(), pair.second->AsCollider());
             if(collision.Collision) {
                 RespondCollision(*pair.first, *pair.second, collision);
             }

@@ -36,3 +36,48 @@
     "IsStatic"  : "true",
     "ModelPath" : "models/cube.obj"
 }
+
+"RigidBody" {
+    "Name"      : "hull1",
+    "ColliderType" : "COLLIDER_HULL",
+    "CollisionModelPath" : "models/hull1.obj",
+    "Position"  : "1" "0" "1",
+    "Rotation"  : "0.2" "0" "0.3",
+    "Radius"    : "1",
+    "Length"    : "1.5",
+    "IsStatic"  : "false",
+    "ModelPath" : "models/hull1.obj",
+    "Velocity"  : "2" "2" "0",
+    "Mass"      : "50",
+    "InertiaMoment" : "2"
+}
+
+"RigidBody" {
+    "Name"      : "hull2",
+    "ColliderType" : "COLLIDER_HULL",
+    "CollisionModelPath" : "models/hull1.obj",
+    "Position"  : "-1" "0" "2",
+    "Rotation"  : "0.2" "0" "0.3",
+    "Radius"    : "1",
+    "Length"    : "1.5",
+    "IsStatic"  : "false",
+    "ModelPath" : "models/hull1.obj",
+    "Velocity"  : "2" "2" "0",
+    "Mass"      : "50",
+    "InertiaMoment" : "2"
+}
+
+"RigidBody" {
+    "Name"      : "cube1",
+    "ColliderType" : "COLLIDER_HULL",
+    "CollisionModelPath" : "models/cube.obj",
+    "Position"  : "3" "0" "3",
+    "Rotation"  : "0.2" "0" "0.3",
+    "Radius"    : "0.5",
+    "Length"    : "1.5",
+    "IsStatic"  : "false",
+    "ModelPath" : "models/cube.obj",
+    "Velocity"  : "0" "7" "-10",
+    "Mass"      : "50",
+    "InertiaMoment" : "3"
+}

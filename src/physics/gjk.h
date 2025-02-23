@@ -8,7 +8,7 @@
 
 namespace gigno {
 
-    class RigidBody;
+    struct Collider_t;
 
     struct MinkowskiVertex {
         glm::vec3 Point;
@@ -26,11 +26,11 @@ namespace gigno {
 
     /*
     Gilbert–Johnson–Keerthi algorithm
-    Given two rbs, returns wheter or not they collide
+    Given two colliders, returns wheter or not they collide
     if they collide, outSimplex is set to a fully-built simplex (i.e. all vetices are set) 
-               enclosing the origin in the Minkowski difference of both shapes.
+               enclosing the origin in the Minkowski difference of  collider A - collider B.
     */
-    bool GJK(const RigidBody &A, const RigidBody &B, Simplex_t &outSimplex);
+    bool GJK(const Collider_t &A, const Collider_t &B, Simplex_t &outSimplex);
 
     /*
     Given two rbs and a Simplex on their Minkowski difference contining the origin (obtained with GJK), outputs
@@ -39,8 +39,8 @@ namespace gigno {
         outDirection        : normalized colision normal from A to B
         outDepth            : POSITIVE number representing how deep inside themselves the objects are.
     */
-    void EPA(const RigidBody &A, const RigidBody &B, const Simplex_t &Simplex, 
-            glm::vec3 &outPointA, glm::vec3 &outPointB, glm::vec3 &outDirection, float & outDepth);
+    void EPA(const Collider_t &A, const Collider_t &B, const Simplex_t &Simplex,
+             glm::vec3 &outPointA, glm::vec3 &outPointB, glm::vec3 &outDirection, float &outDepth);
 
     struct Polytope_t {
         std::vector<MinkowskiVertex>  Vertices;
@@ -59,12 +59,10 @@ namespace gigno {
     };
 
     /*
-    Returns the point furthest on the rb's collider (in world space) in the direction given.
+    Returns the point furthest on the collider (in world space) in the direction given.
     direction doest need to be normalized.
     */
-    glm::vec3 Support(glm::vec3 direction, const RigidBody &rb);
-
-    
+    glm::vec3 Support(glm::vec3 direction, const Collider_t &col);
 }
 
 #endif
