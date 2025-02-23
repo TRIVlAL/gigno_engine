@@ -6,40 +6,47 @@
 
 namespace gigno {
 
+    struct CollisionData_t {
+        bool Collision;     // Do the objects overlap
+
+        /*
+        The Following are set IF Collision == true
+
+        Object A is the object with the smallest ColliderType, or rb1 when calling DetectCollision
+        if both ColliderType are the same.
+        */
+
+        glm::vec3 Normal;   // Best direction to separate the objects (normalized from A to B)
+        float Depth;        // Distance required to separate the objects (negative)
+        glm::vec3 ApplyPointA; // Position where the collision is appening on A (object A local space)
+        glm::vec3 ApplyPointB; // Position where the collision is appening on B (object B local space)
+    };
+
+    CollisionData_t DetectCollision(RigidBody &rb1, RigidBody &rb2);
+
+    CollisionData_t DetectCollision_SphereSphere(RigidBody &rb1, RigidBody &rb2);
+    CollisionData_t DetectCollision_SpherePlane(RigidBody &sphere, RigidBody &plane);
+    CollisionData_t DetectCollision_SphereCapsule(RigidBody &sphere, RigidBody &capsule);
+    CollisionData_t DetectCollision_PlaneCapsule(RigidBody &plane, RigidBody &capsule);
+    CollisionData_t DetectCollision_CapsuleCapsule(RigidBody &rb1, RigidBody &rb2);
+    CollisionData_t DetectCollision_HullNonPlane(RigidBody &hull, RigidBody &nonPlane);
+    CollisionData_t DetectCollision_HullPlane(RigidBody &hull, RigidBody &Plane);
+
     /*
-    Checks collision of the rigidbodies (by dispatching according to the ColliderType Keyvalue)
-    Responds to the collision if they are colliding (add collision impulses and friction)
-    Returns whether or not the two bodies did collide. 
+    rb1         : A RigidBody COLLIDING with rb2
+    rb2         : A RigidBody COLLIDING with rb1
+    collision   : The Collision Data describing the rb1-rb2 collision
+
+    rb1 and rb2 MUST CORRESPOND TO the rb1 and rb2 used when calling DetectCollision to query the Collision Data.
     */
-    bool ResolveCollision(RigidBody &rb1, RigidBody &rb2);
+    void RespondCollision(RigidBody &rb1, RigidBody &rb2, const CollisionData_t &collision );
 
-    bool ResolveCollision_SphereSphere(RigidBody &rb1, RigidBody &rb2);
-    bool ResolveCollision_SpherePlane(RigidBody &sphere, RigidBody &plane);
-    bool ResolveCollision_SphereCapsule(RigidBody &sphere, RigidBody &capsule);
-    bool ResolveCollision_PlaneCapsule(RigidBody &plane, RigidBody &capsule);
-    bool ResolveCollision_CapsuleCapsule(RigidBody &rb1, RigidBody &rb2);
-    bool ResolveCollision_HullNonPlane(RigidBody &hull, RigidBody &nonPlane);
-    bool ResolveCollision_HullPlane(RigidBody &hull, RigidBody &Plane);
-
-    /*
-    colNormal : unit vector from rb1 to rb2
-    colDepth : NEGATIVE number representing how deep inside objects are.
-    rb1ApplyPoint : Position where the collision is applied, relative to rb1's center of rotation (i.e. world position)
-    */
-    void RespondCollision(RigidBody &rb1, RigidBody &rb2, const glm::vec3 &colNormal, const float &colDepth, 
-                        const glm::vec3 &rb1ApplyPoint, const glm::vec3 &rb2ApplyPoint);
-
+    void ApplyFriction(float normalImpulse, RigidBody &rb, const glm::vec3 &surfaceNormal, 
+                        const glm::vec3 &applyPoint, float frictionCoefficient, float staticFrictionCoefficient);
 
     float GetBounciness(RigidBody &rb1, RigidBody &rb2);
     float GetFriction(RigidBody &rb1, RigidBody &rb2);
     float GetStaticFriction(RigidBody &rb1, RigidBody &rb2);
-
-    /*
-    applyPoint : Position where the collision is appening, relative to the rigidbody's center of rotation (i.e. world position).
-                It is thus where the frictional force is applied.
-    */
-    void ApplyFriction(float normalImpulse, RigidBody &rb, const glm::vec3 &surfaceNormal, 
-                        const glm::vec3 &applyPoint, float frictionCoefficient, float staticFrictionCoefficient);
 }
 
 #endif

@@ -15,43 +15,43 @@ namespace gigno {
     -------------------------------------------------------------------------------------------------------
     */
 
-    bool ResolveCollision(RigidBody &rb1, RigidBody &rb2) {
-        if(rb1.ColliderType == COLLIDER_NONE || rb2.ColliderType == COLLIDER_NONE) {
-            return false;
-        }
+    CollisionData_t DetectCollision(RigidBody &rb1, RigidBody &rb2) {
+        ASSERT_V(rb1.ColliderType != COLLIDER_NONE && rb2.ColliderType != COLLIDER_NONE, CollisionData_t{});
 
+        // Swaping Bodies to limit possible combinations when dispatching.
         RigidBody &a = rb1.ColliderType <= rb2.ColliderType ? rb1 : rb2;
         RigidBody &b = rb1.ColliderType <= rb2.ColliderType ? rb2 : rb1;
 
         // COLLIDER_HULL is the first enum entry
         if(a.ColliderType == COLLIDER_HULL) {
             if(b.ColliderType == COLLIDER_PLANE) {
-                return ResolveCollision_HullPlane(a, b);
+                return DetectCollision_HullPlane(a, b);
             } else {
-                return ResolveCollision_HullNonPlane(a, b);
+                return DetectCollision_HullNonPlane(a, b);
             }
         } else if(a.ColliderType == COLLIDER_SPHERE) {
             if(b.ColliderType == COLLIDER_SPHERE) {
-                return ResolveCollision_SphereSphere(a, b);
+                return DetectCollision_SphereSphere(a, b);
             } else if(b.ColliderType == COLLIDER_PLANE) {
-                return ResolveCollision_SpherePlane(a, b);
+                return DetectCollision_SpherePlane(a, b);
             } else if(b.ColliderType == COLLIDER_CAPSULE) {
-                return ResolveCollision_SphereCapsule(a, b);
+                return DetectCollision_SphereCapsule(a, b);
             }
         } else if(a.ColliderType == COLLIDER_PLANE) {
             if(b.ColliderType == COLLIDER_CAPSULE) {
-                return ResolveCollision_PlaneCapsule(a, b);
+                return DetectCollision_PlaneCapsule(a, b);
             }
         } else if(a.ColliderType == COLLIDER_CAPSULE) {
             if(b.ColliderType == COLLIDER_CAPSULE) {
-                return ResolveCollision_CapsuleCapsule(a, b);
+                return DetectCollision_CapsuleCapsule(a, b);
             }
         }
-        
-        return false;
+
+        ASSERT_V(false, CollisionData_t{});
+        return CollisionData_t{};
     }
 
-    bool ResolveCollision_SphereSphere(RigidBody &rb1, RigidBody &rb2) {
+    CollisionData_t DetectCollision_SphereSphere(RigidBody &rb1, RigidBody &rb2) {
 
         glm::vec3 dis = rb2.Position - rb1.Position;
         float dis_len = glm::length(dis);
@@ -59,17 +59,15 @@ namespace gigno {
 
         if(col_depth >= 0) {
             // Not Colliding
-            return false; 
+            return CollisionData_t{};
         }
 
-        // Apply collision response only if Rigidbodies are bound.
         glm::vec3 dis_norm = dis / dis_len;
-        RespondCollision(rb1, rb2, dis_norm, col_depth, dis_norm * rb1.Radius, -dis_norm * rb2.Radius);
 
-        return true;
+        return CollisionData_t{true, dis_norm, col_depth, dis_norm * rb1.Radius, -dis_norm * rb2.Radius};
     }
 
-    bool ResolveCollision_SpherePlane(RigidBody &sphere, RigidBody &plane) {
+    CollisionData_t DetectCollision_SpherePlane(RigidBody &sphere, RigidBody &plane) {
 
         float height = glm::dot(sphere.Position - plane.Position, plane.Normal);
         float col_depth = height - sphere.Radius;
@@ -77,15 +75,15 @@ namespace gigno {
         if (col_depth >= 0 ||
             col_depth < -2.0f * sphere.Radius /*Under the plane*/)
         {
-            return false;
+            return CollisionData_t{};
         }
 
-        RespondCollision(sphere, plane, -plane.Normal, col_depth, -plane.Normal * sphere.Radius, glm::vec3{0.0f});
+        const glm::vec3 point_on_plane = sphere.Position - plane.Normal * (sphere.Radius + col_depth) - plane.Position;
 
-        return true;
+        return CollisionData_t{true, -plane.Normal, col_depth, -plane.Normal * sphere.Radius, point_on_plane};
     }
 
-    bool ResolveCollision_SphereCapsule(RigidBody &sphere, RigidBody &capsule) {
+    CollisionData_t DetectCollision_SphereCapsule(RigidBody &sphere, RigidBody &capsule) {
         const glm::vec3 capsule_orientation = ApplyRotation(capsule.Rotation, glm::vec3{0.0f, 1.0f, 0.0f});
         const glm::vec3 capsule_bottom = capsule.Position - capsule.Length * 0.5f * capsule_orientation;
         const glm::vec3 capsule_top = capsule.Position + capsule.Length * 0.5f * capsule_orientation;
@@ -96,18 +94,15 @@ namespace gigno {
 
         if(col_depth >= 0) {
             //Not colliding
-            return false;
+            return CollisionData_t{};
         }
 
-         const glm::vec3 sphere_to_capsule_norm = sphere_to_capsule / distance;
+        const glm::vec3 sphere_to_capsule_norm = sphere_to_capsule / distance;
 
-        RespondCollision(sphere, capsule, sphere_to_capsule / distance, col_depth, 
-                        sphere_to_capsule_norm * sphere.Radius, -sphere_to_capsule_norm * capsule.Radius);
-
-        return true;
+        return CollisionData_t{true, sphere_to_capsule / distance, col_depth, sphere_to_capsule_norm * sphere.Radius, -sphere_to_capsule_norm * capsule.Radius};
     }
 
-    bool ResolveCollision_PlaneCapsule(RigidBody &plane, RigidBody &capsule) {
+    CollisionData_t DetectCollision_PlaneCapsule(RigidBody &plane, RigidBody &capsule) {
         const glm::vec3 capsule_orientation = ApplyRotation(capsule.Rotation, glm::vec3{0.0f, 1.0f, 0.0f});
         const glm::vec3 capsule_bottom = capsule.Position - capsule.Length * 0.5f * capsule_orientation;
         const glm::vec3 capsule_top = capsule.Position + capsule.Length * 0.5f * capsule_orientation;
@@ -116,14 +111,14 @@ namespace gigno {
         const float top_depth = glm::dot(capsule_top - plane.Position, plane.Normal) - capsule.Radius;
 
         if(bottom_depth >= 0 && top_depth >= 0) {
-            return false;
+            return CollisionData_t{};
         }
 
-        glm::vec3 capsule_application_point{};
+        glm::vec3 capsule_apply_point{};
 
         if(bottom_depth < 0 && top_depth < 0) {
             // Both underground, the apply point is thoward the one that is deeper, so we weight by their depth.
-            capsule_application_point = (((capsule_bottom - capsule.Position) * -bottom_depth) + ((capsule_top - capsule.Position) * -top_depth))/(-bottom_depth - top_depth) ;
+            capsule_apply_point = (((capsule_bottom - capsule.Position) * -bottom_depth) + ((capsule_top - capsule.Position) * -top_depth))/(-bottom_depth - top_depth) ;
         } 
         else if(bottom_depth < 0 && top_depth > 0) {
             // On under, one above. Apply point is between the one under, and the point that meets the ground.
@@ -131,7 +126,7 @@ namespace gigno {
             float t = -bottom_depth / total_height;
             t = t * 0.5f;
 
-            capsule_application_point = ((capsule_bottom - capsule.Position) * (1-t)) + ((capsule_top - capsule.Position) * (t));
+            capsule_apply_point = ((capsule_bottom - capsule.Position) * (1-t)) + ((capsule_top - capsule.Position) * (t));
         } 
         else if(top_depth < 0 && top_depth < bottom_depth) {
             // On under, one above. Apply point is between the one under, and the point that meets the ground.
@@ -139,19 +134,17 @@ namespace gigno {
             float t = -top_depth / total_height;
             t = t * 0.5f;
 
-            capsule_application_point = ((capsule_top - capsule.Position) * (1 - t)) + ((capsule_bottom - capsule.Position) * (t));
+            capsule_apply_point = ((capsule_top - capsule.Position) * (1 - t)) + ((capsule_bottom - capsule.Position) * (t));
         }
 
-        capsule_application_point += -plane.Normal * capsule.Radius;
+        capsule_apply_point += -plane.Normal * capsule.Radius;
 
-        RespondCollision(plane, capsule, plane.Normal, glm::min(bottom_depth, top_depth),
-                        capsule.Position + capsule_application_point - plane.Position - plane.Normal * glm::dot(capsule.Position + capsule_application_point - plane.Position, plane.Normal),
-                        capsule_application_point);
+        glm::vec3 plane_apply_point = capsule.Position + capsule_apply_point - plane.Position - plane.Normal * glm::dot(capsule.Position + capsule_apply_point - plane.Position, plane.Normal);
 
-        return true;
+        return CollisionData_t{true, plane.Normal, glm::min(bottom_depth, top_depth), plane_apply_point, capsule_apply_point};
     }
 
-    bool ResolveCollision_CapsuleCapsule(RigidBody &rb1, RigidBody &rb2) {
+    CollisionData_t DetectCollision_CapsuleCapsule(RigidBody &rb1, RigidBody &rb2) {
         const glm::vec3 orientation1 = ApplyRotation(rb1.Rotation, glm::vec3{0.0f, 1.0f, 0.0f});
         const glm::vec3 bottom1 = rb1.Position - (rb1.Length * 0.5f * orientation1);
         const glm::vec3 top1 = rb1.Position + (rb1.Length * 0.5f * orientation1);
@@ -171,7 +164,7 @@ namespace gigno {
 
         if (col_depth >= 0) {
             // Not colliding
-            return false;
+            return CollisionData_t{};
         }
 
         const glm::vec3 dist_norm = dist / dist_len;
@@ -181,19 +174,16 @@ namespace gigno {
 
         const glm::vec3 middle = (edge_point1 + edge_point2) * 0.5f;
 
-        RespondCollision(rb1, rb2, dist_norm, col_depth,
-                        middle - rb1.Position, middle - rb2.Position - (dist_norm * rb2.Radius));
-
-        return true;
+        return CollisionData_t{true, dist_norm, col_depth, middle - rb1.Position, middle - rb2.Position - (dist_norm * rb2.Radius)};
     }
 
-    bool ResolveCollision_HullNonPlane(RigidBody &hull, RigidBody &nonPlane) {
+    CollisionData_t DetectCollision_HullNonPlane(RigidBody &hull, RigidBody &nonPlane) {
         Simplex_t simplex{};
 
         bool collide = GJK(hull, nonPlane, simplex);
         
         if(!collide) {
-            return false;
+            return CollisionData_t{};
         } 
 
         glm::vec3 pointA{};
@@ -202,17 +192,14 @@ namespace gigno {
         float depth;
         EPA(hull, nonPlane, simplex, pointA, pointB, dir, depth);
 
-        RespondCollision(hull, nonPlane, dir, -depth, pointA - hull.Position, pointB - nonPlane.Position);
-        
-        return true;
-
+        return CollisionData_t{true, dir, -depth, pointA - hull.Position, pointB - nonPlane.Position};
     }
 
-    bool ResolveCollision_HullPlane(RigidBody &hull, RigidBody &Plane) {
+    CollisionData_t DetectCollision_HullPlane(RigidBody &hull, RigidBody &Plane) {
         const std::vector<glm::vec3> &vert = hull.TransformedModel;
         const CollisionModel_t *model = hull.GetModel();
         if(!model) {
-            return false;
+            return CollisionData_t{};
         }
         const std::vector<int> &ind = model->Indices;
 
@@ -274,12 +261,12 @@ namespace gigno {
         }
 
         if(!got_under) {
-            return false;
+            return CollisionData_t{};
         }
 
-        RespondCollision(hull, Plane, Plane.Normal, -max_depth, slice_sum / (float)slice_vert_count - hull.Position, glm::vec3{0.0f});
+        glm::vec3 plane_apply_point = ProjectToPlane(slice_sum / (float)slice_vert_count, Plane.Normal) - Plane.Position;
 
-        return false;
+        return CollisionData_t{true, Plane.Normal, -max_depth, slice_sum / (float)slice_vert_count - hull.Position, plane_apply_point};
     }
 
     /*
@@ -290,58 +277,61 @@ namespace gigno {
 
     CONVAR(float, phys_response_epsilon, 1e-5f, "Very small value. Object are pushed out of each other with this leaway.");
 
-    void RespondCollision(RigidBody &rb1, RigidBody &rb2, const glm::vec3 &colNormal, const float &colDepth,
-                          const glm::vec3 &col1ApplyPoint, const glm::vec3 &col2ApplyPoint)
+    void RespondCollision(RigidBody &rb1, RigidBody &rb2, const CollisionData_t &collision)
     {
+        //Swaping the object order to reflect the one in DetectCollision function.
+        RigidBody &BodyA = rb1.ColliderType <= rb2.ColliderType ? rb1 : rb2;
+        RigidBody &BodyB = rb1.ColliderType <= rb2.ColliderType ? rb2 : rb1;
+
         /*
         I used to check if objects were moving away from each other before responding
         but it seemed to be irrelevent and to cause 'skipping' of some collision reponses.
         This has now been removed.
         */
 
-        if(rb1.IsStatic && rb2.IsStatic) {
+        if(BodyA.IsStatic && BodyB.IsStatic) {
             return;
         } else {
-            glm::vec3 Delta_v = rb2.Velocity - rb1.Velocity;
-            float ProjD_v = glm::dot(Delta_v, colNormal);
+            glm::vec3 Delta_v = BodyB.Velocity - BodyA.Velocity;
+            float ProjD_v = glm::dot(Delta_v, collision.Normal);
 
-            float e = GetBounciness(rb1, rb2);
+            float e = GetBounciness(BodyA, BodyB);
     
-            float J = (1.0 + e) * ProjD_v / (rb1.Mass + rb2.Mass);
+            float J = (1.0 + e) * ProjD_v / (BodyA.Mass + BodyB.Mass);
 
-            if(rb1.IsStatic) {
-                rb2.AddImpulse(-colNormal * J * (rb1.Mass + rb2.Mass), col2ApplyPoint);
+            if(BodyA.IsStatic) {
+                BodyB.AddImpulse(-collision.Normal * J * (BodyA.Mass + BodyB.Mass), collision.ApplyPointB);
 
-                if(colDepth < 2.0f) {
-                    rb2.Position += -colNormal * (colDepth - convar_phys_response_epsilon);
+                if(collision.Depth < 2.0f) {
+                    BodyB.Position += -collision.Normal * (collision.Depth - convar_phys_response_epsilon);
                 }
 
-                ApplyFriction(J * (rb1.Mass + rb2.Mass), rb2, colNormal, col2ApplyPoint, GetFriction(rb1, rb2), GetStaticFriction(rb1, rb2));
+                ApplyFriction(J * (BodyA.Mass + BodyB.Mass), BodyB, collision.Normal, collision.ApplyPointB, GetFriction(BodyA, BodyB), GetStaticFriction(BodyA, BodyB));
             } 
-            else if(rb2.IsStatic) {
-                rb1.AddImpulse(colNormal * J * (rb1.Mass + rb2.Mass), col1ApplyPoint);
+            else if(BodyB.IsStatic) {
+                BodyA.AddImpulse(collision.Normal * J * (BodyA.Mass + BodyB.Mass), collision.ApplyPointA);
 
-                if(colDepth < 2.0f) {
-                    rb1.Position += colNormal * (colDepth - convar_phys_response_epsilon);
+                if(collision.Depth < 2.0f) {
+                    BodyA.Position += collision.Normal * (collision.Depth - convar_phys_response_epsilon);
                 }
 
-                ApplyFriction(J * (rb1.Mass + rb2.Mass), rb1, -colNormal, col1ApplyPoint, GetFriction(rb1, rb2), GetStaticFriction(rb1, rb2));
+                ApplyFriction(J * (BodyA.Mass + BodyB.Mass), BodyA, -collision.Normal, collision.ApplyPointA, GetFriction(BodyA, BodyB), GetStaticFriction(BodyA, BodyB));
             } 
             else {
-                rb1.AddImpulse(colNormal * J * rb2.Mass, col1ApplyPoint);
+                BodyA.AddImpulse(collision.Normal * J * BodyB.Mass, collision.ApplyPointA);
 
-                rb2.AddImpulse(-colNormal * J * rb1.Mass, col2ApplyPoint);
+                BodyB.AddImpulse(-collision.Normal * J * BodyA.Mass, collision.ApplyPointB);
 
-                if (colDepth < 2.0f)
+                if (collision.Depth < 2.0f)
                 {
                     // Offset the object out of the collision to avoid double apply on consecutive frame when working witih tiny velocity!
-                    rb1.Position += colNormal * (colDepth - convar_phys_response_epsilon) * 0.5f;
-                    rb2.Position += -colNormal * (colDepth - convar_phys_response_epsilon) * 0.5f;
+                    BodyA.Position += collision.Normal * (collision.Depth - convar_phys_response_epsilon) * 0.5f;
+                    BodyB.Position += -collision.Normal * (collision.Depth - convar_phys_response_epsilon) * 0.5f;
                 }
 
-                ApplyFriction(J * rb2.Mass, rb1, -colNormal, col1ApplyPoint, GetFriction(rb1, rb2), GetStaticFriction(rb1, rb2));
+                ApplyFriction(J * BodyB.Mass, BodyA, -collision.Normal, collision.ApplyPointA, GetFriction(BodyA, BodyB), GetStaticFriction(BodyA, BodyB));
 
-                ApplyFriction(J * rb1.Mass, rb2, colNormal, col2ApplyPoint, GetFriction(rb1, rb2), GetStaticFriction(rb1, rb2));
+                ApplyFriction(J * BodyA.Mass, BodyB, collision.Normal, collision.ApplyPointB, GetFriction(BodyA, BodyB), GetStaticFriction(BodyA, BodyB));
             }
 
         }
