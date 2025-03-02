@@ -171,25 +171,39 @@ namespace gigno {
         void Log(const char *msg, ConsoleMessageType_t type, ConsoleMessageFlags_t flags);
         void DrawConsoleTab();
 
+        /*
+        Writes the message to file if it does not have the flag MESSAGE_NO_FILE_LOG_BIT
+        Flushes the fileif proority is MESSAGE_TYPE_WARNING or higher.
+        */
         void LogToFile(const ConsoleMessage_t &message);
 
+        
         std::mutex m_LogMutex;
         std::mutex m_MessageVectorMutex;
-    #if USE_CONSOLE
-
+        #if USE_CONSOLE
+        
         bool m_ShowTimepoints = true;
         std::vector<ConsoleMessage_t> m_Messages{};
         std::ofstream m_FileStream;
         bool m_IsLoggingToFile = false;
         bool m_UIFileLoggingCheckbox;
         bool m_IsFirstFileOpen = true;
-
+        
         const static size_t CONSOLE_INPUT_BUFFER_SIZE = 256;
         char m_InputBuffer[CONSOLE_INPUT_BUFFER_SIZE];
         
         void Clear();
-    #endif
+        #endif
     };
+
+    /*
+    Sets up the signal and termination handlers, if they haven't yuet been defined.
+    */
+    void InitializeErrorHandling();
+    //Termination Handler
+    void OnTerminate();
+    // SIgnal Handler
+    void OnSignal(int signal);
 
 }
 

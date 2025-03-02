@@ -7,6 +7,8 @@
 #include "convar.h"
 #include "../../rendering/gui.h"
 
+#include <exception>
+#include <csignal>
 
 namespace gigno {
 
@@ -28,8 +30,10 @@ namespace gigno {
         LogInfo_Impl((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "Type 'help' for a list of commands.");
 
         if(!StartFileLogging_Impl()) {
-            LogInfo_Impl("Failed initial file logging.");
+            LogInfo_Impl("Failed to initialize file logging.");
         }
+
+        InitializeErrorHandling();
     }
 
     Console::~Console() {
@@ -367,4 +371,38 @@ namespace gigno {
     #endif
 
 
+    /* -------------------------------------------
+    ERROR HANDLING
+    ------------------------------------------- */
+
+    void InitializeErrorHandling() {
+        static bool initialized = false;
+        if(initialized) {
+            return;
+        }
+
+        std::set_terminate(OnTerminate);
+        std::signal(SIGABRT, OnSignal);
+        std::signal(SIGFPE, OnSignal);
+        std::signal(SIGILL, OnSignal);
+        std::signal(SIGINT, OnSignal);
+        std::signal(SIGSEGV, OnSignal);
+        std::signal(SIGTERM, OnSignal);
+
+        initialized = true;
+    }
+
+    void OnTerminate() {
+        Console::LogError("Engine Terminated Unexpectedly");
+    }
+
+    void OnSignal(int signal) {
+        Console::LogError("Engine caught signal : %s",  signal == SIGABRT ? "SIGABRT" :
+                                                        signal == SIGFPE ? "SIGFPE" :
+                                                        signal == SIGILL ? "SIGILL" :
+                                                        signal == SIGINT ? "SIGINT" :
+                                                        signal == SIGSEGV ? "SIGSEGV" :
+                                                        signal == SIGTERM ? "SIGTERM" :
+                                                        "UNKNOWN SIGNAL");
+    }
 }
