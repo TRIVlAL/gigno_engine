@@ -107,6 +107,7 @@ namespace gigno {
         m_LookRight = 0;
         m_LookUp = 0;
 
+        //Shoot
         if(in->GetKeyDown(KEY_E)) {
             RigidBody *bullet = GetApp()->GetEntityServer()->CreateEntity<RigidBody>();
             bullet->ModelPath = "models/uv_sphere.obj";

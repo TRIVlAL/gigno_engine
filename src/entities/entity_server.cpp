@@ -16,8 +16,8 @@ namespace gigno {
 	void EntityServer::Tick(float dt) {
 		Profiler::Begin("Entity Update");
 
-		for(Entity *ent : m_Scene) {
-			ent->Think(dt);
+		for(size_t i = 0; i < m_Scene.size(); i++) {
+			m_Scene[i]->Think(dt);
 		}
 
 		Console::Singleton()->UpdateCommands(dt);
@@ -26,11 +26,11 @@ namespace gigno {
 	}
 
 	void EntityServer::PhysicTick(float dt) {
-		for(Entity *ent : m_Scene) {
-			ent->PhysicThink(dt);
+		for(size_t i = 0; i < m_Scene.size(); i++) {
+			m_Scene[i]->PhysicThink(dt);
 		}
-		for(Entity *ent : m_Scene) {
-			ent->LatePhysicThink(dt);
+		for(size_t i = 0; i < m_Scene.size(); i++) {
+			m_Scene[i]->LatePhysicThink(dt);
 		}
 	}
 
