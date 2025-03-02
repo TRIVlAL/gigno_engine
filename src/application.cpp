@@ -43,7 +43,7 @@ namespace gigno {
 	}
 
 	int Application::run() {
-		Console::StartFileLogging ();
+		Console::StartFileLogging();
 
 		ASSERT_MSG_V(glfwInit(), 1, "GLFW Failed to init");
 

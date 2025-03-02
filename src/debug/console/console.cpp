@@ -216,6 +216,10 @@ namespace gigno {
             if(!(message.Flags & MESSAGE_NO_NEW_LINE_BIT)) {
                 m_FileStream << "\n";
             }
+
+            if(message.Type == CONSOLE_MESSAGE_WARN || CONSOLE_MESSAGE_ERR) {
+                m_FileStream.flush();
+            }
         }
         #endif
     }
