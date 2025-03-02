@@ -196,6 +196,12 @@ namespace gigno {
     }
 
     CollisionData_t DetectCollision_HullPlane(const Collider_t &hull, const Collider_t &Plane) {
+        /*
+        Although it can seem like this method is over-eingeneered,
+        from my testing, it gets significatly better looking result compared to
+        simple individual vertices testing.
+        */
+
         const std::vector<glm::vec3> &vert = hull.TransformedModel;
 
         if(!hull.Model) {
@@ -265,9 +271,8 @@ namespace gigno {
         }
 
         glm::vec3 plane_apply_point = ProjectToPlane(slice_sum / (float)slice_vert_count, Plane.Normal) - Plane.Position;
-        plane_apply_point = glm::vec3{0.0f};
 
-        return CollisionData_t{true, Plane.Normal, -max_depth, slice_sum / (float)slice_vert_count - hull.Position, plane_apply_point};
+        return CollisionData_t{true, -Plane.Normal, max_depth, slice_sum / (float)slice_vert_count - hull.Position, plane_apply_point};
     }
 
     /*
