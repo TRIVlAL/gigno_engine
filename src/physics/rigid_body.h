@@ -21,6 +21,9 @@ namespace gigno {
         void AddTorque(const glm::vec3 &torque);
         void AddRotationImpulse(const glm::vec3 &rotation);
 
+        // Rigidbody will not recieve gravity force during this physics frame.
+        void DisableGravity() { m_GravityDisabled = true; }
+
         virtual void Init() override;
         virtual void Think(float dt) override;
         virtual void LatePhysicThink(float dt) override;
@@ -101,12 +104,13 @@ namespace gigno {
         const CollisionModel_t *GetModel() const;
 
         
-        private:
-        
+    private:
+        bool m_GravityDisabled = false;    
+
         glm::vec3 m_WorldTargetHinge{};// The world position of the hinge. is set on Init
         
         bool hasCollider = false;
-        
+    
         bool m_WasRendered = true; // What was DoRender value before it got modified by convar_phys_draw_colliders
         
         

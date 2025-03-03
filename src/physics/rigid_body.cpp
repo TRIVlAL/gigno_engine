@@ -122,7 +122,10 @@ namespace gigno {
         }
 
         //Gravity
-        AddForce((glm::vec3)convar_phys_gravity * Mass);
+        if(!m_GravityDisabled) {
+            AddForce((glm::vec3)convar_phys_gravity * Mass);
+        }
+        m_GravityDisabled = false;
 
         //Drag
         // Uses a linear approximation as can be seen in Unity or Godot.

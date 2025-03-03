@@ -18,14 +18,19 @@ namespace gigno {
     
         float PullDistance{30.0f};
         float TargetDistance{5.0f};
-        float FarPullPower{200.0f};
-        float ClosePullPower{200.0f};
+        float FarPullPower{350.0f};
+        float ClosePullPower{400.0f};
         float ThrowPower{150000.0f};
     private:
         
         RigidBody *m_pSelected;
         bool m_GotClose = false;
         bool m_JustSelected = false;
+
+        bool m_GotPullKeyDown = false;
+        bool m_GotPullKey = false;
+        bool m_GotPullKeyUp = false;
+        bool m_GotThrowKeyDown = false;
 
 
     };
