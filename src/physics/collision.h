@@ -13,6 +13,7 @@ namespace gigno {
 
         glm::vec3 Position{};
         glm::vec3 Rotation{};
+        glm::vec3 Scale{};
 
         float Radius{}; // COLLIDER_SPHERE / COLLIDER_CAPSULE
 
@@ -21,7 +22,10 @@ namespace gigno {
         glm::vec3 Normal{}; // COLLIDER_PLANE
 
         const CollisionModel_t *Model{};  // COLLIDER_HULL
+        // Vertices with Scale and Rotation applied.
         std::vector<glm::vec3> TransformedModel{};  // COLLIDER_HULL
+
+        void CreateTransformedModel();
     };
 
     struct CollisionData_t {

@@ -195,7 +195,6 @@ namespace gigno {
 
     void RigidBody::UpdateTransformedModel()
     {
-
         ASSERT(ColliderType == COLLIDER_HULL);
 
         const CollisionModel_t *model = GetModel();

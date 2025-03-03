@@ -40,7 +40,7 @@ namespace gigno {
         float m_LookRight{};
 
         bool m_PressedJump{};
-
+    protected:
         Camera *m_pCamera;
     };
 

@@ -35,7 +35,7 @@ namespace gigno {
     */
     glm::vec3 PointToSegment(glm::vec3 point, glm::vec3 seg1, glm::vec3 seg2);
 
-    float LenSquared(glm::vec3 &vec);
+    float LenSquared(const glm::vec3 &vec);
 
     /*
     Return the result of the given vector after being rotated following the 

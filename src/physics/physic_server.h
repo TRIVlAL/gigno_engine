@@ -48,19 +48,27 @@ namespace gigno {
         any construction of a RigidBody. For that reason, use it once in YOUR SCOPE and LEAVE IT.
         */
         const CollisionModel_t *GetCollisionModel(const char *path);
-        
-    private:
+
+        /*
+        Returns the collisiond data between collider and current->pNext in the rigidbody chain.
+        sets *current to current->pNext
+        if *current == nullptr, sets and tests the first RigidBody in the RigidBody chain.
+        if *current output is nullptr, you have reached the end of the chain.
+        */
+        CollisionData_t GetColliding(const Collider_t &collider, RigidBody **current);
+
+    private :
         /*
         Map matching the path to the .obj model file to the CollisionModel_t instance.
         */
-        CstrUnorderedMap_t<CollisionModel_t> m_Models{};
+        CstrUnorderedMap_t<CollisionModel_t> m_Models {};
 
         std::mutex m_WorldMutex{};
 
         std::thread m_LoopThread;
         volatile bool m_LoopContinue = true;
 
-        RigidBody *RigidBodies{};
+        RigidBody *s_RigidBodies{};
 
         // modified by friend command phys_remote
         bool m_Pause = false;

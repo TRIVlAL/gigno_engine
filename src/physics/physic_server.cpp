@@ -36,14 +36,14 @@ namespace gigno {
     }
 
     void PhysicServer::SubscribeRigidBody(RigidBody *rb) {
-        rb->pNextRigidBody = RigidBodies;
-        RigidBodies = rb;
+        rb->pNextRigidBody = s_RigidBodies;
+        s_RigidBodies = rb;
     }
 
     void PhysicServer::UnsubscribeRigidBody(RigidBody *rb) {
-        RigidBody *curr = RigidBodies;
+        RigidBody *curr = s_RigidBodies;
         if(curr == rb) {
-            RigidBodies = rb->pNextRigidBody;
+            s_RigidBodies = rb->pNextRigidBody;
         }
         while(curr) {
             if(curr->pNextRigidBody == rb) {
@@ -115,8 +115,8 @@ namespace gigno {
         Profiler::Begin("Collision - Broad Phase");
         
         //Checking Axis Aligned Bounding Boxes and adding each overlapping pairs
-        // to m_PossiblePairs 
-        RigidBody *rb1 = RigidBodies;
+        // to m_PossiblePairs
+        RigidBody *rb1 = s_RigidBodies;
         while(rb1) {
             RigidBody *rb2 = rb1->pNextRigidBody;
             while(rb2) {
@@ -216,5 +216,25 @@ namespace gigno {
         }
 
         return &m_Models[path];
+    }
+
+    CollisionData_t PhysicServer::GetColliding(const Collider_t &collider, RigidBody **current) {
+        if(!(*current)) {
+            *current = s_RigidBodies;
+        } else {
+            *current = (*current)->pNextRigidBody;
+        }
+
+        while(*current) {
+            CollisionData_t data = DetectCollision(collider, (*current)->AsCollider());
+            if(data.Collision) {
+                return data;
+            }
+
+            *current = (*current)->pNextRigidBody;
+        }
+
+        *current = nullptr;
+        return CollisionData_t{};
     }
 }

@@ -9,6 +9,20 @@
 
 namespace gigno {
 
+    void Collider_t::CreateTransformedModel() {
+        ASSERT(ColliderType == COLLIDER_HULL);
+
+        TransformedModel.resize(Model->Vertices.size());
+
+        for (size_t i = 0; i < Model->Vertices.size(); i++) {
+            glm::vec3 vert = Model->Vertices[i];
+            vert.x *= Scale.x;
+            vert.y *= Scale.y;
+            vert.z *= Scale.z;
+            TransformedModel[i] = ApplyRotation(Rotation, vert);
+        }
+    }
+
     /*
     -------------------------------------------------------------------------------------------------------
                     COLLISION DETECTION

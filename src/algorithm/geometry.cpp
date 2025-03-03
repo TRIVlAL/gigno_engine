@@ -65,7 +65,7 @@ namespace gigno {
         outBPoint = PointToSegment(outAPoint, b1, b2);
     }
 
-    float LenSquared(glm::vec3 &vec) {
+    float LenSquared(const glm::vec3 &vec) {
         return vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
     }
 
