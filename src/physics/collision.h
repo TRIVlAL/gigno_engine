@@ -8,7 +8,24 @@ namespace gigno {
     struct CollisionModel_t;
     class RigidBody;
 
+    struct BoundingBox_t {
+        //Represents an axis aligned bounding box.
+        glm::vec3 Min{}, Max{};
+    };
+
     struct Collider_t {
+        friend class RigidBody;
+    private:
+        Collider_t() = default; //Only trust RigidBody to not be dumb with the empty constructor
+    public:
+        Collider_t(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, float radius); //Sphere
+        Collider_t(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, float radius, float length); //Capsule
+        Collider_t(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, glm::vec3 normal); //Plane
+        Collider_t(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, const CollisionModel_t *model); //Hull
+
+        void SetTransformedModel();
+        void SetBoundingBox();
+
         ColliderType_t ColliderType;
 
         glm::vec3 Position{};
@@ -25,7 +42,8 @@ namespace gigno {
         // Vertices with Scale and Rotation applied.
         std::vector<glm::vec3> TransformedModel{};  // COLLIDER_HULL
 
-        void CreateTransformedModel();
+        BoundingBox_t AABB;
+
     };
 
     struct CollisionData_t {
@@ -45,6 +63,11 @@ namespace gigno {
        if both ColliderType are the same.
        */
     };
+
+    /*
+    Returns whether the axis aligned bounding boxes intersect.
+    */
+    bool AABBCollision(BoundingBox_t A, BoundingBox_t B);
 
     CollisionData_t DetectCollision(const Collider_t &col1, const Collider_t &col2);
 

@@ -120,16 +120,9 @@ namespace gigno {
         while(rb1) {
             RigidBody *rb2 = rb1->pNextRigidBody;
             while(rb2) {
-                if (rb1->BBMin.x <= rb2->BBMax.x && rb1->BBMax.x >= rb2->BBMin.x &&
-                    rb1->BBMin.y <= rb2->BBMax.y && rb1->BBMax.y >= rb2->BBMin.y &&
-                    rb1->BBMin.z <= rb2->BBMax.z && rb1->BBMax.z >= rb2->BBMin.z)
-                {
-                        
+                if (AABBCollision(rb1->AsCollider().AABB, rb2->AsCollider().AABB)) {
                     m_PossiblePairs.emplace_back(rb1, rb2);
-                    rb1->IsBBCollide = true;
-                    rb2->IsBBCollide = true;
                 }
-                    
                 rb2 = rb2->pNextRigidBody;
             }
             rb1 = rb1->pNextRigidBody;
@@ -226,11 +219,13 @@ namespace gigno {
         }
 
         while(*current) {
-            CollisionData_t data = DetectCollision(collider, (*current)->AsCollider());
-            if(data.Collision) {
-                return data;
+            Collider_t curr_col = (*current)->AsCollider();
+            if(AABBCollision(curr_col.AABB, collider.AABB)) {
+                CollisionData_t data = DetectCollision(collider, (*current)->AsCollider());
+                if(data.Collision) {
+                    return data;
+                }
             }
-
             *current = (*current)->pNextRigidBody;
         }
 

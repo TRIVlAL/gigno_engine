@@ -9,7 +9,32 @@
 
 namespace gigno {
 
-    void Collider_t::CreateTransformedModel() {
+    Collider_t::Collider_t(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, float radius) {
+        Position = position; Rotation = rotation; Scale = scale; Radius = radius;
+        ColliderType = COLLIDER_SPHERE;
+        SetBoundingBox();
+    }
+    
+    Collider_t::Collider_t(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, float radius, float length) {
+        Position = position; Rotation = rotation; Scale = scale; Radius = radius; Length = length;
+        ColliderType = COLLIDER_CAPSULE;
+        SetBoundingBox();
+    }
+    
+    Collider_t::Collider_t(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, glm::vec3 normal) {
+        Position = position; Rotation = rotation; Scale = scale; Normal = normal;
+        ColliderType = COLLIDER_PLANE;
+        SetBoundingBox();
+    }
+    
+    Collider_t::Collider_t(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, const CollisionModel_t *model) {
+        Position = position; Rotation = rotation; Scale = scale; Model = model;
+        ColliderType = COLLIDER_HULL;
+        SetTransformedModel();
+        SetBoundingBox();
+    }
+
+    void Collider_t::SetTransformedModel() {
         ASSERT(ColliderType == COLLIDER_HULL);
 
         TransformedModel.resize(Model->Vertices.size());
@@ -23,13 +48,65 @@ namespace gigno {
         }
     }
 
+    void Collider_t::SetBoundingBox() {
+        float epsilon = 0.0001f;
+        switch(ColliderType) {
+            case COLLIDER_SPHERE : {
+                AABB.Min = Position + glm::vec3{-Radius};
+                AABB.Max = Position + glm::vec3{Radius};
+                break;
+            }
+            case COLLIDER_CAPSULE : {
+                glm::vec3 up = ApplyRotation(Rotation, glm::vec3{0.0f, 1.0f, 0.0f});
+                glm::vec3 diag = ApplyRotation(Rotation, glm::vec3{0.707f, 0.0f, .707f});
+                AABB.Min = Position - (up * Length + Radius) - diag * Radius;
+                AABB.Max = Position + (up * Length + Radius) + diag * Radius;
+                break;
+            }
+            case COLLIDER_HULL : {
+                AABB.Min = glm::vec3{FLT_MAX};
+                AABB.Max = glm::vec3{-FLT_MAX};
+                for(glm::vec3 vert : TransformedModel) {
+                    const glm::vec3 world_vert = Position + vert;
+
+                    if(world_vert.x < AABB.Min.x) { AABB.Min.x = world_vert.x; } 
+                    if(world_vert.y < AABB.Min.y) { AABB.Min.y = world_vert.y; } 
+                    if(world_vert.z < AABB.Min.z) { AABB.Min.z = world_vert.z; }
+
+                    if(world_vert.x > AABB.Max.x) { AABB.Max.x = world_vert.x; } 
+                    if(world_vert.y > AABB.Max.y) { AABB.Max.y = world_vert.y; } 
+                    if(world_vert.z > AABB.Max.z) { AABB.Max.z = world_vert.z; } 
+                }
+                break;
+            }
+            case COLLIDER_PLANE : {
+                if(Normal == glm::vec3{0.0f, 1.0f, 0.0f} || Normal == glm::vec3{0.0f, -1.0f, 0.0f}) {
+                    AABB.Min = glm::vec3{-FLT_MAX, Position.y - epsilon, -FLT_MAX};
+                    AABB.Max = glm::vec3{FLT_MAX, Position.y + epsilon, FLT_MAX};
+                }
+                else {
+                    AABB.Min = glm::vec3{-FLT_MAX, -FLT_MAX, -FLT_MAX};
+                    AABB.Max = glm::vec3{FLT_MAX, FLT_MAX, FLT_MAX};
+                }
+                break;
+            }
+        }
+    }
+
     /*
     -------------------------------------------------------------------------------------------------------
                     COLLISION DETECTION
     -------------------------------------------------------------------------------------------------------
     */
 
-    CollisionData_t DetectCollision(const Collider_t &col1, const Collider_t &col2) {
+    bool AABBCollision(BoundingBox_t A, BoundingBox_t B) {
+        return (A.Min.x <= B.Max.x && A.Max.x >= B.Min.x &&
+                A.Min.y <= B.Max.y && A.Max.y >= B.Min.y &&
+                A.Min.z <= B.Max.z && A.Max.z >= B.Min.z);
+    }
+
+    CollisionData_t DetectCollision(const Collider_t &col1, const Collider_t &col2)
+    {
         ASSERT_V(col1.ColliderType != COLLIDER_NONE && col2.ColliderType != COLLIDER_NONE, CollisionData_t{});
 
         // Swaping Bodies to limit possible combinations when dispatching.

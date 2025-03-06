@@ -72,6 +72,8 @@ namespace gigno {
     void RigidBody::Init() {
         RenderedEntity::Init();
 
+        UpdateCollider();
+
         if(ColliderType == COLLIDER_HULL) {
             if(CollisionModelPath) {
                 GetApp()->GetPhysicServer()->AllocateCollisionModel(CollisionModelPath);
@@ -89,7 +91,7 @@ namespace gigno {
 
     void RigidBody::LatePhysicThink(float dt) {
         if(IsStatic) {
-            UpdateBoundingBox();
+            UpdateCollider();
             if(ColliderType == COLLIDER_HULL) {
                 UpdateTransformedModel();
             }
@@ -168,22 +170,26 @@ namespace gigno {
         if(ColliderType == COLLIDER_HULL && avrg_rot_vel != glm::vec3{0.0f}) {
             UpdateTransformedModel();
         }
-        UpdateBoundingBox();
+        UpdateCollider();
+    }
+
+    void RigidBody::UpdateCollider() {
+        m_Collider.ColliderType = ColliderType;
+        m_Collider.Position = Position;
+        m_Collider.Rotation = Rotation;
+        m_Collider.Radius = Radius;
+        m_Collider.Length = Length;
+        m_Collider.Normal = Normal;
+        if (ColliderType == COLLIDER_HULL)
+        {
+            m_Collider.Model = GetModel();
+            m_Collider.TransformedModel = TransformedModel; // TODO : Avoid Copy
+        }
+        m_Collider.SetBoundingBox();
     }
 
     Collider_t RigidBody::AsCollider() const {
-        Collider_t ret{};
-        ret.ColliderType = ColliderType;
-        ret.Position = Position;
-        ret.Rotation = Rotation;
-        ret.Radius = Radius;
-        ret.Length = Length;
-        ret.Normal = Normal;
-        if(ColliderType == COLLIDER_HULL) {
-            ret.Model = GetModel();
-            ret.TransformedModel = TransformedModel; //TODO : Avoid Copy
-        }
-        return ret;
+        return m_Collider;
     }
 
     const CollisionModel_t *RigidBody::GetModel() const
@@ -212,53 +218,6 @@ namespace gigno {
             TransformedModel[i] = ApplyRotation(Rotation, vert);
         }
     }
-
-    void RigidBody::UpdateBoundingBox()
-    {
-        IsBBCollide = false;
-        float epsilon = 0.0001f;
-        switch(ColliderType) {
-            case COLLIDER_SPHERE : {
-                BBMin = Position + glm::vec3{-Radius};
-                BBMax = Position + glm::vec3{Radius};
-                break;
-            }
-            case COLLIDER_CAPSULE : {
-                glm::vec3 up = ApplyRotate(glm::vec3{0.0f, 1.0f, 0.0f});
-                glm::vec3 diag = ApplyRotate(glm::vec3{0.707f, 0.0f, .707f});
-                BBMin = Position - (up * Length + Radius) - diag * Radius;
-                BBMax = Position + (up * Length + Radius) + diag * Radius;
-                break;
-            }
-            case COLLIDER_HULL : {
-                BBMin = glm::vec3{FLT_MAX};
-                BBMax = glm::vec3{-FLT_MAX};
-                for(glm::vec3 vert : TransformedModel) {
-                    const glm::vec3 world_vert = Position + vert;
-
-                    if(world_vert.x < BBMin.x) { BBMin.x = world_vert.x; } 
-                    if(world_vert.y < BBMin.y) { BBMin.y = world_vert.y; } 
-                    if(world_vert.z < BBMin.z) { BBMin.z = world_vert.z; }
-
-                    if(world_vert.x > BBMax.x) { BBMax.x = world_vert.x; } 
-                    if(world_vert.y > BBMax.y) { BBMax.y = world_vert.y; } 
-                    if(world_vert.z > BBMax.z) { BBMax.z = world_vert.z; } 
-                }
-                break;
-            }
-            case COLLIDER_PLANE : {
-                if(Normal == glm::vec3{0.0f, 1.0f, 0.0f} || Normal == glm::vec3{0.0f, -1.0f, 0.0f}) {
-                    BBMin = glm::vec3{-FLT_MAX, Position.y - epsilon, -FLT_MAX};
-                    BBMax = glm::vec3{FLT_MAX, Position.y + epsilon, FLT_MAX};
-                }
-                else {
-                    BBMin = glm::vec3{-FLT_MAX, -FLT_MAX, -FLT_MAX};
-                    BBMax = glm::vec3{FLT_MAX, FLT_MAX, FLT_MAX};
-                }
-                break;
-            }
-        }
-    } 
 
     void RigidBody::Think(float dt) {
 
@@ -301,16 +260,17 @@ namespace gigno {
         if((bool)convar_phys_draw_bounding_box) {
             RenderingServer *r = GetApp()->GetRenderer();
             
-            const glm::vec3 a = BBMin;
-            const glm::vec3 b = glm::vec3{BBMin.x, BBMin.y, BBMax.z};
-            const glm::vec3 c = glm::vec3{BBMin.x, BBMax.y, BBMin.z};
-            const glm::vec3 d = glm::vec3{BBMax.x, BBMin.y, BBMin.z};
-            const glm::vec3 e = glm::vec3{BBMin.x, BBMax.y, BBMax.z};
-            const glm::vec3 f = glm::vec3{BBMax.x, BBMin.y, BBMax.z};
-            const glm::vec3 g = glm::vec3{BBMax.x, BBMax.y, BBMin.z};
-            const glm::vec3 h = BBMax;
-
-            const glm::vec3 col = IsBBCollide ? glm::vec3{1.0f, 0.0f, 0.0f} : glm::vec3{0.0f, 0.0f, 1.0f};
+            BoundingBox_t aabb = AsCollider().AABB;
+            const glm::vec3 a = aabb.Min;
+            const glm::vec3 b = glm::vec3{aabb.Min.x, aabb.Min.y, aabb.Max.z};
+            const glm::vec3 c = glm::vec3{aabb.Min.x, aabb.Max.y, aabb.Min.z};
+            const glm::vec3 d = glm::vec3{aabb.Max.x, aabb.Min.y, aabb.Min.z};
+            const glm::vec3 e = glm::vec3{aabb.Min.x, aabb.Max.y, aabb.Max.z};
+            const glm::vec3 f = glm::vec3{aabb.Max.x, aabb.Min.y, aabb.Max.z};
+            const glm::vec3 g = glm::vec3{aabb.Max.x, aabb.Max.y, aabb.Min.z};
+            const glm::vec3 h = aabb.Max;
+            
+            glm::vec3 col{1.0f, 0.0f, 0.0f};
 
             r->DrawLine(a, b, col);
             r->DrawLine(a, c, col);

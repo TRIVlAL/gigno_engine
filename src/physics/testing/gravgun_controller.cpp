@@ -26,13 +26,10 @@ namespace gigno {
 
         const glm::vec3 forward = ApplyRotation(m_pCamera->Rotation, glm::vec3{-1.0f, 0.0f, 0.0f});
 
-        Collider_t collider{};
-        collider.ColliderType = COLLIDER_HULL;
-        collider.Model = GetApp()->GetPhysicServer()->GetCollisionModel("models/cube.obj");
-        collider.Position = m_pCamera->Position + forward * PullDistance * 0.5f;
-        collider.Rotation = m_pCamera->Rotation;
-        collider.Scale = glm::vec3{PullDistance, Height, 1.0f};
-        collider.CreateTransformedModel();
+        Collider_t collider{ m_pCamera->Position + forward * PullDistance * 0.5f,
+                             m_pCamera->Rotation,
+                             glm::vec3{PullDistance, Height, 1.0f,},
+                             GetApp()->GetPhysicServer()->GetCollisionModel("models/cube.obj")};
 
         if (m_GotPullKeyDown && !m_pSelected)
         {
@@ -81,11 +78,10 @@ namespace gigno {
                 m_pSelected->AddForce(dist * FarPullPower * m_pSelected->Mass / glm::max(dist_len_sqrd, 0.00001f), dist * 0.5f); // Add a bit of torque
             }
             else {
+                m_pSelected->Velocity = glm::vec3{0.0f};
                 m_pSelected->AddImpulse(dist * dt * ClosePullPower);
                 m_GotClose = true;
             }
-
-            Console::LogInfo("name : %s", m_pSelected->Name);
 
             if (!m_JustSelected && m_GotPullKeyDown) {
                 m_pSelected = nullptr;

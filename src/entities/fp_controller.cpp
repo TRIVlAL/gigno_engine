@@ -115,7 +115,7 @@ namespace gigno {
             bullet->Radius = 0.15f;
             bullet->Scale = glm::vec3{0.15f};
             glm::vec3 forward = ApplyRotation(m_pCamera->Rotation, glm::vec3{-1.0f, 0.0f, 0.0f});
-            bullet->Velocity = forward * 45.0f;
+            bullet->Velocity = forward * 37.0f;
             bullet->Mass = 15.0f;
             bullet->Bounciness = 0.7f;
             bullet->Position = Position + glm::vec3{0.0f, Height * 0.5f, 0.0f} + forward * 1.5f;

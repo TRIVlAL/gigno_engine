@@ -19,8 +19,8 @@ namespace gigno {
         float PullDistance{30.0f};
         float TargetDistance{5.0f};
         float FarPullPower{350.0f};
-        float ClosePullPower{400.0f};
-        float ThrowPower{150000.0f};
+        float ClosePullPower{900.0f};
+        float ThrowPower{80000.0f};
     private:
         
         RigidBody *m_pSelected;
