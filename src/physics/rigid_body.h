@@ -67,7 +67,7 @@ namespace gigno {
         float StaticFrictionMultiplier{0.3f};
 
         float Drag = 0.4f;
-        float AngularDrag = 0.8f;
+        float AngularDrag = 2.8f;
 
         RigidBody *pNextRigidBody{};
 
