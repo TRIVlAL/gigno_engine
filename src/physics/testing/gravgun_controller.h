@@ -33,8 +33,6 @@ namespace gigno {
         bool m_GotPullKey = false;
         bool m_GotPullKeyUp = false;
         bool m_GotThrowKeyDown = false;
-
-        Sound_t *m_Sound;
     };
 
     BEGIN_KEY_TABLE(GravgunController)

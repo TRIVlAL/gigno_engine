@@ -18,12 +18,6 @@ namespace gigno {
             ERR_MSG("Failed to init Miniaudio Engine ! Miniaudio error code : %n", (int)result);
         }
 
-
-        result = ma_engine_play_sound(&m_Engine, "sounds/test.wav", nullptr);
-        if(result != MA_SUCCESS) {
-            ERR_MSG("Failed to ma_engine_play_sound ! Miniaudio error code : %n", (int)result);
-        }
-
         Console::LogInfo("%u", sizeof(ma_sound));
     }
 
