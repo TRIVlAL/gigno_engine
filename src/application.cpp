@@ -24,8 +24,9 @@ namespace gigno {
 		m_DebugServer{},
 		m_InputServer{},
 		m_RenderingServer{ winw, winh, title, &m_InputServer, vertShaderPath, fragShaderPath },
+		m_AudioServer{},
 		m_EntityServer{},
-		m_PhysicServer{},
+		m_PhysicServer{&m_AudioServer},
 		m_CurrentMapFilepath{convar_start_map} {
 			ASSERT_MSG(!s_Instance, "Multiple applications created !");
 			s_Instance = this;

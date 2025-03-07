@@ -7,6 +7,8 @@ namespace gigno {
 
     void GravgunController::Init() {
 
+        m_Sound = GetApp()->GetAudioServer()->NewSound("sounds/test.wav");
+
         FPController::Init();
     }
 
@@ -17,6 +19,25 @@ namespace gigno {
         m_GotPullKeyUp = m_GotPullKeyUp || in->GetKeyUp(KEY_G);
         m_GotPullKey = m_GotPullKey || in->GetKey(KEY_G);
         m_GotThrowKeyDown = m_GotThrowKeyDown || in->GetKeyDown(KEY_T);
+
+        if(in->GetKeyDown(KEY_O)) {
+            m_Sound->Play();
+        }
+        if(in->GetKeyDown(KEY_K)) {
+            m_Sound->SetLooping(false);
+        }
+        if(in->GetKeyDown(KEY_L)) {
+            m_Sound->SetLooping(true);
+        }
+        if(in->GetKeyDown(KEY_I)) {
+            m_Sound->Restart();
+        }
+        if(in->GetKeyDown(KEY_P)) {
+            m_Sound->Stop();
+        }
+        if(in->GetKeyDown(KEY_J)) {
+            m_Sound->SetPosition(Position);
+        }
 
         FPController::Think(dt);
     }

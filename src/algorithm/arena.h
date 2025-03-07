@@ -42,8 +42,8 @@ namespace gigno {
         void Free(size_t position, size_t size);
 
         enum MemoryUsage_t {
-            MEM_FREE,
-            MEM_USED
+            USAGE_FREE,
+            USAGE_USED
         };
         
         struct MemoryBound_t {

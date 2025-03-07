@@ -24,26 +24,6 @@ namespace gigno {
     CONVAR(bool, phys_draw_hinges, false, "Red : Hinges targets, Green : Hinges current position.");
     CONVAR(bool, phys_draw_bounding_box, false, "Draws Wireframe of the bounding boxes of the objects (except planes).")
 
-
-    RigidBody::RigidBody()
-    : RenderedEntity() {
-        if(GetApp() && GetApp()->GetPhysicServer()) {
-            GetApp()->GetPhysicServer()->SubscribeRigidBody(this);
-        }
-    }
-
-    RigidBody::~RigidBody() {
-        if(GetApp() && GetApp()->GetPhysicServer()) {
-            GetApp()->GetPhysicServer()->UnsubscribeRigidBody(this);
-        }
-
-        /*
-        if(CollisionModelPath) {
-            delete[] CollisionModelPath;
-        }
-        */ //cannot, fsr?
-    }
-
     void RigidBody::AddForce(const glm::vec3 &force, const glm::vec3 &application) {
         Force += force;
 
@@ -72,6 +52,8 @@ namespace gigno {
     void RigidBody::Init() {
         RenderedEntity::Init();
 
+        GetApp()->GetPhysicServer()->SubscribeRigidBody(this);
+
         UpdateCollider();
 
         if(ColliderType == COLLIDER_HULL) {
@@ -90,16 +72,13 @@ namespace gigno {
     }
 
     void RigidBody::LatePhysicThink(float dt) {
-        if(IsStatic) {
-            UpdateCollider();
-            if(ColliderType == COLLIDER_HULL) {
-                UpdateTransformedModel();
-            }
-            return;
+        UpdateCollider();
+        if(ColliderType == COLLIDER_HULL) {
+            UpdateTransformedModel();
         }
 
-        if(!strcmp(Name, "b")) {
-            int i = 0;
+        if(IsStatic) {
+            return;
         }
 
         //Apply Hinge
@@ -171,6 +150,10 @@ namespace gigno {
             UpdateTransformedModel();
         }
         UpdateCollider();
+    }
+
+    void RigidBody::CleanUp() {
+        GetApp()->GetPhysicServer()->UnsubscribeRigidBody(this);
     }
 
     void RigidBody::UpdateCollider() {

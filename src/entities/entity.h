@@ -20,6 +20,10 @@ namespace gigno {
 	-	void PhysicThink : 	Called every physic tick, physic ticks are separated by a regular interval, 
 							value of which is passed as argument.
 	- 	void LatePhysicthink: Called after every entity are done with their PhysicThink.
+	-	void Init :		Called when the entity is spawned in the map. YOU SHOULD NEVER USE THE CONSTRUCTOR TO INITIALIZE!!!
+	-	void CleanUp : Called before the entity is destroyed. YOU SHOULD NEVER USE THE DESTRUCTOR TO CLEAN UP!!!
+						There is no guaranty to be an Init() call for every destructor call. And There is no guaranty the
+						Application singleton is initialized on constructor/destructor calls !
 
 	Every entities also have transformation infos : Position, Rotation and Scale.
 
@@ -65,6 +69,8 @@ namespace gigno {
 		// Called Every physic Tick (fixed time interval)
 		virtual void PhysicThink(float dt) {};
 		virtual void LatePhysicThink(float dt) {};
+		// Called before it is destroyed.
+		virtual void CleanUp() {};
 
 		const char *Name = "";
 

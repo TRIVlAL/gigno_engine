@@ -30,6 +30,13 @@ foreach(MAP ${MAP_FILES})
     configure_file(${MAP} ${CMAKE_CURRENT_BINARY_DIR}/maps/${MAP_NAME} COPYONLY)
 endforeach(MAP ${MAP_FILES})
 
+#Copy sounds
+file(GLOB_RECURSE SOUND_FILES "${PROJECT_SOURCE_DIR}/sounds/*.wav")
+foreach(SOUND ${SOUND_FILES})
+    cmake_path(GET SOUND FILENAME SOUND_NAME)
+    configure_file(${SOUND} ${CMAKE_CURRENT_BINARY_DIR}/sounds/${SOUND_NAME} COPYONLY)
+endforeach(SOUND ${SOUND_FILES})
+
 
 set (EXCLUDE_DIR "/vendor/glm/")
 file (GLOB_RECURSE SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")

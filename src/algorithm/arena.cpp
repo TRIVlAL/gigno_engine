@@ -8,7 +8,7 @@ namespace gigno {
         ASSERT(capactity > 0);
         m_Capactity = capactity;
         m_pData = (char*)malloc(capactity);
-        m_Bounds = {{MEM_USED, 0},{MEM_FREE, 0}};
+        m_Bounds = {{USAGE_USED, 0},{USAGE_FREE, 0}};
         m_pNext = nullptr;
     }
 
@@ -25,7 +25,7 @@ namespace gigno {
 
         int i = m_Bounds.size();
         while(--i >= 0) {
-            if(m_Bounds[i].Usage == MEM_FREE) {
+            if(m_Bounds[i].Usage == USAGE_FREE) {
                 size_t avaliable_space{};
 
                 if(i == m_Bounds.size() - 1) {
@@ -97,15 +97,15 @@ namespace gigno {
             }
         }
         
-        ASSERT(m_Bounds[inside_bound_index].Usage == MEM_USED);
-        ASSERT(m_Bounds[inside_bound_index+1].Usage == MEM_FREE);
+        ASSERT(m_Bounds[inside_bound_index].Usage == USAGE_USED);
+        ASSERT(m_Bounds[inside_bound_index+1].Usage == USAGE_FREE);
         ASSERT(m_Bounds[inside_bound_index+1].Position > position);
         
-        m_Bounds.emplace(m_Bounds.begin() + inside_bound_index + 1, MemoryBound_t{MEM_FREE, position});
+        m_Bounds.emplace(m_Bounds.begin() + inside_bound_index + 1, MemoryBound_t{USAGE_FREE, position});
         if(m_Bounds[inside_bound_index + 2].Position == position + size) {
             m_Bounds.erase(m_Bounds.begin() + inside_bound_index + 2);
         } else {
-            m_Bounds.emplace(m_Bounds.begin() + inside_bound_index + 2, MemoryBound_t{MEM_USED, position + size});
+            m_Bounds.emplace(m_Bounds.begin() + inside_bound_index + 2, MemoryBound_t{USAGE_USED, position + size});
         }
         
         if(m_Bounds[inside_bound_index].Position == position) {
@@ -116,12 +116,12 @@ namespace gigno {
         }
         
         if(m_Bounds.size() == 1) {
-            m_Bounds.emplace(m_Bounds.begin(), MemoryBound_t{MEM_USED, 0});
+            m_Bounds.emplace(m_Bounds.begin(), MemoryBound_t{USAGE_USED, 0});
         }
     }
 
     void Arena::FreeAll() {
-        m_Bounds = {{MEM_USED, 0}, {MEM_FREE, 0}};
+        m_Bounds = {{USAGE_USED, 0}, {USAGE_FREE, 0}};
 
         if(m_pNext) {
             delete m_pNext;
@@ -134,7 +134,7 @@ namespace gigno {
         Console::LogInfo("%d - Arena :", hierarchyIndex);
         Console::LogInfo(ConsoleMessageFlags_t(MESSAGE_NO_NEW_LINE_BIT | MESSAGE_NO_TIME_CODE_BIT), "Bounds :");
         for(MemoryBound_t b : m_Bounds) {
-            Console::LogInfo(ConsoleMessageFlags_t(MESSAGE_NO_NEW_LINE_BIT | MESSAGE_NO_TIME_CODE_BIT), "| (At  %zu) %s ", b.Position, b.Usage == MEM_USED ? "USED" : "FREE");
+            Console::LogInfo(ConsoleMessageFlags_t(MESSAGE_NO_NEW_LINE_BIT | MESSAGE_NO_TIME_CODE_BIT), "| (At  %zu) %s ", b.Position, b.Usage == USAGE_USED ? "USED" : "FREE");
         }
         Console::LogInfo(MESSAGE_NO_TIME_CODE_BIT, "|\n");
 

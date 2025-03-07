@@ -4,10 +4,10 @@
 #include "entity.h"
 #include "glm/glm.hpp"
 
-#define CAMERA_ORTHOGRAPHIC_ARGUMENTS_TYPED float left, float right, float top, float bottom, float near, float far
-#define CAMERA_ORTOGRAPHIC_ARGUMENTS_VALUES left, right, top, bottom, near, far
-#define CAMERA_PROJECTION_ARGUMENTS_TYPED float fovy, float aspect, float near, float far
-#define CAMERA_PROJECTION_ARGUMENTS_VALUES fovy, aspect, near, far
+#define CAMERA_ORTHOGRAPHIC_ARGUMENTS_TYPED float left, float right, float top, float bottom, float _near, float _far
+#define CAMERA_ORTOGRAPHIC_ARGUMENTS_VALUES left, right, top, bottom, _near, _far
+#define CAMERA_PROJECTION_ARGUMENTS_TYPED float fovy, float aspect, float _near, float _far
+#define CAMERA_PROJECTION_ARGUMENTS_VALUES fovy, aspect, _near, _far
 
 namespace gigno {
 
@@ -26,14 +26,14 @@ namespace gigno {
 		ENTITY_DECLARATIONS(Camera, Entity);
 	public:
 		Camera();
-		Camera(float left, float right, float top, float bottom, float near, float far);
-		Camera(float fovy, float aspect, float near, float far);
+		Camera(float left, float right, float top, float bottom, float _near, float _far);
+		Camera(float fovy, float aspect, float _near, float _far);
 		~Camera();
 
 		virtual void Init() override;
 
-		void SetOrthographicProjection(float left, float right, float top, float bottom, float near, float far );
-		void SetPerspectiveProjection(float fovy, float aspect, float near, float far);
+		void SetOrthographicProjection(float left, float right, float top, float bottom, float _near, float _far );
+		void SetPerspectiveProjection(float fovy, float aspect, float _near, float _far);
 
 		void SetLookAtPoint(glm::vec3 point);
 		void SetLookInTransformForward();
