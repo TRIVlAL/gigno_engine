@@ -36,7 +36,7 @@
 }
 
 "Spinner" {
-    "ModelPath" : "models/colored_cube.obj",
+    "ModelPath" : "assets/models/colored_cube.obj",
     "Position"  : "0" "4" "0",
     "Speed"     : "2"
 }
@@ -48,7 +48,7 @@
     "Scale"     : "30" "30" "30",
     "Normal"    : "0" "1" "0",
     "IsStatic"  : "true",
-    "ModelPath" : "models/plane.obj"
+    "ModelPath" : "assets/models/plane.obj"
 }
 
 "RigidBody" {
@@ -60,7 +60,7 @@
     "Radius"    : "0.5",
     "Length"    : "1.5",
     "IsStatic"  : "false",
-    "ModelPath" : "models/capsule.obj"
+    "ModelPath" : "assets/models/capsule.obj"
 }
 
 "RigidBody" {
@@ -72,5 +72,5 @@
     "Radius"    : "0.5",
     "Length"    : "1.5",
     "IsStatic"  : "false",
-    "ModelPath" : "models/capsule.obj"
+    "ModelPath" : "assets/models/capsule.obj"
 }

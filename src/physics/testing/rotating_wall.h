@@ -11,9 +11,9 @@ namespace gigno {
     public:
 
         virtual void Init() override {
-            ModelPath = "models/cube.obj";
+            ModelPath = "assets/models/cube.obj";
             ColliderType = COLLIDER_HULL;
-            CollisionModelPath = "models/cube.obj";
+            CollisionModelPath = "assets/models/cube.obj";
             IsStatic = true;
             Scale = glm::vec3{0.5f, 4.0f, 7.0f};
 

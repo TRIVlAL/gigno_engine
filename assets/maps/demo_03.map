@@ -42,56 +42,56 @@
     "Scale"     : "30" "30" "30",
     "Normal"    : "0" "1" "0",
     "IsStatic"  : "true",
-    "ModelPath" : "models/plane.obj"
+    "ModelPath" : "assets/models/plane.obj"
 }
 
 "RigidBody" {
     "Name"      : "a",
     "ColliderType" : "COLLIDER_SPHERE",
-    "CollisionModelPath" : "models/cube.obj",
+    "CollisionModelPath" : "assets/models/cube.obj",
     "Position"  : "3" "5.5" "0",
     "Rotation"  : "0.1" "0" "0.1",
     "Radius"    : "1",
     "Length"    : "1.5",
     "IsStatic"  : "false",
-    "ModelPath" : "models/uv_sphere.obj"
+    "ModelPath" : "assets/models/uv_sphere.obj"
 }
 
 "RigidBody" {
     "Name"      : "d",
     "ColliderType" : "COLLIDER_SPHERE",
-    "CollisionModelPath" : "models/cube.obj",
+    "CollisionModelPath" : "assets/models/cube.obj",
     "Position"  : "1" "8.5" "0",
     "Rotation"  : "0.1" "0" "0.1",
     "Radius"    : "1",
     "Length"    : "1.5",
     "IsStatic"  : "false",
-    "ModelPath" : "models/uv_sphere.obj"
+    "ModelPath" : "assets/models/uv_sphere.obj"
 }
 
 "RigidBody" {
     "Name"      : "b",
     "ColliderType" : "COLLIDER_HULL",
-    "CollisionModelPath" : "models/hull1.obj",
+    "CollisionModelPath" : "assets/models/hull1.obj",
     "Position"  : "1" "2" "0",
     "Rotation"  : "0.2" "0" "0.3",
     "Radius"    : "1",
     "Length"    : "1.5",
     "IsStatic"  : "false",
-    "ModelPath" : "models/hull1.obj",
+    "ModelPath" : "assets/models/hull1.obj",
     "Velocity"  : "2" "2" "0"
 }
 
 "RigidBody" {
     "Name"      : "c",
     "ColliderType" : "COLLIDER_HULL",
-    "CollisionModelPath" : "models/cube.obj",
+    "CollisionModelPath" : "assets/models/cube.obj",
     "Position"  : "3" "2" "3",
     "Rotation"  : "0.2" "0" "0.3",
     "Radius"    : "0.5",
     "Length"    : "1.5",
     "IsStatic"  : "false",
-    "ModelPath" : "models/cube.obj",
+    "ModelPath" : "assets/models/cube.obj",
     "Velocity"  : "0" "7" "-10"
 }
 

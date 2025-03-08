@@ -12,10 +12,10 @@ namespace gigno {
         MAX_SOUND_COUNT{maxSoundCount} {
 
         char path[12 + strlen(name) + 1 + 2 + 4 + 1];
-        memcpy(path, "sounds/phys_", 12);
-        memcpy(path + 12, name, strlen(name));
-        memcpy(path + 12 + strlen(name), "_", 1);
-        snprintf(path + 12 + strlen(name) + 1, 2 + 5, "%02u.wav", (size_t)power + 1); //start at 01.wav -> 02.wav etc...
+        memcpy(path, "assets/sounds/phys_", 19);
+        memcpy(path + 19, name, strlen(name));
+        memcpy(path + 19 + strlen(name), "_", 1);
+        snprintf(path + 19 + strlen(name) + 1, 2 + 5, "%02u.wav", (size_t)power + 1); //start at 01.wav -> 02.wav etc...
         
         for(size_t i = 0; i < Sounds.size(); i++) {
             Sounds[i] = audioServer->NewSound(path);
