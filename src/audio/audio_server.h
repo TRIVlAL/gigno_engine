@@ -45,6 +45,8 @@ namespace gigno {
         void UpdateListener(glm::vec3 position, glm::vec3 rotation);
         glm::vec3 GetListenerPosition();
 
+        void SetGlobalVolume(float volume) { ma_engine_set_volume(&m_Engine, volume); }
+
     private:
         ma_engine m_Engine{};
 

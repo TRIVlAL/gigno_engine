@@ -6,9 +6,6 @@ namespace gigno {
     ENTITY_DEFINITIONS(GravgunController, FPController);
 
     void GravgunController::Init() {
-
-        m_Sound = GetApp()->GetAudioServer()->NewSound("sounds/test.wav");
-
         FPController::Init();
     }
 

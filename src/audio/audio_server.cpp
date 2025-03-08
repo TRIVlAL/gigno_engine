@@ -17,8 +17,6 @@ namespace gigno {
         if(result != MA_SUCCESS) {
             ERR_MSG("Failed to init Miniaudio Engine ! Miniaudio error code : %n", (int)result);
         }
-
-        Console::LogInfo("%u", sizeof(ma_sound));
     }
 
     AudioServer::~AudioServer() {
