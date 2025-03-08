@@ -1,4 +1,4 @@
 .vscode
 BUILD
-shaders/*.spv
+assets/shaders/*.spv
 .history

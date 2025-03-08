@@ -5,6 +5,8 @@
 
 namespace gigno {
 
+    struct Sound_t;
+
     // Player controller with gravity gun.
     class GravgunController : public FPController {
         ENTITY_DECLARATIONS(GravgunController, FPController);
@@ -31,8 +33,6 @@ namespace gigno {
         bool m_GotPullKey = false;
         bool m_GotPullKeyUp = false;
         bool m_GotThrowKeyDown = false;
-
-
     };
 
     BEGIN_KEY_TABLE(GravgunController)

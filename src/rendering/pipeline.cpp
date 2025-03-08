@@ -104,7 +104,7 @@ namespace gigno {
 		std::ifstream infile{ path, std::ios::ate | std::ios::binary };
 
 		if (!infile.is_open()) {
-			ERR_MSG_V(std::vector<char> {}, "failed to open file: %s", path);
+			ERR_MSG_V(std::vector<char> {}, "failed to open file: %s", path.c_str());
 		}
 
 		size_t filesize = static_cast<size_t>(infile.tellg());

@@ -11,7 +11,7 @@ If you just want to run the demo scene without compiling the code yourself, you 
 
 ## Compiling
 
-Download the code of this repository or clone it. if you do clone it, do it recursively with the ```--recursive``` parameter, as there are submodules that must be included.
+Either download the code of this repository or clone it recursively with the ```--recursive``` parameter ( there are submodules that must be included ).
 
 ### Vulkan SDK
 A copy of the Vulkan SDK is required on your machine. You can download the Vulkan SDK at [this adress](https://vulkan.lunarg.com/).
@@ -47,7 +47,7 @@ set(GLFW_LIBRARY_FOLDER lib-compiler-platform) # This name reflects the compiler
 ```
 ### Shaders
 
-The last step before code compilation is to compile the shaders. Go to the ```./shaders``` directory and open compile_shaders.bat in your edior of choice. 
+The last step before code compilation is to compile the shaders. Go to the ```./assets/shaders``` directory and open compile_shaders.bat in your edior of choice. 
 In it, replace the adress of the Vulkan SDK to reflect the one on your machine : 
 ```bat
 C:\path_to_vulkan_sdk\VulkanSDK\Bin\glslc.exe simple_shader.vert -o simple_shader.vert.spv
@@ -70,12 +70,12 @@ And then, from the BUILD directory, call
 cd BUILD
 cmake ..
 ```
-If everything goes well, all of the CMake files will be generated in the BUILD directory, as well as a /shaders folder containing the required .spv files, a /models folder with all the models, a /maps folder with all the maps and a gigno executable.
+If everything goes well, all of the CMake files will be generated in the BUILD directory, as well as a copy of the assets folder and the gigno.exe executable.
 
 #### Note
-The executable requires three folders to be placed in the same dir as it to work : /models, which contains the .OBJ models used by the program, /shaders, which contains the .SPV shader files used by the program and /maps which contains the .map files from which the entities are loaded.
+The executable requires the assets folder to be placed in the same dir as it to work.
 The CMake compile process should copy these folders to the binary directory automatically but, in case it doesn't, you can do it mannualy.
-Said /models, /shaders and /maps folders are in the main directory of the project.
+The assets folder lies in the main directory of the project.
 
 #### Note
 Shader must be recompiled using ```compile_shaders.bat``` or the commands every time one is modified. 
@@ -88,5 +88,6 @@ This Engine uses the following low-level open-source, mostly MIT-Licensed librar
   - ImGui for Immediate Mode User Interface
   - TinyObjectLoader for parsing 3D model files
   - GLM for math
+  - minaudio for audio
 
-See more information, including their license, in the file [third_party_credits.md](src/vendor/third_party_credits.md) in the src/vendor directory.
+See more information, including their license, in the [third_party_credits.md](src/vendor/third_party_credits.md) in the src/vendor directory.

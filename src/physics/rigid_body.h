@@ -9,12 +9,13 @@
 
 namespace gigno {
     struct CollisionModel_t;
+    struct Sound_t;
 
     class RigidBody : public RenderedEntity {
         ENTITY_DECLARATIONS(RigidBody, RenderedEntity)
+        friend void RespondCollision(RigidBody &, RigidBody &, const CollisionData_t &); // Declared in collision.h
+        friend void PlayCollisionSound(RigidBody &, glm::vec3, float, float); //Declared in collision.h
     public:
-        RigidBody();
-        ~RigidBody();
         
         void AddForce(const glm::vec3 &force, const glm::vec3 &application = glm::vec3{0.0f, 0.0f, 0.0f});
         void AddImpulse(const glm::vec3 &impulse, const glm::vec3 &application = glm::vec3{0.0f, 0.0f, 0.0f});
@@ -27,6 +28,7 @@ namespace gigno {
         virtual void Init() override;
         virtual void Think(float dt) override;
         virtual void LatePhysicThink(float dt) override;
+        virtual void CleanUp() override;
         
         Collider_t AsCollider() const;
 
@@ -108,7 +110,6 @@ namespace gigno {
         bool hasCollider = false;
         
         bool m_WasRendered = true; // What was DoRender value before it got modified by convar_phys_draw_colliders
-        
     };
 
     BEGIN_KEY_TABLE(RigidBody)

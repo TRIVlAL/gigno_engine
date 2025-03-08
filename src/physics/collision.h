@@ -7,6 +7,7 @@
 namespace gigno {
     struct CollisionModel_t;
     class RigidBody;
+    class CollisionSoundManager;
 
     struct BoundingBox_t {
         //Represents an axis aligned bounding box.
@@ -86,9 +87,12 @@ namespace gigno {
 
     rb1 and rb2 MUST CORRESPOND TO the col1 and col2 used when calling DetectCollision to query the Collision Data.
     */
-    void RespondCollision(RigidBody &rb1, RigidBody &rb2, const CollisionData_t &collision );
+    void RespondCollision(RigidBody &rb1, RigidBody &rb2, const CollisionData_t &collision, CollisionSoundManager *soundManager );
 
-    void ApplyFriction(float normalImpulse, RigidBody &rb, const glm::vec3 &surfaceNormal, 
+    /*
+    Returns the kinetic enery loss.
+    */
+    float ApplyFriction(float normalImpulse, RigidBody &rb, const glm::vec3 &surfaceNormal, 
                         const glm::vec3 &applyPoint, float frictionCoefficient, float staticFrictionCoefficient);
 
     float GetBounciness(RigidBody &rb1, RigidBody &rb2);

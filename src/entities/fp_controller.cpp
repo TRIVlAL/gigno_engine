@@ -7,7 +7,7 @@ namespace gigno {
     ENTITY_DEFINITIONS(FPController, RigidBody);
 
     FPController::FPController() : RigidBody() {
-        //ModelPath = "models/capsule.obj";
+        //ModelPath = "assets/models/capsule.obj";
     }
 
     FPController::~FPController() {
@@ -28,7 +28,7 @@ namespace gigno {
         DoRender = false;
 
         ColliderType = COLLIDER_HULL;
-        CollisionModelPath = "models/cube.obj";
+        CollisionModelPath = "assets/models/cube.obj";
 
         Scale = glm::vec3{1.0f, Height * 0.5f, 1.0f};
         Position += Height * 0.5f;
@@ -110,7 +110,7 @@ namespace gigno {
         //Shoot
         if(in->GetKeyDown(KEY_E)) {
             RigidBody *bullet = GetApp()->GetEntityServer()->CreateEntity<RigidBody>();
-            bullet->ModelPath = "models/uv_sphere.obj";
+            bullet->ModelPath = "assets/models/uv_sphere.obj";
             bullet->ColliderType = COLLIDER_SPHERE;
             bullet->Radius = 0.15f;
             bullet->Scale = glm::vec3{0.15f};

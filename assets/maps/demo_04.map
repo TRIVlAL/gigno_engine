@@ -28,49 +28,49 @@
     "Scale"     : "30" "30" "30",
     "Normal"    : "0" "1" "0",
     "IsStatic"  : "true",
-    "ModelPath" : "models/plane.obj"
+    "ModelPath" : "assets/models/plane.obj"
 }
 
 "RigidBody" {
     "Name"      : "wall",
     "ColliderType" : "COLLIDER_HULL",
     "Scale"     : "0.5" "4" "7",
-    "CollisionModelPath" : "models/cube.obj",
+    "CollisionModelPath" : "assets/models/cube.obj",
     "Position"  : "-7" "-0.5" "0",
     "IsStatic"  : "true",
-    "ModelPath" : "models/cube.obj"
+    "ModelPath" : "assets/models/cube.obj"
 }
 
 "RigidBody" {
     "Name"      : "wall",
     "ColliderType" : "COLLIDER_HULL",
     "Scale"     : "0.5" "4" "7",
-    "CollisionModelPath" : "models/cube.obj",
+    "CollisionModelPath" : "assets/models/cube.obj",
     "Position"  : "7" "-0.5" "0",
     "IsStatic"  : "true",
-    "ModelPath" : "models/cube.obj"
+    "ModelPath" : "assets/models/cube.obj"
 }
 
 "RigidBody" {
     "Name"      : "wall",
     "ColliderType" : "COLLIDER_HULL",
     "Scale"     : "0.5" "4" "7",
-    "CollisionModelPath" : "models/cube.obj",
+    "CollisionModelPath" : "assets/models/cube.obj",
     "Position"  : "0" "-0.5" "-7",
     "Rotation"  : "0" "1.5702" "0",
     "IsStatic"  : "true",
-    "ModelPath" : "models/cube.obj"
+    "ModelPath" : "assets/models/cube.obj"
 }
 
 "RigidBody" {
     "Name"      : "wall",
     "ColliderType" : "COLLIDER_HULL",
     "Scale"     : "0.5" "4" "7",
-    "CollisionModelPath" : "models/cube.obj",
+    "CollisionModelPath" : "assets/models/cube.obj",
     "Position"  : "0" "-0.5" "7",
     "Rotation"  : "0" "1.5702" "0",
     "IsStatic"  : "true",
-    "ModelPath" : "models/cube.obj"
+    "ModelPath" : "assets/models/cube.obj"
 }
 
 "RotatingWall" {

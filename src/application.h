@@ -7,6 +7,7 @@
 #include "debug/debug_server.h"
 #include "rendering/model.h"
 #include "physics/physic_server.h"
+#include "audio/audio_server.h"
 #include <string>
 
 int main();
@@ -30,6 +31,7 @@ namespace gigno {
         EntityServer *GetEntityServer() { return &m_EntityServer; }
         InputServer *GetInputServer() { return &m_InputServer; }
 		PhysicServer *GetPhysicServer() { return &m_PhysicServer; }
+		AudioServer *GetAudioServer() { return &m_AudioServer; }
 		DebugServer *Debug() { return &m_DebugServer; }
 
 		bool Close = false; // When true, finish loop then close the app.
@@ -53,6 +55,7 @@ namespace gigno {
 		DebugServer m_DebugServer;
         InputServer m_InputServer; // Must be init before rendering server !
 		RenderingServer m_RenderingServer;
+		AudioServer m_AudioServer; // Must be init before physics server !
         EntityServer m_EntityServer;
 		PhysicServer m_PhysicServer;
 	};

@@ -8,28 +8,7 @@ set(VULKAN_SDK_PATH C:/dev_libraries/VulkanSDK)
 set(GLFW_PATH C:/dev_libraries/glfw/glfw-3.4.bin.WIN64)
 set(GLFW_LIBRARY_FOLDER lib-mingw-w64)
 
-#Copy shaders
-file(GLOB_RECURSE SPV_FILES "${PROJECT_SOURCE_DIR}/shaders/*.spv")
-
-foreach(SHADER ${SPV_FILES})
-    cmake_path(GET SHADER FILENAME SHADER_FILE_NAME)
-    configure_file(${SHADER} ${CMAKE_CURRENT_BINARY_DIR}/shaders/${SHADER_FILE_NAME} COPYONLY)
-endforeach(SHADER ${SHADER_FILES})
-
-#Copy models
-file(GLOB_RECURSE OBJ_FILES "${PROJECT_SOURCE_DIR}/models/*.obj")
-foreach(OBJ ${OBJ_FILES})
-    cmake_path(GET OBJ FILENAME OBJ_NAME)
-    configure_file(${OBJ} ${CMAKE_CURRENT_BINARY_DIR}/models/${OBJ_NAME} COPYONLY)
-endforeach(OBJ ${OBJ_FILES})
-
-#Copy maps
-file(GLOB_RECURSE MAP_FILES "${PROJECT_SOURCE_DIR}/maps/*.map")
-foreach(MAP ${MAP_FILES})
-    cmake_path(GET MAP FILENAME MAP_NAME)
-    configure_file(${MAP} ${CMAKE_CURRENT_BINARY_DIR}/maps/${MAP_NAME} COPYONLY)
-endforeach(MAP ${MAP_FILES})
-
+file(COPY assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 set (EXCLUDE_DIR "/vendor/glm/")
 file (GLOB_RECURSE SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")

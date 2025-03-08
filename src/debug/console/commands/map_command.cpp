@@ -7,7 +7,7 @@
 
 namespace gigno {
 
-    CONVAR(const char *, map_path, "maps/", "Path from application directory where maps are found by map command. Default is 'maps/'");
+    CONVAR(const char *, map_path, "assets/maps/", "Path from application directory where maps are found by map command. Default is 'assets/maps/'");
 
     #if USE_CONSOLE
 

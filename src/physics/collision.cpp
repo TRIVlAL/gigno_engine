@@ -375,7 +375,7 @@ namespace gigno {
     CONVAR(float, phys_response_epsilon, 1e-5f, "Very small value. Object are pushed out of each other with this leaway.");
     CONVAR(bool, test, false, "testing");
 
-    void RespondCollision(RigidBody &rb1, RigidBody &rb2, const CollisionData_t &collision)
+    void RespondCollision(RigidBody &rb1, RigidBody &rb2, const CollisionData_t &collision, CollisionSoundManager *soundManager)
     {
         //Swaping the object order to reflect the one in DetectCollision function.
         RigidBody &BodyA = rb1.ColliderType <= rb2.ColliderType ? rb1 : rb2;
@@ -386,6 +386,9 @@ namespace gigno {
         but it seemed to be irrelevent and to cause 'skipping' of some collision reponses.
         This has now been removed.
         */
+
+        float friction_energy_loss = 0.0f;
+        float hit_energy_loss = 0.0f;
 
         if(BodyA.IsStatic && BodyB.IsStatic) {
             return;
@@ -398,27 +401,43 @@ namespace gigno {
             float J = (1.0 + e) * ProjD_v / (BodyA.Mass + BodyB.Mass);
 
             if(BodyA.IsStatic) {
+                float start_energy = 0.5f * BodyB.Mass * LenSquared(BodyB.Velocity);
                 BodyB.AddImpulse(-collision.Normal * J * (BodyA.Mass + BodyB.Mass), collision.ApplyPointB);
+                float end_energy = 0.5f * BodyB.Mass * LenSquared(BodyB.Velocity);
+
+                hit_energy_loss = glm::max<float>(start_energy - end_energy, 0);
 
                 if(collision.Depth < 2.0f) {
                     BodyB.Position += -collision.Normal * (collision.Depth - convar_phys_response_epsilon);
                 }
 
-                ApplyFriction(J * (BodyA.Mass + BodyB.Mass), BodyB, collision.Normal, collision.ApplyPointB, GetFriction(BodyA, BodyB), GetStaticFriction(BodyA, BodyB));
+                friction_energy_loss = ApplyFriction(J * (BodyA.Mass + BodyB.Mass), BodyB, collision.Normal, collision.ApplyPointB, GetFriction(BodyA, BodyB), GetStaticFriction(BodyA, BodyB));
             } 
             else if(BodyB.IsStatic) {
+                float start_energy = 0.5f * BodyA.Mass * LenSquared(BodyA.Velocity);
                 BodyA.AddImpulse(collision.Normal * J * (BodyA.Mass + BodyB.Mass), collision.ApplyPointA);
+                float end_energy = 0.5f * BodyA.Mass * LenSquared(BodyA.Velocity);
+
+                hit_energy_loss = glm::max<float>(start_energy - end_energy, 0);
 
                 if(collision.Depth < 2.0f) {
                     BodyA.Position += collision.Normal * (collision.Depth - convar_phys_response_epsilon);
                 }
 
-                ApplyFriction(J * (BodyA.Mass + BodyB.Mass), BodyA, -collision.Normal, collision.ApplyPointA, GetFriction(BodyA, BodyB), GetStaticFriction(BodyA, BodyB));
+                friction_energy_loss = ApplyFriction(J * (BodyA.Mass + BodyB.Mass), BodyA, -collision.Normal, collision.ApplyPointA, GetFriction(BodyA, BodyB), GetStaticFriction(BodyA, BodyB));
             } 
             else {
+                float start_energy = 0.5f * BodyA.Mass * LenSquared(BodyA.Velocity);
                 BodyA.AddImpulse(collision.Normal * J * BodyB.Mass, collision.ApplyPointA);
+                float end_energy = 0.5f * BodyA.Mass * LenSquared(BodyA.Velocity);
 
+                hit_energy_loss = start_energy - end_energy;
+
+                start_energy = 0.5f * BodyB.Mass * LenSquared(BodyB.Velocity);
                 BodyB.AddImpulse(-collision.Normal * J * BodyA.Mass, collision.ApplyPointB);
+                end_energy = 0.5f * BodyB.Mass * LenSquared(BodyB.Velocity);
+
+                hit_energy_loss = glm::max<float>(hit_energy_loss + start_energy - end_energy, 0);
 
                 if (collision.Depth < 2.0f)
                 {
@@ -427,15 +446,30 @@ namespace gigno {
                     BodyB.Position += -collision.Normal * (collision.Depth - convar_phys_response_epsilon) * 0.5f;
                 }
 
-                ApplyFriction(J * BodyB.Mass, BodyA, -collision.Normal, collision.ApplyPointA, GetFriction(BodyA, BodyB), GetStaticFriction(BodyA, BodyB));
-
-                ApplyFriction(J * BodyA.Mass, BodyB, collision.Normal, collision.ApplyPointB, GetFriction(BodyA, BodyB), GetStaticFriction(BodyA, BodyB));
+                friction_energy_loss = ApplyFriction(J * BodyB.Mass, BodyA, -collision.Normal, collision.ApplyPointA, GetFriction(BodyA, BodyB), GetStaticFriction(BodyA, BodyB))
+                                    + ApplyFriction(J * BodyA.Mass, BodyB, collision.Normal, collision.ApplyPointB, GetFriction(BodyA, BodyB), GetStaticFriction(BodyA, BodyB));
             }
+        }
 
+        {
+            CollisionSoundManager::CollisionSoundQuery_t hit_query{};
+            hit_query.Type = CollisionSoundManager::COLLISION_SOUND_TYPE_HIT;
+            hit_query.ApplyPoint = rb1.Position + collision.ApplyPointA;
+            hit_query.EnergyLoss = hit_energy_loss;
+            soundManager->NewSoundQuery(hit_query);
+            
+            CollisionSoundManager::CollisionSoundQuery_t friction_query{};
+            friction_query.Type = CollisionSoundManager::COLLISION_SOUND_TYPE_FRICTION;
+            friction_query.ApplyPoint = rb1.Position + collision.ApplyPointA;
+            friction_query.EnergyLoss = friction_energy_loss;
+            friction_query.Velocity = rb1.IsStatic ? rb2.Velocity : 
+                                      rb2.IsStatic ? rb1.Velocity : 
+                                      rb1.Velocity;
+            soundManager->NewSoundQuery(friction_query);
         }
     }
 
-    void ApplyFriction(float normalImpulse, RigidBody &rb, const glm::vec3 &surfaceNormal,
+    float ApplyFriction(float normalImpulse, RigidBody &rb, const glm::vec3 &surfaceNormal,
         const glm::vec3 &applyPoint, float frictionCoefficient, float staticFrictionCoefficient)
         {
             
@@ -448,14 +482,26 @@ namespace gigno {
             float static_threshold = normalImpulse * staticFrictionCoefficient;
             if(tangent_vel_len <= static_threshold) {
                 rb.AddImpulse(-tangent_velocity, applyPoint);
+                return tangent_vel_len * tangent_vel_len * rb.Mass;
             } else {
                 tangent_velocity = tangent_velocity/tangent_vel_len;
                 float impulse = glm::clamp(glm::abs(normalImpulse * frictionCoefficient), 0.0f, tangent_vel_len);
                 rb.AddImpulse(-tangent_velocity * impulse, applyPoint);
+                return 0.5f * rb.Mass * (tangent_vel_len * impulse - impulse * impulse);
             }
 
         }
+
+        return 0.0f;
     }
+
+    CONVAR(float, min_a, 20.0f, ".");
+    CONVAR(float, min_b, 60.0f, ".");
+    CONVAR(float, min_c, 120.0f, ".");
+    
+    CONVAR(float, fin_a, 50.0f, ".");
+    CONVAR(float, fin_b, 120.0f, ".");
+    CONVAR(float, fin_c, 250.0f, ".");
 
     /*
     -------------------------------------------------------------------------------------------------------

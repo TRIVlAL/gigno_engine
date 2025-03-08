@@ -25,8 +25,9 @@ namespace gigno {
     CONVAR(uint32_t, phys_loop_rate, 120, "How many times per second is the physics called.");
     CONVAR(float, phys_timescale, 1.0f, "physics is slowed down by that amount.");
 
-    PhysicServer::PhysicServer() 
-        : m_LoopThread{&PhysicServer::Loop, this} {
+    PhysicServer::PhysicServer(AudioServer *audioServer) 
+        : m_LoopThread{&PhysicServer::Loop, this}, 
+        m_CollisionSoundManager{audioServer} {
     }
 
     PhysicServer::~PhysicServer() {
@@ -55,6 +56,9 @@ namespace gigno {
     }
     
     void PhysicServer::Loop() {
+        while(!Application::Singleton()) {
+            ;
+        }
 
         std::chrono::time_point<std::chrono::high_resolution_clock> frame_start{};
         std::chrono::time_point<std::chrono::high_resolution_clock> frame_end{};
@@ -80,6 +84,9 @@ namespace gigno {
             entity_serv->PhysicTick((target_dur.count() + time_overflow.count()) / 1e9);
 
             ResolveCollisions();
+
+            m_CollisionSoundManager.Update();
+
             s_EntityUnloadMutex.unlock();
 
             Profiler::End();
@@ -139,7 +146,7 @@ namespace gigno {
         for(std::pair<RigidBody *, RigidBody *> pair : m_PossiblePairs) {
             CollisionData_t collision = DetectCollision(pair.first->AsCollider(), pair.second->AsCollider());
             if(collision.Collision) {
-                RespondCollision(*pair.first, *pair.second, collision);
+                RespondCollision(*pair.first, *pair.second, collision, &m_CollisionSoundManager);
             }
         }
 

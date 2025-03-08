@@ -6,7 +6,6 @@ namespace gigno {
     ENTITY_DEFINITIONS(GravgunController, FPController);
 
     void GravgunController::Init() {
-
         FPController::Init();
     }
 
@@ -29,7 +28,7 @@ namespace gigno {
         Collider_t collider{ m_pCamera->Position + forward * PullDistance * 0.5f,
                              m_pCamera->Rotation,
                              glm::vec3{PullDistance, Height, 1.0f,},
-                             GetApp()->GetPhysicServer()->GetCollisionModel("models/cube.obj")};
+                             GetApp()->GetPhysicServer()->GetCollisionModel("assets/models/cube.obj")};
 
         if (m_GotPullKeyDown && !m_pSelected)
         {

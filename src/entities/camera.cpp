@@ -13,12 +13,12 @@ namespace gigno {
 		}
 	}
 
-	Camera::Camera(float left, float right, float top, float bottom, float near, float far) : Camera() {
-		SetOrthographicProjection(left, right, top, bottom, near, far);
+	Camera::Camera(float left, float right, float top, float bottom, float _near, float _far) : Camera() {
+		SetOrthographicProjection(left, right, top, bottom, _near, _far);
 	}
 
-	Camera::Camera(float fovy, float aspect, float near, float far) : Camera() {
-		SetPerspectiveProjection(fovy, aspect, near, far);
+	Camera::Camera(float fovy, float aspect, float _near, float _far) : Camera() {
+		SetPerspectiveProjection(fovy, aspect, _near, _far);
 	}
 
 	Camera::~Camera() {
@@ -37,19 +37,19 @@ namespace gigno {
 		}
     }
 
-    void Camera::SetOrthographicProjection(float left, float right, float top, float bottom, float near, float far) {
+    void Camera::SetOrthographicProjection(float left, float right, float top, float bottom, float _near, float _far) {
 		ProjMode = PROJECTION_MODE_ORTHOGRAPHIC;
 
 		m_ProjectionMatrix = glm::mat4{ 1.0f };
 		m_ProjectionMatrix[0][0] = 2.f / (right - left);
 		m_ProjectionMatrix[1][1] = 2.f / (bottom - top);
-		m_ProjectionMatrix[2][2] = 1.f / (far - near);
+		m_ProjectionMatrix[2][2] = 1.f / (_far - _near);
 		m_ProjectionMatrix[3][0] = -(right + left) / (right - left);
 		m_ProjectionMatrix[3][1] = -(bottom + top) / (bottom - top);
-		m_ProjectionMatrix[3][2] = -near / (far - near);
+		m_ProjectionMatrix[3][2] = -_near / (_far - _near);
 	}
 
-	void Camera::SetPerspectiveProjection(float fovy, float aspect, float near, float far) {
+	void Camera::SetPerspectiveProjection(float fovy, float aspect, float _near, float _far) {
 		ProjMode = PROJECTION_MODE_PERSPECTIVE;
 		CurrentFovy = fovy;
 
@@ -57,9 +57,9 @@ namespace gigno {
 		m_ProjectionMatrix = glm::mat4{ 1.0f };
 		m_ProjectionMatrix[0][0] = 1.f / (aspect * tan_half_fovy);
 		m_ProjectionMatrix[1][1] = 1.f / (tan_half_fovy);
-		m_ProjectionMatrix[2][2] = far / (far - near);
+		m_ProjectionMatrix[2][2] = _far / (_far - _near);
 		m_ProjectionMatrix[2][3] = 1.f;
-		m_ProjectionMatrix[3][2] = -(far * near) / (far - near);
+		m_ProjectionMatrix[3][2] = -(_far * _near) / (_far - _near);
 	}
 
 	void Camera::SetLookAtPoint(glm::vec3 point) {
@@ -116,6 +116,10 @@ namespace gigno {
 			const float tanHalfFovy = tan( CurrentFovy / 2.f);
 			m_ProjectionMatrix[0][0] = 1.f / (aspect * tanHalfFovy);
 			m_ProjectionMatrix[1][1] = 1.f / (tanHalfFovy);
+		}
+
+		if(GetApp()->GetRenderer()->GetCameraHandle() == this) {
+			GetApp()->GetAudioServer()->UpdateListener(Position, Rotation);
 		}
 	}
 

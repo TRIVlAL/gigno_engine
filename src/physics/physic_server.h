@@ -6,9 +6,10 @@
 #include <vector>
 #include "../algorithm/cstr_map.h"
 #include "collision.h"
+#include "collision_sound.h"
 
 namespace gigno {
-    const size_t MAX_RIGIDBODY_COUNT = 50;
+    class AudioServer;
 
     static void phys_remote_update(float); //defined in phys_remote_command.cpp
 
@@ -26,7 +27,7 @@ namespace gigno {
         This loop is ran on a separate thread.
         In this loop, the PhysicServer calls PhysicThink() to all the PhysicEntity in game (in the linked list of physics entities).
         */
-        PhysicServer();
+        PhysicServer(AudioServer *audioServer);
         ~PhysicServer();
 
         void SubscribeRigidBody(RigidBody *rb);
@@ -70,6 +71,8 @@ namespace gigno {
 
         RigidBody *s_RigidBodies{};
 
+        CollisionSoundManager m_CollisionSoundManager;
+
         // modified by friend command phys_remote
         bool m_Pause = false;
         bool m_Step = false;
@@ -81,6 +84,7 @@ namespace gigno {
         void Loop();
 
         void ResolveCollisions();
+        void PlayCollisionSounds();
     };
 
 }

@@ -29,22 +29,22 @@ namespace gigno
                     switch(alternate) {
                         case 0:
                             rb->ColliderType = COLLIDER_SPHERE;
-                            rb->ModelPath = "models/colored_uv_sphere.obj";
+                            rb->ModelPath = "assets/models/colored_uv_sphere.obj";
                             rb->Radius = 0.75f;
                             rb-> Scale = glm::vec3{0.75f};
                             alternate++;
                             break;
                         case 1:
                             rb->ColliderType = COLLIDER_HULL;
-                            rb->ModelPath = "models/cube.obj";
-                            rb->CollisionModelPath = "models/cube.obj";
+                            rb->ModelPath = "assets/models/cube.obj";
+                            rb->CollisionModelPath = "assets/models/cube.obj";
                             rb->Scale = glm::vec3{0.5f};
                             alternate++;
                             break;
                         case 2:
                             rb->ColliderType = COLLIDER_HULL;
-                            rb->ModelPath = "models/hull1.obj";
-                            rb->CollisionModelPath = "models/hull1.obj";
+                            rb->ModelPath = "assets/models/hull1.obj";
+                            rb->CollisionModelPath = "assets/models/hull1.obj";
                             alternate = 0;
                             break;
                     }
