@@ -12,9 +12,8 @@
 namespace gigno {
 
     void NewFrameImGui();
-    
-    bool InitImGui(GLFWwindow *window, const Device &device, const SwapChain &swapchain);
 
+    bool InitImGui(GLFWwindow *window, const Device &device, VkRenderPass renderPass);
 
     void RenderImGui(VkCommandBuffer commandBuffer);
 

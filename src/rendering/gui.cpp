@@ -20,7 +20,7 @@ namespace gigno
         ImGui::NewFrame();
     }
 
-    bool InitImGui(GLFWwindow *window, const Device &device, const SwapChain &swapchain)
+    bool InitImGui(GLFWwindow *window, const Device &device, VkRenderPass renderPass)
     {
         IMGUI_CHECKVERSION();
 
@@ -65,7 +65,7 @@ namespace gigno
         vulkanInfo.Queue = device.GetGraphicsQueue();
         vulkanInfo.DescriptorPool = imgui_pool;
         vulkanInfo.MinImageCount = 3;
-        vulkanInfo.RenderPass = swapchain.GetRenderPass();
+        vulkanInfo.RenderPass = renderPass;
         vulkanInfo.ImageCount = 3;
         vulkanInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 

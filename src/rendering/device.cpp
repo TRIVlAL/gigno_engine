@@ -2,7 +2,6 @@
 #include "../error_macros.h"
 #include <cstring>
 #include <set>
-#include "swapchain.h"
 #include "device.h"
 #include "../application.h"
 

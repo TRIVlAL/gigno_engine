@@ -40,12 +40,15 @@
         __debugbreak();                                                            \
         return;                                                                    \
     }
-    
-    #define VULKAN_CHECK(function, error_message)VkResult result = function;                   \
-    if (result != VK_SUCCESS)                                                              \
-    {                                                                                      \
-        Console::LogError("VULKAN " error_message " Vulkan Error Code : %d", (int)result); \
-        Application::Singleton()->SetExit(EXIT_FAILED_RENDERER);                           \
+
+#define VULKAN_CHECK(function, error_message)                                                  \
+    {                                                                                          \
+        VkResult result = function;                                                            \
+        if (result != VK_SUCCESS)                                                              \
+        {                                                                                      \
+            Console::LogError("VULKAN " error_message " Vulkan Error Code : %d", (int)result); \
+            Application::Singleton()->SetExit(EXIT_FAILED_RENDERER);                           \
+        }                                                                                      \
     }
-    
+
 #endif
