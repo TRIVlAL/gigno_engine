@@ -18,8 +18,10 @@ namespace gigno {
 	class Window {
 
 	public:
-		Window(int w, int h, const char *pTitle, InputServer *inputServer);
+		Window() = default;
 		~Window();
+
+		void Init(int w, int h, const char *pTitle);
 
 		Window(const Window &) = delete;
 		Window& operator=(const Window &) = delete;

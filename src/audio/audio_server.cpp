@@ -7,10 +7,7 @@
 
 namespace gigno {
 
-    AudioServer::AudioServer() : m_SoundArena{SOUND_ALLOCATED_MEMORY} {
-
-        m_SoundArena.DebugPrint();
-
+    void AudioServer::Init() {
         ma_engine_config config = ma_engine_config_init();
 
         ma_result result = ma_engine_init(&config, &m_Engine);

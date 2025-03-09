@@ -8,19 +8,22 @@
 
 namespace gigno {
 
-    CollisionSoundManager::CollisionSoundArray_t::CollisionSoundArray_t(AudioServer *audioServer, size_t maxSoundCount, const char *name, CollisionSoundPower_t power) :
-        MAX_SOUND_COUNT{maxSoundCount} {
-
-        char path[12 + strlen(name) + 1 + 2 + 4 + 1];
+    CollisionSoundManager::CollisionSoundArray_t::CollisionSoundArray_t(size_t maxSoundCount, const char *name, CollisionSoundPower_t power) :
+        MAX_SOUND_COUNT{maxSoundCount},
+        Name{name}, Power{power} {
+    }
+    
+    void CollisionSoundManager::CollisionSoundArray_t::Init() {
+        char path[22 + strlen(Name) + 1 + 2 + 4 + 1];
         memcpy(path, "assets/sounds/physics/", 22);
-        memcpy(path + 22, name, strlen(name));
-        memcpy(path + 22 + strlen(name), "_", 1);
-        snprintf(path + 22 + strlen(name) + 1, 2 + 5, "%02u.wav", (size_t)power + 1); //start at 01.wav -> 02.wav etc...
-        
-        for(size_t i = 0; i < Sounds.size(); i++) {
-            Sounds[i] = audioServer->NewSound(path);
-        }
+        memcpy(path + 22, Name, strlen(Name));
+        memcpy(path + 22 + strlen(Name), "_", 1);
+        snprintf(path + 22 + strlen(Name) + 1, 2 + 5, "%02u.wav", (size_t)Power + 1); // start at 01.wav -> 02.wav etc...
 
+        AudioServer *audio = Application::Singleton()->GetAudioServer();
+        for(size_t i = 0; i < Sounds.size(); i++) {
+            Sounds[i] = audio->NewSound(path);
+        }
     }
 
     Sound_t *CollisionSoundManager::CollisionSoundArray_t::FreeSpace() {
@@ -32,7 +35,10 @@ namespace gigno {
         return nullptr;
     }
 
-    CollisionSoundManager::CollisionSoundManager(AudioServer *audioServer) : m_AudioServer{audioServer} {
+    void CollisionSoundManager::Init() {
+        for(size_t i = 0; i < COLLISION_SOUND_TYPE_MAX_ENUM * COLLISION_SOUND_POWER_MAX_ENUM; i++) {
+            m_Sounds[i].Init();
+        }
     }
 
     void CollisionSoundManager::NewSoundQuery(CollisionSoundQuery_t query)
@@ -62,7 +68,7 @@ namespace gigno {
             m_Sounds[i].HasFreeSpaceLeft = m_Sounds->FreeSpace() != nullptr;
         }
 
-        m_ListenerPosition = m_AudioServer->GetListenerPosition();
+        m_ListenerPosition = Application::Singleton()->GetAudioServer()->GetListenerPosition();
     }
 
     void CollisionSoundManager::ExecuteSound(Sound_t *sound, CollisionSoundQuery_t query) {

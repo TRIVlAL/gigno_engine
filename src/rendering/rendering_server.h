@@ -26,8 +26,10 @@ namespace gigno {
 	class RenderingServer {
 
 	public:
-		RenderingServer(int winw, int winh, const char *winTitle, InputServer *inputServer, const std::string &vertShaderFilePath, const std::string &fragShaderFilePath);
+		RenderingServer() = default;
 		~RenderingServer();
+
+		void Init(int winw, int winh, const char *winTitle);
 
 		bool WindowShouldClose() { return m_Window.ShouldClose(); }
 		void PollEvents();
@@ -83,8 +85,8 @@ namespace gigno {
 		std::vector<VkSemaphore> m_RenderFinishedSemaphores;
 		std::vector<VkFence> m_InFlightFences;
 
-		std::string m_VertShaderFilePath;
-		std::string m_FragShaderFilePath;
+		std::string m_VertShaderFilePath{"assets/shaders/simple_shader.vert.spv"};
+		std::string m_FragShaderFilePath{"assets/shaders/simple_shader.frag.spv"};
 
 		float m_RenderTime = 0.0f;
 	};

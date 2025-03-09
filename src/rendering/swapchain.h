@@ -69,8 +69,7 @@ namespace gigno {
 	class SwapChain
 	{
 	public:
-		SwapChain(const Device &device, const Window *window, const std::string &vertShaderPath, const std::string &fragShaderPath);
-
+		void Init(const Device &device, const Window *window, const std::string &vertShaderPath, const std::string &fragShaderPath);
 		void CleanUp(VkDevice device);
 
 		uint32_t GetWidth() const { return m_Extent.width; }

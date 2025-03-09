@@ -14,8 +14,8 @@ namespace gigno {
 	class EntityServer {
 		friend class Application;
 	public:
-		EntityServer() {};
-		~EntityServer() {};
+		EntityServer() = default;
+		~EntityServer() = default;
 
 		void Tick(float dt);
 		void PhysicTick(float dt);

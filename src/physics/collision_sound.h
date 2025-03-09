@@ -14,7 +14,9 @@ namespace gigno {
 
     class CollisionSoundManager {
     public:
-        CollisionSoundManager(AudioServer *audioServer);
+        CollisionSoundManager() = default;
+
+        void Init();
 
         enum CollisionSoundType_t {
             COLLISION_SOUND_TYPE_HIT = 0,
@@ -42,7 +44,6 @@ namespace gigno {
         void Update();
         
     private:
-        AudioServer * m_AudioServer;
         glm::vec3 m_ListenerPosition;
 
         void ExecuteSound(Sound_t *sound, CollisionSoundQuery_t query);
@@ -56,14 +57,15 @@ namespace gigno {
         std::vector<CollisionSoundQuery_t> m_CurrentQueries;
 
         struct CollisionSoundArray_t {
-            CollisionSoundArray_t(AudioServer *audioServer, size_t maxSoundCount, const char * name, CollisionSoundPower_t power);
+            CollisionSoundArray_t(size_t maxSoundCount, const char *name, CollisionSoundPower_t power);
+            void Init();
 
             bool HasFreeSpaceLeft;
             // Returns a sound that is free to be used. Nullptr if they are all used.
             Sound_t *FreeSpace();
-            
-            std::string filepath; //Path to the sound file
 
+            const char *Name;
+            CollisionSoundPower_t Power;
             const size_t MAX_SOUND_COUNT;
             std::vector<Sound_t *> Sounds{MAX_SOUND_COUNT};
         };
@@ -82,12 +84,12 @@ namespace gigno {
         };
 
         CollisionSoundArray_t m_Sounds[COLLISION_SOUND_TYPE_MAX_ENUM * COLLISION_SOUND_POWER_MAX_ENUM] = {
-            CollisionSoundArray_t{ m_AudioServer, 10, "hit", COLLISION_SOUND_POWER_1},
-            CollisionSoundArray_t{ m_AudioServer, 10, "hit", COLLISION_SOUND_POWER_2},
-            CollisionSoundArray_t{ m_AudioServer, 1, "hit", COLLISION_SOUND_POWER_3},
-            CollisionSoundArray_t{ m_AudioServer, 5, "friction", COLLISION_SOUND_POWER_1},
-            CollisionSoundArray_t{ m_AudioServer, 5, "friction", COLLISION_SOUND_POWER_2},
-            CollisionSoundArray_t{ m_AudioServer, 1, "friction", COLLISION_SOUND_POWER_3},
+            CollisionSoundArray_t{ 10, "hit", COLLISION_SOUND_POWER_1},
+            CollisionSoundArray_t{ 10, "hit", COLLISION_SOUND_POWER_2},
+            CollisionSoundArray_t{ 1, "hit", COLLISION_SOUND_POWER_3},
+            CollisionSoundArray_t{ 5, "friction", COLLISION_SOUND_POWER_1},
+            CollisionSoundArray_t{ 5, "friction", COLLISION_SOUND_POWER_2},
+            CollisionSoundArray_t{ 1, "friction", COLLISION_SOUND_POWER_3},
         };
 
     };

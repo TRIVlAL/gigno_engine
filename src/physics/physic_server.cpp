@@ -25,9 +25,9 @@ namespace gigno {
     CONVAR(uint32_t, phys_loop_rate, 120, "How many times per second is the physics called.");
     CONVAR(float, phys_timescale, 1.0f, "physics is slowed down by that amount.");
 
-    PhysicServer::PhysicServer(AudioServer *audioServer) 
-        : m_LoopThread{&PhysicServer::Loop, this}, 
-        m_CollisionSoundManager{audioServer} {
+    void PhysicServer::Init() {
+        m_CollisionSoundManager.Init();
+        m_LoopThread = std::thread{&PhysicServer::Loop, this};
     }
 
     PhysicServer::~PhysicServer() {
@@ -36,7 +36,8 @@ namespace gigno {
         m_LoopThread.join();
     }
 
-    void PhysicServer::SubscribeRigidBody(RigidBody *rb) {
+    void PhysicServer::SubscribeRigidBody(RigidBody *rb)
+    {
         rb->pNextRigidBody = s_RigidBodies;
         s_RigidBodies = rb;
     }

@@ -20,16 +20,16 @@ namespace gigno {
 
 	CONVAR(const char *, start_map, "assets/maps/demo_05.map", "the first loaded map when the app stats.")
 
-	Application::Application(int winw, int winh, const char *title, const std::string &vertShaderPath, const std::string &fragShaderPath) :
-		m_DebugServer{},
-		m_InputServer{},
-		m_RenderingServer{ winw, winh, title, &m_InputServer, vertShaderPath, fragShaderPath },
-		m_AudioServer{},
-		m_EntityServer{},
-		m_PhysicServer{&m_AudioServer},
+	Application::Application() :
 		m_CurrentMapFilepath{convar_start_map} {
+
 			ASSERT_MSG(!s_Instance, "Multiple applications created !");
 			s_Instance = this;
+
+			m_RenderingServer.Init(1000, 1000, "Gigno Engine Demo");
+			m_AudioServer.Init();
+			m_PhysicServer.Init();
+
 			m_NextMapFilepath = m_CurrentMapFilepath;
 		}
 

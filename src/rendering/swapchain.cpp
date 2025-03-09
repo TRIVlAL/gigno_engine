@@ -28,8 +28,7 @@ namespace gigno {
 
 	CONVAR(int, r_fullbright, 0, "1 : no lighting applied. 2 : No color but do lighting");
 
-	SwapChain::SwapChain(const Device &device, const Window *window, const std::string &vertShaderPath, const std::string &fragShaderPath)
-	{
+    void SwapChain::Init(const Device &device, const Window *window, const std::string &vertShaderPath, const std::string &fragShaderPath) {
 		CreateVkSwapChain(device.GetDevice(), device.GetPhysicalSwapChainSupport(), device.GetPhysicalDeviceQueueFamilyIndices(), device.GetSurface(), window, true);
 		CreateImageViews(device.GetDevice());
 		CreateRenderPass(device.GetDevice(), device.GetPhysicalDevice());
@@ -45,8 +44,9 @@ namespace gigno {
 		CreatePipeline(device.GetDevice(), vertShaderPath, fragShaderPath);
 	}
 
-	void SwapChain::CleanUp(VkDevice device) {
-		for (auto imageView : m_ImageViews) {
+    void SwapChain::CleanUp(VkDevice device)
+    {
+        for (auto imageView : m_ImageViews) {
 			vkDestroyImageView(device, imageView, nullptr);
 		}
 		for (auto frameBuffer : m_FrameBuffers) {
@@ -67,9 +67,9 @@ namespace gigno {
 		}
 		vkDestroyDescriptorPool(device, m_DescriptorPool, nullptr);
 		vkDestroyDescriptorSetLayout(device, m_DescriptorSetLayout, nullptr);
-	}
+    }
 
-	void SwapChain::Recreate(const Device &device, const Window *window, const std::string &vertShaderPath, const std::string &fragShaderPath) {
+    void SwapChain::Recreate(const Device &device, const Window *window, const std::string &vertShaderPath, const std::string &fragShaderPath) {
 		int width = 0, height = 0;
 		window->GetFrameBufferSize(&width, &height);
 		while (width == 0 || height == 0) {

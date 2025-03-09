@@ -29,10 +29,12 @@ namespace gigno {
 	class Device {
 
 	public:
-		Device(const Window *window);
+		Device() = default;
 		~Device();
 		Device(const Device &) = delete;
 		Device & operator=(const Device &) = delete;
+
+		void Init(const Window *window);
 
 		VkDevice GetDevice() const { return m_VkDevice; }
 		VkInstance GetInstance() const { return m_VkInstance; }

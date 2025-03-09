@@ -11,7 +11,7 @@ int main() {
  
 	do {
 		{
-			gigno::Application app{1000, 1000, "Gigno Engine Demo", "assets/shaders/simple_shader.vert.spv", "assets/shaders/simple_shader.frag.spv"};
+			gigno::Application app{};
 			result = app.run();
 		}
 

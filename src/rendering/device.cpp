@@ -7,8 +7,8 @@
 #include "../application.h"
 
 namespace gigno {
-
-	Device::Device(const Window *window) {
+	
+	void Device::Init(const Window *window) {
 		CreateInstance();
 		if (m_EnableValidationLayer) {
 			CreateDebugMessenger();
@@ -17,7 +17,6 @@ namespace gigno {
 		PickPhysicalDevice();
 		CreateVulkanDevice();
 	}
-
 
 	Device::~Device() {
 		vkDestroyDevice(m_VkDevice, nullptr);
@@ -34,7 +33,6 @@ namespace gigno {
 		vkDestroyInstance(m_VkInstance, nullptr);
 	}
 
-	
 
 	void Device::CreateInstance() {
 		if (m_EnableValidationLayer && !CheckValidationLayerSupport()) {

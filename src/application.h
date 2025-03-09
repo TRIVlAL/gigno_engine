@@ -40,7 +40,7 @@ namespace gigno {
 	private:
 		static inline Application *s_Instance = nullptr;
 
-		Application(int winw, int winh, const char *title, const std::string &vertShaderPath, const std::string &fragShaderPath);
+		Application();
 		~Application();
 
 		bool m_ShowMainUIWindow = true;

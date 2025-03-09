@@ -11,13 +11,10 @@
 
 namespace gigno {
 
-	RenderingServer::RenderingServer(int winw, int winh, const char *winTitle, InputServer *inputServer, const std::string &vertShaderFilePath, const std::string &fragShaderFilePath) :
-		m_VertShaderFilePath{vertShaderFilePath},
-		m_FragShaderFilePath{fragShaderFilePath},
-		m_Window{ winw, winh, winTitle, inputServer },
-		m_Device{&m_Window},
-		m_SwapChain{ m_Device, &m_Window, vertShaderFilePath, fragShaderFilePath }
-	{
+    void RenderingServer::Init(int winw, int winh, const char *winTitle) {
+		m_Window.Init(winw, winh, winTitle);
+		m_Device.Init(&m_Window);
+		m_SwapChain.Init(m_Device, &m_Window, m_VertShaderFilePath, m_FragShaderFilePath);
 		CreateSyncObjects();
 
 #if USE_IMGUI
@@ -43,9 +40,9 @@ namespace gigno {
 			vkDestroySemaphore(m_Device.GetDevice(), m_RenderFinishedSemaphores[i], nullptr);
 			vkDestroyFence(m_Device.GetDevice(), m_InFlightFences[i], nullptr);
 		}
-	}
+    }
 
-	void RenderingServer::PollEvents() {
+    void RenderingServer::PollEvents() {
 		m_Window.PollEvents();
 	}
 

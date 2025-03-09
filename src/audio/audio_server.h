@@ -36,8 +36,10 @@ namespace gigno {
 
     class AudioServer {
     public:
-        AudioServer();
+        AudioServer() = default;
         ~AudioServer();
+
+        void Init();
 
         Sound_t *NewSound(const char *path);
         void DeleteSound(Sound_t *sound);
@@ -52,7 +54,7 @@ namespace gigno {
 
         //Every sounds are allocated in there.
         const size_t SOUND_ALLOCATED_MEMORY = (sizeof(Sound_t) * 510);
-        Arena m_SoundArena;
+        Arena m_SoundArena{SOUND_ALLOCATED_MEMORY};
     };
 
 }

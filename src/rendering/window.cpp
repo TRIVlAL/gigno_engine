@@ -5,7 +5,18 @@
 
 namespace gigno {
 
-	Window::Window(int w, int h, const char *pTitle, InputServer *inputServer) : m_Width(w), m_Height(h) {
+	Window::~Window() {
+		if (m_InputServerBoundTo) {
+			m_InputServerBoundTo->UnbindWindow();
+		}
+		glfwDestroyWindow(m_pWindow);
+		glfwTerminate();
+	}
+
+    void Window::Init(int w, int h, const char *pTitle) {
+		m_Width = w;
+		m_Height = h;
+
 		glfwInit();
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -19,19 +30,12 @@ namespace gigno {
 
 		glfwSetFramebufferSizeCallback(m_pWindow, ResizeCallback);
 
-		inputServer->BindWindow(m_pWindow);
-		m_InputServerBoundTo = inputServer;
+		InputServer *in = Application::Singleton()->GetInputServer();
+		in->BindWindow(m_pWindow);
+		m_InputServerBoundTo = in;
 	}
 
-	Window::~Window() {
-		if (m_InputServerBoundTo) {
-			m_InputServerBoundTo->UnbindWindow();
-		}
-		glfwDestroyWindow(m_pWindow);
-		glfwTerminate();
-	}
-
-	bool Window::ShouldClose() {
+    bool Window::ShouldClose() {
 		return glfwWindowShouldClose(m_pWindow);
 	}
 
