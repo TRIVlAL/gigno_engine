@@ -12,7 +12,7 @@ namespace gigno {
 
         ma_result result = ma_engine_init(&config, &m_Engine);
         if(result != MA_SUCCESS) {
-            ERR_MSG("Failed to init Miniaudio Engine ! Miniaudio error code : %n", (int)result);
+            Console::LogError("Failed to init Miniaudio Engine ! Miniaudio error code : %n", (int)result);
         }
     }
 

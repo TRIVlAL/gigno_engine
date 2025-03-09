@@ -14,15 +14,16 @@ namespace gigno {
     void RenderingServer::Init(int winw, int winh, const char *winTitle) {
 		m_Window.Init(winw, winh, winTitle);
 		m_Device.Init(&m_Window);
+
 		m_SwapChain.Init(m_Device, &m_Window, m_VertShaderFilePath, m_FragShaderFilePath);
 		CreateSyncObjects();
 
-#if USE_IMGUI
+		#if USE_IMGUI
 		GLFWwindow *glfwWindow = m_Window.GetGLFWwindow();
 		if(glfwWindow){
 			InitImGui(glfwWindow, m_Device, m_SwapChain);
 		}
-#endif
+		#endif
 	}
 
 	RenderingServer::~RenderingServer() {
@@ -64,7 +65,7 @@ namespace gigno {
 			}
 			curr = curr->pNextRenderedEntity;
 		}
-		ERR_MSG("Tried to unsubsribe rendered entity '%s' but it was not subscribed.", entity->Name == "" ? "No name" : entity->Name);
+		Console::LogError("Tried to unsubsribe rendered entity '%s' but it was not subscribed.", entity->Name == "" ? "No name" : entity->Name);
 	}
 
 	void RenderingServer::SubscribeLightEntity(Light *light)
@@ -135,7 +136,7 @@ namespace gigno {
 			if (vkCreateSemaphore(m_Device.GetDevice(), &semCreateInfo, nullptr, &m_ImageAvaliableSemaphores[i]) != VK_SUCCESS ||
 				vkCreateSemaphore(m_Device.GetDevice(), &semCreateInfo, nullptr, &m_RenderFinishedSemaphores[i]) != VK_SUCCESS ||
 				vkCreateFence(m_Device.GetDevice(), &fenceCreateInfo, nullptr, &m_InFlightFences[i]) != VK_SUCCESS) {
-				ERR_MSG("Failed to create Vulkan Sync Object Semaphore / Fence.");
+				Console::LogError("Failed to create Vulkan Sync Object Semaphore / Fence.");
 			}
 		}
 	}
@@ -159,7 +160,7 @@ namespace gigno {
 			return;
 		}
 		else if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to Acquire Swap Chain Image ! Vulkan Error Code : %d", (int) result);
+			Console::LogError("Failed to Acquire Swap Chain Image ! Vulkan Error Code : %d", (int) result);
 		}
 
 		vkResetFences(m_Device.GetDevice(), 1, &m_InFlightFences[m_CurrentFrame]);
@@ -191,7 +192,7 @@ namespace gigno {
 
 		result = vkQueueSubmit(m_Device.GetGraphicsQueue(), 1, &submitInfo, m_InFlightFences[m_CurrentFrame]);
 		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to Submit to Graphics Queue ! Vulkan Error Code : %d", (int)result);
+			Console::LogError("Failed to Submit to Graphics Queue ! Vulkan Error Code : %d", (int)result);
 		}
 
 		VkSwapchainKHR swapchains[] = { m_SwapChain.GetSwapChain() };
@@ -210,7 +211,7 @@ namespace gigno {
 			m_SwapChain.Recreate(m_Device, &m_Window, m_VertShaderFilePath, m_FragShaderFilePath);
 		}
 		else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-			ERR_MSG("Failed to Present Swap Chain Image ! Vulkan Error Code : %d", (int)result);
+			Console::LogError("Failed to Present Swap Chain Image ! Vulkan Error Code : %d", (int)result);
 		} 
 
 		m_CurrentFrame = (m_CurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;

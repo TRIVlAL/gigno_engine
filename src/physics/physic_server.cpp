@@ -170,7 +170,8 @@ namespace gigno {
         std::string err{};
 
         if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path)) {
-            ERR_MSG_V(false, "AllocateCollisionModel : Tiny Object Loader Error : %s", err.c_str());
+            Console::LogError("AllocateCollisionModel : Tiny Object Loader Error : %s", err.c_str());
+            return false;
         }
 
         std::unordered_map<glm::vec3, size_t> unique_vertices{}; // Vertex coordinate to vertex index.

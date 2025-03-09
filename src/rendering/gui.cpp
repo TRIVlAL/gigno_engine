@@ -54,7 +54,7 @@ namespace gigno
         VkResult result = vkCreateDescriptorPool(device.GetDevice(), &poolCreateInfo, nullptr, &imgui_pool);
         if (result != VK_SUCCESS)
         {
-            ERR_MSG_V(false, "Failed to create ImGui Descriptor Pool ! Aborting GUI Initialization ! Vulkan Error Code %d ", (int)result);
+            Console::LogError("Failed to create ImGui Descriptor Pool ! Aborting GUI Initialization ! Vulkan Error Code %d ", (int)result);
             return false;
         }
 

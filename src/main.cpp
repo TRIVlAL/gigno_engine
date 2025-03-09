@@ -7,7 +7,7 @@ namespace gigno {
 }
 
 int main() {
-	int result = 0;
+	gigno::AppExitCode_t result = gigno::EXIT_NONE;
  
 	do {
 		{
@@ -15,9 +15,9 @@ int main() {
 			result = app.run();
 		}
 
-		gigno::Console::LogInfo("Gigno Engine exited with code %d.", result);
+		gigno::Console::LogInfo("Gigno Engine exited with code %d.", (int)result);
 
 	} while((bool)gigno::convar_should_restart);
 
-	return result;
+	return (int)result;
 }

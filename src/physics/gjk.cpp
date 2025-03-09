@@ -269,7 +269,8 @@ namespace gigno {
         }
 
         if(col.ColliderType == COLLIDER_PLANE) {
-            ERR_MSG_V(glm::vec3{}, "Physics collision : Support function for plane collider not implemented !");
+            Console::LogError("Physics collision : Support function for plane collider not implemented !");
+            return glm::vec3{};
         } 
         else if(col.ColliderType == COLLIDER_SPHERE) {
             return col.Position + glm::normalize(direction) * col.Radius;

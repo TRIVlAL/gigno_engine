@@ -50,7 +50,6 @@ namespace gigno {
 		void CreateDebugMessenger();
 		void PickPhysicalDevice();
 		void CreateVulkanDevice();
-		void CreateSurface(const Window *window);
 
 //--------------------------------------------------------------------------------------------------------------
 		
@@ -95,9 +94,9 @@ namespace gigno {
 		bool m_RayTracingEnabled = true;
 
 #ifdef NDEBUG
-		const bool m_EnableValidationLayer = false;
+		bool m_EnableValidationLayer = false;
 #else
-		const bool m_EnableValidationLayer = true;
+		bool m_EnableValidationLayer = true;
 #endif
 
 	};

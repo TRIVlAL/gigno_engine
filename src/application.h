@@ -14,6 +14,17 @@ int main();
 
 namespace gigno {
 
+	enum AppExitCode_t {
+		EXIT_NONE = 0,
+		CONTINUE = -1, //Do not exit
+		SUCCESS = 0,
+		EXIT_SIMPLE = SUCCESS,
+		EXIT_FAILED_UNKNOWN = 1,
+		EXIT_FAILED_GLFW = 2,
+		EXIT_FAILED_RENDERER = 3,
+		EXIT_FAILED_VULKAN_SUPPORT = 4,
+	};
+
 	static void status(const CommandToken_t &args); //command 'status'
 
 	class Application {
@@ -25,7 +36,7 @@ namespace gigno {
 		static Application *Singleton();
 
 	public:
-		int run();
+		AppExitCode_t run();
 
 		RenderingServer *GetRenderer() { return &m_RenderingServer; }
         EntityServer *GetEntityServer() { return &m_EntityServer; }
@@ -34,11 +45,18 @@ namespace gigno {
 		AudioServer *GetAudioServer() { return &m_AudioServer; }
 		DebugServer *Debug() { return &m_DebugServer; }
 
-		bool Close = false; // When true, finish loop then close the app.
-
+		/*
+		The app will continue until a call to SetExit, which gives the exit code.
+		*/
+		void SetExit(AppExitCode_t exit);
+		AppExitCode_t GetExit() { return m_CurrentStatus; }
+		
 		void LoadMap(const char * filepath);
+
 	private:
 		static inline Application *s_Instance = nullptr;
+		
+		AppExitCode_t m_CurrentStatus = CONTINUE;
 
 		Application();
 		~Application();

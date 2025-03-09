@@ -9,11 +9,14 @@
 namespace gigno {
 	
 	void Device::Init(const Window *window) {
+
 		CreateInstance();
+
 		if (m_EnableValidationLayer) {
 			CreateDebugMessenger();
 		}
-		CreateSurface(window);
+
+		window->CreateWindowSurface(m_VkInstance, &m_Surface);
 		PickPhysicalDevice();
 		CreateVulkanDevice();
 	}
@@ -73,12 +76,7 @@ namespace gigno {
 		createinfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
 		createinfo.ppEnabledExtensionNames = extensions.data();
 		
-
-		VkResult result = vkCreateInstance(&createinfo, nullptr, &m_VkInstance);
-
-		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to create Vulkan Instance ! Vulkan error code : %d", (int)result);
-		}
+		VULKAN_CHECK(vkCreateInstance(&createinfo, nullptr, &m_VkInstance), "Failed to create Vulkan Instance ! ");
 	}
 
 	void Device::CreateDebugMessenger() {
@@ -89,16 +87,19 @@ namespace gigno {
 
 		auto func_create_messenger = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(m_VkInstance, "vkCreateDebugUtilsMessengerEXT");
 		VkResult result;
-		if (func_create_messenger != nullptr) {
+		if (func_create_messenger) {
 			result = func_create_messenger(m_VkInstance, &createinfo, nullptr, &m_DebugMessenger);
 		}
 		else {
+			Console::LogWarning("VULKAN DebugUtilsMessengerEX Debug Messenger Extension is not present !");
 			result = VK_ERROR_EXTENSION_NOT_PRESENT;
 		}
 
-		if (result != VK_SUCCESS) {
-			ERR_MSG("VALIDATION LAYER : Failed to create Debug Messenger ! Vulkan error code %d", (int)result);
+		if(result != VK_SUCCESS) {
+			Console::LogWarning("VULKANE Failed to create Debug Messenger ! Vulkan error code : %d", (int)result);
+			m_EnableValidationLayer = false;
 		}
+
 	}
 
 	void Device::PickPhysicalDevice() {
@@ -106,19 +107,25 @@ namespace gigno {
 		uint32_t device_count = 0;
 		vkEnumeratePhysicalDevices(m_VkInstance, &device_count, nullptr);
 
-		ASSERT_MSG(device_count > 0, "No GPU with Vulkan Support found !");
-
+		if(device_count == 0) {
+			Console::LogError("No GPU with Vulkan Support Found !");
+			Application::Singleton()->SetExit(EXIT_FAILED_VULKAN_SUPPORT);
+		}
+		
 		std::vector<VkPhysicalDevice> devices(device_count);
 		vkEnumeratePhysicalDevices(m_VkInstance, &device_count, devices.data());
-
+		
 		for (auto &device : devices) {
 			if (IsPhysicalDeviceSuitable(device)) {
 				m_PhysicalDevice = device;
 				break;
 			}
 		}
-
-		ASSERT_MSG((m_PhysicalDevice != VK_NULL_HANDLE), "No Suitable GPU Found !");
+		
+		if(m_PhysicalDevice == VK_NULL_HANDLE) {
+			Console::LogError("No Suitable GPU Found !");
+			Application::Singleton()->SetExit(EXIT_FAILED_RENDERER);
+		}
 	}
 
 	void Device::CreateVulkanDevice() {
@@ -158,17 +165,10 @@ namespace gigno {
 		deviceCreateInfo.ppEnabledExtensionNames = m_DeviceExtensions.data();
 		deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
 
-		VkResult result = vkCreateDevice(m_PhysicalDevice, &deviceCreateInfo, nullptr, &m_VkDevice);
-		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to create Vulkan Logical Device ! Vulkan error code %d ", (int)result);
-		}
+		VULKAN_CHECK(vkCreateDevice(m_PhysicalDevice, &deviceCreateInfo, nullptr, &m_VkDevice), "Failed to create Vulkan Logical Device ! ");
 
 		vkGetDeviceQueue(m_VkDevice, indices.graphicFamily.value(), 0, &m_GraphicsQueue);
 		vkGetDeviceQueue(m_VkDevice, indices.presentFamily.value(), 0, &m_PresentQueue);
-	}
-
-	void Device::CreateSurface(const Window *window) {
-		window->CreateWindowSurface(m_VkInstance, &m_Surface);
 	}
 
 #ifndef NDEBUG
@@ -206,7 +206,7 @@ namespace gigno {
 			printf("VERBOSE: VULKAN Validation Layer : %s\n", callback_data->pMessage);
 		}
 		else if (message_severity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
-			ERR_MSG_V(VK_FALSE, "VULKAN Validation Layer : %s", callback_data->pMessage);
+			Console::LogError("VULKAN Validation Layer : %s", callback_data->pMessage);
 		}
 		else if (message_severity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
 			Console::LogWarning ("VULKAN Validation Layer WARNING : %s\n", callback_data->pMessage);
@@ -247,14 +247,6 @@ namespace gigno {
 		}
 
 		std::vector<const char *> all_extensions = required_extensions;
-
-		//Debug
-		/*
-		Console::LogInfo("VULKAN avaliable extensions :");
-		for(VkExtensionProperties ext : avaliable_extensions) {
-			Console::LogInfo("\t - %s", ext.extensionName);
-		}
-		*/
 		
 		return all_extensions;
 	}

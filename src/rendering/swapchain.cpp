@@ -113,7 +113,7 @@ namespace gigno {
 
 		VkResult result = vkBeginCommandBuffer(buffer, &buffer_begin_info);
 		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to Begin Command Buffer ! Vulkan Error Code : %d", (int)result);
+			Console::LogError("Failed to Begin Command Buffer ! Vulkan Error Code : %d", (int)result);
 		}
 
 		std::array<VkClearValue, 2> clear_vals = {};
@@ -162,7 +162,7 @@ namespace gigno {
 
 		result = vkEndCommandBuffer(buffer);
 		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to end Command Buffer ! Vulkan Error Code : %d", (int)result);
+			Console::LogError("Failed to end Command Buffer ! Vulkan Error Code : %d", (int)result);
 		}
 	}
 
@@ -344,7 +344,7 @@ namespace gigno {
 
 		VkResult result = vkCreateDescriptorPool(device, &createinfo, nullptr, &m_DescriptorPool);
 		if(result != VK_SUCCESS) {
-			ERR_MSG("Failed to create Descriptor Pool ! Vulkan Errror Code : %d", (int)result);
+			Console::LogError("Failed to create Descriptor Pool ! Vulkan Errror Code : %d", (int)result);
 		}
 	}
 
@@ -359,7 +359,7 @@ namespace gigno {
 		m_DescriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
 		VkResult result = vkAllocateDescriptorSets(device, &allocinfo, m_DescriptorSets.data());
 		if(result != VK_SUCCESS) {
-			ERR_MSG("Failed to Allocate Descriptor Sets ! Vulkan Error Code : %d", (int)result);
+			Console::LogError("Failed to Allocate Descriptor Sets ! Vulkan Error Code : %d", (int)result);
 		}
 
 		for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -397,7 +397,7 @@ namespace gigno {
 
 		VkResult result = vkCreateDescriptorSetLayout(device, &createinfo, nullptr, &m_DescriptorSetLayout);
 		if(result != VK_SUCCESS) {
-			ERR_MSG("Failed to create Descriptor Set Layout ! Vulkan Errror Code : %d", (int)result);
+			Console::LogError("Failed to create Descriptor Set Layout ! Vulkan Errror Code : %d", (int)result);
 		}
 	}
 
@@ -417,7 +417,7 @@ namespace gigno {
 
 		VkResult result = vkCreatePipelineLayout(device, &createinfo, nullptr, &m_PipelineLayout);
 		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to create Vulkan Pipeline Layout ! Vulkan Errror Code : %d", (int)result);
+			Console::LogError("Failed to create Vulkan Pipeline Layout ! Vulkan Errror Code : %d", (int)result);
 		}
 	}
 
@@ -474,7 +474,7 @@ namespace gigno {
 
 		VkResult result = vkCreateSwapchainKHR(device, &createinfo, nullptr, &m_VkSwapChain);
 		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to create Vulkan Swapchain ! Vulkan Errror Code : %d", (int)result);
+			Console::LogError("Failed to create Vulkan Swapchain ! Vulkan Errror Code : %d", (int)result);
 		}
 
 		if(existing_swapchain != VK_NULL_HANDLE) {
@@ -551,7 +551,7 @@ namespace gigno {
 		
 		VkResult result = vkCreateRenderPass(device, &createinfo, nullptr, &m_RenderPass);
 		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to create Render Pass ! Vulkan Errror Code : %d", (int)result);
+			Console::LogError("Failed to create Render Pass ! Vulkan Errror Code : %d", (int)result);
 		}
 	}
 
@@ -571,7 +571,7 @@ namespace gigno {
 
 			VkResult result = vkCreateFramebuffer(device, &createinfo, nullptr, &m_FrameBuffers[i]);
 			if (result != VK_SUCCESS) {
-				ERR_MSG("Failed to create Vulkan Frame Buffer #%d. Vulkan Errror Code : %d", i, (int)result);
+				Console::LogError("Failed to create Vulkan Frame Buffer #%d. Vulkan Errror Code : %d", i, (int)result);
 			}
 		}
 	}
@@ -584,7 +584,7 @@ namespace gigno {
 
 		VkResult result = vkCreateCommandPool(device, &createinfo, nullptr, &m_CommandPool);
 		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to create Vulkan Command Pool. Vulkan Errror Code : %d", (int)result);
+			Console::LogError("Failed to create Vulkan Command Pool. Vulkan Errror Code : %d", (int)result);
 		}
 	}
 
@@ -606,7 +606,7 @@ namespace gigno {
 
 		VkResult result = vkAllocateCommandBuffers(device, &allocinfo, m_CommandBuffers.data());
 		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to allocate Vulkan Command Buffers. Vulkan Errror Code : %d", (int)result);
+			Console::LogError("Failed to allocate Vulkan Command Buffers. Vulkan Errror Code : %d", (int)result);
 		}
 	}
 
@@ -661,7 +661,8 @@ namespace gigno {
 				return format;
 			}
 		}
-		ERR_MSG_V(VkFormat{}, "Failed to find supported format !");
+		Console::LogError("Failed to find supported format !");
+		return VkFormat{};
 	}
 
 	VkFormat SwapChain::FindDepthFormat(VkPhysicalDevice physDevice) {
@@ -680,7 +681,8 @@ namespace gigno {
 			}
 		}
 
-		ERR_MSG_V(UINT32_MAX, "Failed to find suitable memory type !");
+		Console::LogError("Failed to find suitable memory type !");
+		return UINT32_MAX;
 	}
 
 	void SwapChain::CreateImage(VkDevice device, VkPhysicalDevice physDevice, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
@@ -702,7 +704,7 @@ namespace gigno {
 
 		VkResult result = vkCreateImage(device, &createinfo, nullptr, &image);
 		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to create Vulkan Image ! Vulkan Errror Code : %d", (int)result);
+			Console::LogError("Failed to create Vulkan Image ! Vulkan Errror Code : %d", (int)result);
 		}
 
 		VkMemoryRequirements mem_requirements;
@@ -711,11 +713,19 @@ namespace gigno {
 		VkMemoryAllocateInfo allocinfo{};
 		allocinfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocinfo.allocationSize = mem_requirements.size;
-		allocinfo.memoryTypeIndex = FindMemoryTypeIndex(physDevice, mem_requirements.memoryTypeBits, props);
 
-		result = vkAllocateMemory(device, &allocinfo, nullptr, &imageMemory);
+		size_t mem_index = FindMemoryTypeIndex(physDevice, mem_requirements.memoryTypeBits, props);
+
+		if(mem_index == UINT32_MAX) {
+			result = VK_ERROR_UNKNOWN;
+			allocinfo.memoryTypeIndex = 0;
+		} else {
+			allocinfo.memoryTypeIndex = result; 
+			result = vkAllocateMemory(device, &allocinfo, nullptr, &imageMemory);
+		}
+		
 		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to allocate Image Memory ! Vulkan Errror Code : %d", (int)result);
+			Console::LogError("Failed to allocate Image Memory ! Vulkan Errror Code : %d", (int)result);
 		}
 
 		vkBindImageMemory(device, image, imageMemory, 0);
@@ -741,7 +751,7 @@ namespace gigno {
 		VkImageView ret{};
 		VkResult result = vkCreateImageView(device, &createinfo, nullptr, &ret);
 		if (result != VK_SUCCESS) {
-			ERR_MSG_V(ret, "Failed to create Vulkan Image View ! Vulkan Errror Code : %d", (int)result);
+			Console::LogError("Failed to create Vulkan Image View ! Vulkan Errror Code : %d", (int)result);
 		}
 		return ret;
 	}

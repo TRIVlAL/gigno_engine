@@ -14,7 +14,9 @@ namespace gigno
             }
         }
 
-        ERR_MSG_V(UINT32_MAX, "Failed to find suitable memory type !");
+        Console::LogError("Failed to find suitable memory type !");
+        Application::Singleton()->SetExit(EXIT_FAILED_RENDERER);
+        return -1;
     }
 
     void CreateBuffer(VkDevice device, VkPhysicalDevice physDevice, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags props, VkBuffer &buffer, VkDeviceMemory &bufferMemory) {
@@ -27,7 +29,7 @@ namespace gigno
 
         VkResult result = vkCreateBuffer(device, &createinfo, nullptr, &buffer);
         if (result != VK_SUCCESS) {
-            ERR_MSG("Failed to create Buffer ! Vulkan Error Code : %d", (int)result);
+            Console::LogError("Failed to create Buffer ! Vulkan Error Code : %d", (int)result);
         }
 
         VkMemoryRequirements mem_requirement{};
@@ -37,12 +39,18 @@ namespace gigno
         allocinfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocinfo.pNext = nullptr;
         allocinfo.allocationSize = mem_requirement.size;
-        allocinfo.memoryTypeIndex = FindMemoryTypeIndex(physDevice, mem_requirement.memoryTypeBits, props);
+        size_t mem_index = FindMemoryTypeIndex(physDevice, mem_requirement.memoryTypeBits, props);
+        if(mem_index == -1) {
+            result = VK_ERROR_UNKNOWN;
+        } else {
+            allocinfo.memoryTypeIndex = mem_index;
 
-        result = vkAllocateMemory(device, &allocinfo, nullptr, &bufferMemory);
-        if (result != VK_SUCCESS) {
-            ERR_MSG("Failed to allocate memory for Buffer ! Vulkan Error Code : %d", (int)result);
+            result = vkAllocateMemory(device, &allocinfo, nullptr, &bufferMemory);
+            if (result != VK_SUCCESS) {
+                Console::LogError("Failed to allocate memory for Buffer ! Vulkan Error Code : %d", (int)result);
+            }
         }
+
 
         vkBindBufferMemory(device, buffer, bufferMemory, 0);
     }

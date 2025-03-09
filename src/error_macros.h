@@ -9,32 +9,6 @@
 #define STRINGIZE2(x) #x
 #define LINE_STRING STRINGIZE(__LINE__)
 
-#define ERR_MSG(msg, ...)                                                               \
-    Console::LogError("ERROR " __FILE__ " line " LINE_STRING " : " msg, ##__VA_ARGS__); \
-    return
-
-#define ERR_MSG_V(ret, msg, ...) \
-ERR_MSG(msg , ##__VA_ARGS__) ret
-
-#define ERR                                                        \
-    Console::LogError("ERROR " __FILE__ " line " LINE_STRING "."); \
-    return
-
-#define ERR_V(ret) \
-    ERR ret
-
-#define ERR_NULL_MSG(val, msg, ...)  \
-    if (val == NULL)                 \
-    {                                \
-        ERR_MSG(msg, ##__VA_ARGS__); \
-    }
-
-#define ERR_NULL(val) \
-    if (val == NULL)  \
-    {                 \
-        ERR           \
-    }
-
 #define ASSERT_MSG(cond, msg, ...)                                                                     \
     if (!(cond))                                                                                       \
     {                                                                                                  \
@@ -66,5 +40,12 @@ ERR_MSG(msg , ##__VA_ARGS__) ret
         __debugbreak();                                                            \
         return;                                                                    \
     }
-
+    
+    #define VULKAN_CHECK(function, error_message)VkResult result = function;                   \
+    if (result != VK_SUCCESS)                                                              \
+    {                                                                                      \
+        Console::LogError("VULKAN " error_message " Vulkan Error Code : %d", (int)result); \
+        Application::Singleton()->SetExit(EXIT_FAILED_RENDERER);                           \
+    }
+    
 #endif

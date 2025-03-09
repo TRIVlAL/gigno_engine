@@ -44,10 +44,7 @@ namespace gigno {
 	}
 
 	void Window::CreateWindowSurface(VkInstance instance, VkSurfaceKHR *surface) const {
-		VkResult result = glfwCreateWindowSurface(instance, m_pWindow, nullptr, surface);
-		if (result != VK_SUCCESS) {
-			ERR_MSG("Failed to create Window Surface ! Vullkan error code : %d", (int)result);
-		}
+		VULKAN_CHECK(glfwCreateWindowSurface(instance, m_pWindow, nullptr, surface), "Failed to create Window Surface ! ");
 	}
 
 	void Window::GetFrameBufferSize(int *width, int *height) const {

@@ -43,16 +43,16 @@ namespace gigno {
 		return s_Instance;
 	}
 
-	int Application::run() {
+	AppExitCode_t Application::run() {
 		Console::StartFileLogging();
 
-		ASSERT_MSG_V(glfwInit(), 1, "GLFW Failed to init");
+		ASSERT_MSG_V(glfwInit(), EXIT_FAILED_GLFW, "GLFW Failed to init");
 
 		auto last_update_time = std::chrono::steady_clock::now();
 
 		auto start_time = std::chrono::steady_clock::now();
 		
-		while (!m_RenderingServer.WindowShouldClose() && !Close) {
+		while (m_CurrentStatus == CONTINUE) {
 			Profiler::Begin("Main Loop");
 
 			if(m_ShouldLoadMap) {
@@ -97,12 +97,16 @@ namespace gigno {
 
 			Profiler::End();
 
+			if(m_RenderingServer.WindowShouldClose()) {
+				SetExit(EXIT_SIMPLE);
+			}
+
 			Profiler::End(); //Main Loop
 
 			Debug()->Update();
 		}
 
-		return 0;
+		return SUCCESS;
 	}
 
 	void Application::DrawMainUIWindow() {
@@ -132,7 +136,15 @@ namespace gigno {
 	}
 }
 
-void gigno::Application::LoadMap(const char *filepath) {
-	m_ShouldLoadMap = true;
+void gigno::Application::SetExit(AppExitCode_t exit) {
+	// Error codes take priority over SUCCESS.
+	if(exit != CONTINUE && m_CurrentStatus == CONTINUE || m_CurrentStatus == SUCCESS) {
+		m_CurrentStatus = exit;
+	}
+}
+
+void gigno::Application::LoadMap(const char *filepath)
+{
+    m_ShouldLoadMap = true;
 	m_NextMapFilepath = filepath;
 }
