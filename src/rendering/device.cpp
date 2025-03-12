@@ -71,7 +71,7 @@ namespace gigno {
 
 		const std::vector<const char *> extensions = GetExtensions();
 
-		createinfo.enabledLayerCount = 0;
+		//createinfo.enabledLayerCount = 0;
 		createinfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
 		createinfo.ppEnabledExtensionNames = extensions.data();
 		
@@ -130,7 +130,7 @@ namespace gigno {
 	void Device::CreateVulkanDevice() {
 		QueueFamilyIndices indices = FindQueueFamiliyIndices(m_PhysicalDevice);
 		
-		std::vector<VkDeviceQueueCreateInfo> queue_create_infos;
+		std::vector<VkDeviceQueueCreateInfo> queue_create_infos{};
 		std::set<uint32_t> unique_queue_family_indices = { indices.graphicFamily.value(), indices.presentFamily.value()};
 		queue_create_infos.reserve(unique_queue_family_indices.size());
 

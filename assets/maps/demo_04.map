@@ -79,8 +79,9 @@
 
 "RigidBodySpawner" {
     "VerticalSlice" : "2",
-    "XCount"        : "4",
-    "ZCount"        : "4",
+    "XCount"        : "7",
+    "ZCount"        : "7
+    ",
     "ExtentBegin"   : "-5" "1" "-5",
     "ExtentEnd"     : "5" "0" "5"
 }

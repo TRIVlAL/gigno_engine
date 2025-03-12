@@ -90,13 +90,7 @@ namespace gigno {
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME
 		};
 
-		bool m_RayTracingEnabled = true;
-
-#ifdef NDEBUG
 		bool m_EnableValidationLayer = false;
-#else
-		bool m_EnableValidationLayer = true;
-#endif
 
 	};
 

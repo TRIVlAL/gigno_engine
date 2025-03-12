@@ -10,7 +10,7 @@
 #endif
 
 #include "rendering_utils.h"
-
+#include "iostream"
 #include "../debug/console/convar.h"
 
 namespace gigno {
@@ -26,7 +26,6 @@ namespace gigno {
 		CreateImageViews();
 		CreateRenderPass();
 		CreateDescriptorSetLayout();
-		CreatePipelineLayout();
 		CreatePipeline();
 		CreateCommandPool();
 		CreateDepthResources();
@@ -71,8 +70,6 @@ namespace gigno {
 		CreateImageViews();
 		CreateDepthResources();
 		CreateFrameBuffers();
-		CreatePipelineLayout();
-		m_Pipeline.reset();
 		CreatePipeline();
 	}
 
@@ -93,24 +90,26 @@ namespace gigno {
 		vkDestroyImageView(m_Device.GetDevice(), m_DepthImageView, nullptr);
 		vkDestroyImage(m_Device.GetDevice(), m_DepthImage, nullptr);
 		vkFreeMemory(m_Device.GetDevice(), m_DepthImageMemory, nullptr);
-
-		vkDestroyPipelineLayout(m_Device.GetDevice(), m_PipelineLayout, nullptr);
-		vkDestroyCommandPool(m_Device.GetDevice(), m_CommandPool, nullptr);
 		vkDestroySwapchainKHR(m_Device.GetDevice(), m_SwapChain.SwapChain, nullptr);
-		vkDestroyRenderPass(m_Device.GetDevice(), m_RenderPass, nullptr);
 
+		vkDestroyPipeline(m_Device.GetDevice(), m_Pipeline, nullptr);
+		vkDestroyPipelineLayout(m_Device.GetDevice(), m_PipelineLayout, nullptr);
+		vkDestroyRenderPass(m_Device.GetDevice(), m_RenderPass, nullptr);
 		for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			vkDestroyBuffer(m_Device.GetDevice(), m_UniformBuffers[i], nullptr);
 			vkFreeMemory(m_Device.GetDevice(), m_UniformBuffersMemories[i], nullptr);
 		}
-		vkDestroyDescriptorPool(m_Device.GetDevice(), m_DescriptorPool, nullptr);
-		vkDestroyDescriptorSetLayout(m_Device.GetDevice(), m_DescriptorSetLayout, nullptr);
 
+		vkDestroyDescriptorPool(m_Device.GetDevice(), m_DescriptorPool, nullptr); 
+		vkDestroyDescriptorSetLayout(m_Device.GetDevice(), m_DescriptorSetLayout, nullptr);
+		
 		for(rsize_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			vkDestroySemaphore(m_Device.GetDevice(), m_ImageAvaliableSemaphores[i], nullptr);
 			vkDestroySemaphore(m_Device.GetDevice(), m_RenderFinishedSemaphores[i], nullptr);
 			vkDestroyFence(m_Device.GetDevice(), m_InFlightFences[i], nullptr);
 		}
+
+		vkDestroyCommandPool(m_Device.GetDevice(), m_CommandPool, nullptr);
     }
 
     void RenderingServer::PollEvents() {
@@ -353,7 +352,7 @@ namespace gigno {
     void RenderingServer::RenderEntities(RenderedEntity *entities) {
 		vkCmdSetPrimitiveTopology(m_CommandBuffers[m_CurrentFrame], VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 
-		vkCmdBindPipeline(m_CommandBuffers[m_CurrentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline.get()->GetVkPipeline());
+		vkCmdBindPipeline(m_CommandBuffers[m_CurrentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
 
 		RenderedEntity *curr = entities;
 		while(curr) {
@@ -561,30 +560,157 @@ namespace gigno {
 						"Failed to create Descriptor Set Layout ! ");
     }
 
-    void RenderingServer::CreatePipelineLayout() {
+    void RenderingServer::CreatePipeline() {
+		VkShaderModule vert_shader_module = CreateShaderModule(ReadFile(m_VertShaderFilePath));
+		VkShaderModule frag_shader_module = CreateShaderModule(ReadFile(m_FragShaderFilePath));
+
+		VkPipelineShaderStageCreateInfo vert_shader_stage_info{};
+		vert_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		vert_shader_stage_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
+		vert_shader_stage_info.module = vert_shader_module;
+		vert_shader_stage_info.pName = "main";
+
+		VkPipelineShaderStageCreateInfo frag_shader_stage_info{};
+		frag_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		frag_shader_stage_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+		frag_shader_stage_info.module = frag_shader_module;
+		frag_shader_stage_info.pName = "main";
+
+		VkPipelineShaderStageCreateInfo shader_stages[] = {vert_shader_stage_info, frag_shader_stage_info};
+
 		VkPushConstantRange push_constant_range{};
 		push_constant_range.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 		push_constant_range.offset = 0;
 		push_constant_range.size = sizeof(PushConstantData_t);
 
-		VkPipelineLayoutCreateInfo createinfo;
-		createinfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		createinfo.pNext = nullptr;
-		createinfo.setLayoutCount = 1;
-		createinfo.pSetLayouts = &m_DescriptorSetLayout;
-		createinfo.pushConstantRangeCount = 1;
-		createinfo.pPushConstantRanges = &push_constant_range;
+		VkPipelineLayoutCreateInfo pipeline_layout_info{};
+		pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		pipeline_layout_info.pNext = nullptr;
+		pipeline_layout_info.setLayoutCount = 1;
+		pipeline_layout_info.pSetLayouts = &m_DescriptorSetLayout;
+		pipeline_layout_info.pushConstantRangeCount = 1;
+		pipeline_layout_info.pPushConstantRanges = &push_constant_range;
 
-		VULKAN_CHECK(vkCreatePipelineLayout(m_Device.GetDevice(), &createinfo, nullptr, &m_PipelineLayout), 
-					"Failed to create Vulkan Pipeline Layout ! ");
-    }
+		VULKAN_CHECK(vkCreatePipelineLayout(m_Device.GetDevice(), &pipeline_layout_info, nullptr, &m_PipelineLayout),
+					 "Failed to create Vulkan Pipeline Layout ! ");
 
-    void RenderingServer::CreatePipeline() {
-		giPipelineConfigInfo info{};
-		giPipeline::DefaultConfig(info);
-		info.renderPass = m_RenderPass;
-		info.pipelineLayout = m_PipelineLayout;
-		m_Pipeline = std::make_unique<giPipeline>(m_Device.GetDevice(), m_VertShaderFilePath, m_FragShaderFilePath, info);
+		VkVertexInputBindingDescription bindingDescription = Vertex::GetBindingDescription();
+		std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions = Vertex::GetAttributeDescriptions();
+
+		VkPipelineVertexInputStateCreateInfo vertex_input_info{};
+		vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+		vertex_input_info.pNext = nullptr;
+		vertex_input_info.vertexBindingDescriptionCount = 1;
+		vertex_input_info.pVertexBindingDescriptions = &bindingDescription;
+		vertex_input_info.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+		vertex_input_info.pVertexAttributeDescriptions = attributeDescriptions.data();
+
+		VkPipelineInputAssemblyStateCreateInfo input_assembly_info{};
+		input_assembly_info.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+		input_assembly_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+		input_assembly_info.primitiveRestartEnable = VK_FALSE;
+
+		VkPipelineViewportStateCreateInfo viewport_state_info{};
+		viewport_state_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+		viewport_state_info.pNext = nullptr;
+		viewport_state_info.viewportCount = 1;
+		viewport_state_info.pViewports = nullptr;
+		viewport_state_info.scissorCount = 1;
+		viewport_state_info.pScissors = nullptr;
+
+		VkPipelineRasterizationStateCreateInfo rasterization_state_info{};
+		rasterization_state_info.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+		rasterization_state_info.depthClampEnable = VK_FALSE;
+		rasterization_state_info.rasterizerDiscardEnable = VK_FALSE;
+		rasterization_state_info.polygonMode = VK_POLYGON_MODE_FILL;
+		rasterization_state_info.lineWidth = 4.0f;
+		rasterization_state_info.cullMode = VK_CULL_MODE_NONE;
+		rasterization_state_info.frontFace = VK_FRONT_FACE_CLOCKWISE;
+		rasterization_state_info.depthBiasEnable = VK_FALSE;
+		rasterization_state_info.depthBiasConstantFactor = 0.0f;
+		rasterization_state_info.depthBiasClamp = 0.0f;
+		rasterization_state_info.depthBiasSlopeFactor = 0.0f;
+
+		VkPipelineMultisampleStateCreateInfo multisample_state_info{};
+		multisample_state_info.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+		multisample_state_info.sampleShadingEnable = VK_FALSE;
+		multisample_state_info.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+		multisample_state_info.minSampleShading = 1.0f;
+		multisample_state_info.pSampleMask = nullptr;
+		multisample_state_info.alphaToCoverageEnable = VK_FALSE;
+		multisample_state_info.alphaToOneEnable = VK_FALSE;
+
+		VkPipelineColorBlendAttachmentState color_blend_state_attachment{};
+		color_blend_state_attachment.colorWriteMask =
+			VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT |
+			VK_COLOR_COMPONENT_A_BIT;
+		color_blend_state_attachment.blendEnable = VK_FALSE;
+		color_blend_state_attachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+		color_blend_state_attachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+		color_blend_state_attachment.colorBlendOp = VK_BLEND_OP_ADD;
+		color_blend_state_attachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+		color_blend_state_attachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+		color_blend_state_attachment.alphaBlendOp = VK_BLEND_OP_ADD;
+
+		VkPipelineColorBlendStateCreateInfo color_blend_state_info{};
+		color_blend_state_info.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+		color_blend_state_info.logicOpEnable = VK_FALSE;
+		color_blend_state_info.logicOp = VK_LOGIC_OP_COPY;
+		color_blend_state_info.attachmentCount = 1;
+		color_blend_state_info.pAttachments = &color_blend_state_attachment;
+		color_blend_state_info.blendConstants[0] = 0.0f;
+		color_blend_state_info.blendConstants[1] = 0.0f;
+		color_blend_state_info.blendConstants[2] = 0.0f;
+		color_blend_state_info.blendConstants[3] = 0.0f;
+
+		VkPipelineDepthStencilStateCreateInfo depth_stencil_state_info{};
+		depth_stencil_state_info.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+		depth_stencil_state_info.depthTestEnable = VK_TRUE;
+		depth_stencil_state_info.depthWriteEnable = VK_TRUE;
+		depth_stencil_state_info.depthCompareOp = VK_COMPARE_OP_LESS;
+		depth_stencil_state_info.depthBoundsTestEnable = VK_FALSE;
+		depth_stencil_state_info.minDepthBounds = 0.0f;
+		depth_stencil_state_info.maxDepthBounds = 1.0f;
+		depth_stencil_state_info.stencilTestEnable = VK_FALSE;
+		depth_stencil_state_info.front = {};
+		depth_stencil_state_info.back = {};
+
+
+		std::array<VkDynamicState, 3> dynamic_states_enables{VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY};
+
+		VkPipelineDynamicStateCreateInfo dynamic_state_info{};
+		dynamic_state_info.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+		dynamic_state_info.flags = 0;
+		dynamic_state_info.pNext = nullptr;
+		dynamic_state_info.dynamicStateCount = static_cast<uint32_t>(dynamic_states_enables.size());
+		dynamic_state_info.pDynamicStates = dynamic_states_enables.data();
+
+		VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
+		graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		graphicsPipelineCreateInfo.pNext = nullptr;
+		graphicsPipelineCreateInfo.stageCount = 2;
+		graphicsPipelineCreateInfo.pStages = shader_stages;
+		graphicsPipelineCreateInfo.pVertexInputState = &vertex_input_info;
+		graphicsPipelineCreateInfo.pInputAssemblyState = &input_assembly_info;
+		graphicsPipelineCreateInfo.pViewportState = &viewport_state_info;
+		graphicsPipelineCreateInfo.pRasterizationState = &rasterization_state_info;
+		graphicsPipelineCreateInfo.pMultisampleState = &multisample_state_info;
+		graphicsPipelineCreateInfo.pDepthStencilState = &depth_stencil_state_info;
+		graphicsPipelineCreateInfo.pColorBlendState = &color_blend_state_info;
+		graphicsPipelineCreateInfo.pDynamicState = &dynamic_state_info;
+
+		graphicsPipelineCreateInfo.layout = m_PipelineLayout;
+		graphicsPipelineCreateInfo.renderPass = m_RenderPass;
+		graphicsPipelineCreateInfo.subpass = 0;
+
+		graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
+		graphicsPipelineCreateInfo.basePipelineIndex = -1;
+
+		VULKAN_CHECK(vkCreateGraphicsPipelines(m_Device.GetDevice(), nullptr, 1, &graphicsPipelineCreateInfo, nullptr, &m_Pipeline),
+					"Failed to create Graphics Pipeline ! ");
+
+		vkDestroyShaderModule(m_Device.GetDevice(), vert_shader_module, nullptr);
+		vkDestroyShaderModule(m_Device.GetDevice(), frag_shader_module, nullptr);
 	}
 
     void RenderingServer::CreateCommandPool() {
@@ -762,7 +888,7 @@ namespace gigno {
 
     VkFormat RenderingServer::FindSupportedFormat(VkPhysicalDevice physDevice, const std::vector<VkFormat> &candidates, VkImageTiling targetTiling, VkFormatFeatureFlags targetFeatures) {
         for (VkFormat format : candidates) {
-			VkFormatProperties prop;
+			VkFormatProperties prop{};
 			vkGetPhysicalDeviceFormatProperties(physDevice, format, &prop);
 			if (targetTiling == VK_IMAGE_TILING_LINEAR && (prop.linearTilingFeatures & targetFeatures) == targetFeatures) {
 				return format;
@@ -864,6 +990,39 @@ namespace gigno {
 			Console::LogError("Failed to create Vulkan Image View ! Vulkan Errror Code : %d", (int)result);
 		}
 		return ret;
+    }
+
+    std::vector<char> RenderingServer::ReadFile(std::string filePath)
+    {
+		std::ifstream infile{filePath, std::ios::ate | std::ios::binary};
+
+		if (!infile.is_open())
+		{
+			Console::LogError("failed to open file: %s", filePath.c_str());
+			return std::vector<char>{};
+		}
+
+		size_t filesize = static_cast<size_t>(infile.tellg());
+		std::vector<char> buffer(filesize);
+		infile.seekg(0);
+		infile.read(buffer.data(), filesize);
+
+		infile.close();
+		return buffer;
+	}
+
+    VkShaderModule RenderingServer::CreateShaderModule(const std::vector<char> &code) {
+        VkShaderModuleCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+		createInfo.pNext = nullptr;
+		createInfo.codeSize = code.size();
+		createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
+
+		VkShaderModule shader_module{};
+		VULKAN_CHECK(vkCreateShaderModule(m_Device.GetDevice(), &createInfo, nullptr, &shader_module), 
+			"Failed to create ShaderModule ! ");
+
+		return shader_module;
     }
 
     /*

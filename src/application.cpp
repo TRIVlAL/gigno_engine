@@ -106,6 +106,8 @@ namespace gigno {
 			Debug()->Update();
 		}
 
+		m_EntityServer.UnloadMap();
+
 		return SUCCESS;
 	}
 

@@ -12,7 +12,6 @@
 #include <memory>
 
 #include "../entities/rendered_entity.h"
-#include "pipeline.h"
 
 namespace gigno {
 	class Light;
@@ -97,7 +96,6 @@ namespace gigno {
 		void CreateImageViews();
 		void CreateRenderPass();
 		void CreateDescriptorSetLayout();
-		void CreatePipelineLayout();
 		void CreatePipeline();
 		void CreateCommandPool();
 		void CreateDepthResources();
@@ -129,6 +127,8 @@ namespace gigno {
 		void CreateImage(VkDevice device, VkPhysicalDevice physDevice, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
 						 VkMemoryPropertyFlags props, VkImage &image, VkDeviceMemory &imageMemory);
 		VkImageView CreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+		std::vector<char> ReadFile(std::string filePath);
+		VkShaderModule CreateShaderModule(const std::vector<char> &code);
 
 		uint32_t m_CurrentFrame = 0;
 
@@ -136,8 +136,6 @@ namespace gigno {
 
 		Window m_Window;
 		Device m_Device;
-
-		//SwapChain m_SwapChain;
 
 		struct {
 			VkSwapchainKHR SwapChain;
@@ -151,7 +149,7 @@ namespace gigno {
 		VkRenderPass m_RenderPass;
 		VkDescriptorSetLayout m_DescriptorSetLayout;
 		VkPipelineLayout m_PipelineLayout;
-		std::unique_ptr<giPipeline> m_Pipeline;
+		VkPipeline m_Pipeline;
 
 		VkCommandPool m_CommandPool;
 
