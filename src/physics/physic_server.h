@@ -87,7 +87,6 @@ namespace gigno {
         void Loop();
 
         void ResolveCollisions();
-        void PlayCollisionSounds();
     };
 
 }

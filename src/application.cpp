@@ -108,7 +108,7 @@ namespace gigno {
 
 		m_EntityServer.UnloadMap();
 
-		return SUCCESS;
+		return m_CurrentStatus;
 	}
 
 	void Application::DrawMainUIWindow() {

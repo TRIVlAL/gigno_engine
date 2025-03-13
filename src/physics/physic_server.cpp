@@ -57,7 +57,7 @@ namespace gigno {
     }
     
     void PhysicServer::Loop() {
-        while(!Application::Singleton()) {
+        while(!Application::Singleton() && m_LoopContinue) {
             ;
         }
 

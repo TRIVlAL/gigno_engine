@@ -27,6 +27,9 @@ namespace gigno {
 		CreateRenderPass();
 		CreateDescriptorSetLayout();
 		CreatePipeline();
+		if(!m_Pipeline) {
+			return;
+		}
 		CreateCommandPool();
 		CreateDepthResources();
 		CreateFrameBuffers();
@@ -74,6 +77,10 @@ namespace gigno {
 	}
 
     RenderingServer::~RenderingServer() {
+
+		if(!m_Pipeline) {
+			return;
+		}
 		
 		vkDeviceWaitIdle(m_Device.GetDevice());
 
@@ -564,6 +571,10 @@ namespace gigno {
 		VkShaderModule vert_shader_module = CreateShaderModule(ReadFile(m_VertShaderFilePath));
 		VkShaderModule frag_shader_module = CreateShaderModule(ReadFile(m_FragShaderFilePath));
 
+		if(!vert_shader_module || !frag_shader_module) {
+			return;
+		}
+
 		VkPipelineShaderStageCreateInfo vert_shader_stage_info{};
 		vert_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 		vert_shader_stage_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
@@ -685,6 +696,12 @@ namespace gigno {
 		dynamic_state_info.dynamicStateCount = static_cast<uint32_t>(dynamic_states_enables.size());
 		dynamic_state_info.pDynamicStates = dynamic_states_enables.data();
 
+		VkPipelineTessellationStateCreateInfo tesselation_state_info{};
+		tesselation_state_info.sType = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
+		tesselation_state_info.pNext = nullptr;
+		tesselation_state_info.flags = 0;
+		tesselation_state_info.patchControlPoints = 0;
+
 		VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
 		graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		graphicsPipelineCreateInfo.pNext = nullptr;
@@ -692,6 +709,7 @@ namespace gigno {
 		graphicsPipelineCreateInfo.pStages = shader_stages;
 		graphicsPipelineCreateInfo.pVertexInputState = &vertex_input_info;
 		graphicsPipelineCreateInfo.pInputAssemblyState = &input_assembly_info;
+		graphicsPipelineCreateInfo.pTessellationState = &tesselation_state_info;
 		graphicsPipelineCreateInfo.pViewportState = &viewport_state_info;
 		graphicsPipelineCreateInfo.pRasterizationState = &rasterization_state_info;
 		graphicsPipelineCreateInfo.pMultisampleState = &multisample_state_info;
@@ -1017,6 +1035,12 @@ namespace gigno {
 		createInfo.pNext = nullptr;
 		createInfo.codeSize = code.size();
 		createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
+
+		if(code.size() == 0) {
+			Console::LogError("Shader file not avaliable ! Cannot Create the vkSHaderModule !");
+			Application::Singleton()->SetExit(EXIT_FAILED_RENDERER);
+			return VK_NULL_HANDLE;
+		}
 
 		VkShaderModule shader_module{};
 		VULKAN_CHECK(vkCreateShaderModule(m_Device.GetDevice(), &createInfo, nullptr, &shader_module), 
