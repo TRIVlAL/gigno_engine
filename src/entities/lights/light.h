@@ -12,11 +12,19 @@ namespace gigno {
     class Light : public Entity {
         ENTITY_DECLARATIONS(Light, Entity)
     public:
-        Light();
-        ~Light();
+        Light() : Entity() {};
+        ~Light(){};
 
+        virtual void Init() override;
+        virtual void CleanUp() override;
+
+        // Returns how many vec4 are required to be passed to the shader.
         virtual uint32_t DataSlotsCount() const { return 0; };
+        // Fills the next DataSlotCOunt() elements of the data c-array 
+        // with the data that needs to be passed to the shader.
         virtual void FillDataSlots(glm::vec4 *data) const {return;};
+
+        //NOTE : Only Directional lights support shadow mapping.
 
         Light *pNextLight;
     private:

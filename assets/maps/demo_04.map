@@ -8,17 +8,28 @@
 
 "DirectionalLight" {
     "Intensity" : "0.4",
-    "Direction" : "0.3" "-0.95" "0.05"
+    "Direction" : "0.5" "-0.6" "0.2",
+    "ShadowMapExtent" : "25" "25" "85"
+}
+
+"DirectionalLight" {
+    "Intensity" : "0.1",
+    "Direction" : "-0.2" "-0.95" "0.05"
 }
 
 "PointLight" {
     "Position"  : "0" "8" "0",
-    "Intensity" : "10"
+    "Intensity" : "20"
+}
+
+"PointLight" {
+    "Position"  : "5" "8" "0",
+    "Intensity" : "20"
 }
 
 
 "EnvironmentLight" {
-    "Intensity"  : "0.1"
+    "Intensity"  : "0.05"
 }
 
 "RigidBody" {

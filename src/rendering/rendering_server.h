@@ -18,37 +18,7 @@ namespace gigno {
 	class InputServer;
 
 	const size_t MAX_FRAMES_IN_FLIGHT = 2;
-
-	/*
-	Per-Entity data pushed to the shader.
-	Implementation :
-		* Must follow the Vulkan alignment rules : (From vulkan-tutorial) https://vulkan-tutorial.com/Uniform_buffers/Descriptor_pool_and_sets#page_Alignment-requirements
-	*/
-	struct PushConstantData_t {
-		glm::mat4 modelMatrix;
-		glm::mat4 normalsMatrix;
-		alignas(4) int fullbright = 0;
-	};
-
 	const int MAX_LIGHT_DATA_COUNT = 15;
-
-	/*
-	Constant-during-the-frame data pushed to the shader.
-	Implementation :
-		* Must follow the Vulkan alignment rules : (From vulkan-tutorial) https://vulkan-tutorial.com/Uniform_buffers/Descriptor_pool_and_sets#page_Alignment-requirements
-	*/
-	struct UniformBufferData_t {
-		glm::mat4 view{ 1.f };
-		glm::mat4 projection{ 1.f };
-		glm::vec4 lightDatas[MAX_LIGHT_DATA_COUNT];
-	};
-
-	struct SceneRenderingData_t {
-		RenderedEntity * RenderedEntities; // First entity in the chain.
-		Light *LightEntities; // First light in the chain.
-		const Camera *pCamera;
-	};
-
 
 	class RenderingServer {
 
@@ -90,15 +60,74 @@ namespace gigno {
 		#endif
 
 	private:
+
+		/*
+		Push COnstant --------------------------------------
+		Per-Entity data pushed to the shader.
+		Implementation :
+			* Must follow the Vulkan alignment rules : (From vulkan-tutorial) https://vulkan-tutorial.com/Uniform_buffers/Descriptor_pool_and_sets#page_Alignment-requirements
+		---------------------------------------------------*/
+		class PushConstants {
+		public:
+			struct MainRender_t {
+				glm::mat4 modelMatrix;
+				glm::mat4 normalsMatrix;
+				alignas(4) int fullbright = 0;
+			};
+
+			struct ShadowMapRender_t {
+				glm::mat4 modelMatrix;
+			};
+		};
+
+		/*
+		Uniform Buffer --------------------------------------
+			Constant-during-the-frame data pushed to the shader.
+			Implementation :
+				* Must follow the Vulkan alignment rules : (From vulkan-tutorial) https://vulkan-tutorial.com/Uniform_buffers/Descriptor_pool_and_sets#page_Alignment-requirements
+		------------------------------------------------------
+		*/
+		class UniformBuffers {
+		public:
+			struct MainRender_t {
+				glm::mat4 View{1.0f};
+				glm::mat4 Projection{1.0f};
+				glm::vec4 LightDatas[MAX_LIGHT_DATA_COUNT];
+
+				//Shadow Map transformations
+				glm::mat4 LightView{1.0f};
+				glm::mat4 LightProjection{1.0f};
+			};
+
+			struct ShadowMapRender_t {
+				glm::mat4 LightView{1.0f};
+				glm::mat4 LightProjection{1.0f};
+			};
+		};
+
+		struct SceneRenderingData_t {
+			RenderedEntity * RenderedEntities; // First entity in the chain.
+			Light *LightEntities; // First light in the chain.
+			const Camera *pCamera;
+		};
+
+
+		/*
+		--------------------------------------------
+		INITIALIZATION
+		--------------------------------------------
+		*/
 		void CreateSyncObjects();
 		
 		void CreateVkSwapChain(bool isFirstCreation);
 		void CreateImageViews();
-		void CreateRenderPass();
-		void CreateDescriptorSetLayout();
-		void CreatePipeline();
+		void CreateMainRenderPass();
+		void CreateShadowMapRenderPass();
+		void CreateDescriptorSetLayouts();
+		void CreatePipelines(bool isRecreate = false);
 		void CreateCommandPool();
-		void CreateDepthResources();
+		void CreateShadowMapSampler();
+		void CreateDepthResources(bool isRecreate = false);
 		void CreateFrameBuffers();
 		void CreateUniformBuffers();
 		void CreateDescriptorPool();
@@ -107,16 +136,25 @@ namespace gigno {
 
 		void Recreate();
 
-		void DrawFrame();
-
 		void RecordCommandBuffer(SceneRenderingData_t &sceneData, uint32_t imageIndex);
-		void UpdateUniformBuffer(const Camera *camera, Light *lights);
-		void RenderEntities(RenderedEntity *entities);
-		#if USE_DEBUG_DRAWING
-		void RenderDebugDrawings(const Camera *camera);
+		
+		//RECORD COMMAND BUFFER --------------------------------
 
+		// Shadowmap Pass
+		void ShadowMap_UniformBufferCommands(SceneRenderingData_t &sceneData);
+		void ShadowMap_RenderEntitiesCommands(SceneRenderingData_t &sceneData);
+
+		// Main Render
+		void Main_UniformBufferCommands(const Camera *camera, Light *lights);
+		void Main_RenderEntitiesCommands(RenderedEntity *entities);
+	#if USE_DEBUG_DRAWING
+		void Main_RenderDebugDrawingsCommands(const Camera *camera);
+	#endif
+		//-----------------------------------------------------
+
+	#if USE_DEBUG_DRAWING
 		void UpdateDebugDrawings();
-		#endif
+	#endif
 
 		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &avaliableFormats);
 		VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR> &avaliablePresentModes);
@@ -129,6 +167,7 @@ namespace gigno {
 		VkImageView CreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 		std::vector<char> ReadFile(std::string filePath);
 		VkShaderModule CreateShaderModule(const std::vector<char> &code);
+		uint32_t GetMemoryType(uint32_t typeBits, VkMemoryPropertyFlags properties);
 
 		uint32_t m_CurrentFrame = 0;
 
@@ -137,6 +176,12 @@ namespace gigno {
 		Window m_Window;
 		Device m_Device;
 
+		struct UniformBuffer {
+			VkBuffer Buffer;
+			VkDeviceMemory Memory;
+			void *Mapped;
+		};
+
 		struct {
 			VkSwapchainKHR SwapChain;
 			std::vector<VkImage> Images;
@@ -144,22 +189,41 @@ namespace gigno {
 			VkExtent2D Extent;
 			std::vector<VkImageView> ImageViews;
 			std::vector<VkFramebuffer> Framebuffers;
-		} m_SwapChain;
 
-		VkRenderPass m_RenderPass;
-		VkDescriptorSetLayout m_DescriptorSetLayout;
-		VkPipelineLayout m_PipelineLayout;
-		VkPipeline m_Pipeline;
+			std::vector<UniformBuffer> UniformBuffers;
+		} m_SwapChain;
 
 		VkCommandPool m_CommandPool;
 
-		VkImage m_DepthImage;
-		VkDeviceMemory m_DepthImageMemory;
-		VkImageView m_DepthImageView;
+		struct FramebufferAttachment_t {
+			VkImage Image;
+			VkDeviceMemory Memory;
+			VkImageView View;
+		};
 
-		std::vector<VkBuffer> m_UniformBuffers;
-		std::vector<VkDeviceMemory> m_UniformBuffersMemories;
-		std::vector<void *> m_UniformBuffersMapped;
+		struct {
+			FramebufferAttachment_t DepthAttachment;
+			VkRenderPass RenderPass;
+			VkPipelineLayout PipelineLayout;
+			VkDescriptorSetLayout DescriptorSetLayout;
+			VkPipeline Pipeline;
+		} m_MainPass;
+
+		struct {
+			uint32_t Width = 2500, Height = 2500;
+			VkFormat ColorFormat;
+			VkFramebuffer Framebuffer;
+			FramebufferAttachment_t DepthAttachment;
+			VkRenderPass RenderPass;
+			VkSampler Sampler;
+			VkDescriptorImageInfo ImageInfo;
+			VkPipelineLayout PipelineLayout;
+			VkDescriptorSetLayout DescriptorSetLayout;
+			VkPipeline Pipeline;
+
+			UniformBuffer UniformBuffer;
+		} m_ShadowMapPass;
+
 
 		VkDescriptorPool m_DescriptorPool;
 		std::vector<VkDescriptorSet> m_DescriptorSets;
@@ -196,6 +260,7 @@ namespace gigno {
 		// If this is null, there are no rendered entity. If next is null, it is the last rendered entity.
 		RenderedEntity *m_pFirstRenderedEntity{};
 
+		// First light in the chain of all Lights. The Chain ALWAYS STARTS with the directional lights. The rest follows in no particular order.
 		Light *m_pFirstLight{};
 
 		const Camera *m_pCamera = nullptr;

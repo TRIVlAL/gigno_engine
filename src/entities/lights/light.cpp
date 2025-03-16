@@ -1,19 +1,16 @@
 #include "light.h"
+#include "directional_light.h"
 #include "../../application.h"
 
 namespace gigno {
 
     ENTITY_DEFINITIONS(Light, Entity)
-
-    Light::Light() : Entity() {
-        if(GetApp() && GetApp()->GetRenderer()) {
-            GetApp()->GetRenderer()->SubscribeLightEntity(this);
-        }
+    
+    void Light::Init() {
+        GetApp()->GetRenderer()->SubscribeLightEntity(this);
     }
 
-    Light::~Light() {
-        if (GetApp() && GetApp()->GetRenderer()) {
-            GetApp()->GetRenderer()->UnsubscribeLightEntity(this);
-        }
+    void Light::CleanUp() {
+        GetApp()->GetRenderer()->UnsubscribeLightEntity(this);
     }
 }

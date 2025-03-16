@@ -8,6 +8,7 @@ layout(location = 3) in vec2 inUV;
 layout(location = 0) out vec3 outColor;
 layout(location = 1) out vec3 outFragPos;
 layout(location = 2) out vec3 outFragNormal;
+layout(location = 3) out vec4 outFragLightSpacePos;
 
 layout(push_constant) uniform Push {
 	mat4 model;
@@ -23,7 +24,12 @@ const int MAX_LIGHT_DATA_COUNT = 15;
 layout(binding=0) uniform UniformBufferObject {
 	mat4 view;
 	mat4 projection;
-	vec4 lightDatas[MAX_LIGHT_DATA_COUNT]; 
+
+	vec4 lightDatas[MAX_LIGHT_DATA_COUNT];
+
+	//SHadow Map Transformations
+	mat4 LightView;
+	mat4 LightProjection;
 } ubo;
 
 void main() {
@@ -33,6 +39,8 @@ void main() {
 	outFragNormal = normalize(mat3(push.normalMatrix) * inNormal);
 	outFragPos = worldPos.xyz;
 	outColor = inColor;
+
+	outFragLightSpacePos = ubo.LightProjection * ubo.LightView * worldPos;
 
 	gl_PointSize = 5.0f;
 }
