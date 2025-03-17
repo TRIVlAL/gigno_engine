@@ -17,11 +17,12 @@ namespace gigno {
     void DirectionalLight::FillDataSlots(glm::vec4 *data) const
     {
         data[0] = glm::vec4{-Direction * Intensity, LIGHT_DATA_DIRECTIONAL};
-        data[1] = glm::vec4{Position, 0.0f}; //Position required for shadow mapping.
     }
 
     glm::mat4 DirectionalLight::ShadowMapViewMatrix(const Camera *camera) const {
         glm::vec3 camera_forward = ApplyRotation(camera->Rotation, glm::vec3{-1.0f, 0.0f, 0.0f});
+        camera_forward.y = 0.0f;
+        camera_forward = glm::normalize(camera_forward);
         glm::vec3 pov_position = camera->Position + (camera_forward * ShadowMapExtent.x * 0.5f) + (-Direction * ShadowMapExtent.z * 0.6f);
         return glm::lookAt(pov_position, pov_position + Direction, glm::vec3{0.0f, -1.0f, 0.0f});
     }

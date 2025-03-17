@@ -17,7 +17,7 @@ namespace gigno {
         float Intensity;
         glm::vec3 Direction{0.0f, -1.0f, 0.0f};
 
-        virtual uint32_t DataSlotsCount() const override { return 2; }
+        virtual uint32_t DataSlotsCount() const override { return 1; }
         virtual void FillDataSlots(glm::vec4 *data) const override;
 
         // Only Directional Light Supports Shadow Mapping

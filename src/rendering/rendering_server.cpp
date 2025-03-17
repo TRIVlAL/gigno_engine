@@ -17,6 +17,9 @@
 namespace gigno {
 
 	CONVAR(int, r_fullbright, 0, "1 : no lighting applied. 2 : No color but do lighting");
+	CONVAR(bool, r_shadowmap, true, "Are real time shadows (shadowmap) enabled");
+	CONVAR(int, r_shadowmap_extra_sample_count, 2, "higher means smoother and softer shadow edges. up to 7");
+	CONVAR(bool, r_shadowmap_debug_range, false, "when true, pixels in range of the shadowmaps (pixels that recieve shadows) are colored bright green");
 
 	void RenderingServer::Init(int winw, int winh, const char *winTitle) {
 		m_Window.Init(winw, winh, winTitle);
@@ -445,13 +448,13 @@ namespace gigno {
 
     void RenderingServer::Main_UniformBufferCommands(const Camera *camera, Light *lights)
     {
-        const glm::mat4 proj = camera->GetProjection();
-		const glm::mat4 view = camera->GetViewMatrix();
-
 		UniformBuffers::MainRender_t ub{};
-		ub.Projection = proj;
-		ub.View = view;
 
+		//Cam transformations
+		ub.Projection = camera->GetProjection();
+		ub.View = camera->GetViewMatrix();
+
+		//Light Datas
 		uint32_t i = 0;
 		Light *light = lights;
 		while(light) {
@@ -465,11 +468,20 @@ namespace gigno {
 			light = light->pNextLight;
 		}
 
+		//Shadow Map Light Transformations
 		DirectionalLight *directionalLight = dynamic_cast<DirectionalLight *>(lights);
 		if (directionalLight) {
 			ub.LightProjection = directionalLight->ShadowMapProjectionMatrix();
 			ub.LightView = directionalLight->ShadowMapViewMatrix(camera);
 		}
+
+		//Rendering parameters
+		RenderingParameters_t params{};
+		params = params | ((int)convar_r_fullbright & (int)(glm::pow(2, (int)RP_FULLBRIGHT_BITS_COUNT) - 1)) << RP_FULLBRIGHT_BITS_POSITION;
+		params = params | ((int)(bool)convar_r_shadowmap & (int)(glm::pow(2, (int)RP_SHADOW_MAP_ENABLE_BIT_COUNT) - 1)) << RP_SHADOW_MAP_ENABLE_BIT_POSITION;
+		params = params | (glm::min<int>((int)convar_r_shadowmap_extra_sample_count, 7) & (int)(glm::pow(2, (int)RP_SHADOW_MAP_SAMPLE_COUNT_BIT_COUNT) - 1)) << RP_SHADOW_MAP_SAMPLE_COUNT_BIT_POSITION;
+		params = params | ((int)(bool)convar_r_shadowmap_debug_range & (int)(glm::pow(2, (int)RP_SHADOW_MAP_APPLICATION_RANGE_DEBUG_BIT_COUNT) - 1)) << RP_SHADOW_MAP_APPLICATION_RANGE_DEBUG_BIT_POSITION;
+		ub.Parameters = params;
 
 		std::memcpy(m_SwapChain.UniformBuffers[m_CurrentFrame].Mapped, &ub, sizeof(ub));
 
@@ -487,7 +499,6 @@ namespace gigno {
 				PushConstants::MainRender_t push{};
 				push.modelMatrix = curr->TransformationMatrix();
 				push.normalsMatrix = glm::mat4{curr->NormalMatrix()};
-				push.fullbright = (int)convar_r_fullbright;
 				vkCmdPushConstants(m_CommandBuffers[m_CurrentFrame], m_MainPass.PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstants::MainRender_t), &push);
 
 				model->Bind(m_CommandBuffers[m_CurrentFrame]);
@@ -503,7 +514,6 @@ namespace gigno {
 		PushConstants::MainRender_t push{};
 		push.modelMatrix = {1.0f};
 		push.normalsMatrix = {1.0f};
-		push.fullbright = true;
 		vkCmdPushConstants(m_CommandBuffers[m_CurrentFrame], m_MainPass.PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstants::MainRender_t), &push);
 
 		VkDeviceSize offset = 0;

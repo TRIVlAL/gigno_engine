@@ -59,7 +59,22 @@ namespace gigno {
 		bool ShowDDLines = true;
 		#endif
 
+		typedef uint32_t RenderingParameters_t;
+		enum RenderingParametersFlags_t {
+			RP_FULLBRIGHT_BITS_POSITION = 0,
+			RP_FULLBRIGHT_BITS_COUNT = 2,
+
+			RP_SHADOW_MAP_ENABLE_BIT_POSITION = RP_FULLBRIGHT_BITS_POSITION + RP_FULLBRIGHT_BITS_COUNT,
+			RP_SHADOW_MAP_ENABLE_BIT_COUNT = 1,
+
+			RP_SHADOW_MAP_SAMPLE_COUNT_BIT_POSITION = RP_SHADOW_MAP_ENABLE_BIT_POSITION + RP_SHADOW_MAP_ENABLE_BIT_COUNT,
+			RP_SHADOW_MAP_SAMPLE_COUNT_BIT_COUNT = 3,
+
+			RP_SHADOW_MAP_APPLICATION_RANGE_DEBUG_BIT_POSITION = RP_SHADOW_MAP_SAMPLE_COUNT_BIT_POSITION + RP_SHADOW_MAP_SAMPLE_COUNT_BIT_COUNT,
+			RP_SHADOW_MAP_APPLICATION_RANGE_DEBUG_BIT_COUNT = 1
+		};
 	private:
+
 
 		/*
 		Push COnstant --------------------------------------
@@ -72,7 +87,6 @@ namespace gigno {
 			struct MainRender_t {
 				glm::mat4 modelMatrix;
 				glm::mat4 normalsMatrix;
-				alignas(4) int fullbright = 0;
 			};
 
 			struct ShadowMapRender_t {
@@ -97,6 +111,8 @@ namespace gigno {
 				//Shadow Map transformations
 				glm::mat4 LightView{1.0f};
 				glm::mat4 LightProjection{1.0f};
+
+				alignas(4) RenderingParameters_t Parameters;
 			};
 
 			struct ShadowMapRender_t {
