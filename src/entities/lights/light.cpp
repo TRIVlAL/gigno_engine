@@ -8,9 +8,11 @@ namespace gigno {
     
     void Light::Init() {
         GetApp()->GetRenderer()->SubscribeLightEntity(this);
+        Entity::Init();
     }
 
     void Light::CleanUp() {
         GetApp()->GetRenderer()->UnsubscribeLightEntity(this);
+        Entity::CleanUp();
     }
 }

@@ -82,6 +82,11 @@ namespace gigno {
 		size_t value_letter_index = 0;
 		Entity *curr_ent = nullptr;
 
+		// Some entities are in the scene but were spawned by code.
+		// In that case, we won't call Init() from here ! Thus, the distinction is made
+		// Between entities loaded from file and entities in m_Scene.
+		std::vector<Entity *> loaded_from_file{};
+
 		while(source>>curr) {
 			if(curr == '"') {
 				if(in_word) {
@@ -107,6 +112,7 @@ namespace gigno {
 							Console::LogWarning("Parsing : Entity type '%s' does not exist !", entity_name_buffer);
 						} else {
 							m_Scene.emplace_back(curr_ent);
+							loaded_from_file.emplace_back(curr_ent);
 						}
 
 						entity_name_index = 0;
@@ -174,8 +180,8 @@ namespace gigno {
 		}
 		delete[] value_buffers;
 
-		for(Entity *ent : m_Scene) {
-			ent->Init();
+		for(int i = 0; i < loaded_from_file.size(); i++) {
+			loaded_from_file[i]->Init();
 		}
 
 		return true;

@@ -26,7 +26,7 @@ namespace gigno {
 
         //NOTE : Only Directional lights support shadow mapping.
 
-        Light *pNextLight;
+        Light *pNextLight = nullptr;
     private:
     };
 

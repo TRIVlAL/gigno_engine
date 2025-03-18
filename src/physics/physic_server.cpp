@@ -36,8 +36,7 @@ namespace gigno {
         m_LoopThread.join();
     }
 
-    void PhysicServer::SubscribeRigidBody(RigidBody *rb)
-    {
+    void PhysicServer::SubscribeRigidBody(RigidBody *rb) {
         rb->pNextRigidBody = s_RigidBodies;
         s_RigidBodies = rb;
     }

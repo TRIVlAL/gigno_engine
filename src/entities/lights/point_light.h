@@ -9,7 +9,6 @@ namespace gigno {
     ENTITY_DECLARATIONS(PointLight, Light)
     public:
         PointLight();
-        ~PointLight();
 
         virtual uint32_t DataSlotsCount() const override { return 2; };
         virtual void FillDataSlots(glm::vec4 *data) const override;
