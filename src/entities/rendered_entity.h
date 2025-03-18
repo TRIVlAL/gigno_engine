@@ -10,8 +10,9 @@ namespace gigno {
 	class RenderedEntity : public Entity {
 		ENTITY_DECLARATIONS(RenderedEntity, Entity)
 	public:
-		RenderedEntity();
-		~RenderedEntity();
+
+		virtual void Init() override;
+		virtual void CleanUp() override;
 
 		const char *ModelPath = nullptr;
 
