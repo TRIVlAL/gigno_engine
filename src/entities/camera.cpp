@@ -8,9 +8,6 @@ namespace gigno {
 	ENTITY_DEFINITIONS(Camera, Entity);
 
 	Camera::Camera() : Entity() {
-		if (GetApp() && GetApp()->GetRenderer() && !GetApp()->GetRenderer()->HasCamera()) {
-			GetApp()->GetRenderer()->SetCurrentCamera(this);
-		}
 	}
 
 	Camera::Camera(float left, float right, float top, float bottom, float _near, float _far) : Camera() {
@@ -21,13 +18,9 @@ namespace gigno {
 		SetPerspectiveProjection(fovy, aspect, _near, _far);
 	}
 
-	Camera::~Camera() {
-		if (GetApp() && GetApp()->GetRenderer() && GetApp()->GetRenderer()->GetCameraHandle() == this) {
-			GetApp()->GetRenderer()->SetCurrentCamera(nullptr);
-		}
-	}
-
     void Camera::Init() {
+		GetApp()->GetRenderer()->SetCurrentCamera(this);
+
 		const float aspect = GetApp()->GetRenderer()->GetAspectRatio();
 		
 		if(ProjMode == PROJECTION_MODE_PERSPECTIVE) {
@@ -36,6 +29,10 @@ namespace gigno {
 			SetOrthographicProjection(Left, Right, Top, Bottom, Near, Far);
 		}
     }
+
+    void Camera::CleanUp() {
+		GetApp()->GetRenderer()->SetCurrentCamera(nullptr);
+	}
 
     void Camera::SetOrthographicProjection(float left, float right, float top, float bottom, float _near, float _far) {
 		ProjMode = PROJECTION_MODE_ORTHOGRAPHIC;

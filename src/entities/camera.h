@@ -28,9 +28,9 @@ namespace gigno {
 		Camera();
 		Camera(float left, float right, float top, float bottom, float _near, float _far);
 		Camera(float fovy, float aspect, float _near, float _far);
-		~Camera();
 
 		virtual void Init() override;
+		virtual void CleanUp() override;
 
 		void SetOrthographicProjection(float left, float right, float top, float bottom, float _near, float _far );
 		void SetPerspectiveProjection(float fovy, float aspect, float _near, float _far);
