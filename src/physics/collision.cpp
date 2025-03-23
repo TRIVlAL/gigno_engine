@@ -393,8 +393,8 @@ namespace gigno {
         if(BodyA.IsStatic && BodyB.IsStatic) {
             return;
         } else {
-            const glm::vec3 v_a = BodyA.Velocity + glm::cross(collision.ApplyPointA, BodyA.AngularVelocity);
-            const glm::vec3 v_b = BodyB.Velocity + glm::cross(collision.ApplyPointB, BodyB.AngularVelocity);
+            const glm::vec3 v_a = BodyA.Velocity + glm::cross(BodyA.AngularVelocity, collision.ApplyPointA);
+            const glm::vec3 v_b = BodyB.Velocity + glm::cross(BodyB.AngularVelocity, collision.ApplyPointB);
             const glm::vec3 v_rel = v_b - v_a;
             const float proj_v_rel = glm::dot(v_rel, collision.Normal);
 
@@ -408,7 +408,6 @@ namespace gigno {
             const glm::vec3 moment_div_a = glm::cross(inv_I_a * glm::cross(collision.ApplyPointA, collision.Normal), collision.ApplyPointA);
             const glm::vec3 moment_div_b = glm::cross(inv_I_b * glm::cross(collision.ApplyPointB, collision.Normal), collision.ApplyPointB);
 
-            Console::LogInfo("%f", glm::dot(moment_div_a + moment_div_b, collision.Normal));
             float J = (1.0 + e) * proj_v_rel / (inv_m_a + inv_m_b + glm::dot(moment_div_a + moment_div_b, collision.Normal));
 
             float start_energy = 0.5f * BodyA.Mass * LenSquared(BodyA.Velocity);
