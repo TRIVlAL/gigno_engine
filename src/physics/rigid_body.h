@@ -13,8 +13,6 @@ namespace gigno {
 
     class RigidBody : public RenderedEntity {
         ENTITY_DECLARATIONS(RigidBody, RenderedEntity)
-        friend void RespondCollision(RigidBody &, RigidBody &, const CollisionData_t &); // Declared in collision.h
-        friend void PlayCollisionSound(RigidBody &, glm::vec3, float, float); //Declared in collision.h
     public:
         
         void AddForce(const glm::vec3 &force, const glm::vec3 &application = glm::vec3{0.0f, 0.0f, 0.0f});
@@ -59,7 +57,7 @@ namespace gigno {
         //Bounciness and friction are combined with the other object during collision
         //Following the Method in collision.cpp
         float Bounciness{0.5f};   //coefficient of return of enery in collision (1.0 means no enegry loss)
-        float Friction{0.6f};     //coefficient of friction
+        float Friction{0.8f};     //coefficient of friction
         /*
         If vel smaller than friction that the friction that would be applied with
         Friction * StaticFrictionMultiplier as friction coefficient, that static friction
@@ -93,10 +91,8 @@ namespace gigno {
 
         glm::vec3 Torque{};
         glm::vec3 AngularVelocity{};
-
         
-        
-        private:
+    private:
         void UpdateTransformedModel();
         void UpdateCollider();
         void DrawCollider();

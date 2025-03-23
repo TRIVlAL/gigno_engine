@@ -32,13 +32,17 @@ namespace gigno {
 
     void RigidBody::AddImpulse(const glm::vec3 &impulse, const glm::vec3 &application) {
         if(impulse != impulse) {
-            Console::LogInfo("NaN IMpulse");
+            Console::LogWarning("NaN IMpulse");
         }
         
-        Velocity += impulse;
+        float mass_inv = IsStatic ? 0.0f : 1.0f / Mass;
 
 
-        AngularVelocity += glm::cross(application, impulse) / InertiaMoment;
+        Velocity += impulse * mass_inv;
+
+
+        AngularVelocity += glm::cross(application, impulse) * mass_inv / InertiaMoment;
+        
     }
 
     void RigidBody::AddTorque(const glm::vec3 &torque) {
@@ -131,7 +135,7 @@ namespace gigno {
         Position += applied_vel;
 
         glm::vec3 avrg_rot_vel = AngularVelocity;
-        AngularVelocity+= dt * Torque / Mass / InertiaMoment;
+        AngularVelocity+= dt * (Torque / Mass) / InertiaMoment;
         avrg_rot_vel += AngularVelocity;
         avrg_rot_vel *= 0.5f;
 

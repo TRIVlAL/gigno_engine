@@ -79,6 +79,7 @@ namespace gigno {
 		glm::vec3 Scale{1.0f};
 
 		glm::mat4 TransformationMatrix() const;
+		glm::mat3 RotationMatrix() const;
 		glm::mat3 NormalMatrix() const;
 		glm::vec3 ApplyRotate(glm::vec3 v) const;
 

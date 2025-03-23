@@ -39,15 +39,16 @@
     "Scale"     : "30" "30" "30",
     "Normal"    : "0" "1" "0",
     "IsStatic"  : "true",
+    "Friction"  : "1.0",
     "ModelPath" : "assets/models/plane.obj"
 }
 
 "RigidBody" {
     "Name"      : "wall",
     "ColliderType" : "COLLIDER_HULL",
-    "Scale"     : "0.5" "4" "7",
+    "Scale"     : "0.5" "4" "6",
     "CollisionModelPath" : "assets/models/cube.obj",
-    "Position"  : "-7" "-0.5" "0",
+    "Position"  : "-5.5" "-0.5" "0",
     "IsStatic"  : "true",
     "ModelPath" : "assets/models/cube.obj"
 }
@@ -55,9 +56,9 @@
 "RigidBody" {
     "Name"      : "wall",
     "ColliderType" : "COLLIDER_HULL",
-    "Scale"     : "0.5" "4" "7",
+    "Scale"     : "0.5" "4" "6",
     "CollisionModelPath" : "assets/models/cube.obj",
-    "Position"  : "7" "-0.5" "0",
+    "Position"  : "5.5" "-0.5" "0",
     "IsStatic"  : "true",
     "ModelPath" : "assets/models/cube.obj"
 }
@@ -65,9 +66,9 @@
 "RigidBody" {
     "Name"      : "wall",
     "ColliderType" : "COLLIDER_HULL",
-    "Scale"     : "0.5" "4" "7",
+    "Scale"     : "0.5" "4" "6",
     "CollisionModelPath" : "assets/models/cube.obj",
-    "Position"  : "0" "-0.5" "-7",
+    "Position"  : "0" "-0.5" "-5.5",
     "Rotation"  : "0" "1.5702" "0",
     "IsStatic"  : "true",
     "ModelPath" : "assets/models/cube.obj"
@@ -76,24 +77,23 @@
 "RigidBody" {
     "Name"      : "wall",
     "ColliderType" : "COLLIDER_HULL",
-    "Scale"     : "0.5" "4" "7",
+    "Scale"     : "0.5" "4" "6",
     "CollisionModelPath" : "assets/models/cube.obj",
-    "Position"  : "0" "-0.5" "7",
+    "Position"  : "0" "-0.5" "5.5",
     "Rotation"  : "0" "1.5702" "0",
     "IsStatic"  : "true",
     "ModelPath" : "assets/models/cube.obj"
 }
 
 "RotatingWall" {
-    "Position" : "0" "-0.5" "0"
+    "Position" : "0" "0" "0"
 }
 
 "RigidBodySpawner" {
-    "VerticalSlice" : "2",
-    "XCount"        : "7",
-    "ZCount"        : "7
-    ",
-    "ExtentBegin"   : "-5" "1" "-5",
-    "ExtentEnd"     : "5" "0" "5"
+    "VerticalSlice" : "3",
+    "XCount"        : "4",
+    "ZCount"        : "5",
+    "ExtentBegin"   : "-4" "4" "-4",
+    "ExtentEnd"     : "4" "0" "4"
 }
 

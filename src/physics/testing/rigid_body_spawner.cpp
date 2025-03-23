@@ -25,6 +25,7 @@ namespace gigno
                                             ExtentBegin.y + y_step * v,
                                             ExtentBegin.z + MARGIN + z_step * j};
                     rb->Mass = 25.0f;
+                    rb->Name = "Spawned RigidBody";
                     
                     switch(alternate) {
                         case 0:
@@ -32,6 +33,7 @@ namespace gigno
                             rb->ModelPath = "assets/models/colored_uv_sphere.obj";
                             rb->Radius = 0.75f;
                             rb-> Scale = glm::vec3{0.75f};
+                            rb->InertiaMoment = 4.f;
                             alternate++;
                             break;
                         case 1:
@@ -39,12 +41,14 @@ namespace gigno
                             rb->ModelPath = "assets/models/cube.obj";
                             rb->CollisionModelPath = "assets/models/cube.obj";
                             rb->Scale = glm::vec3{0.5f};
+                            rb->InertiaMoment = 4.f;
                             alternate++;
                             break;
                         case 2:
                             rb->ColliderType = COLLIDER_HULL;
                             rb->ModelPath = "assets/models/hull1.obj";
                             rb->CollisionModelPath = "assets/models/hull1.obj";
+                            rb->InertiaMoment = 4.f;
                             alternate = 0;
                             break;
                     }
