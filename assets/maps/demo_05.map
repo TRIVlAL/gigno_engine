@@ -93,7 +93,7 @@
     "IsStatic"  : "false",
     "ModelPath" : "assets/models/cube.obj",
     "Velocity"  : "0" "7" "-10",
-    "Mass"      : "20",
+    "Mass"      : "20"
     "Scale"     : "0.5" "0.5" "0.5",
     "InertiaMoment" : "1.75"
 }

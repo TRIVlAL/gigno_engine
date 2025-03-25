@@ -30,7 +30,7 @@ namespace gigno {
 		Arena m_EntityArena{1024 * 1024 * 1024};
 
 		void UnloadMap();
-		bool LoadFromFile(std::ifstream &source);
+		bool LoadFromFile(const char *filepath);
 
 		std::vector<Entity*> m_Scene{};
 	};

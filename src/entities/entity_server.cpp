@@ -9,6 +9,8 @@
 
 #include <mutex>
 
+#include "map_parser.h"
+
 namespace gigno {
 
 	std::mutex s_EntityUnloadMutex;
@@ -43,144 +45,60 @@ namespace gigno {
 		m_EntityArena.FreeAll();
     }
 
-    bool EntityServer::LoadFromFile(std::ifstream &source) {
+    bool EntityServer::LoadFromFile(const char *filepath) {
+
+		Console::LogInfo("Loading map file '%s'", filepath);
+
 		std::lock_guard<std::mutex> lock{s_EntityUnloadMutex};
 		UnloadMap();
-
-		char curr;
-
-		const size_t MAX_WORD_SIZE = 255;
-		const size_t MAX_VALUE_ARGC = 5;
-
-		enum {
-			AWAIT_ENTITY,
-			AWAIT_OPEN_BRACE,
-			AWAIT_KEY, 
-			AWAIT_COLON,
-			READING_VALUE
-		};
-
-		auto curr_key = AWAIT_ENTITY;
-		bool in_word = false;
-		bool begin_word = false;
-		bool finish_word = false;
-
-		char entity_name_buffer[MAX_WORD_SIZE];
-		size_t entity_name_index = 0;
-		char key_buffer[MAX_WORD_SIZE];
-		size_t key_index = 0;
-		// Normally I wouldnt allocate on the heap but
-		// For some reason, i cant pass stack allocated char[][]
-		// to functions.
-		char **value_buffers = new char*[MAX_VALUE_ARGC];
-		for(int i = 0; i < MAX_VALUE_ARGC; i++) {
-			value_buffers[i] = new char[MAX_WORD_SIZE];
-		}
-		size_t value_word_index = 0;
-		size_t value_letter_index = 0;
-		Entity *curr_ent = nullptr;
 
 		// Some entities are in the scene but were spawned by code.
 		// In that case, we won't call Init() from here ! Thus, the distinction is made
 		// Between entities loaded from file and entities in m_Scene.
 		std::vector<Entity *> loaded_from_file{};
+		Entity *current_entity{};
 
-		while(source>>curr) {
-			if(curr == '"') {
-				if(in_word) {
-					finish_word = true;
-					in_word = false;
-				} else {
-					begin_word = true;
-					in_word = true;
+		MapParser mp{};
+		std::vector<MapParser::MapCommand_t> command_list{mp(filepath)};
+
+		size_t i = 0;
+		while(i < command_list.size()) {
+			if(command_list[i].Type == MapParser::MAP_COMMAND_CREATE_ENTITY) {
+
+				void *position = m_EntityArena.Alloc(Entity::EntitySizeOf(command_list[i].TypeName));
+				current_entity = Entity::CreateEntityAt(command_list[i].TypeName, position);
+
+				if (!current_entity) {
+					Console::LogWarning("PARSER : Entity type '%s' does not exist !", command_list[i].TypeName);
+					i++;
+					while(i < command_list.size() && command_list[i].Type == MapParser::MAP_COMMAND_SET_KEY_VALUE) {
+						// Wont set for an entity type that does not exist. keep moving !
+						i++;
+					}
+					continue;
 				}
+				else {
+					m_Scene.emplace_back(current_entity);
+					loaded_from_file.emplace_back(current_entity);
+					i++;
+				}
+			} else {
+				ASSERT_V(command_list[i].Type == MapParser::MAP_COMMAND_SET_KEY_VALUE, false);
+
+				if(current_entity) {
+					current_entity->SetKeyValue(command_list[i].TypeName, (const char **)(command_list[i].Values), command_list[i].ValueCount);
+				}
+
+				i++;
 			}
-
-			if(curr_key == AWAIT_ENTITY) {
-				if(in_word && curr != '"') {
-					entity_name_buffer[entity_name_index++] = curr;
-				} else {
-					if(finish_word) {
-						entity_name_buffer[entity_name_index++] = '\0';
-						
-						void *position = m_EntityArena.Alloc(Entity::EntitySizeOf(entity_name_buffer));
-						curr_ent = Entity::CreateEntityAt(entity_name_buffer, position);
-
-						if(!curr_ent) {
-							Console::LogWarning("Parsing : Entity type '%s' does not exist !", entity_name_buffer);
-						} else {
-							m_Scene.emplace_back(curr_ent);
-							loaded_from_file.emplace_back(curr_ent);
-						}
-
-						entity_name_index = 0;
-						curr_key = AWAIT_OPEN_BRACE;
-					}
-				}
-			} else if(curr_key == AWAIT_OPEN_BRACE) {
-				if(curr == '{') {
-					curr_key = AWAIT_KEY;
-				}
-				if(curr == '"') {
-					Console::LogInfo("Parsing : Expected open brace '{' (Entity declaration %s)", entity_name_buffer);
-				}
-			} else if(curr_key == AWAIT_KEY) {
-				if(in_word && curr != '"') {
-					key_buffer[key_index++] = curr;
-				} else {
-					if(curr_key == '}') {
-						curr_key = AWAIT_ENTITY;
-					}
-					if(finish_word) {
-						key_buffer[key_index++] = '\0';
-						key_index = 0;
-						curr_key = AWAIT_COLON;
-					}
-				}
-			} else if(curr_key == AWAIT_COLON) {
-				if(curr == ':') {
-					curr_key = READING_VALUE;
-				} else if(curr != '\n' && curr != ' ' && curr != '\t' != curr != '\v' && curr != '\r') {
-					Console::LogInfo("Parsing : Expected colon ':' but got character '%c' (entity declaration '%s')", curr, entity_name_buffer);
-					return false;
-				}
-			} else if(curr_key == READING_VALUE) {
-				if(curr == 'j') {
-					int v = 0;
-				}
-				if(curr == ',' || curr == '}') {
-					curr_key = curr == ',' ? AWAIT_KEY : AWAIT_ENTITY;
-					curr_ent->SetKeyValue(key_buffer, (const char **)value_buffers, value_word_index);
-					value_word_index = 0;
-					value_letter_index = 0;
-				}
-
-				if(in_word && !finish_word && curr != '"') {
-					value_buffers[value_word_index][value_letter_index++] = curr;
-				} else if(finish_word) {
-					value_buffers[value_word_index][value_letter_index] = '\0';
-					value_letter_index = 0;
-					value_word_index++;
-				}
-			}
-
-
-			begin_word = finish_word = false;
 		}
-
-		if(curr_key != AWAIT_ENTITY) {
-			Console::LogInfo("Parsing : Entity declaration '%s' not finished!", entity_name_buffer);
-			return false;
-		}
-
-		for(int i = 0; i < MAX_VALUE_ARGC; i++) {
-			delete[] value_buffers[i];
-		}
-		delete[] value_buffers;
 
 		for(int i = 0; i < loaded_from_file.size(); i++) {
 			loaded_from_file[i]->Init();
 		}
+
+		Console::LogInfo(ConsoleMessageFlags_t::MESSAGE_NO_TIME_CODE_BIT,
+		"-------------------------------------------------------------");
 
 		return true;
     }

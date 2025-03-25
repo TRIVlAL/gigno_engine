@@ -14,7 +14,7 @@
 #include "test_entity.h"
 #include "rendering/gui.h"
 #include "application.h"
-#include "algorithm/arena.h"
+#include "entities/map_parser.h"
 
 namespace gigno {
 
@@ -56,17 +56,10 @@ namespace gigno {
 			Profiler::Begin("Main Loop");
 
 			if(m_ShouldLoadMap) {
-				Console::LogInfo("Loading map file '%s'", m_NextMapFilepath.c_str());
-				std::ifstream map_stream{m_NextMapFilepath};
-				if(!map_stream) {
-					Console::LogWarning("Failed to open map file !");
-				} else {
-					if (!m_EntityServer.LoadFromFile(map_stream)) {
-						Console::LogWarning("Error when parsing map file !");
-						//Fallback to the last map.
-						std::ifstream old_filestream{m_CurrentMapFilepath};
-						m_EntityServer.LoadFromFile(old_filestream);
-					}
+				if (!m_EntityServer.LoadFromFile(m_NextMapFilepath.c_str())) {
+					Console::LogWarning("Error when parsing map file !");
+					//Fallback to the last map.
+					m_EntityServer.LoadFromFile(m_CurrentMapFilepath.c_str());
 				}
 				m_ShouldLoadMap = false;
 				m_CurrentMapFilepath = m_NextMapFilepath;
