@@ -102,7 +102,6 @@ namespace gigno {
         
         m_LookUp = -m_LookUp;
         glm::vec3 forward = ApplyRotation(m_pCamera->Rotation, glm::vec3{-1.0f, 0.0f, 0.0f});
-        Console::LogInfo("info %f %f", m_LookUp, forward.y);
         if( forward.y > 0.98f) {
             m_LookUp = glm::min(0.0f, m_LookUp); //Already looking max up
         } else if(forward.y < -0.98f) {
@@ -111,7 +110,7 @@ namespace gigno {
 
         glm::vec3 right = ApplyRotation(m_pCamera->Rotation, glm::vec3{0.0f, 0.0f, 1.0f});
 
-        m_pCamera->AddRotation((glm::vec3{0.0f, -m_LookRight, 0.0f} + m_LookUp * right) * LookSpeed * dt);
+        m_pCamera->AddRotation((glm::vec3{0.0f, -m_LookRight, 0.0f} - m_LookUp * right) * LookSpeed * dt);
 
         m_LookRight = 0;
         m_LookUp = 0;
@@ -186,7 +185,8 @@ namespace gigno {
 
         //Apply Jump
         if(m_PressedJump) {
-            AddImpulse(glm::vec3{0.0f, JumpPower, 0.0f});
+            AddImpulse(glm::vec3{0.0f, JumpPower * Mass, 0.0f});
+            Console::LogInfo("JUMP");
         }
 
         m_MoveForward = 0;

@@ -17,15 +17,6 @@
     "Direction" : "-0.2" "-0.95" "0.05"
 }
 
-"PointLight" {
-    "Position"  : "0" "8" "0",
-    "Intensity" : "20"
-}
-
-"PointLight" {
-    "Position"  : "5" "8" "0",
-    "Intensity" : "20"
-}
 
 
 "EnvironmentLight" {

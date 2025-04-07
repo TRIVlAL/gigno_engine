@@ -16,7 +16,7 @@ namespace gigno {
     private:
         virtual void Think(float dt) override {
             RenderedEntity::Think(dt);
-            Rotation.y = glm::mod<float>(Rotation.y + (Speed * dt), glm::two_pi<float>());
+            AddRotation(glm::vec3{0.0f, (Speed * dt), 0.0f});
         }
     };
 
