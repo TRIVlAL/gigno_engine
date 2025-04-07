@@ -15,6 +15,7 @@ namespace gigno {
     typedef glm::vec3 vec3;
     struct Transform_t;
     typedef const char * cstr;
+    typedef glm::mat3 mat3;
 
     /*
     List here every types avaliable for a keyvalue
@@ -28,7 +29,8 @@ namespace gigno {
     Type(bool)\
     Type(vec3)\
     Type(cstr)\
-    Type(ColliderType_t)
+    Type(ColliderType_t)\
+    Type(mat3)
 
 
     #define Type(t) type_##t,

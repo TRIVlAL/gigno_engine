@@ -402,8 +402,11 @@ namespace gigno {
 
             const float inv_m_a = BodyA.IsStatic ? 0.0f : 1.0f / BodyA.Mass;
             const float inv_m_b = BodyB.IsStatic ? 0.0f : 1.0f / BodyB.Mass;
-            const float inv_I_a = inv_m_a / BodyA.InertiaMoment;
-            const float inv_I_b = inv_m_b / BodyB.InertiaMoment;
+            //const mat3 inv_I_a = glm::inverse(BodyA.InertiaTensor) * inv_m_a;
+            //const mat3 inv_I_b = glm::inverse(BodyB.InertiaTensor) * inv_m_b;
+
+            const mat3 inv_I_a = BodyA.GetInverseInertiaTensor();
+            const mat3 inv_I_b = BodyB.GetInverseInertiaTensor();
 
             const glm::vec3 moment_div_a = glm::cross(inv_I_a * glm::cross(collision.ApplyPointA, collision.Normal), collision.ApplyPointA);
             const glm::vec3 moment_div_b = glm::cross(inv_I_b * glm::cross(collision.ApplyPointB, collision.Normal), collision.ApplyPointB);

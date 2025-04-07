@@ -112,6 +112,21 @@ namespace gigno {
         return size;
     }
 
+    template<> inline
+    size_t ToString<glm::mat3>(char *to, const glm::mat3 &from) {
+        size_t size = snprintf(nullptr, 0, "((%f, %f, %f), (%f, %f, %f), (%f, %f, %f))", 
+            from[0][0], from[0][1], from[0][2], 
+            from[1][0], from[1][1], from[1][2], 
+            from[2][0], from[2][1], from[2][2]) + 1;
+
+        if (to)
+            snprintf(to, size, "((%f, %f, %f), (%f, %f, %f), (%f, %f, %f))", 
+                        from[0][0], from[0][1], from[0][2], 
+                        from[1][0], from[1][1], from[1][2], 
+                        from[2][0], from[2][1], from[2][2]);
+        return size;
+    }
+
 // FROM STRING -----------------------------------------
     enum : int {
         FROM_STRING_SUCCESS = 0,
@@ -238,6 +253,72 @@ namespace gigno {
     }
 
     template<> inline
+    std::pair<int, glm::mat3> FromString<glm::mat3>(const char **arguments, size_t argsCount) {
+        if(argsCount < 9 && argsCount != 3 && argsCount != 1) {
+            return std::pair<int, glm::mat3>(FROM_STRING_NOT_ENOUGH_ARGS, glm::mat3{});
+        }
+
+        glm::mat3 ret{0.0f};
+
+        if(argsCount == 1) {
+            // 1 args -> fill the diagonal with 1 element.
+            std::pair<int, float> intermed_result = FromString<float>(&arguments[0], 1);
+            if(intermed_result.first != FROM_STRING_SUCCESS) {
+                return std::pair<int, glm::mat3>(intermed_result.first, glm::mat3{});
+            } else {
+                ret[0][0] = intermed_result.second;
+                ret[1][1] = intermed_result.second;
+                ret[2][2] = intermed_result.second;
+            }
+        } else if(argsCount == 3) {
+            //3 args -> fill the diagonal.
+            std::pair<int, float> intermed_result = FromString<float>(&arguments[0], 1);
+            if(intermed_result.first != FROM_STRING_SUCCESS) {
+                return std::pair<int, glm::mat3>(intermed_result.first, glm::mat3{});
+            } else {
+                ret[0][0] = intermed_result.second;
+            }
+
+            intermed_result = FromString<float>(&arguments[1], 1);
+            if(intermed_result.first != FROM_STRING_SUCCESS) {
+                return std::pair<int, glm::mat3>(intermed_result.first, glm::mat3{});
+            } else {
+                ret[1][1] = intermed_result.second;
+            }
+
+            intermed_result = FromString<float>(&arguments[2], 1);
+            if(intermed_result.first != FROM_STRING_SUCCESS) {
+                return std::pair<int, glm::mat3>(intermed_result.first, glm::mat3{});
+            } else {
+                ret[2][2] = intermed_result.second;
+            }
+        } else {
+            std::pair<int, glm::vec3> intermed_result = FromString<glm::vec3>(&arguments[0], 3);
+            if(intermed_result.first != FROM_STRING_SUCCESS) {
+                return std::pair<int, glm::mat3>(intermed_result.first, glm::mat3{});
+            } else {
+                ret[0] = intermed_result.second;
+            }
+
+            intermed_result = FromString<glm::vec3>(&arguments[3], 3);
+            if(intermed_result.first != FROM_STRING_SUCCESS) {
+                return std::pair<int, glm::mat3>(intermed_result.first, glm::mat3{});
+            } else {
+                ret[1] = intermed_result.second;
+            }
+
+            intermed_result = FromString<glm::vec3>(&arguments[6], 3);
+            if(intermed_result.first != FROM_STRING_SUCCESS) {
+                return std::pair<int, glm::mat3>(intermed_result.first, glm::mat3{});
+            } else {
+                ret[2] = intermed_result.second;
+            }
+        }
+
+        return std::pair<int, glm::mat3>{FROM_STRING_SUCCESS, ret};
+    }
+
+    template<> inline
     std::pair<int, bool> FromString<bool>(const char **arguments, size_t argsCount) {
         if (strcmp(*arguments, "true") == 0 || strcmp(*arguments, "1") == 0) {
             return std::pair<int, bool>{FROM_STRING_SUCCESS, true};
@@ -277,6 +358,9 @@ namespace gigno {
 
     template<> inline
     constexpr const char *TypeString<const char *>() { return "const char *"; }
+
+    template<> inline
+    constexpr const char *TypeString<glm::mat3>() { return "mat3"; }
 
 }
 

@@ -29,8 +29,8 @@ namespace gigno {
         virtual void CleanUp() override;
         
         Collider_t AsCollider() const;
-
         const CollisionModel_t *GetModel() const;
+        glm::mat3 GetInverseInertiaTensor() const;
 
 
         ColliderType_t ColliderType = COLLIDER_PLANE;
@@ -50,7 +50,7 @@ namespace gigno {
         /*------------------------------------------*/
 
         float Mass{1.0f};
-        float InertiaMoment{1.0f};
+        glm::mat3 InertiaTensor{1.0f};
 
         bool IsStatic{false}; //Static objects are considered like having "infinite mass".
 
@@ -95,7 +95,10 @@ namespace gigno {
     private:
         void UpdateTransformedModel();
         void UpdateCollider();
+        void UpdateInertiaTensor();
         void DrawCollider();
+
+        glm::mat3 m_TransformedInverseInertiaTensor{};
 
         Collider_t m_Collider{};
         
@@ -110,7 +113,7 @@ namespace gigno {
 
     BEGIN_KEY_TABLE(RigidBody)
         DEFINE_KEY_VALUE(float, Mass)
-        DEFINE_KEY_VALUE(float, InertiaMoment)
+        DEFINE_KEY_VALUE(mat3, InertiaTensor)
         DEFINE_KEY_VALUE(bool, IsStatic)
         DEFINE_KEY_VALUE(float, Bounciness)
         DEFINE_KEY_VALUE(float, Friction)

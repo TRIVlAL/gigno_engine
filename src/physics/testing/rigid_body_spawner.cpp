@@ -33,7 +33,7 @@ namespace gigno
                             rb->ModelPath = "assets/models/colored_uv_sphere.obj";
                             rb->Radius = 0.75f;
                             rb-> Scale = glm::vec3{0.75f};
-                            rb->InertiaMoment = 0.225f;
+                            rb->InertiaTensor = glm::mat3{0.225f};
                             alternate++;
                             break;
                         case 1:
@@ -41,14 +41,14 @@ namespace gigno
                             rb->ModelPath = "assets/models/cube.obj";
                             rb->CollisionModelPath = "assets/models/cube.obj";
                             rb->Scale = glm::vec3{0.5f};
-                            rb->InertiaMoment = 0.1667f;
+                            rb->InertiaTensor = glm::mat3{0.1667f};
                             alternate++;
                             break;
                         case 2:
                             rb->ColliderType = COLLIDER_HULL;
                             rb->ModelPath = "assets/models/hull1.obj";
                             rb->CollisionModelPath = "assets/models/hull1.obj";
-                            rb->InertiaMoment = 0.25f;
+                            rb->InertiaTensor = glm::mat3{0.25f};
                             alternate = 0;
                             break;
                     }

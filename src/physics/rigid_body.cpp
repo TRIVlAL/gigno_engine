@@ -40,9 +40,7 @@ namespace gigno {
 
         Velocity += impulse * mass_inv;
 
-
-        AngularVelocity += glm::cross(application, impulse) * mass_inv / InertiaMoment;
-        
+        AngularVelocity += glm::cross(application, impulse) * GetInverseInertiaTensor();
     }
 
     void RigidBody::AddTorque(const glm::vec3 &torque) {
@@ -69,6 +67,8 @@ namespace gigno {
                 ColliderType = COLLIDER_SPHERE;
             }
         }
+
+        UpdateInertiaTensor();
 
         m_WorldTargetHinge = ApplyRotation(Rotation, HingePosition) + Position;
 
@@ -135,7 +135,7 @@ namespace gigno {
         Position += applied_vel;
 
         glm::vec3 avrg_rot_vel = AngularVelocity;
-        AngularVelocity+= dt * (Torque / Mass) / InertiaMoment;
+        AngularVelocity += dt * (Torque / Mass) * GetInverseInertiaTensor();
         avrg_rot_vel += AngularVelocity;
         avrg_rot_vel *= 0.5f;
 
@@ -154,6 +154,7 @@ namespace gigno {
             UpdateTransformedModel();
         }
         UpdateCollider();
+        UpdateInertiaTensor();
     }
 
     void RigidBody::CleanUp() {
@@ -168,26 +169,32 @@ namespace gigno {
         m_Collider.Radius = Radius;
         m_Collider.Length = Length;
         m_Collider.Normal = Normal;
-        if (ColliderType == COLLIDER_HULL)
-        {
+        if (ColliderType == COLLIDER_HULL) {
             m_Collider.Model = GetModel();
             m_Collider.TransformedModel = TransformedModel; // TODO : Avoid Copy
         }
         m_Collider.SetBoundingBox();
     }
 
+    void RigidBody::UpdateInertiaTensor() {
+        m_TransformedInverseInertiaTensor = IsStatic ? glm::mat3{0.0f} : RotationMatrix() * glm::inverse(InertiaTensor * Mass) * glm::transpose(RotationMatrix());
+    }
+
     Collider_t RigidBody::AsCollider() const {
         return m_Collider;
     }
 
-    const CollisionModel_t *RigidBody::GetModel() const
-    {
+    const CollisionModel_t *RigidBody::GetModel() const {
         ASSERT_V(ColliderType == COLLIDER_HULL, nullptr);
         if(GetApp() && GetApp()->GetPhysicServer()) {
             return GetApp()->GetPhysicServer()->GetCollisionModel(CollisionModelPath);
         } else {
             return nullptr;
         }
+    }
+
+    glm::mat3 RigidBody::GetInverseInertiaTensor() const {
+        return m_TransformedInverseInertiaTensor;
     }
 
     void RigidBody::UpdateTransformedModel()
