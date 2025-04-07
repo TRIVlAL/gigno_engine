@@ -9,25 +9,25 @@
 
 namespace gigno {
 
-    Collider_t::Collider_t(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, float radius) {
+    Collider_t::Collider_t(glm::vec3 position, glm::quat rotation, glm::vec3 scale, float radius) {
         Position = position; Rotation = rotation; Scale = scale; Radius = radius;
         ColliderType = COLLIDER_SPHERE;
         SetBoundingBox();
     }
     
-    Collider_t::Collider_t(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, float radius, float length) {
+    Collider_t::Collider_t(glm::vec3 position, glm::quat rotation, glm::vec3 scale, float radius, float length) {
         Position = position; Rotation = rotation; Scale = scale; Radius = radius; Length = length;
         ColliderType = COLLIDER_CAPSULE;
         SetBoundingBox();
     }
     
-    Collider_t::Collider_t(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, glm::vec3 normal) {
+    Collider_t::Collider_t(glm::vec3 position, glm::quat rotation, glm::vec3 scale, glm::vec3 normal) {
         Position = position; Rotation = rotation; Scale = scale; Normal = normal;
         ColliderType = COLLIDER_PLANE;
         SetBoundingBox();
     }
     
-    Collider_t::Collider_t(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, const CollisionModel_t *model) {
+    Collider_t::Collider_t(glm::vec3 position, glm::quat rotation, glm::vec3 scale, const CollisionModel_t *model) {
         Position = position; Rotation = rotation; Scale = scale; Model = model;
         ColliderType = COLLIDER_HULL;
         SetTransformedModel();

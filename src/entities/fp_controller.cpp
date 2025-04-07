@@ -99,10 +99,19 @@ namespace gigno {
         mouse *= LookSensibility;
         m_LookRight += mouse.x;
         m_LookUp += mouse.y;
+        
+        m_LookUp = -m_LookUp;
+        glm::vec3 forward = ApplyRotation(m_pCamera->Rotation, glm::vec3{-1.0f, 0.0f, 0.0f});
+        Console::LogInfo("info %f %f", m_LookUp, forward.y);
+        if( forward.y > 0.98f) {
+            m_LookUp = glm::min(0.0f, m_LookUp); //Already looking max up
+        } else if(forward.y < -0.98f) {
+            m_LookUp = glm::max(0.0f, m_LookUp); //Already looking max down
+        }
 
-        m_pCamera->Rotation += glm::vec3{0.0f, -m_LookRight, m_LookUp} * LookSpeed * dt;
-        m_pCamera->Rotation.z = glm::clamp(m_pCamera->Rotation.z, -glm::radians<float>(85.0f), glm::radians<float>(89.0f));
-        m_pCamera->Rotation.y = glm::mod<float>(m_pCamera->Rotation.y, glm::pi<float>() * 2);
+        glm::vec3 right = ApplyRotation(m_pCamera->Rotation, glm::vec3{0.0f, 0.0f, 1.0f});
+
+        m_pCamera->AddRotation((glm::vec3{0.0f, -m_LookRight, 0.0f} + m_LookUp * right) * LookSpeed * dt);
 
         m_LookRight = 0;
         m_LookUp = 0;
@@ -114,7 +123,6 @@ namespace gigno {
             bullet->ColliderType = COLLIDER_SPHERE;
             bullet->Radius = 0.15f;
             bullet->Scale = glm::vec3{0.15f};
-            glm::vec3 forward = ApplyRotation(m_pCamera->Rotation, glm::vec3{-1.0f, 0.0f, 0.0f});
             bullet->Velocity = forward * 37.0f;
             bullet->Mass = 15.0f;
             bullet->Bounciness = 0.7f;
@@ -129,8 +137,10 @@ namespace gigno {
     void FPController::PhysicThink(float dt) {
         //Query input in Think to not miss any
 
-        glm::vec3 forward{-glm::cos(m_pCamera->Rotation.y), 0.0f, glm::sin(m_pCamera->Rotation.y)};
-        glm::vec3 right{-glm::sin(m_pCamera->Rotation.y), 0.0f, -glm::cos(m_pCamera->Rotation.y)};
+        glm::vec3 forward = ApplyRotation(m_pCamera->Rotation, glm::vec3{-1.0f, 0.0f, 0.0f});
+        forward.y = 0;
+        forward = glm::normalize(forward);
+        glm::vec3 right{-forward.z, 0.0f, forward.x};
 
         glm::vec3 movement = glm::normalize(forward * (float)m_MoveForward + right * (float)m_MoveRight);
         if(movement != movement) {

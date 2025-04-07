@@ -38,10 +38,9 @@ namespace gigno {
     float LenSquared(const glm::vec3 &vec);
 
     /*
-    Return the result of the given vector after being rotated following the 
-    Tait-Bryan YXZ (see @ https://en.wikipedia.org/wiki/Euler_angles (Rotation Matrix)) convention
+    Return the result of the given vector after being rotated by the quaternion.
     */
-    glm::vec3 ApplyRotation(glm::vec3 rotation, glm::vec3 vector);
+    glm::vec3 ApplyRotation(glm::quat rotation, glm::vec3 vector);
 
     /*
     Returns the distance of a face from the origin.
@@ -54,6 +53,10 @@ namespace gigno {
     point p on a triangle a b c
     */
     void Barycentric(glm::vec3 p, glm::vec3 a, glm::vec3 b, glm::vec3 c, float &u, float &v, float &w);
+
+    glm::quat FromEuler(glm::vec3 euler);
+
+    glm::quat InverseQuat(glm::quat q);
 }
 
 #endif

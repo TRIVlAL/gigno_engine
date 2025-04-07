@@ -7,6 +7,7 @@ namespace gigno {
 
 
     void RenderedEntity::Init() {
+		Entity::Init();
 		GetApp()->GetRenderer()->SubscribeRenderedEntity(this);
 	}
 

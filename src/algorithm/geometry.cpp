@@ -1,5 +1,7 @@
 #include "geometry.h"
 #include "../debug/console/console.h"
+#define GLM_ENABLE_EXPERIMENTAL
+#include "../glm/glm/gtx/quaternion.hpp"
 
 namespace gigno {
 
@@ -69,27 +71,9 @@ namespace gigno {
         return vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
     }
 
-    glm::vec3 ApplyRotation(glm::vec3 rotation, glm::vec3 vector)
-    {
-        const float ca = glm::cos(rotation.y);
-        const float sa = glm::sin(rotation.y);
-        const float cb = glm::cos(rotation.x);
-        const float sb = glm::sin(rotation.x);
-        const float cc = glm::cos(rotation.z);
-        const float sc = glm::sin(rotation.z);
-        return glm::mat3{
-                   {(ca * cc + sa * sb * sc),
-                    (cb * sc),
-                    (ca * sb * sc - cc * sa)},
-
-                   {(cc * sa * sb - ca * sc),
-                    (cb * cc),
-                    (ca * cc * sb + sa * sc)},
-
-                   {(cb * sa),
-                    (-sb),
-                    (ca * cb)}} *
-               vector;
+    glm::vec3 ApplyRotation(glm::quat rotation, glm::vec3 vector) {
+        glm::quat result{rotation * glm::quat{0.0f, vector.x, vector.y, vector.z} * InverseQuat(rotation)};
+        return glm::vec3{result.x, result.y, result.z};
     }
 
     float DistanceToOrigin(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 &outNormal) {
@@ -127,4 +111,15 @@ namespace gigno {
         u = 1.0f - v - w;
     }
 
+    glm::quat FromEuler(glm::vec3 euler) {
+        glm::quat qx = glm::angleAxis(euler.x, glm::vec3{1.0f, 0.0f, 0.0f});
+        glm::quat qy = glm::angleAxis(euler.y, glm::vec3{0.0f, 1.0f, 0.0f});
+        glm::quat qz = glm::angleAxis(euler.z, glm::vec3{0.0f, 0.0f, 1.0f});
+
+        return qy * qz * qx;
+    }
+
+    glm::quat InverseQuat(glm::quat q) {
+        return glm::conjugate(q) / glm::length2(q);
+    }
 }

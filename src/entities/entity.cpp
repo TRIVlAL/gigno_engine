@@ -4,6 +4,7 @@
 #include <string.h>
 #include "../debug/console/convar.h"
 #include "../features_usage.h"
+#include "../algorithm/geometry.h"
 
 namespace  gigno {
 
@@ -11,86 +12,36 @@ namespace  gigno {
 	CONVAR(bool, draw_transform_debug, false, "Shows debug drawings that represents the transforms of every entity");
 	#endif
 
-	// translation -> rotation y -> rotation x -> rotation z -> scale
-	// Rotation Tait-Bryan YXZ (see @ https://en.wikipedia.org/wiki/Euler_angles (Rotation Matrix))
 	glm::mat4 Entity::TransformationMatrix() const {
-		const float ca = glm::cos(Rotation.y);
-		const float sa = glm::sin(Rotation.y);
-		const float cb = glm::cos(Rotation.x);
-		const float sb = glm::sin(Rotation.x);
-		const float cc = glm::cos(Rotation.z);
-		const float sc = glm::sin(Rotation.z);
-		return glm::mat4{
-			{Scale.x * (ca * cc + sa * sb * sc),
-			Scale.x * (cb * sc),
-			Scale.x * (ca * sb * sc - cc * sa),
-			0.0f },
+		return TranslationMatrix() * glm::mat4{RotationMatrix() * ScaleMatrix()};
+	}
 
-			{Scale.y * (cc * sa * sb - ca * sc),
-			Scale.y * (cb * cc),
-			Scale.y * (ca * cc * sb + sa * sc),
-			0.0f},
-
-			{Scale.z * (cb * sa),
-			Scale.z * (-sb),
-			Scale.z * (ca * cb),
-			0.0f},
-
-			{Position.x,
-			Position.y,
-			Position.z,
-			1.0f}
-		};
+    glm::mat4 Entity::TranslationMatrix() const {
+		return glm::mat4{1.0f, 0.0f, 0.0f, 0.0f,
+						 0.0f, 1.0f, 0.0f, 0.0f,
+						 0.0f, 0.0f, 1.0f, 0.0f,
+						 Position.x, Position.y, Position.z, 1.0f};
 	}
 
     glm::mat3 Entity::RotationMatrix() const {
-		const float ca = glm::cos(Rotation.y);
-		const float sa = glm::sin(Rotation.y);
-		const float cb = glm::cos(Rotation.x);
-		const float sb = glm::sin(Rotation.x);
-		const float cc = glm::cos(Rotation.z);
-		const float sc = glm::sin(Rotation.z);
-		return glm::mat3{
-			{(ca * cc + sa * sb * sc),
-			 (cb * sc),
-			 (ca * sb * sc - cc * sa)},
-
-			{(cc * sa * sb - ca * sc),
-			 (cb * cc),
-			 (ca * cc * sb + sa * sc)},
-
-			{(cb * sa),
-			 (-sb),
-			 (ca * cb) }
-		};
+		return glm::toMat3(Rotation);
 	}
+
+    glm::mat3 Entity::ScaleMatrix() const {
+        return glm::mat3{Scale.x, 0.0f, 0.0f,
+						0.0f, Scale.y, 0.0f,
+						0.0f, 0.0f, Scale.z};
+    }
 
     glm::mat3 Entity::NormalMatrix() const {
 		return glm::transpose(glm::inverse(glm::mat3(TransformationMatrix())));
 	}
 
-	glm::vec3 Entity::ApplyRotate(glm::vec3 v) const {
-		const float ca = glm::cos(Rotation.y);
-		const float sa = glm::sin(Rotation.y);
-		const float cb = glm::cos(Rotation.x);
-		const float sb = glm::sin(Rotation.x);
-		const float cc = glm::cos(Rotation.z);
-		const float sc = glm::sin(Rotation.z);
-		return glm::mat3{
-			{(ca * cc + sa * sb * sc),
-			(cb * sc),
-			(ca * sb * sc - cc * sa)},
-
-			{(cc * sa * sb - ca * sc),
-			(cb * cc),
-			(ca * cc * sb + sa * sc)},
-
-			{(cb * sa),
-			(-sb),
-			(ca * cb)}} * v;
+    void Entity::AddRotation(glm::vec3 euler) {
+		Rotation = FromEuler(euler) * Rotation;
 	}
 
-	std::vector<std::pair<const char *, Value_t>> Entity::KeyValues(){
+    std::vector<std::pair<const char *, Value_t>> Entity::KeyValues(){
 		std::vector<std::pair<const char *, Value_t>> ret{Entity::KeyValueCount()};
 		int i  = 0;
 		for (auto& [key, owned_value] : KeyTableAccessor<Entity>::KeyValues) {
@@ -155,7 +106,11 @@ namespace  gigno {
         return Application::Singleton();
     }
 
-    void Entity::Think(float dt)
+    void Entity::Init() {
+		AddRotation(StartRotation / 360.0f * glm::two_pi<float>());
+	}
+
+void Entity::Think(float dt)
     {
 #if USE_DEBUG_DRAWING
 		if((bool)convar_draw_transform_debug) {
@@ -163,11 +118,11 @@ namespace  gigno {
 			if(renderer->GetCameraHandle() == this) {
 				return;
 			}
-			renderer->DrawLine(Position, Position + ApplyRotate(glm::vec3{1.0f, 0.0f, 0.0f} * 2.0f), 
+			renderer->DrawLine(Position, Position + ApplyRotation(Rotation, glm::vec3{1.0f, 0.0f, 0.0f} * 2.0f), 
 							glm::vec3{1.0f, 0.0f, 0.0f});
-			renderer->DrawLine(Position, Position + ApplyRotate(glm::vec3{0.0f, 1.0f, 0.0f} * 2.0f),
+			renderer->DrawLine(Position, Position + ApplyRotation(Rotation, glm::vec3{0.0f, 1.0f, 0.0f} * 2.0f),
 							   glm::vec3{0.0f, 1.0f, 0.0f});
-			renderer->DrawLine(Position, Position + ApplyRotate(glm::vec3{0.0f, 0.0f, 1.0f} * 2.0f),
+			renderer->DrawLine(Position, Position + ApplyRotation(Rotation, glm::vec3{0.0f, 0.0f, 1.0f} * 2.0f),
 							   glm::vec3{0.0f, 0.0f, 1.0f});
 		}
 		#endif

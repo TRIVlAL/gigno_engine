@@ -71,19 +71,6 @@ namespace gigno {
 
         RigidBody *pNextRigidBody{};
 
-        /*--------------------------------------------
-        HINGE : The object is locked on an axis positioned at HingePosition. 
-                Set HingeDirection to (0,0,0) to disable (default)
-        --------------------------------------------*/
-        //Local Hinge Position
-        glm::vec3 HingePosition{};
-        //Axis on which the hinge rotates
-        glm::vec3 HingeDirection{};
-        // If 0.0, the object snaps to the hinge. 
-        // Else, a force is applied to keep the object close to the hinge, proporional to power.
-        float HingePower{10.0f};
-        /*------------------------------------------*/
-
         bool LockRotation = false;
 
         glm::vec3 Force{};
@@ -103,8 +90,6 @@ namespace gigno {
         Collider_t m_Collider{};
         
         bool m_GravityDisabled = false; // Reset every physics frame
-        
-        glm::vec3 m_WorldTargetHinge{}; // The world position of the hinge. is set on Init
         
         bool hasCollider = false;
         

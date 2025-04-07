@@ -21,7 +21,6 @@ namespace gigno {
 
     CONVAR(int, phys_draw_colliders, 0, "1 : Wireframe of the collider, models are drawn." 
                                         "2 : Wireframe of the collider, models are not drawn.")
-    CONVAR(bool, phys_draw_hinges, false, "Red : Hinges targets, Green : Hinges current position.");
     CONVAR(bool, phys_draw_bounding_box, false, "Draws Wireframe of the bounding boxes of the objects (except planes).")
 
     void RigidBody::AddForce(const glm::vec3 &force, const glm::vec3 &application) {
@@ -70,8 +69,6 @@ namespace gigno {
 
         UpdateInertiaTensor();
 
-        m_WorldTargetHinge = ApplyRotation(Rotation, HingePosition) + Position;
-
         m_WasRendered = DoRender;
     }
 
@@ -83,27 +80,6 @@ namespace gigno {
 
         if(IsStatic) {
             return;
-        }
-
-        //Apply Hinge
-        if(HingeDirection != glm::vec3{0.0f, 0.0f, 0.0f}) {
-            const glm::vec3 current_hinge_pos = ApplyRotation(Rotation, HingePosition) + Position;
-            const glm::vec3 diff = m_WorldTargetHinge - current_hinge_pos;
-            const glm::vec3 diff_plane = ProjectToPlane(diff, HingeDirection);
-            float dist = glm::length(diff_plane);
-
-            if(HingePower == 0.0f) {
-                Position += diff_plane;
-                Rotation = glm::vec3{HingeDirection.x * Rotation.x, HingeDirection.y * Rotation.y, HingeDirection.z * Rotation.z};
-            } else {
-                const glm::vec3 target_rot = glm::vec3{HingeDirection.x * Rotation.x, HingeDirection.y * Rotation.y, HingeDirection.z * Rotation.z};
-                const glm::vec3 rot_diff = target_rot - Rotation;
-
-                AddForce(diff_plane * dist * dist * HingePower, HingePosition);
-                // FIXME : Doesnt work, I can-t find a way to fix it! Just use the snap version for now i guess.
-                // AddTorque(rot_diff * HingePower * 100.0f);
-                Rotation = glm::vec3{HingeDirection.x * Rotation.x, HingeDirection.y * Rotation.y, HingeDirection.z * Rotation.z};
-            }
         }
 
         //Gravity
@@ -140,11 +116,8 @@ namespace gigno {
         avrg_rot_vel *= 0.5f;
 
         if(!LockRotation) {
-            Rotation += dt * avrg_rot_vel;
-    
-            Rotation.x = glm::mod<float>(Rotation.x, glm::pi<float>()*2);
-            Rotation.y = glm::mod<float>(Rotation.y, glm::pi<float>()*2);
-            Rotation.z = glm::mod<float>(Rotation.z, glm::pi<float>()*2);
+            Rotation += glm::quat{0.0f, avrg_rot_vel * dt * 0.5f} * Rotation;
+            Rotation = glm::normalize(Rotation);
         }
 
         Force = glm::vec3{0.0f};
@@ -228,28 +201,6 @@ namespace gigno {
             if(ColliderType == COLLIDER_PLANE) {
                 return;
             }
-        }
-
-        if((bool)convar_phys_draw_hinges) {
-            RenderingServer *r = GetApp()->GetRenderer();
-            r->DrawLine(m_WorldTargetHinge - HingeDirection * 5.0f, m_WorldTargetHinge + HingeDirection * 5.0f, glm::vec3{1.0f, 0.0f, 0.0f});
-            r->DrawPoint(m_WorldTargetHinge, glm::vec3{0.5f, 0.0f, 0.0f});
-
-            const glm::vec3 curr_target = ApplyRotation(Rotation, HingePosition) + Position;
-
-            const glm::vec3 current_hinge_pos = ApplyRotation(Rotation, HingePosition) + Position;
-            const glm::vec3 diff = m_WorldTargetHinge - current_hinge_pos;
-            const glm::vec3 diff_plane = ProjectToPlane(diff, HingeDirection);
-            const float dist = glm::length(diff_plane);
-
-            const glm::vec3 local_hinge_direction = ApplyRotation(Rotation, HingeDirection);
-            const float dot = glm::dot(HingeDirection, local_hinge_direction);
-            const float angle_diff = glm::acos(dot);
-            const glm::vec3 rotation_axis = angle_diff > 0.0f ? glm::normalize(glm::cross(HingeDirection, local_hinge_direction)) : glm::vec3{};
-
-            r->DrawLine(curr_target - local_hinge_direction * 5.0f, curr_target + local_hinge_direction * 5.0f, glm::vec3{0.0f, 1.0f, 0.0f});
-            r->DrawLine(curr_target, curr_target + rotation_axis, glm::vec3{0.0f, 0.0f, 1.0f});
-            r->DrawPoint(curr_target, glm::vec3{0.0f, 0.5f, 0.0f});
         }
 
         if((bool)convar_phys_draw_bounding_box) {

@@ -10,8 +10,7 @@ namespace gigno {
     }
 
     void RotatingWall::PhysicThink(float dt) {
-       Rotation += glm::vec3{0.0f, 1.0f, 0.0f} * dt * SPEED;
-
+        AddRotation(glm::vec3{0.0f, 1.0f, 0.0f} * dt * SPEED);
 
         RigidBody::PhysicThink(dt);
     }

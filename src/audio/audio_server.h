@@ -44,7 +44,7 @@ namespace gigno {
         Sound_t *NewSound(const char *path);
         void DeleteSound(Sound_t *sound);
 
-        void UpdateListener(glm::vec3 position, glm::vec3 rotation);
+        void UpdateListener(glm::vec3 position, glm::quat rotation);
         glm::vec3 GetListenerPosition();
 
         void SetGlobalVolume(float volume) { ma_engine_set_volume(&m_Engine, volume); }

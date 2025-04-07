@@ -2,6 +2,8 @@
 #define COLLISION_H
 
 #include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 #include "collider_type.h"
 
 namespace gigno {
@@ -19,10 +21,10 @@ namespace gigno {
     private:
         Collider_t() = default; //Only trust RigidBody to not be dumb with the empty constructor
     public:
-        Collider_t(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, float radius); //Sphere
-        Collider_t(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, float radius, float length); //Capsule
-        Collider_t(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, glm::vec3 normal); //Plane
-        Collider_t(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, const CollisionModel_t *model); //Hull
+        Collider_t(glm::vec3 position, glm::quat rotation, glm::vec3 scale, float radius); //Sphere
+        Collider_t(glm::vec3 position, glm::quat rotation, glm::vec3 scale, float radius, float length); //Capsule
+        Collider_t(glm::vec3 position, glm::quat rotation, glm::vec3 scale, glm::vec3 normal); //Plane
+        Collider_t(glm::vec3 position, glm::quat rotation, glm::vec3 scale, const CollisionModel_t *model); //Hull
 
         void SetTransformedModel();
         void SetBoundingBox();
@@ -30,7 +32,7 @@ namespace gigno {
         ColliderType_t ColliderType;
 
         glm::vec3 Position{};
-        glm::vec3 Rotation{};
+        glm::quat Rotation{};
         glm::vec3 Scale{};
 
         float Radius{}; // COLLIDER_SPHERE / COLLIDER_CAPSULE

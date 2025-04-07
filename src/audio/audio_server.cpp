@@ -33,7 +33,7 @@ namespace gigno {
         m_SoundArena.Free((void*)sound, sizeof(Sound_t));
     }
 
-    void AudioServer::UpdateListener(glm::vec3 position, glm::vec3 rotation) {
+    void AudioServer::UpdateListener(glm::vec3 position, glm::quat rotation) {
         ma_engine_listener_set_position(&m_Engine, 0, position.x, position.y, position.z);
         glm::vec3 forward = ApplyRotation(rotation, glm::vec3{-1.0f, 0.0f, 0.0f});
         ma_engine_listener_set_direction(&m_Engine, 0, forward.x, forward.y, forward.z);

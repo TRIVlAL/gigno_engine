@@ -1,10 +1,12 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
+#define GLM_ENABLE_EXPERIMENTAL
 #define GLM_FORCE_RADIANS
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/constants.hpp"
+#include "../vendor/glm/glm/gtx/quaternion.hpp"
 #include "../algorithm/cstr_map.h"
 #include "iostream"
 #include "keyvalue.h"
@@ -63,7 +65,7 @@ namespace gigno {
 		Entity() {};
 		virtual ~Entity() {};
 
-		virtual void Init() {};
+		virtual void Init();
 		// Called Every Tick by the Entity Server
 		virtual void Think(float dt);
 		// Called Every physic Tick (fixed time interval)
@@ -75,13 +77,19 @@ namespace gigno {
 		const char *Name = "";
 
 		glm::vec3 Position{};
-		glm::vec3 Rotation{};
+		glm::quat Rotation{1.0f, 0.0f, 0.0f, 0.0f};
 		glm::vec3 Scale{1.0f};
 
+		// The base rotation when initiated, as Euler Angles (on 360 degrees)
+		glm::vec3 StartRotation{0.0f};
+
 		glm::mat4 TransformationMatrix() const;
+		glm::mat4 TranslationMatrix() const;
 		glm::mat3 RotationMatrix() const;
+		glm::mat3 ScaleMatrix() const;
 		glm::mat3 NormalMatrix() const;
-		glm::vec3 ApplyRotate(glm::vec3 v) const;
+
+		void AddRotation(glm::vec3 euler);
 
 		
 		// Returns a vector of all the key values of this Entity and all its bases.
@@ -128,7 +136,7 @@ namespace gigno {
 
 	BEGIN_KEY_TABLE(Entity)
 		DEFINE_KEY_VALUE(vec3, Position)
-		DEFINE_KEY_VALUE(vec3, Rotation)
+		DEFINE_KEY_VALUE(vec3, StartRotation)
 		DEFINE_KEY_VALUE(vec3, Scale)
 		DEFINE_KEY_VALUE(cstr, Name)
 	END_KEY_TABLE
