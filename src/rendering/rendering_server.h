@@ -19,6 +19,7 @@ namespace gigno {
 
 	const size_t MAX_FRAMES_IN_FLIGHT = 2;
 	const int MAX_LIGHT_DATA_COUNT = 15;
+	const size_t SHADOW_MAP_CASCADE_COUNT = 3;
 
 	class RenderingServer {
 
@@ -47,6 +48,8 @@ namespace gigno {
 
 		void CreateModel(std::shared_ptr<giModel> &model, const ModelData_t &modelData);
 		void ClenUpModel(std::shared_ptr<giModel> &model);
+
+		size_t GetShadowMapCascadeCount() { return m_ShadowMapPass.CascadeCount; }
 
 		//Debug Drawing ( need to active USE_DEBUG_DRAWING in features_usage.h )
 		void DrawPoint(glm::vec3 pos, glm::vec3 color);
@@ -109,8 +112,8 @@ namespace gigno {
 				glm::vec4 LightDatas[MAX_LIGHT_DATA_COUNT];
 
 				//Shadow Map transformations
-				glm::mat4 LightView{1.0f};
-				glm::mat4 LightProjection{1.0f};
+				glm::mat4 LightView[SHADOW_MAP_CASCADE_COUNT];
+				glm::mat4 LightProjection[SHADOW_MAP_CASCADE_COUNT];
 
 				alignas(4) RenderingParameters_t Parameters;
 			};
@@ -142,7 +145,7 @@ namespace gigno {
 		void CreateDescriptorSetLayouts();
 		void CreatePipelines(bool isRecreate = false);
 		void CreateCommandPool();
-		void CreateShadowMapSampler();
+		void CreateShadowMapSamplers();
 		void CreateDepthResources(bool isRecreate = false);
 		void CreateFrameBuffers();
 		void CreateUniformBuffers();
@@ -157,7 +160,7 @@ namespace gigno {
 		//RECORD COMMAND BUFFER --------------------------------
 
 		// Shadowmap Pass
-		void ShadowMap_UniformBufferCommands(SceneRenderingData_t &sceneData);
+		void ShadowMap_UniformBufferCommands(SceneRenderingData_t &sceneData, size_t cascadeIndex);
 		void ShadowMap_RenderEntitiesCommands(SceneRenderingData_t &sceneData);
 
 		// Main Render
@@ -226,18 +229,19 @@ namespace gigno {
 		} m_MainPass;
 
 		struct {
-			uint32_t Width = 2500, Height = 2500;
+			uint32_t CascadeCount = SHADOW_MAP_CASCADE_COUNT;
+			uint32_t Width = 2000, Height = 2000;
 			VkFormat ColorFormat;
-			VkFramebuffer Framebuffer;
-			FramebufferAttachment_t DepthAttachment;
+			std::vector<VkFramebuffer> Framebuffers;
+			std::vector<FramebufferAttachment_t> DepthAttachments;
 			VkRenderPass RenderPass;
-			VkSampler Sampler;
-			VkDescriptorImageInfo ImageInfo;
+			std::vector<VkSampler> Samplers;
+			std::vector<VkDescriptorImageInfo> ImageInfos;
 			VkPipelineLayout PipelineLayout;
 			VkDescriptorSetLayout DescriptorSetLayout;
 			VkPipeline Pipeline;
 
-			UniformBuffer UniformBuffer;
+			std::vector<UniformBuffer> UniformBuffers;
 		} m_ShadowMapPass;
 
 

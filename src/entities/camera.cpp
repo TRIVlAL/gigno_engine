@@ -49,14 +49,16 @@ namespace gigno {
 	void Camera::SetPerspectiveProjection(float fovy, float aspect, float _near, float _far) {
 		ProjMode = PROJECTION_MODE_PERSPECTIVE;
 		CurrentFovy = fovy;
-
+		
 		const float tan_half_fovy = tan(fovy / 2.f);
 		m_ProjectionMatrix = glm::mat4{ 1.0f };
 		m_ProjectionMatrix[0][0] = 1.f / (aspect * tan_half_fovy);
 		m_ProjectionMatrix[1][1] = 1.f / (tan_half_fovy);
-		m_ProjectionMatrix[2][2] = _far / (_far - _near);
+		m_ProjectionMatrix[2][2] = (_far + _near) / (_far - _near);
 		m_ProjectionMatrix[2][3] = 1.f;
-		m_ProjectionMatrix[3][2] = -(_far * _near) / (_far - _near);
+		m_ProjectionMatrix[3][2] = -(2* _far * _near) / (_far - _near);
+		m_ProjectionMatrix[3][3] = 1.0f;
+		
 	}
 
 	void Camera::SetLookAtPoint(glm::vec3 point) {

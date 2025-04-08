@@ -9,7 +9,7 @@
 "DirectionalLight" {
     "Intensity" : "0.4",
     "Direction" : "0.5" "-0.6" "0.2",
-    "ShadowMapExtent" : "25" "25" "85"
+    "ShadowMapExtent" : "100"
 }
 
 "DirectionalLight" {

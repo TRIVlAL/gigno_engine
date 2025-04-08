@@ -19,7 +19,7 @@ namespace gigno {
 	CONVAR(int, r_fullbright, 0, "1 : no lighting applied. 2 : No color but do lighting");
 	CONVAR(bool, r_shadowmap, true, "Are real time shadows (shadowmap) enabled");
 	CONVAR(int, r_shadowmap_extra_sample_count, 2, "higher means smoother and softer shadow edges. up to 7");
-	CONVAR(bool, r_shadowmap_debug_range, false, "when true, pixels in range of the shadowmaps (pixels that recieve shadows) are colored bright green");
+	CONVAR(bool, r_shadowmap_debug_range, false, "pixels go from black, trough red, to default depending of the cascade (shadow quality) they're in.");
 
 	void RenderingServer::Init(int winw, int winh, const char *winTitle) {
 		m_Window.Init(winw, winh, winTitle);
@@ -35,7 +35,7 @@ namespace gigno {
 			return;
 		}
 		CreateCommandPool();
-		CreateShadowMapSampler();
+		CreateShadowMapSamplers();
 		CreateDepthResources();
 		CreateFrameBuffers();
 		CreateUniformBuffers();
@@ -106,9 +106,16 @@ namespace gigno {
 		vkDestroyImage(m_Device.GetDevice(), m_MainPass.DepthAttachment.Image, nullptr);
 		vkFreeMemory(m_Device.GetDevice(), m_MainPass.DepthAttachment.Memory, nullptr);
 
-		vkDestroyImageView(m_Device.GetDevice(), m_ShadowMapPass.DepthAttachment.View, nullptr);
-		vkDestroyImage(m_Device.GetDevice(), m_ShadowMapPass.DepthAttachment.Image, nullptr);
-		vkFreeMemory(m_Device.GetDevice(), m_ShadowMapPass.DepthAttachment.Memory, nullptr);
+		for(size_t i = 0; i < m_ShadowMapPass.CascadeCount; i++) {
+			vkDestroyImageView(m_Device.GetDevice(), m_ShadowMapPass.DepthAttachments[i].View, nullptr);
+			vkDestroyImage(m_Device.GetDevice(), m_ShadowMapPass.DepthAttachments[i].Image, nullptr);
+			vkFreeMemory(m_Device.GetDevice(), m_ShadowMapPass.DepthAttachments[i].Memory, nullptr);
+
+			vkDestroyBuffer(m_Device.GetDevice(), m_ShadowMapPass.UniformBuffers[i].Buffer, nullptr);
+			vkFreeMemory(m_Device.GetDevice(), m_ShadowMapPass.UniformBuffers[i].Memory, nullptr);
+
+			vkDestroySampler(m_Device.GetDevice(), m_ShadowMapPass.Samplers[i], nullptr);
+		}
 
 		vkDestroySwapchainKHR(m_Device.GetDevice(), m_SwapChain.SwapChain, nullptr);
 
@@ -120,14 +127,11 @@ namespace gigno {
 			vkDestroyBuffer(m_Device.GetDevice(), m_SwapChain.UniformBuffers[i].Buffer, nullptr);
 			vkFreeMemory(m_Device.GetDevice(), m_SwapChain.UniformBuffers[i].Memory, nullptr);
 		}
-		vkDestroyBuffer(m_Device.GetDevice(), m_ShadowMapPass.UniformBuffer.Buffer, nullptr);
-		vkFreeMemory(m_Device.GetDevice(), m_ShadowMapPass.UniformBuffer.Memory, nullptr);
 
 		vkDestroyDescriptorPool(m_Device.GetDevice(), m_DescriptorPool, nullptr);
 		vkDestroyDescriptorSetLayout(m_Device.GetDevice(), m_MainPass.DescriptorSetLayout, nullptr);
 		vkDestroyDescriptorSetLayout(m_Device.GetDevice(), m_ShadowMapPass.DescriptorSetLayout, nullptr);
 
-		vkDestroySampler(m_Device.GetDevice(), m_ShadowMapPass.Sampler, nullptr);
 		
 		for(rsize_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			vkDestroySemaphore(m_Device.GetDevice(), m_ImageAvaliableSemaphores[i], nullptr);
@@ -312,14 +316,14 @@ namespace gigno {
 						"Failed to begin Command Buffer ! ");
 
 		//SHADOW MAP PASS 
-		{
+		for(size_t shadowmap_index = 0; shadowmap_index < m_ShadowMapPass.CascadeCount; shadowmap_index++) {
 			VkClearValue clear_val;
 			clear_val.depthStencil = {1.0f, 0};
 
 			VkRenderPassBeginInfo pass_begin_info{};
 			pass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 			pass_begin_info.renderPass = m_ShadowMapPass.RenderPass;
-			pass_begin_info.framebuffer = m_ShadowMapPass.Framebuffer;
+			pass_begin_info.framebuffer = m_ShadowMapPass.Framebuffers[shadowmap_index];
 			pass_begin_info.renderArea.offset = {0, 0};
 			pass_begin_info.renderArea.extent.width = m_ShadowMapPass.Width;
 			pass_begin_info.renderArea.extent.height = m_ShadowMapPass.Height;
@@ -345,7 +349,7 @@ namespace gigno {
 
 			vkCmdBindPipeline(m_CommandBuffers[m_CurrentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, m_ShadowMapPass.Pipeline);
 
-			ShadowMap_UniformBufferCommands(sceneData);
+			ShadowMap_UniformBufferCommands(sceneData, shadowmap_index);
 			ShadowMap_RenderEntitiesCommands(sceneData);
 
 			vkCmdEndRenderPass(m_CommandBuffers[m_CurrentFrame]);
@@ -405,23 +409,24 @@ namespace gigno {
 					"Failed to end Command Buffer ! ");
 	}
 
-    void RenderingServer::ShadowMap_UniformBufferCommands(SceneRenderingData_t &sceneData) {
+    void RenderingServer::ShadowMap_UniformBufferCommands(SceneRenderingData_t &sceneData, size_t cascadeIndex) {
 		DirectionalLight *directional_light = dynamic_cast<DirectionalLight *>(sceneData.LightEntities);
 		if (directional_light == nullptr) {
 			return; // Only directional light support shadow mapping.
 		}
 
-		const glm::mat4 proj = directional_light->ShadowMapProjectionMatrix();
-		const glm::mat4 view = directional_light->ShadowMapViewMatrix(sceneData.pCamera);
+		auto mats = directional_light->ShadowMapViewAndProjection(cascadeIndex, m_ShadowMapPass.CascadeCount, sceneData.pCamera);
+		const glm::mat4 view = mats.first;
+		const glm::mat4 proj = mats.second;
 
 		UniformBuffers::ShadowMapRender_t ub{};
 		ub.LightProjection = proj;
 		ub.LightView = view;
 
-		std::memcpy(m_ShadowMapPass.UniformBuffer.Mapped, &ub, sizeof(ub));
+		std::memcpy(m_ShadowMapPass.UniformBuffers[cascadeIndex].Mapped, &ub, sizeof(ub));
 
 		vkCmdBindDescriptorSets(m_CommandBuffers[m_CurrentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, m_ShadowMapPass.PipelineLayout, 0, 1, 
-								&m_DescriptorSets[MAX_FRAMES_IN_FLIGHT], 0, nullptr);
+								&m_DescriptorSets[MAX_FRAMES_IN_FLIGHT+cascadeIndex], 0, nullptr);
     }
 
     void RenderingServer::ShadowMap_RenderEntitiesCommands(SceneRenderingData_t &sceneData) {
@@ -471,8 +476,11 @@ namespace gigno {
 		//Shadow Map Light Transformations
 		DirectionalLight *directionalLight = dynamic_cast<DirectionalLight *>(lights);
 		if (directionalLight) {
-			ub.LightProjection = directionalLight->ShadowMapProjectionMatrix();
-			ub.LightView = directionalLight->ShadowMapViewMatrix(camera);
+			for(int i = 0; i < m_ShadowMapPass.CascadeCount; i++) {
+				auto mats = directionalLight->ShadowMapViewAndProjection(i, m_ShadowMapPass.CascadeCount, camera); 
+				ub.LightView[i] = mats.first;
+				ub.LightProjection[i] = mats.second;
+			}
 		}
 
 		//Rendering parameters
@@ -658,10 +666,10 @@ namespace gigno {
 		VkSubpassDependency dependency{};
 		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
 		dependency.dstSubpass = 0;
-		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-		dependency.srcAccessMask = 0;
+		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+		dependency.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
 
 		std::array<VkAttachmentDescription, 2> attachments{color_attachment, depth_attachment};
 		VkRenderPassCreateInfo createinfo{};
@@ -679,22 +687,6 @@ namespace gigno {
     }
 
     void RenderingServer::CreateShadowMapRenderPass() {
-
-		/*
-		VkAttachmentDescription color_attachment{};
-		color_attachment.format = m_ShadowMapPass.ColorFormat;
-		color_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-		color_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		color_attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		color_attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		color_attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		color_attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		color_attachment.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-		VkAttachmentReference color_attachment_ref{};
-		color_attachment_ref.attachment = 0;
-		color_attachment_ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		*/
 
 		VkAttachmentDescription depth_attachment{};
 		depth_attachment.format = VK_FORMAT_D32_SFLOAT;
@@ -718,7 +710,7 @@ namespace gigno {
 		
 		dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
 		dependencies[0].dstSubpass = 0;
-		dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT; //VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 		dependencies[0].srcAccessMask = VK_ACCESS_NONE_KHR;
 		dependencies[0].dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 		dependencies[0].dstAccessMask =  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
@@ -729,7 +721,7 @@ namespace gigno {
 		dependencies[1].srcStageMask = VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
 		dependencies[1].srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 		dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-		dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 		dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
 		std::array<VkAttachmentDescription, 1> attachments{depth_attachment};
@@ -767,7 +759,7 @@ namespace gigno {
 		VkDescriptorSetLayoutBinding image_sampler_binding{};
 		image_sampler_binding.binding = 1;
 		image_sampler_binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		image_sampler_binding.descriptorCount = 1;
+		image_sampler_binding.descriptorCount = m_ShadowMapPass.CascadeCount;
 		image_sampler_binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
 		ubo_layout_binding.stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
@@ -984,8 +976,8 @@ namespace gigno {
 		VkPipelineRasterizationStateCreateInfo sm_rasterization_state_info{rasterization_state_info};
 		sm_rasterization_state_info.cullMode = VK_CULL_MODE_FRONT_BIT;
 		sm_rasterization_state_info.depthBiasEnable = VK_TRUE;
-		sm_rasterization_state_info.depthBiasConstantFactor = 3.5f;
-		sm_rasterization_state_info.depthBiasSlopeFactor = 5.0f;
+		sm_rasterization_state_info.depthBiasConstantFactor = 2.0f;
+		sm_rasterization_state_info.depthBiasSlopeFactor = 4.0f;
 
 		pipeline_create_infos[1].sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		pipeline_create_infos[1].pNext = nullptr;
@@ -1035,23 +1027,26 @@ namespace gigno {
 					"Failed to create Vulkan Command Pool ! ");
     }
 
-    void RenderingServer::CreateShadowMapSampler() {
-		VkSamplerCreateInfo sampler_info{};
-		sampler_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-		sampler_info.magFilter = VK_FILTER_LINEAR;
-		sampler_info.minFilter = VK_FILTER_LINEAR;
-		sampler_info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-		sampler_info.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-		sampler_info.addressModeV = sampler_info.addressModeU;
-		sampler_info.addressModeW = sampler_info.addressModeU;
-		sampler_info.mipLodBias = 0.0f;
-		sampler_info.maxAnisotropy = 1.0f;
-		sampler_info.minLod = 0.0f;
-		sampler_info.maxLod = 1.0f;
-		sampler_info.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+    void RenderingServer::CreateShadowMapSamplers() {
+		m_ShadowMapPass.Samplers.resize(m_ShadowMapPass.CascadeCount);
+		for(size_t i = 0; i < m_ShadowMapPass.Samplers.size(); i++) {
+			VkSamplerCreateInfo sampler_info{};
+			sampler_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+			sampler_info.magFilter = VK_FILTER_LINEAR;
+			sampler_info.minFilter = VK_FILTER_LINEAR;
+			sampler_info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+			sampler_info.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+			sampler_info.addressModeV = sampler_info.addressModeU;
+			sampler_info.addressModeW = sampler_info.addressModeU;
+			sampler_info.mipLodBias = 0.0f;
+			sampler_info.maxAnisotropy = 1.0f;
+			sampler_info.minLod = 0.0f;
+			sampler_info.maxLod = 1.0f;
+			sampler_info.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
 
-		VULKAN_CHECK(vkCreateSampler(m_Device.GetDevice(), &sampler_info, nullptr, &m_ShadowMapPass.Sampler),
-						"Failed to create Shadow Map Sampler ! ");
+			VULKAN_CHECK(vkCreateSampler(m_Device.GetDevice(), &sampler_info, nullptr, &m_ShadowMapPass.Samplers[i]),
+				"Failed to create Shadow Map Sampler ! ");
+		}
 	}
 
     void RenderingServer::CreateDepthResources(bool isRecreate) {
@@ -1066,11 +1061,16 @@ namespace gigno {
 
 		//SHADOW MAP PASS
 		if(!isRecreate) {
-			CreateImage(m_Device.GetDevice(), m_Device.GetPhysicalDevice(), m_ShadowMapPass.Width, m_ShadowMapPass.Height, VK_FORMAT_D32_SFLOAT, 
-						VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-						m_ShadowMapPass.DepthAttachment.Image, m_ShadowMapPass.DepthAttachment.Memory);
-			
-			m_ShadowMapPass.DepthAttachment.View = CreateImageView(m_Device.GetDevice(), m_ShadowMapPass.DepthAttachment.Image, VK_FORMAT_D32_SFLOAT, VK_IMAGE_ASPECT_DEPTH_BIT);
+			m_ShadowMapPass.DepthAttachments.resize(m_ShadowMapPass.CascadeCount);
+
+			for(size_t i = 0; i < m_ShadowMapPass.DepthAttachments.size(); i++) {
+				CreateImage(m_Device.GetDevice(), m_Device.GetPhysicalDevice(), m_ShadowMapPass.Width, m_ShadowMapPass.Height, VK_FORMAT_D32_SFLOAT, 
+							VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+							m_ShadowMapPass.DepthAttachments[i].Image, m_ShadowMapPass.DepthAttachments[i].Memory);
+				
+				m_ShadowMapPass.DepthAttachments[i].View = CreateImageView(m_Device.GetDevice(), m_ShadowMapPass.DepthAttachments[i].Image, VK_FORMAT_D32_SFLOAT, VK_IMAGE_ASPECT_DEPTH_BIT);
+			}
+
 		}
     }
 
@@ -1095,8 +1095,9 @@ namespace gigno {
 		}
 
 		//SHADOW MAP PASS
-		{
-			std::array<VkImageView, 1> attachments{/*m_ShadowMapPass.ColorAttachment.View,*/ m_ShadowMapPass.DepthAttachment.View};
+		m_ShadowMapPass.Framebuffers.resize(m_ShadowMapPass.CascadeCount);
+		for(size_t i = 0; i < m_ShadowMapPass.Framebuffers.size(); i++) {
+			std::array<VkImageView, 1> attachments{m_ShadowMapPass.DepthAttachments[i].View};
 
 			VkFramebufferCreateInfo createinfo{};
 			createinfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -1107,7 +1108,7 @@ namespace gigno {
 			createinfo.height = m_ShadowMapPass.Height;
 			createinfo.layers = 1;
 
-			VULKAN_CHECK(vkCreateFramebuffer(m_Device.GetDevice(), &createinfo, nullptr, &m_ShadowMapPass.Framebuffer),
+			VULKAN_CHECK(vkCreateFramebuffer(m_Device.GetDevice(), &createinfo, nullptr, &m_ShadowMapPass.Framebuffers[i]),
 							"Failed to create Shadow Map Frame Buffer ! ");
 		}
     }
@@ -1124,9 +1125,12 @@ namespace gigno {
 		}
 
 		//SHADOW MAP PASS
-		CreateBuffer(m_Device.GetDevice(), m_Device.GetPhysicalDevice(), sizeof(UniformBuffers::ShadowMapRender_t), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-						VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_ShadowMapPass.UniformBuffer.Buffer, m_ShadowMapPass.UniformBuffer.Memory);
-		vkMapMemory(m_Device.GetDevice(), m_ShadowMapPass.UniformBuffer.Memory, 0, sizeof(UniformBuffers::ShadowMapRender_t), 0, &m_ShadowMapPass.UniformBuffer.Mapped);
+		m_ShadowMapPass.UniformBuffers.resize(m_ShadowMapPass.CascadeCount);
+		for(size_t i = 0; i < m_ShadowMapPass.UniformBuffers.size(); i++) {
+			CreateBuffer(m_Device.GetDevice(), m_Device.GetPhysicalDevice(), sizeof(UniformBuffers::ShadowMapRender_t), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+							VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_ShadowMapPass.UniformBuffers[i].Buffer, m_ShadowMapPass.UniformBuffers[i].Memory);
+			vkMapMemory(m_Device.GetDevice(), m_ShadowMapPass.UniformBuffers[i].Memory, 0, sizeof(UniformBuffers::ShadowMapRender_t), 0, &m_ShadowMapPass.UniformBuffers[i].Mapped);
+		}
 	}
 
     void RenderingServer::CreateDescriptorPool() {
@@ -1139,12 +1143,12 @@ namespace gigno {
 		pool_sizes[1].descriptorCount = MAX_FRAMES_IN_FLIGHT;
 		
 		pool_sizes[2].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		pool_sizes[2].descriptorCount = 1; //SHADOW MAP UNIFORM BUFFER.
+		pool_sizes[2].descriptorCount = m_ShadowMapPass.CascadeCount; //SHADOW MAP UNIFORM BUFFER.
 
 
 		VkDescriptorPoolCreateInfo createinfo{};
 		createinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		createinfo.maxSets = MAX_FRAMES_IN_FLIGHT + 1;
+		createinfo.maxSets = MAX_FRAMES_IN_FLIGHT + m_ShadowMapPass.CascadeCount;
 		createinfo.poolSizeCount = pool_sizes.size();
 		createinfo.pPoolSizes = pool_sizes.data();
 
@@ -1154,22 +1158,27 @@ namespace gigno {
 
     void RenderingServer::CreateDescriptorSets() {
 		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, m_MainPass.DescriptorSetLayout);
-		layouts.emplace_back(m_ShadowMapPass.DescriptorSetLayout);
+		for(size_t i = 0; i < m_ShadowMapPass.CascadeCount; i++) {
+			layouts.emplace_back(m_ShadowMapPass.DescriptorSetLayout);
+		}
 
 		VkDescriptorSetAllocateInfo allocinfo{};
 		allocinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 		allocinfo.descriptorPool = m_DescriptorPool;
-		allocinfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT + 1;
+		allocinfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT + m_ShadowMapPass.CascadeCount;
 		allocinfo.pSetLayouts = layouts.data();
 
-		m_DescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT + 1);
+		m_DescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT + m_ShadowMapPass.CascadeCount);
 
 		VULKAN_CHECK(vkAllocateDescriptorSets(m_Device.GetDevice(), &allocinfo, m_DescriptorSets.data()),
 						"Failed to Allocate Descriptor Sets ! ");
 
-		m_ShadowMapPass.ImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		m_ShadowMapPass.ImageInfo.imageView = m_ShadowMapPass.DepthAttachment.View;
-		m_ShadowMapPass.ImageInfo.sampler = m_ShadowMapPass.Sampler;
+		m_ShadowMapPass.ImageInfos.resize(m_ShadowMapPass.CascadeCount);
+		for(size_t i = 0; i < m_ShadowMapPass.ImageInfos.size(); i++) {
+			m_ShadowMapPass.ImageInfos[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			m_ShadowMapPass.ImageInfos[i].imageView = m_ShadowMapPass.DepthAttachments[i].View;
+			m_ShadowMapPass.ImageInfos[i].sampler = m_ShadowMapPass.Samplers[i];
+		}
 
 		//MAIN PASS
 		for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -1191,29 +1200,31 @@ namespace gigno {
 			desc_writes[1].dstSet = m_DescriptorSets[i];
 			desc_writes[1].dstBinding = 1;
 			desc_writes[1].dstArrayElement = 0;
-			desc_writes[1].descriptorCount = 1;
+			desc_writes[1].descriptorCount = m_ShadowMapPass.CascadeCount;
 			desc_writes[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			desc_writes[1].pImageInfo = &m_ShadowMapPass.ImageInfo;
+			desc_writes[1].pImageInfo = m_ShadowMapPass.ImageInfos.data();
 
 			vkUpdateDescriptorSets(m_Device.GetDevice(), desc_writes.size(), desc_writes.data(), 0, nullptr);
 		}
 
-		VkDescriptorBufferInfo buffer_info{};
-		buffer_info.buffer = m_ShadowMapPass.UniformBuffer.Buffer;
-		buffer_info.offset = 0;
-		buffer_info.range = sizeof(UniformBuffers::ShadowMapRender_t);
-
-		//SHADOW MAP PASS
-		VkWriteDescriptorSet desc_write{};
-		desc_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		desc_write.dstSet = m_DescriptorSets[MAX_FRAMES_IN_FLIGHT];
-		desc_write.dstBinding = 0;
-		desc_write.dstArrayElement = 0;
-		desc_write.descriptorCount = 1;
-		desc_write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		desc_write.pBufferInfo = &buffer_info;
-
-		vkUpdateDescriptorSets(m_Device.GetDevice(), 1, &desc_write, 0, nullptr);
+		for(size_t i = 0; i < m_ShadowMapPass.CascadeCount; i++) {
+			VkDescriptorBufferInfo buffer_info{};
+			buffer_info.buffer = m_ShadowMapPass.UniformBuffers[i].Buffer;
+			buffer_info.offset = 0;
+			buffer_info.range = sizeof(UniformBuffers::ShadowMapRender_t);
+	
+			//SHADOW MAP PASS
+			VkWriteDescriptorSet desc_write{};
+			desc_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			desc_write.dstSet = m_DescriptorSets[MAX_FRAMES_IN_FLIGHT+i];
+			desc_write.dstBinding = 0;
+			desc_write.dstArrayElement = 0;
+			desc_write.descriptorCount = 1;
+			desc_write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			desc_write.pBufferInfo = &buffer_info;
+	
+			vkUpdateDescriptorSets(m_Device.GetDevice(), 1, &desc_write, 0, nullptr);
+		}
 	}
 
     void RenderingServer::CreateCommandBuffers() {
