@@ -99,6 +99,8 @@ namespace gigno {
         mouse *= LookSensibility;
         m_LookRight += mouse.x;
         m_LookUp += mouse.y;
+
+        bool sensible = m_pCamera->Rotation == m_pCamera->Rotation;
         
         m_LookUp = -m_LookUp;
         glm::vec3 forward = ApplyRotation(m_pCamera->Rotation, glm::vec3{-1.0f, 0.0f, 0.0f});
@@ -114,6 +116,10 @@ namespace gigno {
 
         m_LookRight = 0;
         m_LookUp = 0;
+
+        if(sensible && m_pCamera->Rotation != m_pCamera->Rotation) {
+            int i = 0;
+        }
 
         //Shoot
         if(in->GetKeyDown(KEY_E)) {

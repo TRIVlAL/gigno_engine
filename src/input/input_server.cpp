@@ -59,7 +59,13 @@ namespace gigno {
     }
 
     glm::vec2 InputServer::GetMouseDelta() {
-        return m_CurrentMousePos - m_LastMousePos;
+        glm::vec2 delta = m_CurrentMousePos - m_LastMousePos;
+
+		//NaN prevention
+		delta.x = delta.x == delta.x ? delta.x : 0.0f;
+		delta.y = delta.y == delta.y ? delta.y : 0.0f;
+		
+		return delta;
     }
 
     void InputServer::SetMouseMode(MouseMode_t mode) {

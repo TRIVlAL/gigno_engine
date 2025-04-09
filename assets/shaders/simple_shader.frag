@@ -33,32 +33,24 @@ layout(binding=0) uniform UniformBufferObject {
 const int SHADOW_MAP_WIDTH = 2500;
 const int SHADOW_MAP_HEIGHT = 2500;
 
-layout(binding=1) uniform sampler2D shadowMap[SHADOW_MAP_CASCADE_COUNT];
+layout(binding=1) uniform sampler2D variancedShadowMap[SHADOW_MAP_CASCADE_COUNT];
 
 float ShadowMappedDirectionalLightPower(int index, vec3 positionLightSpaceNDC, int addedSampleCount) {
-	//inside this shadowmap
-	float ret = 0.0f;
 
 	vec2 shadow_map_coord = positionLightSpaceNDC.xy * 0.5 + 0.5;
+	
+	vec2 moments = texture(variancedShadowMap[index], shadow_map_coord.xy).xy;
 
-	float shadow_map_pixel_width = 1.0f / SHADOW_MAP_WIDTH;
-	float shadow_map_pixel_height = 1.0f / SHADOW_MAP_HEIGHT;
+	float distance = moments.x - positionLightSpaceNDC.z;
 
-	int total_samples = (1 + 2 * addedSampleCount) * (1 + 2 * addedSampleCount);
+	float variance = max(moments.y - moments.x * moments.x, 0.00002f);
+	float pMax = variance / (variance + distance * distance);
 
-	for(int x = -addedSampleCount; x <= addedSampleCount; x++) {
-		for(int y = -addedSampleCount; y <= addedSampleCount; y++) {
-			vec2 sample_coord = shadow_map_coord + vec2(x * shadow_map_pixel_width, y * shadow_map_pixel_height);
-			float shadow_map_depth = texture(shadowMap[index], sample_coord.xy).x;
-			if(positionLightSpaceNDC.z <= shadow_map_depth) {
-				ret += 1.0f;
-			}
-		}
+	if(positionLightSpaceNDC.z < moments.x) {
+		return 1.0f;
+	} else {
+		return pMax;
 	}
-
-	ret = ret/total_samples;
-
-	return ret;
 }
 
 float CascadedShadowMapLightPower(vec3 frag_normal, vec3 lightDir, int addedSampleCount, bool doDebugRange) {

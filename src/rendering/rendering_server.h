@@ -147,6 +147,7 @@ namespace gigno {
 		void CreateCommandPool();
 		void CreateShadowMapSamplers();
 		void CreateDepthResources(bool isRecreate = false);
+		void CreateVariancedShadowmapImages();
 		void CreateFrameBuffers();
 		void CreateUniformBuffers();
 		void CreateDescriptorPool();
@@ -162,6 +163,7 @@ namespace gigno {
 		// Shadowmap Pass
 		void ShadowMap_UniformBufferCommands(SceneRenderingData_t &sceneData, size_t cascadeIndex);
 		void ShadowMap_RenderEntitiesCommands(SceneRenderingData_t &sceneData);
+		void ShadowMap_RenderVariancedImage(size_t cascadeIndex);
 
 		// Main Render
 		void Main_UniformBufferCommands(const Camera *camera, Light *lights);
@@ -231,15 +233,30 @@ namespace gigno {
 		struct {
 			uint32_t CascadeCount = SHADOW_MAP_CASCADE_COUNT;
 			uint32_t Width = 2000, Height = 2000;
-			VkFormat ColorFormat;
-			std::vector<VkFramebuffer> Framebuffers;
+
+			std::vector<VkFramebuffer> DepthFramebuffers;
+			std::vector<VkFramebuffer> VariancedFramebuffers;
+
 			std::vector<FramebufferAttachment_t> DepthAttachments;
-			VkRenderPass RenderPass;
-			std::vector<VkSampler> Samplers;
-			std::vector<VkDescriptorImageInfo> ImageInfos;
-			VkPipelineLayout PipelineLayout;
-			VkDescriptorSetLayout DescriptorSetLayout;
-			VkPipeline Pipeline;
+			std::vector<FramebufferAttachment_t> VariancedAttachments;
+
+			VkRenderPass DepthRenderPass;
+			VkRenderPass VariancedRenderPass;
+
+			std::vector<VkSampler> DepthSamplers;
+			std::vector<VkSampler> VariancedSamplers;
+
+			std::vector<VkDescriptorImageInfo> DepthImageInfos;
+			std::vector<VkDescriptorImageInfo> VariancedImageInfos;
+
+			VkPipelineLayout DepthPipelineLayout;
+			VkPipelineLayout VariancedPipelineLayout;
+			
+			VkDescriptorSetLayout DepthDescriptorSetLayout;
+			VkDescriptorSetLayout VariancedDescriptorSetLayout;
+
+			VkPipeline DepthPipeline;
+			VkPipeline VariancedPipeline;
 
 			std::vector<UniformBuffer> UniformBuffers;
 		} m_ShadowMapPass;
