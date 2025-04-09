@@ -976,7 +976,7 @@ namespace gigno {
 		VkPipelineRasterizationStateCreateInfo sm_rasterization_state_info{rasterization_state_info};
 		sm_rasterization_state_info.cullMode = VK_CULL_MODE_FRONT_BIT;
 		sm_rasterization_state_info.depthBiasEnable = VK_TRUE;
-		sm_rasterization_state_info.depthBiasConstantFactor = 2.0f;
+		sm_rasterization_state_info.depthBiasConstantFactor = 10.0f;
 		sm_rasterization_state_info.depthBiasSlopeFactor = 4.0f;
 
 		pipeline_create_infos[1].sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;

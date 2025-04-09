@@ -9,6 +9,7 @@
 #include <thread>
 #include <chrono>
 #include <time.h>
+#include <future>
 
 #include "entities/entity_server.h"
 
@@ -33,7 +34,16 @@ namespace gigno {
     PhysicServer::~PhysicServer() {
         m_LoopContinue = false;
         m_Pause = false;
-        m_LoopThread.join();
+
+        std::future<void>* terminate = new std::future<void>{std::async(std::launch::async, &std::thread::join, &m_LoopThread)};
+        if(terminate->wait_for(std::chrono::seconds(5)) == std::future_status::timeout) {
+            // Server is probably stuck in an infinite loop.
+            // We let it leak but who cares at this point
+            Console::LogError("Physics Thread Stuck ! Aborting uninitialization.");
+            return;
+        } else {
+            delete terminate;
+        }
     }
 
     void PhysicServer::SubscribeRigidBody(RigidBody *rb) {
