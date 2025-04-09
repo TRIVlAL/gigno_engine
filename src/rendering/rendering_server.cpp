@@ -18,8 +18,8 @@ namespace gigno {
 
 	CONVAR(int, r_fullbright, 0, "1 : no lighting applied. 2 : No color but do lighting");
 	CONVAR(bool, r_shadowmap, true, "Are real time shadows (shadowmap) enabled");
-	CONVAR(int, r_shadowmap_extra_sample_count, 2, "higher means smoother and softer shadow edges. up to 7");
 	CONVAR(bool, r_shadowmap_debug_range, false, "pixels go from black, trough red, to default depending of the cascade (shadow quality) they're in.");
+	CONVAR(int, r_shadowmap_blur_count, 2, "how many times is the shadowmap blurred per frame, leads to softer and beter looking shadows for higher cost.");
 
 	void RenderingServer::Init(int winw, int winh, const char *winTitle) {
 		m_Window.Init(winw, winh, winTitle);
@@ -218,7 +218,6 @@ namespace gigno {
 		model->CleanUp(m_Device.GetDevice());
     }
 
-
 	/*
 	*
 	*
@@ -236,7 +235,8 @@ namespace gigno {
 	*/
 
 	void RenderingServer::Render() {
-		if(!m_pCamera) {
+
+		if (!m_pCamera) {
 			Console::LogWarning("No Active Camera in the scene !");
 		}
 
@@ -256,7 +256,7 @@ namespace gigno {
 
 		vkResetCommandBuffer(m_CommandBuffers[m_CurrentFrame], 0);
 
-		#if USE_DEBUG_DRAWING
+#if USE_DEBUG_DRAWING
 		UpdateDebugDrawings();
 		#endif
 
@@ -398,6 +398,86 @@ namespace gigno {
 			vkCmdEndRenderPass(m_CommandBuffers[m_CurrentFrame]);
 		}
 
+		for(size_t blurr_i = 0; blurr_i < (size_t)glm::min<int>(glm::max<int>((int)convar_r_shadowmap_blur_count, 0), 10); blurr_i++) {
+			// VARIANCE BLURR A
+			for (size_t shadowmap_index = 0; shadowmap_index < m_ShadowMapPass.CascadeCount; shadowmap_index++) {
+				VkClearValue clear_val{};
+				clear_val.color = {{1.0f, 1.0f, 0.0f, 0.0f}};
+	
+				VkRenderPassBeginInfo pass_begin_info{};
+				pass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+				pass_begin_info.renderPass = m_ShadowMapPass.BlurringRenderPassA;
+				pass_begin_info.framebuffer = m_ShadowMapPass.BlurringFramebuffersA[shadowmap_index];
+				pass_begin_info.renderArea.offset = {0, 0};
+				pass_begin_info.renderArea.extent.width = m_ShadowMapPass.Width;
+				pass_begin_info.renderArea.extent.height = m_ShadowMapPass.Height;
+				pass_begin_info.clearValueCount = 1;
+				pass_begin_info.pClearValues = &clear_val;
+	
+				vkCmdBeginRenderPass(m_CommandBuffers[m_CurrentFrame], &pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+	
+				VkViewport viewport{};
+				viewport.x = 0.0f;
+				viewport.y = 0.0f;
+				viewport.width = static_cast<float>(m_ShadowMapPass.Width);
+				viewport.height = static_cast<float>(m_ShadowMapPass.Height);
+				viewport.minDepth = 0.0f;
+				viewport.maxDepth = 1.0f;
+				vkCmdSetViewport(m_CommandBuffers[m_CurrentFrame], 0, 1, &viewport);
+	
+				VkRect2D scissor{};
+				scissor.extent.width = m_ShadowMapPass.Width;
+				scissor.extent.height = m_ShadowMapPass.Height;
+				scissor.offset = {0, 0};
+				vkCmdSetScissor(m_CommandBuffers[m_CurrentFrame], 0, 1, &scissor);
+	
+				vkCmdBindPipeline(m_CommandBuffers[m_CurrentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, m_ShadowMapPass.VariancedBlurringPipelineA);
+	
+				ShadowMap_BlurrVariancedImageA(shadowmap_index);
+	
+				vkCmdEndRenderPass(m_CommandBuffers[m_CurrentFrame]);
+			}
+	
+			// VARIANCE BLURR B
+			for (size_t shadowmap_index = 0; shadowmap_index < m_ShadowMapPass.CascadeCount; shadowmap_index++) {
+				VkClearValue clear_val{};
+				clear_val.color = {{1.0f, 1.0f, 0.0f, 0.0f}};
+	
+				VkRenderPassBeginInfo pass_begin_info{};
+				pass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+				pass_begin_info.renderPass = m_ShadowMapPass.BlurringRenderPassB;
+				pass_begin_info.framebuffer = m_ShadowMapPass.BlurringFramebuffersB[shadowmap_index];
+				pass_begin_info.renderArea.offset = {0, 0};
+				pass_begin_info.renderArea.extent.width = m_ShadowMapPass.Width;
+				pass_begin_info.renderArea.extent.height = m_ShadowMapPass.Height;
+				pass_begin_info.clearValueCount = 1;
+				pass_begin_info.pClearValues = &clear_val;
+	
+				vkCmdBeginRenderPass(m_CommandBuffers[m_CurrentFrame], &pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+	
+				VkViewport viewport{};
+				viewport.x = 0.0f;
+				viewport.y = 0.0f;
+				viewport.width = static_cast<float>(m_ShadowMapPass.Width);
+				viewport.height = static_cast<float>(m_ShadowMapPass.Height);
+				viewport.minDepth = 0.0f;
+				viewport.maxDepth = 1.0f;
+				vkCmdSetViewport(m_CommandBuffers[m_CurrentFrame], 0, 1, &viewport);
+	
+				VkRect2D scissor{};
+				scissor.extent.width = m_ShadowMapPass.Width;
+				scissor.extent.height = m_ShadowMapPass.Height;
+				scissor.offset = {0, 0};
+				vkCmdSetScissor(m_CommandBuffers[m_CurrentFrame], 0, 1, &scissor);
+	
+				vkCmdBindPipeline(m_CommandBuffers[m_CurrentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, m_ShadowMapPass.VariancedBlurringPipelineB);
+	
+				ShadowMap_BlurrVariancedImageB(shadowmap_index);
+	
+				vkCmdEndRenderPass(m_CommandBuffers[m_CurrentFrame]);
+			}
+		}
+
 		//MAIN PASS
 		{
 			std::array<VkClearValue, 2> clear_vals = {};
@@ -504,6 +584,22 @@ namespace gigno {
 
     }
 
+    void RenderingServer::ShadowMap_BlurrVariancedImageA(size_t cascadeIndex) {
+		vkCmdBindDescriptorSets(m_CommandBuffers[m_CurrentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, m_ShadowMapPass.VariancedPipelineLayout, 0, 1,
+								&m_DescriptorSets[MAX_FRAMES_IN_FLIGHT + m_ShadowMapPass.CascadeCount * 2 + cascadeIndex], 0, nullptr);
+
+		// Draw quads, vertex are identified with gl_VertexId
+		vkCmdDraw(m_CommandBuffers[m_CurrentFrame], 6, 1, 0, 0);
+	}
+
+    void RenderingServer::ShadowMap_BlurrVariancedImageB(size_t cascadeIndex) {
+		vkCmdBindDescriptorSets(m_CommandBuffers[m_CurrentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, m_ShadowMapPass.VariancedPipelineLayout, 0, 1,
+								&m_DescriptorSets[MAX_FRAMES_IN_FLIGHT + m_ShadowMapPass.CascadeCount * 3 + cascadeIndex], 0, nullptr);
+
+		// Draw quads, vertex are identified with gl_VertexId
+		vkCmdDraw(m_CommandBuffers[m_CurrentFrame], 6, 1, 0, 0);
+	}
+
     void RenderingServer::Main_UniformBufferCommands(const Camera *camera, Light *lights)
     {
 		UniformBuffers::MainRender_t ub{};
@@ -540,7 +636,6 @@ namespace gigno {
 		RenderingParameters_t params{};
 		params = params | ((int)convar_r_fullbright & (int)(glm::pow(2, (int)RP_FULLBRIGHT_BITS_COUNT) - 1)) << RP_FULLBRIGHT_BITS_POSITION;
 		params = params | ((int)(bool)convar_r_shadowmap & (int)(glm::pow(2, (int)RP_SHADOW_MAP_ENABLE_BIT_COUNT) - 1)) << RP_SHADOW_MAP_ENABLE_BIT_POSITION;
-		params = params | (glm::min<int>((int)convar_r_shadowmap_extra_sample_count, 7) & (int)(glm::pow(2, (int)RP_SHADOW_MAP_SAMPLE_COUNT_BIT_COUNT) - 1)) << RP_SHADOW_MAP_SAMPLE_COUNT_BIT_POSITION;
 		params = params | ((int)(bool)convar_r_shadowmap_debug_range & (int)(glm::pow(2, (int)RP_SHADOW_MAP_APPLICATION_RANGE_DEBUG_BIT_COUNT) - 1)) << RP_SHADOW_MAP_APPLICATION_RANGE_DEBUG_BIT_POSITION;
 		ub.Parameters = params;
 
@@ -751,8 +846,8 @@ namespace gigno {
 			depth_attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 			depth_attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 			depth_attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			depth_attachment.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	
+			depth_attachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL;
+
 			VkAttachmentReference depth_attachment_ref{};
 			depth_attachment_ref.attachment = 0;
 			depth_attachment_ref.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
@@ -803,8 +898,8 @@ namespace gigno {
 			color_attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 			color_attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 			color_attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-			color_attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			color_attachment.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			color_attachment.initialLayout = VK_IMAGE_LAYOUT_GENERAL;
+			color_attachment.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
 
 			VkAttachmentReference color_attachment_ref{};
 			color_attachment_ref.attachment = 0;
@@ -835,6 +930,12 @@ namespace gigno {
 			createinfo.pDependencies = &dependency;
 
 			VULKAN_CHECK(vkCreateRenderPass(m_Device.GetDevice(), &createinfo, nullptr, &m_ShadowMapPass.VariancedRenderPass),
+						 "Failed to create Shadow Map Render Pass ! ");
+
+			VULKAN_CHECK(vkCreateRenderPass(m_Device.GetDevice(), &createinfo, nullptr, &m_ShadowMapPass.BlurringRenderPassA),
+						 "Failed to create Shadow Map Render Pass ! ");
+
+			VULKAN_CHECK(vkCreateRenderPass(m_Device.GetDevice(), &createinfo, nullptr, &m_ShadowMapPass.BlurringRenderPassB),
 						 "Failed to create Shadow Map Render Pass ! ");
 		}
 	}
@@ -895,7 +996,7 @@ namespace gigno {
 	}
 
     void RenderingServer::CreatePipelines(bool isRecreate) {
-		std::array<VkGraphicsPipelineCreateInfo, 3> pipeline_create_infos{};
+		std::array<VkGraphicsPipelineCreateInfo, 5> pipeline_create_infos{};
 
 		//--------------------------- DATA COMMON TO ALL PIPELINES ------------------------------------
 
@@ -1125,7 +1226,7 @@ namespace gigno {
 		// ------------------------------------- VARIANCED SHADOWMAP PIPELINE ---------------------------//
 		VkPipelineDynamicStateCreateInfo vm_dynamic_state_info{sm_dynamic_state_info};
 
-		VkShaderModule varianced_vertex_shader_module = CreateShaderModule(ReadFile("assets/shaders/varianced_shadow_map.vert.spv"));
+		VkShaderModule varianced_vertex_shader_module = CreateShaderModule(ReadFile("assets/shaders/quad.vert.spv"));
 		VkShaderModule varianced_fragment_shader_module = CreateShaderModule(ReadFile("assets/shaders/varianced_shadow_map.frag.spv"));
 
 		if (!varianced_vertex_shader_module || !varianced_fragment_shader_module) {
@@ -1186,9 +1287,86 @@ namespace gigno {
 		pipeline_create_infos[2].basePipelineHandle = VK_NULL_HANDLE;
 		pipeline_create_infos[2].basePipelineIndex = -1;
 
+		//--------------------------------------- BLURR VARIANCED SHADOWMAP PIPELINE ---------------------//
+		VkPipelineDynamicStateCreateInfo bl_dynamic_state_info{sm_dynamic_state_info};
+
+		VkShaderModule blur_vertex_shader_module = CreateShaderModule(ReadFile("assets/shaders/quad.vert.spv"));
+		VkShaderModule blur_fragment_shader_module_horizontal = CreateShaderModule(ReadFile("assets/shaders/shadowmap_blur_horizontal.frag.spv"));
+		VkShaderModule blur_fragment_shader_module_vertical = CreateShaderModule(ReadFile("assets/shaders/shadowmap_blur_vertical.frag.spv"));
+
+		if (!blur_vertex_shader_module || !blur_fragment_shader_module_horizontal || !blur_fragment_shader_module_vertical)
+		{
+			return;
+		}
+
+		VkPipelineShaderStageCreateInfo bl_vert_shader_stage_info{};
+		bl_vert_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		bl_vert_shader_stage_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
+		bl_vert_shader_stage_info.module = blur_vertex_shader_module;
+		bl_vert_shader_stage_info.pName = "main";
+
+		VkPipelineShaderStageCreateInfo bl_frag_shader_stage_info_A{};
+		bl_frag_shader_stage_info_A.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		bl_frag_shader_stage_info_A.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+		bl_frag_shader_stage_info_A.module = blur_fragment_shader_module_horizontal;
+		bl_frag_shader_stage_info_A.pName = "main";
+
+		VkPipelineShaderStageCreateInfo bl_frag_shader_stage_info_B{};
+		bl_frag_shader_stage_info_B.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		bl_frag_shader_stage_info_B.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+		bl_frag_shader_stage_info_B.module = blur_fragment_shader_module_vertical;
+		bl_frag_shader_stage_info_B.pName = "main";
+
+		VkPipelineShaderStageCreateInfo bl_shader_stages_A[] = {bl_vert_shader_stage_info, bl_frag_shader_stage_info_A};
+		VkPipelineShaderStageCreateInfo bl_shader_stages_B[] = {bl_vert_shader_stage_info, bl_frag_shader_stage_info_B};
+
+		VkPipelineVertexInputStateCreateInfo bl_vertex_input_info{vm_vertex_input_info};
+
+		pipeline_create_infos[3].sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		pipeline_create_infos[3].pNext = nullptr;
+		pipeline_create_infos[3].stageCount = 2;
+		pipeline_create_infos[3].pStages = bl_shader_stages_A;
+		pipeline_create_infos[3].pVertexInputState = &bl_vertex_input_info;
+		pipeline_create_infos[3].pInputAssemblyState = &input_assembly_info;
+		pipeline_create_infos[3].pTessellationState = &tesselation_state_info;
+		pipeline_create_infos[3].pViewportState = &viewport_state_info;
+		pipeline_create_infos[3].pRasterizationState = &vm_rasterization_state_info;
+		pipeline_create_infos[3].pMultisampleState = &multisample_state_info;
+		pipeline_create_infos[3].pDepthStencilState = &depth_stencil_state_info;
+		pipeline_create_infos[3].pColorBlendState = &color_blend_state_info;
+		pipeline_create_infos[3].pDynamicState = &bl_dynamic_state_info;
+
+		pipeline_create_infos[3].layout = m_ShadowMapPass.VariancedPipelineLayout; //same layout
+		pipeline_create_infos[3].renderPass = m_ShadowMapPass.BlurringRenderPassA;
+		pipeline_create_infos[3].subpass = 0;
+
+		pipeline_create_infos[3].basePipelineHandle = VK_NULL_HANDLE;
+		pipeline_create_infos[3].basePipelineIndex = -1;
+
+		pipeline_create_infos[4].sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		pipeline_create_infos[4].pNext = nullptr;
+		pipeline_create_infos[4].stageCount = 2;
+		pipeline_create_infos[4].pStages = bl_shader_stages_B;
+		pipeline_create_infos[4].pVertexInputState = &bl_vertex_input_info;
+		pipeline_create_infos[4].pInputAssemblyState = &input_assembly_info;
+		pipeline_create_infos[4].pTessellationState = &tesselation_state_info;
+		pipeline_create_infos[4].pViewportState = &viewport_state_info;
+		pipeline_create_infos[4].pRasterizationState = &vm_rasterization_state_info;
+		pipeline_create_infos[4].pMultisampleState = &multisample_state_info;
+		pipeline_create_infos[4].pDepthStencilState = &depth_stencil_state_info;
+		pipeline_create_infos[4].pColorBlendState = &color_blend_state_info;
+		pipeline_create_infos[4].pDynamicState = &bl_dynamic_state_info;
+
+		pipeline_create_infos[4].layout = m_ShadowMapPass.VariancedPipelineLayout; //same layout
+		pipeline_create_infos[4].renderPass = m_ShadowMapPass.BlurringRenderPassB;
+		pipeline_create_infos[4].subpass = 0;
+
+		pipeline_create_infos[4].basePipelineHandle = VK_NULL_HANDLE;
+		pipeline_create_infos[4].basePipelineIndex = -1;
+
 		//--------------------------------------- CREATE PIPELINES ---------------------------------------//
 
-		VkPipeline pipelines[3];
+		VkPipeline pipelines[5];
 		VULKAN_CHECK(vkCreateGraphicsPipelines(m_Device.GetDevice(), nullptr, pipeline_create_infos.size(), pipeline_create_infos.data(), nullptr, pipelines),
 					 "Failed to create Graphics Pipelines ! ");
 
@@ -1196,6 +1374,8 @@ namespace gigno {
 		if(!isRecreate) {
 			m_ShadowMapPass.DepthPipeline = pipelines[1];
 			m_ShadowMapPass.VariancedPipeline = pipelines[2];
+			m_ShadowMapPass.VariancedBlurringPipelineA = pipelines[3];
+			m_ShadowMapPass.VariancedBlurringPipelineB = pipelines[4];
 		}
 
 		vkDestroyShaderModule(m_Device.GetDevice(), vert_shader_module, nullptr);
@@ -1203,6 +1383,9 @@ namespace gigno {
 		vkDestroyShaderModule(m_Device.GetDevice(), shadow_map_shader_module, nullptr);
 		vkDestroyShaderModule(m_Device.GetDevice(), varianced_vertex_shader_module, nullptr);
 		vkDestroyShaderModule(m_Device.GetDevice(), varianced_fragment_shader_module, nullptr);
+		vkDestroyShaderModule(m_Device.GetDevice(), blur_vertex_shader_module, nullptr);
+		vkDestroyShaderModule(m_Device.GetDevice(), blur_fragment_shader_module_horizontal, nullptr);
+		vkDestroyShaderModule(m_Device.GetDevice(), blur_fragment_shader_module_vertical, nullptr);
 	}
 
     void RenderingServer::CreateCommandPool() {
@@ -1255,6 +1438,26 @@ namespace gigno {
 			VULKAN_CHECK(vkCreateSampler(m_Device.GetDevice(), &sampler_info, nullptr, &m_ShadowMapPass.VariancedSamplers[i]),
 				"Failed to create Shadow Map Varianced Sampler ! ");
 		}
+
+		m_ShadowMapPass.BlurringIntermedSamplers.resize(m_ShadowMapPass.CascadeCount);
+		for(size_t i = 0; i < m_ShadowMapPass.BlurringIntermedSamplers.size(); i++) {
+			VkSamplerCreateInfo sampler_info{};
+			sampler_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+			sampler_info.magFilter = VK_FILTER_LINEAR;
+			sampler_info.minFilter = VK_FILTER_LINEAR;
+			sampler_info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+			sampler_info.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+			sampler_info.addressModeV = sampler_info.addressModeU;
+			sampler_info.addressModeW = sampler_info.addressModeU;
+			sampler_info.mipLodBias = 0.0f;
+			sampler_info.maxAnisotropy = 1.0f;
+			sampler_info.minLod = 0.0f;
+			sampler_info.maxLod = 1.0f;
+			sampler_info.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+
+			VULKAN_CHECK(vkCreateSampler(m_Device.GetDevice(), &sampler_info, nullptr, &m_ShadowMapPass.BlurringIntermedSamplers[i]),
+				"Failed to create Shadow Map Varianced Sampler ! ");
+		}
 	}
 
     void RenderingServer::CreateDepthResources(bool isRecreate) {
@@ -1284,13 +1487,23 @@ namespace gigno {
 
     void RenderingServer::CreateVariancedShadowmapImages() {
 		m_ShadowMapPass.VariancedAttachments.resize(m_ShadowMapPass.CascadeCount);
-
+		
 		for(size_t i = 0; i < m_ShadowMapPass.VariancedAttachments.size(); i++) {
 			CreateImage(m_Device.GetDevice(), m_Device.GetPhysicalDevice(), m_ShadowMapPass.Width, m_ShadowMapPass.Height, VK_FORMAT_R32G32_SFLOAT,
-						VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
-						m_ShadowMapPass.VariancedAttachments[i].Image, m_ShadowMapPass.VariancedAttachments[i].Memory);
+			VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+			m_ShadowMapPass.VariancedAttachments[i].Image, m_ShadowMapPass.VariancedAttachments[i].Memory);
 			
 			m_ShadowMapPass.VariancedAttachments[i].View = CreateImageView(m_Device.GetDevice(), m_ShadowMapPass.VariancedAttachments[i].Image, VK_FORMAT_R32G32_SFLOAT, VK_IMAGE_ASPECT_COLOR_BIT);
+		}
+		
+		m_ShadowMapPass.BlurringIntermedAttachments.resize(m_ShadowMapPass.CascadeCount);
+
+		for(size_t i = 0; i < m_ShadowMapPass.BlurringIntermedAttachments.size(); i++) {
+			CreateImage(m_Device.GetDevice(), m_Device.GetPhysicalDevice(), m_ShadowMapPass.Width, m_ShadowMapPass.Height, VK_FORMAT_R32G32_SFLOAT,
+						VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+						m_ShadowMapPass.BlurringIntermedAttachments[i].Image, m_ShadowMapPass.BlurringIntermedAttachments[i].Memory);
+
+			m_ShadowMapPass.BlurringIntermedAttachments[i].View = CreateImageView(m_Device.GetDevice(), m_ShadowMapPass.BlurringIntermedAttachments[i].Image, VK_FORMAT_R32G32_SFLOAT, VK_IMAGE_ASPECT_COLOR_BIT);
 		}
     }
 
@@ -1348,6 +1561,40 @@ namespace gigno {
 			VULKAN_CHECK(vkCreateFramebuffer(m_Device.GetDevice(), &createinfo, nullptr, &m_ShadowMapPass.VariancedFramebuffers[i]),
 						 "Failed to create Varianced Shadow Map Frame Buffer ! ");
 		}
+
+		m_ShadowMapPass.BlurringFramebuffersA.resize(m_ShadowMapPass.CascadeCount);
+		for(size_t i = 0; i < m_ShadowMapPass.BlurringFramebuffersA.size(); i++) {
+			std::array<VkImageView, 1> attachments{m_ShadowMapPass.BlurringIntermedAttachments[i].View};
+
+			VkFramebufferCreateInfo createinfo{};
+			createinfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			createinfo.renderPass = m_ShadowMapPass.BlurringRenderPassA;
+			createinfo.attachmentCount = attachments.size();
+			createinfo.pAttachments = attachments.data();
+			createinfo.width = m_ShadowMapPass.Width;
+			createinfo.height = m_ShadowMapPass.Height;
+			createinfo.layers = 1;
+
+			VULKAN_CHECK(vkCreateFramebuffer(m_Device.GetDevice(), &createinfo, nullptr, &m_ShadowMapPass.BlurringFramebuffersA[i]),
+						 "Failed to create Varianced Shadow Map Frame Buffer ! ");
+		}
+
+		m_ShadowMapPass.BlurringFramebuffersB.resize(m_ShadowMapPass.CascadeCount);
+		for(size_t i = 0; i < m_ShadowMapPass.BlurringFramebuffersB.size(); i++) {
+			std::array<VkImageView, 1> attachments{m_ShadowMapPass.VariancedAttachments[i].View};
+
+			VkFramebufferCreateInfo createinfo{};
+			createinfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			createinfo.renderPass = m_ShadowMapPass.BlurringRenderPassB;
+			createinfo.attachmentCount = attachments.size();
+			createinfo.pAttachments = attachments.data();
+			createinfo.width = m_ShadowMapPass.Width;
+			createinfo.height = m_ShadowMapPass.Height;
+			createinfo.layers = 1;
+
+			VULKAN_CHECK(vkCreateFramebuffer(m_Device.GetDevice(), &createinfo, nullptr, &m_ShadowMapPass.BlurringFramebuffersB[i]),
+						 "Failed to create Varianced Shadow Map Frame Buffer ! ");
+		}
     }
 
 	void RenderingServer::CreateUniformBuffers() {
@@ -1371,7 +1618,7 @@ namespace gigno {
 	}
 
     void RenderingServer::CreateDescriptorPool() {
-		std::array<VkDescriptorPoolSize, 4> pool_sizes{};
+		std::array<VkDescriptorPoolSize, 6> pool_sizes{};
 		
 		pool_sizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		pool_sizes[0].descriptorCount = MAX_FRAMES_IN_FLIGHT;
@@ -1385,10 +1632,16 @@ namespace gigno {
 		pool_sizes[3].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		pool_sizes[3].descriptorCount = m_ShadowMapPass.CascadeCount; //VARIANCED SHADOWMAP SAMPLERS.
 
+		pool_sizes[4].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		pool_sizes[4].descriptorCount = m_ShadowMapPass.CascadeCount; //VARIANCED SHADOWMAP BLURRING A.
+
+		pool_sizes[5].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		pool_sizes[5].descriptorCount = m_ShadowMapPass.CascadeCount; //VARIANCED SHADOWMAP BLURRING B.
+
 
 		VkDescriptorPoolCreateInfo createinfo{};
 		createinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		createinfo.maxSets = MAX_FRAMES_IN_FLIGHT + 2 * m_ShadowMapPass.CascadeCount;
+		createinfo.maxSets = MAX_FRAMES_IN_FLIGHT + 4 * m_ShadowMapPass.CascadeCount;
 		createinfo.poolSizeCount = pool_sizes.size();
 		createinfo.pPoolSizes = pool_sizes.data();
 
@@ -1401,31 +1654,38 @@ namespace gigno {
 		for(size_t i = 0; i < m_ShadowMapPass.CascadeCount; i++) {
 			layouts.emplace_back(m_ShadowMapPass.DepthDescriptorSetLayout);
 		}
-		for(size_t i = 0; i < m_ShadowMapPass.CascadeCount; i++) {
+		for(size_t i = 0; i < m_ShadowMapPass.CascadeCount * 3 /*Varianced, blurring a, blurring b*/; i++) {
 			layouts.emplace_back(m_ShadowMapPass.VariancedDescriptorSetLayout);
 		}
 
 		VkDescriptorSetAllocateInfo allocinfo{};
 		allocinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 		allocinfo.descriptorPool = m_DescriptorPool;
-		allocinfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT + 2 * m_ShadowMapPass.CascadeCount;
+		allocinfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT + 4 * m_ShadowMapPass.CascadeCount;
 		allocinfo.pSetLayouts = layouts.data();
 
-		m_DescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT + m_ShadowMapPass.CascadeCount * 2);
+		m_DescriptorSets.reserve(MAX_FRAMES_IN_FLIGHT + m_ShadowMapPass.CascadeCount * 4);
 
 		VULKAN_CHECK(vkAllocateDescriptorSets(m_Device.GetDevice(), &allocinfo, m_DescriptorSets.data()),
 						"Failed to Allocate Descriptor Sets ! ");
 
 		m_ShadowMapPass.VariancedImageInfos.resize(m_ShadowMapPass.CascadeCount);
 		for(size_t i = 0; i < m_ShadowMapPass.VariancedImageInfos.size(); i++) {
-			m_ShadowMapPass.VariancedImageInfos[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			m_ShadowMapPass.VariancedImageInfos[i].imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 			m_ShadowMapPass.VariancedImageInfos[i].imageView = m_ShadowMapPass.VariancedAttachments[i].View;
 			m_ShadowMapPass.VariancedImageInfos[i].sampler = m_ShadowMapPass.VariancedSamplers[i];
 		}
 
+		m_ShadowMapPass.BlurringIntermedImageInfos.resize(m_ShadowMapPass.CascadeCount);
+		for(size_t i = 0; i < m_ShadowMapPass.BlurringIntermedImageInfos.size(); i++) {
+			m_ShadowMapPass.BlurringIntermedImageInfos[i].imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+			m_ShadowMapPass.BlurringIntermedImageInfos[i].imageView = m_ShadowMapPass.BlurringIntermedAttachments[i].View;
+			m_ShadowMapPass.BlurringIntermedImageInfos[i].sampler = m_ShadowMapPass.BlurringIntermedSamplers[i];
+		}
+
 		m_ShadowMapPass.DepthImageInfos.resize(m_ShadowMapPass.CascadeCount);
 		for (size_t i = 0; i < m_ShadowMapPass.DepthImageInfos.size(); i++) {
-			m_ShadowMapPass.DepthImageInfos[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			m_ShadowMapPass.DepthImageInfos[i].imageLayout = VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL;
 			m_ShadowMapPass.DepthImageInfos[i].imageView = m_ShadowMapPass.DepthAttachments[i].View;
 			m_ShadowMapPass.DepthImageInfos[i].sampler = m_ShadowMapPass.DepthSamplers[i];
 		}
@@ -1487,6 +1747,34 @@ namespace gigno {
 			desc_write.descriptorCount = 1;
 			desc_write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 			desc_write.pImageInfo = &m_ShadowMapPass.DepthImageInfos[i];
+	
+			vkUpdateDescriptorSets(m_Device.GetDevice(), 1, &desc_write, 0, nullptr);
+		}
+		// BLURR A
+		for(size_t i = 0; i < m_ShadowMapPass.CascadeCount; i++) {
+
+			VkWriteDescriptorSet desc_write{};
+			desc_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			desc_write.dstSet = m_DescriptorSets[MAX_FRAMES_IN_FLIGHT + m_ShadowMapPass.CascadeCount * 2 + i];
+			desc_write.dstBinding = 0;
+			desc_write.dstArrayElement = 0;
+			desc_write.descriptorCount = 1;
+			desc_write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			desc_write.pImageInfo = &m_ShadowMapPass.VariancedImageInfos[i];
+	
+			vkUpdateDescriptorSets(m_Device.GetDevice(), 1, &desc_write, 0, nullptr);
+		}
+		// BLURR B
+		for(size_t i = 0; i < m_ShadowMapPass.CascadeCount; i++) {
+
+			VkWriteDescriptorSet desc_write{};
+			desc_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			desc_write.dstSet = m_DescriptorSets[MAX_FRAMES_IN_FLIGHT + m_ShadowMapPass.CascadeCount * 3 + i];
+			desc_write.dstBinding = 0;
+			desc_write.dstArrayElement = 0;
+			desc_write.descriptorCount = 1;
+			desc_write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			desc_write.pImageInfo = &m_ShadowMapPass.BlurringIntermedImageInfos[i];
 	
 			vkUpdateDescriptorSets(m_Device.GetDevice(), 1, &desc_write, 0, nullptr);
 		}

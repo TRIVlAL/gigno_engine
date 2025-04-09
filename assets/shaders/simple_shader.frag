@@ -35,7 +35,7 @@ const int SHADOW_MAP_HEIGHT = 2500;
 
 layout(binding=1) uniform sampler2D variancedShadowMap[SHADOW_MAP_CASCADE_COUNT];
 
-float ShadowMappedDirectionalLightPower(int index, vec3 positionLightSpaceNDC, int addedSampleCount) {
+float ShadowMappedDirectionalLightPower(int index, vec3 positionLightSpaceNDC) {
 
 	vec2 shadow_map_coord = positionLightSpaceNDC.xy * 0.5 + 0.5;
 	
@@ -53,7 +53,7 @@ float ShadowMappedDirectionalLightPower(int index, vec3 positionLightSpaceNDC, i
 	}
 }
 
-float CascadedShadowMapLightPower(vec3 frag_normal, vec3 lightDir, int addedSampleCount, bool doDebugRange) {
+float CascadedShadowMapLightPower(vec3 frag_normal, vec3 lightDir, bool doDebugRange) {
 
 	int inside_shadow_map_index_one = -1;
 	int inside_shadow_map_index_two = -1;
@@ -65,7 +65,7 @@ float CascadedShadowMapLightPower(vec3 frag_normal, vec3 lightDir, int addedSamp
 
 		if (abs(pos_light_space_ndc.x) < 0.7f && abs(pos_light_space_ndc.y) < 0.7f && abs(pos_light_space_ndc.z) < 0.7f) {
 
-			multiplier = ShadowMappedDirectionalLightPower(i, pos_light_space_ndc, addedSampleCount);
+			multiplier = ShadowMappedDirectionalLightPower(i, pos_light_space_ndc);
 
 			inside_shadow_map_index_one = i;
 			inside_shadow_map_index_two = i;
@@ -81,17 +81,17 @@ float CascadedShadowMapLightPower(vec3 frag_normal, vec3 lightDir, int addedSamp
 					float t = max(abs(pos_light_space_ndc.x), max(pos_light_space_ndc.y, pos_light_space_ndc.z));
 					t = (t - 0.7f) / 0.7f;
 
-					multiplier = (1-t)*ShadowMappedDirectionalLightPower(i, pos_light_space_ndc, addedSampleCount)
-								+ t*ShadowMappedDirectionalLightPower(i+1, pos_light_space_ndc_second, addedSampleCount == 0 ? 0 : addedSampleCount-int(t));
+					multiplier = (1-t)*ShadowMappedDirectionalLightPower(i, pos_light_space_ndc)
+								+ t*ShadowMappedDirectionalLightPower(i+1, pos_light_space_ndc_second);
 
 					inside_shadow_map_index_one = i;
 					inside_shadow_map_index_two = i+1;
 				} else {
-					ShadowMappedDirectionalLightPower(i, pos_light_space_ndc, addedSampleCount);
+					ShadowMappedDirectionalLightPower(i, pos_light_space_ndc);
 				}
  
 			} else {
-				multiplier = ShadowMappedDirectionalLightPower(i, pos_light_space_ndc, addedSampleCount);
+				multiplier = ShadowMappedDirectionalLightPower(i, pos_light_space_ndc);
 
 				inside_shadow_map_index_one = inside_shadow_map_index_two = i;
 			}
@@ -117,8 +117,7 @@ void main() {
 
 	int fullbright = 					(ubo.Parameters & 3);            //0b11
 	int enable_shadow_map = 			(ubo.Parameters & 4) >> 2;      //0b100
-	int shadow_map_extra_sample_count = (ubo.Parameters & 56) >> 3; // 0b111000
-	int shadow_map_do_debug_range = 	(ubo.Parameters & 64) >> 6; //0b1000000
+	int shadow_map_do_debug_range = 	(ubo.Parameters & 8) >> 3;     //0b1000
 
 	float lightPower = 0.0f;
 	if(fullbright == 1) 
@@ -137,7 +136,7 @@ void main() {
 			if(light_type == 1.0f) // DIRECTIONAL LIGHT
 			{
 				if(i == 0 && enable_shadow_map == 1) {
-					lightPower += CascadedShadowMapLightPower(Normal, ubo.lightDatas[i].xyz, shadow_map_extra_sample_count, shadow_map_do_debug_range == 1);
+					lightPower += CascadedShadowMapLightPower(Normal, ubo.lightDatas[i].xyz, shadow_map_do_debug_range == 1);
 					if(shadow_map_do_debug_range == 1 && lightPower == -1.0f) {
 						return;
 					}

@@ -54,8 +54,8 @@ namespace gigno {
 		
 		while (m_CurrentStatus == CONTINUE) {
 			Profiler::Begin("Main Loop");
-
 			if(m_ShouldLoadMap) {
+				m_RenderingServer.WaitIdle();
 				if (!m_EntityServer.LoadFromFile(m_NextMapFilepath.c_str())) {
 					Console::LogWarning("Error when parsing map file !");
 					//Fallback to the last map.

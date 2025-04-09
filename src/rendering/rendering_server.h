@@ -49,6 +49,8 @@ namespace gigno {
 		void CreateModel(std::shared_ptr<giModel> &model, const ModelData_t &modelData);
 		void ClenUpModel(std::shared_ptr<giModel> &model);
 
+		void WaitIdle() { vkDeviceWaitIdle(m_Device.GetDevice()); }
+
 		size_t GetShadowMapCascadeCount() { return m_ShadowMapPass.CascadeCount; }
 
 		//Debug Drawing ( need to active USE_DEBUG_DRAWING in features_usage.h )
@@ -70,10 +72,7 @@ namespace gigno {
 			RP_SHADOW_MAP_ENABLE_BIT_POSITION = RP_FULLBRIGHT_BITS_POSITION + RP_FULLBRIGHT_BITS_COUNT,
 			RP_SHADOW_MAP_ENABLE_BIT_COUNT = 1,
 
-			RP_SHADOW_MAP_SAMPLE_COUNT_BIT_POSITION = RP_SHADOW_MAP_ENABLE_BIT_POSITION + RP_SHADOW_MAP_ENABLE_BIT_COUNT,
-			RP_SHADOW_MAP_SAMPLE_COUNT_BIT_COUNT = 3,
-
-			RP_SHADOW_MAP_APPLICATION_RANGE_DEBUG_BIT_POSITION = RP_SHADOW_MAP_SAMPLE_COUNT_BIT_POSITION + RP_SHADOW_MAP_SAMPLE_COUNT_BIT_COUNT,
+			RP_SHADOW_MAP_APPLICATION_RANGE_DEBUG_BIT_POSITION = RP_SHADOW_MAP_ENABLE_BIT_POSITION + RP_SHADOW_MAP_ENABLE_BIT_COUNT,
 			RP_SHADOW_MAP_APPLICATION_RANGE_DEBUG_BIT_COUNT = 1
 		};
 	private:
@@ -164,6 +163,8 @@ namespace gigno {
 		void ShadowMap_UniformBufferCommands(SceneRenderingData_t &sceneData, size_t cascadeIndex);
 		void ShadowMap_RenderEntitiesCommands(SceneRenderingData_t &sceneData);
 		void ShadowMap_RenderVariancedImage(size_t cascadeIndex);
+		void ShadowMap_BlurrVariancedImageA(size_t cascadeIndex);
+		void ShadowMap_BlurrVariancedImageB(size_t cascadeIndex);
 
 		// Main Render
 		void Main_UniformBufferCommands(const Camera *camera, Light *lights);
@@ -236,18 +237,25 @@ namespace gigno {
 
 			std::vector<VkFramebuffer> DepthFramebuffers;
 			std::vector<VkFramebuffer> VariancedFramebuffers;
+			std::vector<VkFramebuffer> BlurringFramebuffersA;
+			std::vector<VkFramebuffer> BlurringFramebuffersB;
 
 			std::vector<FramebufferAttachment_t> DepthAttachments;
 			std::vector<FramebufferAttachment_t> VariancedAttachments;
+			std::vector<FramebufferAttachment_t> BlurringIntermedAttachments;
 
 			VkRenderPass DepthRenderPass;
 			VkRenderPass VariancedRenderPass;
+			VkRenderPass BlurringRenderPassA;
+			VkRenderPass BlurringRenderPassB;
 
 			std::vector<VkSampler> DepthSamplers;
 			std::vector<VkSampler> VariancedSamplers;
+			std::vector<VkSampler> BlurringIntermedSamplers;
 
 			std::vector<VkDescriptorImageInfo> DepthImageInfos;
 			std::vector<VkDescriptorImageInfo> VariancedImageInfos;
+			std::vector<VkDescriptorImageInfo> BlurringIntermedImageInfos;
 
 			VkPipelineLayout DepthPipelineLayout;
 			VkPipelineLayout VariancedPipelineLayout;
@@ -257,6 +265,8 @@ namespace gigno {
 
 			VkPipeline DepthPipeline;
 			VkPipeline VariancedPipeline;
+			VkPipeline VariancedBlurringPipelineA;
+			VkPipeline VariancedBlurringPipelineB;
 
 			std::vector<UniformBuffer> UniformBuffers;
 		} m_ShadowMapPass;
