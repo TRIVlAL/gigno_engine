@@ -373,7 +373,6 @@ namespace gigno {
     */
 
     CONVAR(float, phys_response_epsilon, 1e-5f, "Very small value. Object are pushed out of each other with this leaway.");
-    CONVAR(bool, test, false, "testing");
 
     void RespondCollision(RigidBody &rb1, RigidBody &rb2, const CollisionData_t &collision, CollisionSoundManager *soundManager)
     {

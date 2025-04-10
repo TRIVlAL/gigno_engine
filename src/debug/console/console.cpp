@@ -15,6 +15,7 @@ namespace gigno {
     Console Console::s_Instance{};
 
     CONVAR(uint32_t, console_max_message, 15'000, "Max number of messages rendered to the console. 0 = all messages");
+    CONVAR(bool, console_muted, false, "");
 
     ConsoleMessage_t::ConsoleMessage_t(size_t size) : Size{size}, Message{new char[size], std::default_delete<char[]>()} {
     }
@@ -22,7 +23,8 @@ namespace gigno {
     ConsoleMessage_t::~ConsoleMessage_t() {
     }
 
-    Console::Console() {
+    Console::Console()
+    {
         LogInfo_Impl((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "---------------------------------");
         LogInfo_Impl((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "Gigno engine console initialized.");
         LogInfo_Impl((ConsoleMessageFlags_t)(MESSAGE_NO_TIME_CODE_BIT | MESSAGE_NO_FILE_LOG_BIT), "---------------------------------");
@@ -33,7 +35,7 @@ namespace gigno {
             LogInfo_Impl("Failed to initialize file logging.");
         }
 
-        InitializeErrorHandling();
+        InitializeErrorHandling(); 
     }
 
     Console::~Console() {
@@ -42,6 +44,16 @@ namespace gigno {
             StopFileLogging_Impl();
         }
     #endif
+    }
+
+    void Console::ExecuteConfigFiles() {
+        #if USE_CONSOLE
+        for(auto cfg : std::filesystem::directory_iterator("assets/configs")) {
+            if(cfg.path().extension() == ".cfg") {
+                s_Instance.ExecuteConfigFile(cfg);
+            }
+        }
+        #endif
     }
 
     void Console::UpdateCommands(float dt) {
@@ -68,6 +80,10 @@ namespace gigno {
     }
 
     void Console::Log(const char *msg, ConsoleMessageType_t type, ConsoleMessageFlags_t flags) {
+        if((bool)convar_console_muted) {
+            return;
+        }
+
         m_LogMutex.lock();
 
 #if USE_CONSOLE
@@ -95,6 +111,10 @@ namespace gigno {
     }
 
     void Console::LogFormat(const char *fmt, ConsoleMessageType_t type, ConsoleMessageFlags_t flags, ...) {
+        if((bool)convar_console_muted) {
+            return;
+        }
+
         m_LogMutex.lock();
 
 #if USE_CONSOLE
@@ -190,6 +210,34 @@ namespace gigno {
         m_Messages.clear();
         m_MessageVectorMutex.unlock();
     }
+
+    void Console::ExecuteConfigFile(std::filesystem::directory_entry file) {
+        std::ifstream in_file{file.path()};
+
+        char c;
+        std::string current_line;
+        while(in_file.get(c)) {
+            if(c == '\n') {
+                if(current_line.size() > 0) {
+                    CallCommand(current_line.c_str());
+                    current_line.clear();
+                }
+            } 
+            else if(c == '#') {
+                //comment
+                while(in_file.get(c)) {
+                    if(c == '\n') {
+                        break;
+                    }
+                }
+            } else {
+                current_line.push_back(c);
+            }
+        }
+        if(current_line.size() > 0) {
+            CallCommand(current_line.c_str());
+        }
+    }
     #endif
 
     bool Console::StopFileLogging_Impl() {
@@ -260,6 +308,7 @@ namespace gigno {
         LogInfo_Impl("No Command/Convar '%s' found. use 'help' for the list of commands.", token.GetName());
         #endif
     }
+    
 
     #if USE_IMGUI
     void Console::DrawConsoleTab() {

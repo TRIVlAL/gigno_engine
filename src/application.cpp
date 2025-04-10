@@ -44,6 +44,7 @@ namespace gigno {
 	}
 
 	AppExitCode_t Application::run() {
+		Console::ExecuteConfigFiles();
 		Console::StartFileLogging();
 
 		ASSERT_MSG_V(glfwInit(), EXIT_FAILED_GLFW, "GLFW Failed to init");

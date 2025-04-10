@@ -111,6 +111,8 @@ namespace gigno {
             return Singleton()->CallCommand_Impl(line);
         }
 
+        static void ExecuteConfigFiles();
+
     private:
         static Console s_Instance;
 
@@ -193,6 +195,7 @@ namespace gigno {
         char m_InputBuffer[CONSOLE_INPUT_BUFFER_SIZE];
         
         void Clear();
+        void ExecuteConfigFile(std::filesystem::directory_entry file);
         #endif
     };
 
