@@ -30,8 +30,8 @@ namespace gigno {
         ColliderType = COLLIDER_HULL;
         CollisionModelPath = "assets/models/cube.obj";
 
-        Scale = glm::vec3{1.0f, Height * 0.5f, 1.0f};
-        Position += Height * 0.5f;
+        Scale = glm::vec3{1.0f, Height * 0.5f + 0.2, 1.0f};
+        Position += Height * 0.5f + 0.1;
 
         LockRotation = true;
 
@@ -192,7 +192,6 @@ namespace gigno {
         //Apply Jump
         if(m_PressedJump) {
             AddImpulse(glm::vec3{0.0f, JumpPower * Mass, 0.0f});
-            Console::LogInfo("JUMP");
         }
 
         m_MoveForward = 0;

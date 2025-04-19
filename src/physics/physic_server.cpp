@@ -17,6 +17,7 @@
 
 #include "../vendor/tiny_object_loader/tiny_obj_loader.h"
 
+
 using namespace std::chrono_literals;
 
 namespace gigno {
@@ -25,6 +26,7 @@ namespace gigno {
 
     CONVAR(uint32_t, phys_loop_rate, 120, "How many times per second is the physics called.");
     CONVAR(float, phys_timescale, 1.0f, "physics is slowed down by that amount.");
+    CONVAR(int, phys_constraints_iteration_count, 3, "must be positive, higher means better results but more cost.");
 
     void PhysicServer::Init() {
         m_CollisionSoundManager.Init();
@@ -91,7 +93,12 @@ namespace gigno {
             frame_start = std::chrono::high_resolution_clock::now();
 
             s_EntityUnloadMutex.lock();
-            entity_serv->PhysicTick((target_dur.count() + time_overflow.count()) / 1e9);
+
+            float delta_time = (target_dur.count() + time_overflow.count()) / 1e9;
+
+            entity_serv->PhysicTick(delta_time);
+
+            SolveConstraints(delta_time);
 
             ResolveCollisions();
 
@@ -164,6 +171,23 @@ namespace gigno {
         
         m_PossiblePairs.clear();
 
+    }
+
+    void PhysicServer::SolveConstraints(float dt) {
+
+        size_t iter_count = (size_t)(glm::min<int>((int)convar_phys_constraints_iteration_count, 1));
+
+        for(size_t i = 0; i < iter_count; i++) {
+
+            RigidBody* curr = s_RigidBodies;
+            while(curr) {
+                for(Constraint *constraint : curr->Constraints) {
+                    constraint->Solve(dt / (float)iter_count);
+                }
+
+                curr = curr->pNextRigidBody;
+            }
+        }
     }
 
     bool PhysicServer::AllocateCollisionModel(const char *path) {

@@ -12,12 +12,15 @@ namespace gigno {
         m_pEnd = m_pData + capacity;
     }
 
-    StringBuffer::StringBuffer(char *starting_word, size_t starting_word_len, size_t capacity)
+    StringBuffer::StringBuffer(char *starting_word, size_t starting_word_len, size_t capacity, char current_to_add)
     : StringBuffer(capacity) {
         ASSERT(starting_word_len < capacity);
         if(starting_word_len > 0) {
             memcpy(m_pData, starting_word, starting_word_len);
         }
+        m_pCurrentChar += starting_word_len;
+        m_pCurrentChar ++;
+        *m_pCurrentChar = current_to_add;
     }
 
     StringBuffer::~StringBuffer() {
@@ -37,18 +40,22 @@ namespace gigno {
     }
 
     void StringBuffer::PushChar(char c) {
-        if(m_pCurrentChar == m_pEnd) {
-            size_t remaining_len = (size_t)(m_pCurrentChar - m_pCurrentWord);
-            m_pNext = new StringBuffer{m_pCurrentWord, remaining_len, m_Capacity};
-        }
-
         if(m_pNext) {
             m_pNext->PushChar(c);
             return;
         }
 
-        m_pCurrentChar++;
-        *m_pCurrentChar = c;
+        if(m_pCurrentChar == m_pEnd) {
+            size_t remaining_len = (size_t)(m_pCurrentChar - m_pCurrentWord) + 1 * sizeof(char);
+            if(remaining_len == -1) {
+                remaining_len = 0;
+            }
+            m_pNext = new StringBuffer{m_pCurrentWord, remaining_len, m_Capacity, c};
+        } else {
+            m_pCurrentChar++;
+            *m_pCurrentChar = c;
+        }
+
         
     }
 

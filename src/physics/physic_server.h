@@ -87,6 +87,8 @@ namespace gigno {
         void Loop();
 
         void ResolveCollisions();
+
+        void SolveConstraints(float dt);
     };
 
 }

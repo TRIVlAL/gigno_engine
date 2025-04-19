@@ -20,7 +20,7 @@ namespace gigno {
         // Returns the string currently building. Automatically adds null-termination.
         char *EndWord();
     private:
-        StringBuffer(char *starting_word, size_t starrting_word_len, size_t capacity);
+        StringBuffer(char *starting_word, size_t starrting_word_len, size_t capacity, char current_to_add);
 
         char *m_pCurrentChar; //points to the last written character.
         char *m_pCurrentWord;

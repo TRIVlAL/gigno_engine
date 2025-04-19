@@ -69,7 +69,7 @@ namespace gigno {
 				current_entity = Entity::CreateEntityAt(command_list[i].TypeName, position);
 
 				if (!current_entity) {
-					Console::LogWarning("PARSER : Entity type '%s' does not exist !", command_list[i].TypeName);
+					Console::LogWarning("PARSER : Entity type '%s' does not exist ! Did you forget to add the ENTITY_DEFINITIONS macro in a .cpp file ?", command_list[i].TypeName);
 					i++;
 					while(i < command_list.size() && command_list[i].Type == MapParser::MAP_COMMAND_SET_KEY_VALUE) {
 						// Wont set for an entity type that does not exist. keep moving !
@@ -85,7 +85,7 @@ namespace gigno {
 			} else {
 				ASSERT_V(command_list[i].Type == MapParser::MAP_COMMAND_SET_KEY_VALUE, false);
 
-				if(current_entity) {
+				if(current_entity && command_list[i].TypeName  && strcmp(command_list[i].TypeName, "") != 0) {
 					current_entity->SetKeyValue(command_list[i].TypeName, (const char **)(command_list[i].Values), command_list[i].ValueCount);
 				}
 

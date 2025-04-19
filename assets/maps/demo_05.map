@@ -1,5 +1,5 @@
 "GravgunController" {
-    "Position"  : "5" "0" "0"
+    "Position"  : "10" "0" "0"
 }
 
 "DirectionalLight" {
@@ -126,4 +126,22 @@
     "ModelPath" : "assets/models/cube.obj",
     "Mass"      : "55",
     "InertiaTensor" : "16.6" "0.16" "16.6"
+}
+
+"ConstraintTest" {
+    "ColliderType" : "COLLIDER_HULL",
+    "ModelPath" : "assets/models/cube.obj",
+    "CollisionModelPath" : "assets/models/cube.obj",
+    "Mass"      : "30",
+    "InertiaTensor" : "0.16" "0.16" "0.16",
+    "Position"  : "5" "2" "2"
+}
+
+"ConstraintTest" {
+    "ColliderType" : "COLLIDER_SPHERE",
+    "Radius"    : "1",
+    "ModelPath" : "assets/models/colored_uv_sphere.obj",
+    "Mass"      : "20",
+    "InertiaTensor" : "0.16" "0.16" "0.16",
+    "Position"  : "9" "2" "2"
 }
