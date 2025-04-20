@@ -47,7 +47,7 @@ namespace gigno {
     }
 
     void RigidBody::AddRotationImpulse(const glm::vec3 &rotation) {
-        AngularVelocity += rotation;
+        AngularVelocity += rotation * GetInverseInertiaTensor();
     }
 
     void RigidBody::Init() {

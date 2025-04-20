@@ -11,11 +11,14 @@ namespace gigno {
         virtual void Init() override;
         virtual void Think(float dt) override;
 
+        int Preset = 0;
+
     private:
         glm::vec3 p;
     };
 
     BEGIN_KEY_TABLE(ConstraintTest)
+        DEFINE_KEY_VALUE(int, Preset)
     END_KEY_TABLE
 }
 
