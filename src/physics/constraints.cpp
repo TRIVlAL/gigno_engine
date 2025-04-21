@@ -52,9 +52,10 @@ namespace gigno {
 
             const float bias = -((float)convar_phys_constraint_bias_factor / dt) * offset;
 
-            const float lambda = -effective_mass * (glm::dot(jacobian, velocity) + bias);
+            const float lambda = -effective_mass * (bias);
 
             m_Body->AddImpulse(jacobian * lambda);
+            m_Body->AddImpulse(-velocity * effective_mass);
         }
 
         //Constraint rotation
@@ -66,10 +67,8 @@ namespace gigno {
 
             const glm::vec3 dir = ApplyRotation(m_Body->Rotation, m_Axis);
             const float angle_offset = glm::acos(glm::clamp(glm::dot(dir, m_Axis), -1.0f, 1.0f));
-    
-            const float offset = angle_offset;
 
-            Console::LogInfo("angle_offset = %f", angle_offset);
+            const float offset = angle_offset;
     
             if (offset == 0.0f) {
                 return;

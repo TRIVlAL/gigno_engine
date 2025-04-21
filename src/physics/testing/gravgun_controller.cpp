@@ -78,7 +78,7 @@ namespace gigno {
             }
             else {
                 m_pSelected->Velocity = glm::vec3{0.0f};
-                m_pSelected->AddImpulse(dist * dt * ClosePullPower);
+                m_pSelected->AddImpulse(dist * dt * ClosePullPower * m_pSelected->Mass);
                 m_GotClose = true;
             }
 
