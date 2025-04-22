@@ -40,6 +40,10 @@ namespace gigno {
 
 		glm::mat4 GetProjection() const { return m_ProjectionMatrix; }
 		glm::mat4 GetViewMatrix() const;
+		
+		// returns the normalized vector pointing from the camera position to the world space
+		// point at the screen position
+		glm::vec3 RayFromScreenPos(glm::vec2 screenPositionPixel) const;
 
 		void SetAsCurrentCamera();
 

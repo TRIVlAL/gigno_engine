@@ -18,7 +18,7 @@
 
 namespace gigno {
 
-	CONVAR(const char *, start_map, "assets/maps/demo_05.map", "the first loaded map when the app stats.")
+	CONVAR(const char *, start_map, "assets/maps/demo_04.map", "the first loaded map when the app starts.")
 
 	Application::Application() :
 		m_CurrentMapFilepath{convar_start_map} {

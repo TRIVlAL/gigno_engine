@@ -61,6 +61,7 @@ namespace gigno {
             if(CollisionModelPath) {
                 GetApp()->GetPhysicServer()->AllocateCollisionModel(CollisionModelPath);
                 UpdateTransformedModel();
+                UpdateCollider();
             } else {
                 Console::LogError("Rigidbody with collider type 'COLLIDER_HULL' requires CollisionModelPath to be set !");
                 ColliderType = COLLIDER_SPHERE;
@@ -73,61 +74,56 @@ namespace gigno {
     }
 
     void RigidBody::LatePhysicThink(float dt) {
-        UpdateCollider();
         if(ColliderType == COLLIDER_HULL) {
-            UpdateTransformedModel();
-        }
-
-        if(IsStatic) {
-            return;
-        }
-
-        //Gravity
-        if(!m_GravityDisabled) {
-            AddForce((glm::vec3)convar_phys_gravity * Mass);
-        }
-        m_GravityDisabled = false;
-
-        //Drag
-        // Uses a linear approximation as can be seen in Unity or Godot.
-        float ldrag = glm::clamp(1.0f - (Drag * dt), 0.0f, 1.0f);
-        Velocity *= ldrag;
-        float rdrag = glm::clamp(1.0f - (AngularDrag * dt), 0.0f, 1.0f);
-        AngularVelocity *= rdrag;
-
-        const float epsilon = 0.00000000001;
-        if(LenSquared(Velocity) < epsilon) {
-            Velocity  = glm::vec3{0.0f};
-        }
-        if(LenSquared(AngularVelocity) < epsilon) {
-            AngularVelocity = glm::vec3{0.0f};
-        }
-
-        glm::vec3 avrg_vel = Velocity;
-        Velocity += dt * Force / Mass;
-        avrg_vel += Velocity;
-        avrg_vel *= 0.5f;
-        glm::vec3 applied_vel = dt * avrg_vel;
-        Position += applied_vel;
-
-        glm::vec3 avrg_rot_vel = AngularVelocity;
-        AngularVelocity += dt * (Torque / Mass) * GetInverseInertiaTensor();
-        avrg_rot_vel += AngularVelocity;
-        avrg_rot_vel *= 0.5f;
-
-        if(!LockRotation) {
-            Rotation += glm::quat{0.0f, avrg_rot_vel * dt * 0.5f} * Rotation;
-            Rotation = glm::normalize(Rotation);
-        }
-
-        Force = glm::vec3{0.0f};
-        Torque = glm::vec3{0.0f};
-
-        if(ColliderType == COLLIDER_HULL && avrg_rot_vel != glm::vec3{0.0f}) {
             UpdateTransformedModel();
         }
         UpdateCollider();
         UpdateInertiaTensor();
+
+        if(!IsStatic) {
+
+            //Gravity
+            if(!m_GravityDisabled) {
+                AddForce((glm::vec3)convar_phys_gravity * Mass);
+            }
+            m_GravityDisabled = false;
+
+            //Drag
+            // Uses a linear approximation as can be seen in Unity or Godot.
+            float ldrag = glm::clamp(1.0f - (Drag * dt), 0.0f, 1.0f);
+            Velocity *= ldrag;
+            float rdrag = glm::clamp(1.0f - (AngularDrag * dt), 0.0f, 1.0f);
+            AngularVelocity *= rdrag;
+
+            const float epsilon = 0.00000000001;
+            if(LenSquared(Velocity) < epsilon) {
+                Velocity  = glm::vec3{0.0f};
+            }
+            if(LenSquared(AngularVelocity) < epsilon) {
+                AngularVelocity = glm::vec3{0.0f};
+            }
+
+            glm::vec3 avrg_vel = Velocity;
+            Velocity += dt * Force / Mass;
+            avrg_vel += Velocity;
+            avrg_vel *= 0.5f;
+            glm::vec3 applied_vel = dt * avrg_vel;
+            Position += applied_vel;
+
+            glm::vec3 avrg_rot_vel = AngularVelocity;
+            AngularVelocity += dt * (Torque / Mass) * GetInverseInertiaTensor();
+            avrg_rot_vel += AngularVelocity;
+            avrg_rot_vel *= 0.5f;
+
+            if(!LockRotation) {
+                Rotation += glm::quat{0.0f, avrg_rot_vel * dt * 0.5f} * Rotation;
+                Rotation = glm::normalize(Rotation);
+            }
+
+            Force = glm::vec3{0.0f};
+            Torque = glm::vec3{0.0f};
+
+        }
     }
 
     void RigidBody::CleanUp() {
@@ -234,29 +230,6 @@ namespace gigno {
             r->DrawLine(h, e, col);
             r->DrawLine(h, f, col);
             r->DrawLine(h, g, col);
-        }
-
-        //HACK HACK : For demo_3.map, no clean impl. for now :)
-        if(strcmp(Name, "a") == 0) {
-            const float pow = 1.0f * dt;
-            if(GetApp()->GetInputServer()->GetKey(KEY_T)) {
-                AddImpulse(glm::vec3{2.0f, 0.0f, 0.0f} * pow);
-            }
-            if(GetApp()->GetInputServer()->GetKey(KEY_G)) {
-                AddImpulse(glm::vec3{-2.0f, 0.0f, 0.0f} * pow);
-            }
-            if(GetApp()->GetInputServer()->GetKey(KEY_F)) {
-                AddImpulse(glm::vec3{0.0f, 0.0f, 2.0f} * pow);
-            }
-            if(GetApp()->GetInputServer()->GetKey(KEY_H)) {
-                AddImpulse(glm::vec3{0.0f, 0.0f, -2.0f} * pow);
-            }
-            if(GetApp()->GetInputServer()->GetKey(KEY_SPACE)) {
-                AddImpulse(glm::vec3{0.0f, 2.0f, 0.0f} * pow);
-            }
-            if(GetApp()->GetInputServer()->GetKey(KEY_LEFT_CONTROL)) {
-                AddImpulse(glm::vec3{0.0f, -2.0f, 0.0f} * pow);
-            }
         }
     }
     

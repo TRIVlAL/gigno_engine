@@ -45,6 +45,8 @@ namespace gigno {
 		const Camera *GetCameraHandle() const { return m_pCamera; }
 
 		float GetAspectRatio() { return static_cast<float>(m_SwapChain.Extent.width) / static_cast<float>(m_SwapChain.Extent.height); }
+		// returns number of pixel width (x) and height (y)
+		glm::vec2 GetWindowSize() { return glm::vec2{m_SwapChain.Extent.width, m_SwapChain.Extent.height}; }
 
 		void CreateModel(std::shared_ptr<giModel> &model, const ModelData_t &modelData);
 		void ClenUpModel(std::shared_ptr<giModel> &model);

@@ -72,6 +72,11 @@ namespace gigno {
     */
     bool AABBCollision(BoundingBox_t A, BoundingBox_t B);
 
+    /*
+    Returns whether the point is in the axis aligned bounding box.
+    */
+    bool AABBCollisionPoint(BoundingBox_t box, glm::vec3 p);
+
     CollisionData_t DetectCollision(const Collider_t &col1, const Collider_t &col2);
 
     CollisionData_t DetectCollision_SphereSphere(const Collider_t &col1, const Collider_t &col2);

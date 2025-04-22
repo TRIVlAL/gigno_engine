@@ -15,7 +15,7 @@ namespace gigno {
 
 	void InputServer::UpdateInput() {
 		//KEYBOARD
-		for(int i = 0; i < KEY_MAX_ENUM; i++) {
+		for(size_t i = 0; i < KEY_MAX_ENUM; i++) {
 			int new_state = glfwGetKey(m_pWindow, i);
 			if(new_state == GLFW_PRESS) {
 				KeyState_t& state = m_KeyStates[i];
@@ -34,7 +34,27 @@ namespace gigno {
 			}
 		}
 
-		//MOUSE
+		// MOUSE BUTTON
+		for(size_t i = KEY_MAX_ENUM; i < KEY_MAX_ENUM + MOUSE_BUTTON_MAX_ENUM; i++) {
+			int new_state = glfwGetMouseButton(m_pWindow, i - KEY_MAX_ENUM);
+			if(new_state == GLFW_PRESS) {
+				KeyState_t& state = m_KeyStates[i];
+				if(state == KEY_STATE_JUST_PRESSED) {
+					state = KEY_STATE_PRESSED;
+				} else if(state != KEY_STATE_PRESSED) {
+					state = KEY_STATE_JUST_PRESSED;
+				}
+			} else { //state == GLFW_RELEASED
+				KeyState_t& state = m_KeyStates[i];
+				if(state == KEY_STATE_JUST_RELEASED) {
+					state = KEY_STATE_RELEASED;
+				} else if(state != KEY_STATE_RELEASED) {
+					state = KEY_STATE_JUST_RELEASED;
+				}
+			}
+		}
+
+		//MOUSE POSITION
 		m_LastMousePos = m_CurrentMousePos;
 		double x, y;
 		glfwGetCursorPos(m_pWindow, &x, &y);
@@ -50,8 +70,24 @@ namespace gigno {
 		return (m_KeyStates[key] >> 1) == 1;
 	}
 
+	bool InputServer::GetKeyUp(Key_t key) {
+		return m_KeyStates[key] == KEY_STATE_JUST_RELEASED;
+	}
+
 	bool InputServer::GetKeyDown(Key_t key) {
 		return m_KeyStates[key] == KEY_STATE_JUST_PRESSED;
+	}
+
+    bool InputServer::GetMouseButton(MouseButton_t button) {
+        return (m_KeyStates[KEY_MAX_ENUM + button] >> 1) == 1;
+    }
+
+    bool InputServer::GetMouseButtonUp(MouseButton_t button) {
+        return m_KeyStates[KEY_MAX_ENUM + button] == KEY_STATE_JUST_RELEASED;
+    }
+
+    bool InputServer::GetMouseButtonDown(MouseButton_t button) {
+		return m_KeyStates[KEY_MAX_ENUM + button] == KEY_STATE_JUST_PRESSED;
 	}
 
     glm::vec2 InputServer::GetMousePosition() {
@@ -88,9 +124,5 @@ namespace gigno {
 			m_IsMouseInReaccessMode = false;
 		}
     }
-
-    bool InputServer::GetKeyUp(Key_t key) {
-		return m_KeyStates[key] == KEY_STATE_JUST_RELEASED;
-	}
  
 }

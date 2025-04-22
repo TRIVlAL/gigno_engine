@@ -122,8 +122,21 @@ namespace gigno {
 		}
 	}
 
-	void Camera::SetAsCurrentCamera() {
-		GetApp()->GetRenderer()->SetCurrentCamera(this);
+    glm::vec3 Camera::RayFromScreenPos(glm::vec2 screenPositionPixel) const {
+
+		glm::vec2 screen_size = GetApp()->GetRenderer()->GetWindowSize();
+
+		glm::vec4 ray_clip = glm::vec4{2.0f * (screenPositionPixel.x / screen_size.x) - 1.0f, 2.0f * (screenPositionPixel.y / screen_size.y) - 1.0f, 1.0f, 1.0f};
+
+		glm::vec4 ray_view = glm::inverse(GetProjection()) * ray_clip;
+		ray_view = glm::vec4{ray_view.x, ray_view.y, 1.0f, 0.0f};
+
+		glm::vec3 ray_world = glm::vec3{glm::inverse(GetViewMatrix()) * ray_view};
+		return glm::normalize(ray_world);
 	}
 
+    void Camera::SetAsCurrentCamera()
+    {
+        GetApp()->GetRenderer()->SetCurrentCamera(this);
+    }
 }

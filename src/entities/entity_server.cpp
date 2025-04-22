@@ -49,6 +49,13 @@ namespace gigno {
 
 		Console::LogInfo("Loading map file '%s'", filepath);
 
+		// Check if file exists before unloading the map.
+		MapParser mp{};
+		std::vector<MapParser::MapCommand_t> command_list{mp(filepath)};
+		if(command_list.size() == 0) {
+			return false;
+		}
+
 		std::lock_guard<std::mutex> lock{s_EntityUnloadMutex};
 		UnloadMap();
 
@@ -57,9 +64,6 @@ namespace gigno {
 		// Between entities loaded from file and entities in m_Scene.
 		std::vector<Entity *> loaded_from_file{};
 		Entity *current_entity{};
-
-		MapParser mp{};
-		std::vector<MapParser::MapCommand_t> command_list{mp(filepath)};
 
 		size_t i = 0;
 		while(i < command_list.size()) {

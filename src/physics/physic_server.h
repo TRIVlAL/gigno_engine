@@ -6,6 +6,7 @@
 #include <vector>
 #include "../algorithm/cstr_map.h"
 #include "collision.h"
+#include "raycast.h"
 #include "collision_sound.h"
 
 namespace gigno {
@@ -61,9 +62,32 @@ namespace gigno {
         */
         CollisionData_t GetColliding(const Collider_t &collider, RigidBody **current);
 
+        /*
+        Returns whether or not the raycast hit something
+        outputs an unsorted vector of all hits of the ray, or nullptr if return is false.
+
+        collidersInteracting specifies what kind of objects the ray should collides with.
+        */
+        bool Raycast(Ray_t ray, RaycastCollisionType_t interaction, std::vector<RaycastHit_t> *outHits);
+
+        /*
+        Returns whether or not the raycast hit something
+        outputs the first object the ray hit.
+
+        collidersInteracting specifies what kind of objects the ray should collides with.
+        */
+        bool RaycastSingle(Ray_t ray, RaycastCollisionType_t interaction, RaycastHit_t *outHit);
+
+        /*
+        Returns whether or not the raycast hit something without ouputting anything.
+
+        collidersInteracting specifies what kind of objects the ray should collides with.
+        */
+        bool RaycastHas(Ray_t ray, RaycastCollisionType_t interaction);
+
     private :
         /*
-        Map matching the path to the .obj model file to the CollisionModel_t instance.
+        Map matching the path of the .obj model file to the CollisionModel_t instance.
         */
         CstrUnorderedMap_t<CollisionModel_t> m_Models {};
 

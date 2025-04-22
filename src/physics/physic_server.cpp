@@ -274,4 +274,106 @@ namespace gigno {
         *current = nullptr;
         return CollisionData_t{};
     }
+
+    bool PhysicServer::Raycast(Ray_t ray, RaycastCollisionType_t interaction, std::vector<RaycastHit_t> *outHits) {
+
+        if(interaction == RAYCAST_COLLIDE_AABB || interaction == RAYCAST_COLLIDE_COLLIDER) {
+
+            RigidBody *curr = s_RigidBodies;
+            while(curr) {
+                Collider_t coll = curr->AsCollider();
+                if (interaction == RAYCAST_COLLIDE_AABB &&
+                    coll.ColliderType != COLLIDER_PLANE)
+                {
+                    RaycastHit_t hit{};
+                    if(Raycast_AABB(ray, coll.AABB, &hit)) {
+                        hit.EntityHit = (Entity*)curr;
+                        hit.EntityHitType = RAYCAST_HIT_ENTITY_RIGIDBODY;
+                    }
+                    outHits->emplace_back(hit);
+                }
+                else if (interaction == RAYCAST_COLLIDE_COLLIDER) {
+                    RaycastHit_t hit{};
+                    if (Raycast_Collider(ray, coll, &hit))
+                    {
+                        hit.EntityHit = (Entity *)curr;
+                        hit.EntityHitType = RAYCAST_HIT_ENTITY_RIGIDBODY;
+                    }
+                }
+
+                curr = curr->pNextRigidBody;
+            }
+        }
+
+        return outHits->size() > 0;
+    }
+
+    bool PhysicServer::RaycastSingle(Ray_t ray, RaycastCollisionType_t interaction, RaycastHit_t *outHit){
+        float distance = FLT_MAX;
+
+        if(interaction == RAYCAST_COLLIDE_AABB || interaction == RAYCAST_COLLIDE_COLLIDER) {
+
+            RigidBody *curr = s_RigidBodies;
+            while(curr) {
+                Collider_t coll = curr->AsCollider();
+                if (interaction == RAYCAST_COLLIDE_AABB &&
+                    coll.ColliderType != COLLIDER_PLANE)
+                {
+                    RaycastHit_t hit{};
+                    if(Raycast_AABB(ray, coll.AABB, &hit)) {
+                        hit.EntityHit = (Entity*)curr;
+                        hit.EntityHitType = RAYCAST_HIT_ENTITY_RIGIDBODY;
+                        if(hit.Distance < distance) {
+                            distance = hit.Distance;
+                            *outHit = hit;
+                        }
+                    }
+                }
+                else if (interaction == RAYCAST_COLLIDE_COLLIDER) {
+                    RaycastHit_t hit{};
+                    if (Raycast_Collider(ray, coll, &hit))
+                    {
+                        hit.EntityHit = (Entity *)curr;
+                        hit.EntityHitType = RAYCAST_HIT_ENTITY_RIGIDBODY;
+                        if (hit.Distance < distance) {
+                            distance = hit.Distance;
+                            *outHit = hit;
+                        }
+                    }
+                }
+
+                curr = curr->pNextRigidBody;
+            }
+        }
+
+        return distance != FLT_MAX;
+    }
+
+    bool PhysicServer::RaycastHas(Ray_t ray, RaycastCollisionType_t interaction) {
+        if(interaction == RAYCAST_COLLIDE_AABB || interaction == RAYCAST_COLLIDE_COLLIDER) {
+
+            RigidBody *curr = s_RigidBodies;
+            while(curr) {
+                Collider_t coll = curr->AsCollider();
+                if(interaction == RAYCAST_COLLIDE_AABB &&
+                    coll.ColliderType != COLLIDER_PLANE)
+                {
+                    RaycastHit_t hit{};
+                    if(Raycast_AABB(ray, coll.AABB, &hit)) {
+                        return true;
+                    }
+                }
+                else if (interaction == RAYCAST_COLLIDE_COLLIDER) {
+                    RaycastHit_t hit{};
+                    if (Raycast_Collider(ray, coll, &hit)) {
+                        return true;
+                    }
+                }
+
+                curr = curr->pNextRigidBody;
+            }
+        }
+
+        return false;
+    }
 }

@@ -23,6 +23,13 @@ namespace gigno {
 		MOUSE_MOVE_INFINITE = GLFW_CURSOR_DISABLED	// Cursor invisible and movement unconstrained
 	};
 
+	enum MouseButton_t {
+		MOUSE_BUTTON_LEFT = GLFW_MOUSE_BUTTON_1,
+		MOUSE_BUTTON_RIGHT = GLFW_MOUSE_BUTTON_2,
+		MOUSE_BUTTON_MIDDLE = GLFW_MOUSE_BUTTON_3,
+		MOUSE_BUTTON_MAX_ENUM
+	};
+
 	class InputServer {
 	public:
 		InputServer() {};
@@ -36,6 +43,10 @@ namespace gigno {
 		bool GetKey(Key_t key);
 		bool GetKeyUp(Key_t key);
 		bool GetKeyDown(Key_t key);
+
+		bool GetMouseButton(MouseButton_t button);
+		bool GetMouseButtonUp(MouseButton_t button);
+		bool GetMouseButtonDown(MouseButton_t button);
 
 		/*
 		returns the pixel coordinate of the mouse relative to the upper left corner. 
@@ -70,7 +81,7 @@ namespace gigno {
 		MouseMode_t m_MouseModeWithoutReaccess = MOUSE_DEFAULT;
 
 		GLFWwindow* m_pWindow;
-		KeyState_t m_KeyStates[KEY_MAX_ENUM];
+		KeyState_t m_KeyStates[KEY_MAX_ENUM + MOUSE_BUTTON_MAX_ENUM];
 
 		glm::vec2 m_LastMousePos;
 		glm::vec2 m_CurrentMousePos;

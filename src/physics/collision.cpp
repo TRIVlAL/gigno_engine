@@ -105,6 +105,13 @@ namespace gigno {
                 A.Min.z <= B.Max.z && A.Max.z >= B.Min.z);
     }
 
+    bool AABBCollisionPoint(BoundingBox_t box, glm::vec3 p){
+        const float epsilon = 0.00001f;
+        return p.x + epsilon >= box.Min.x && p.x - epsilon <= box.Max.x &&
+               p.y + epsilon >= box.Min.y && p.y - epsilon <= box.Max.y &&
+               p.z + epsilon >= box.Min.z && p.z - epsilon <= box.Max.z;
+        }
+
     CollisionData_t DetectCollision(const Collider_t &col1, const Collider_t &col2)
     {
         ASSERT_V(col1.ColliderType != COLLIDER_NONE && col2.ColliderType != COLLIDER_NONE, CollisionData_t{});
