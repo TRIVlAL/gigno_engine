@@ -5,7 +5,6 @@
 #include "collision.h"
 #include "collider_type.h"
 #include "algorithm/geometry.h"
-#include "constraints.h"
 
 
 namespace gigno {
@@ -79,8 +78,6 @@ namespace gigno {
 
         glm::vec3 Torque{};
         glm::vec3 AngularVelocity{};
-
-        std::vector<Constraint*> Constraints{};
         
     private:
         void UpdateTransformedModel();

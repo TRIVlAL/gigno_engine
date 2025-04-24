@@ -36,6 +36,15 @@ namespace gigno {
 		}
 	}
 
+    Entity *EntityServer::GetEntityByName(const char *name) {
+		for(size_t i = 0; i < m_Scene.size(); i++) {
+			if(m_Scene[i]->Name && strcmp(name, m_Scene[i]->Name) == 0) {
+				return m_Scene[i];
+			}
+		}
+        return nullptr;
+    }
+
     void EntityServer::UnloadMap() {
 		for(int i = 0; i < m_Scene.size(); i++) {
 			m_Scene[i]->CleanUp();

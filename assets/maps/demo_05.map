@@ -129,24 +129,40 @@
     "InertiaTensor" : "16.6" "0.16" "16.6"
 }
 
-"ConstraintTest" {
+"RigidBody" {
+    "Name"      : "cube_constrained_1",
     "ColliderType" : "COLLIDER_HULL",
-    "ModelPath" : "assets/models/cube.obj",
     "CollisionModelPath" : "assets/models/cube.obj",
-    "Mass"      : "30",
-    "InertiaTensor" : "0.16" "0.16" "0.16",
     "Position"  : "5" "2" "2",
-
-    "Preset"    : "1"
+    "Length"    : "1.5",
+    "IsStatic"  : "false",
+    "ModelPath" : "assets/models/cube.obj",
+    "Velocity"  : "0" "0" "0",
+    "Mass"      : "50",
+    "InertiaTensor" : "0.666"
 }
 
-"ConstraintTest" {
+"HingeConstraint" {
+    "TargetName": "cube_constrained_1",
+    "Point"     : "0" "0" "0",
+    "Axis"      : "0" "1" "0"
+}
+
+"RigidBody" {
+    "Name"      : "sphere_constrained_1",
     "ColliderType" : "COLLIDER_SPHERE",
+    "Position"  : "9" "2" "2",
     "Radius"    : "1",
+    "Length"    : "1.5",
+    "IsStatic"  : "false",
     "ModelPath" : "assets/models/colored_uv_sphere.obj",
     "Mass"      : "20",
-    "InertiaTensor" : "0.16" "0.16" "0.16",
-    "Position"  : "9" "2" "2",
-
-    "Preset"    : "0"
+    "InertiaTensor" : "0.666"
 }
+
+"RopeConstraint" {
+    "TargetName": "sphere_constrained_1",
+    "Point"     : "0" "7" "0",
+    "Distance"  : "6"
+}
+

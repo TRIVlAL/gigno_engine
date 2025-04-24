@@ -66,7 +66,26 @@ namespace gigno {
             curr = curr->pNextRigidBody;
         }
     }
-    
+
+    void PhysicServer::SubscribeConstraint(PhysicsConstraint *cons) {
+        cons->pNextConstraint = s_Constraints;
+        s_Constraints = cons;
+    }
+
+    void PhysicServer::UnsubscribeConstraint(PhysicsConstraint *cons) {
+        PhysicsConstraint *curr = s_Constraints;
+        if(curr == cons) {
+            s_Constraints = cons->pNextConstraint;
+        }
+        while(curr) {
+            if(curr->pNextConstraint == cons) {
+                curr->pNextConstraint = cons->pNextConstraint;
+                return;
+            }
+            curr = curr->pNextConstraint;
+        }
+    }
+
     void PhysicServer::Loop() {
         while(!Application::Singleton() && m_LoopContinue) {
             ;
@@ -179,13 +198,11 @@ namespace gigno {
 
         for(size_t i = 0; i < iter_count; i++) {
 
-            RigidBody* curr = s_RigidBodies;
+            PhysicsConstraint* curr = s_Constraints;
             while(curr) {
-                for(Constraint *constraint : curr->Constraints) {
-                    constraint->Solve(dt / (float)iter_count);
-                }
+                curr->Solve(dt / (float)iter_count);
 
-                curr = curr->pNextRigidBody;
+                curr = curr->pNextConstraint;
             }
         }
     }

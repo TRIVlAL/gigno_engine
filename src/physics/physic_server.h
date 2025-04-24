@@ -8,6 +8,7 @@
 #include "collision.h"
 #include "raycast.h"
 #include "collision_sound.h"
+#include "constraints.h"
 
 namespace gigno {
     class AudioServer;
@@ -36,6 +37,8 @@ namespace gigno {
 
         void SubscribeRigidBody(RigidBody *rb);
         void UnsubscribeRigidBody(RigidBody *rb);
+        void SubscribeConstraint(PhysicsConstraint *cons);
+        void UnsubscribeConstraint(PhysicsConstraint *cons);
 
         /*
         Allocates the collision Model using the .obj file at path.
@@ -97,6 +100,7 @@ namespace gigno {
         volatile bool m_LoopContinue = true;
 
         RigidBody *s_RigidBodies{};
+        PhysicsConstraint *s_Constraints{};
 
         CollisionSoundManager m_CollisionSoundManager;
 

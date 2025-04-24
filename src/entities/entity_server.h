@@ -20,6 +20,11 @@ namespace gigno {
 		void Tick(float dt);
 		void PhysicTick(float dt);
 
+		/*
+		Returns pointer to entitiy named 'name', or nullptr if it does not exist.
+		*/
+		Entity *GetEntityByName(const char *name);
+
 		template<typename TEntity>
 		TEntity *CreateEntity();
 
