@@ -67,14 +67,4 @@ namespace gigno {
 		Position = Target + ( glm::normalize(targetToMe) * m_DistanceToTarget);
 	}
 
-	void DomeCamera::PhysicThink(float dt) {
-		InputServer *in = GetApp()->GetInputServer();
-
-		if(in->GetMouseButtonDown(MOUSE_BUTTON_LEFT)) {
-			Console::LogInfo("DID");
-
-			
-		}
-	}
-
 }
