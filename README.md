@@ -1,15 +1,16 @@
-﻿# Gigno Engine
+﻿# Gigno  Game Engine
 
-## Real-time 3d renderer / Engine powered by Vulkan.
+## Features
 
-This project is a real-time renderer / Engine using the Vulkan Rendering API and glfw. 
-The rendering architercture inspired by the amazing tutorial series by [vulkan-tutorial](https://vulkan-tutorial.com/Introduction) and [video series](https://www.youtube.com/playlist?list=PL8327DO66nu9qYVKLDmdLW_84-yE4auCR) by Brendan Galea.
+- Real-time 3D Renderer self written powered by Vulkan. Real-time shadows using Varianced Shadowmapping technique.
+- Real-time 3D Physics engine self written using no external librariy. Supports various shapes (convex polygons, spheres, ...), as well as friction.
+- Quick and iterative engine architecture inspired by the Source Engine : Devloper console commands for easy debugging, maps loaded from file with entity serialization to quickly iterate. 
 
 ## Directly Running
 
 If you just want to run the demo scene without compiling the code yourself, you may download the executable from the release section.
 
-## Compiling
+## Building from source
 
 Either download the code of this repository or clone it recursively with the ```--recursive``` parameter ( there are submodules that must be included ).
 
