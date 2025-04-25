@@ -9,6 +9,9 @@
 ![screenshot](misc/physics_screenshots/gigno-1.png)
 ![screenshot](misc/physics_screenshots/gigno-2.png)
 
+The engine is written in C++. 
+It does not use OS-specific libraries. As such, (although it has only been tested on Windows 10/11), it should work anywhere !
+
 ## Directly Running
 
 If you just want to run the demo scene without compiling the code yourself, you may download the executable from the release section.
