@@ -30,8 +30,8 @@ layout(binding=0) uniform UniformBufferObject {
 	int Parameters;
 } ubo;
 
-const int SHADOW_MAP_WIDTH = 2500;
-const int SHADOW_MAP_HEIGHT = 2500;
+const int SHADOW_MAP_WIDTH = 2000;
+const int SHADOW_MAP_HEIGHT = 2000;
 
 layout(binding=1) uniform sampler2D variancedShadowMap[SHADOW_MAP_CASCADE_COUNT];
 
