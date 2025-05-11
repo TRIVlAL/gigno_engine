@@ -163,7 +163,9 @@ namespace gigno {
         while(rb1) {
             RigidBody *rb2 = rb1->pNextRigidBody;
             while(rb2) {
-                if (AABBCollision(rb1->AsCollider().AABB, rb2->AsCollider().AABB)) {
+                if (!(rb1->IsStatic && rb2->IsStatic)
+                    && AABBCollision(rb1->AsCollider().AABB, rb2->AsCollider().AABB)) 
+                {
                     m_PossiblePairs.emplace_back(rb1, rb2);
                 }
                 rb2 = rb2->pNextRigidBody;

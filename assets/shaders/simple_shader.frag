@@ -55,49 +55,19 @@ float ShadowMappedDirectionalLightPower(int index, vec3 positionLightSpaceNDC) {
 
 float CascadedShadowMapLightPower(vec3 frag_normal, vec3 lightDir, bool doDebugRange) {
 
-	int inside_shadow_map_index_one = -1;
-	int inside_shadow_map_index_two = -1;
+	int inside_shadow_map_index = -1;
 
 	float multiplier = 1.0f; // 0 if in shadow.
 
 	for(int i = 0; i < SHADOW_MAP_CASCADE_COUNT; i++) {
 		vec3 pos_light_space_ndc = inLightSpacePos[i].xyz / inLightSpacePos[i].w;
 
-		if (abs(pos_light_space_ndc.x) < 0.7f && abs(pos_light_space_ndc.y) < 0.7f && abs(pos_light_space_ndc.z) < 0.7f) {
+		if (abs(pos_light_space_ndc.x) < 1.f && abs(pos_light_space_ndc.y) < 1.f && abs(pos_light_space_ndc.z) < 1.f) {
 
 			multiplier = ShadowMappedDirectionalLightPower(i, pos_light_space_ndc);
 
-			inside_shadow_map_index_one = i;
-			inside_shadow_map_index_two = i;
+			inside_shadow_map_index = i;
 			break;
-
-		} else if( abs(pos_light_space_ndc.x) < 1.f && abs(pos_light_space_ndc.y) < 1.f && abs(pos_light_space_ndc.z) < 1.f) {
-			//interpolate between this shadowmap and the next
-			if(i < SHADOW_MAP_CASCADE_COUNT-1) {
-				vec3 pos_light_space_ndc_second = inLightSpacePos[i+1].xyz / inLightSpacePos[i+1].w;
-				
-				if(abs(pos_light_space_ndc_second.x) < 1.0f && abs(pos_light_space_ndc_second.y) < 1.0f && abs(pos_light_space_ndc_second.z) < 1.0f) {
-					
-					float t = max(abs(pos_light_space_ndc.x), max(pos_light_space_ndc.y, pos_light_space_ndc.z));
-					t = (t - 0.7f) / 0.7f;
-
-					multiplier = (1-t)*ShadowMappedDirectionalLightPower(i, pos_light_space_ndc)
-								+ t*ShadowMappedDirectionalLightPower(i+1, pos_light_space_ndc_second);
-
-					inside_shadow_map_index_one = i;
-					inside_shadow_map_index_two = i+1;
-				} else {
-					ShadowMappedDirectionalLightPower(i, pos_light_space_ndc);
-				}
- 
-			} else {
-				multiplier = ShadowMappedDirectionalLightPower(i, pos_light_space_ndc);
-
-				inside_shadow_map_index_one = inside_shadow_map_index_two = i;
-			}
-
-			break;
-
 		} else {
 			continue;
 		}
@@ -105,8 +75,8 @@ float CascadedShadowMapLightPower(vec3 frag_normal, vec3 lightDir, bool doDebugR
 
 	multiplier = max(multiplier, 0.1f);
 
-	if(doDebugRange && inside_shadow_map_index_one != -1) {
-		outColor = vec4(((inside_shadow_map_index_one + inside_shadow_map_index_two)*0.5f)/SHADOW_MAP_CASCADE_COUNT, 0.0f, 0.0f, 1.0f);
+	if(doDebugRange && inside_shadow_map_index != -1) {
+		outColor = vec4((float(inside_shadow_map_index))/SHADOW_MAP_CASCADE_COUNT, 0.0f, 0.0f, 1.0f);
 		return -1.0f;
 	}
 

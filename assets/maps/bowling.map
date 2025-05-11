@@ -1,0 +1,100 @@
+"DirectionalLight" {
+    "Direction" : "-0.4" "-1.0" "-0.1",
+    "Intensity" : "0.6"
+}
+
+"EnvironmentLight" {
+    "Intensity" : "0.2"
+}
+
+"RigidBody" {
+    "IsStatic" : "true",
+    "ColliderType" : "COLLIDER_PLANE",
+    "Normal" : "0" "1" "0",
+    "ModelPath" : "assets/models/plane.obj",
+    "Scale" : "100" "1" "100"
+}
+
+"RigidBody" {
+    "IsStatic" : "true",
+    "ColliderType" : "COLLIDER_HULL",
+    "CollisionModelPath" : "assets/models/45deg.obj",
+    "ModelPath" : "assets/models/45deg.obj",
+    "Scale" : "0.5" "0.5" "10",
+    "Position" : "-1" "0.5" "0"
+}
+
+"RigidBody" {
+    "IsStatic" : "true",
+    "ColliderType" : "COLLIDER_HULL",
+    "CollisionModelPath" : "assets/models/45deg.obj",
+    "ModelPath" : "assets/models/45deg.obj",
+    "Scale" : "0.5" "0.5" "10",
+    "Position" : "0" "0.5" "0",
+    "StartRotation" : "0" "180" "0"
+}
+
+"RigidBody" {
+    "IsStatic" : "true",
+    "ColliderType" : "COLLIDER_HULL",
+    "CollisionModelPath" : "assets/models/45deg.obj",
+    "ModelPath" : "assets/models/45deg.obj",
+    "Scale" : "0.5" "0.5" "10",
+    "Position" : "6" "0.5" "0"
+}
+
+"RigidBody" {
+    "IsStatic" : "true",
+    "ColliderType" : "COLLIDER_HULL",
+    "CollisionModelPath" : "assets/models/45deg.obj",
+    "ModelPath" : "assets/models/45deg.obj",
+    "Scale" : "0.5" "0.5" "10",
+    "Position" : "7" "0.5" "0",
+    "StartRotation" : "0" "180" "0"
+}
+
+"RigidBody" {
+    "IsStatic" : "true",
+    "ColliderType" : "COLLIDER_HULL",
+    "CollisionModelPath" : "assets/models/cube.obj",
+    "ModelPath" : "assets/models/cube.obj",
+    "Scale" : "2.5" "0.5" "10",
+    "Position" : "3" "0.5" "0",
+    "StartRotation" : "0" "0" "0"
+}
+
+"RigidBody" {
+    "IsStatic" : "true",
+    "ColliderType" : "COLLIDER_HULL",
+    "CollisionModelPath" : "assets/models/cube.obj",
+    "ModelPath" : "assets/models/cube.obj",
+    "Scale" : "10" "0.5" "10",
+    "Position" : "3" "0.5" "20",
+    "StartRotation" : "0" "0" "0"
+}
+
+"RigidBody" {
+    "IsStatic" : "true",
+    "ColliderType" : "COLLIDER_HULL",
+    "CollisionModelPath" : "assets/models/cube.obj",
+    "ModelPath" : "assets/models/cube.obj",
+    "Scale" : "4" "5" "10",
+    "Position" : "11.5" "5" "0",
+    "StartRotation" : "0" "0" "0"
+}
+
+"RigidBody" {
+    "IsStatic" : "true",
+    "ColliderType" : "COLLIDER_HULL",
+    "CollisionModelPath" : "assets/models/cube.obj",
+    "ModelPath" : "assets/models/cube.obj",
+    "Scale" : "4" "5" "10",
+    "Position" : "-5.5" "5" "0",
+    "StartRotation" : "0" "0" "0"
+}
+
+
+"FPController" {
+    "Position" : "3" "3" "20",
+    "StartRotation" : "0" "180" "0"
+}
