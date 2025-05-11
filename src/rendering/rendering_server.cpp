@@ -1624,7 +1624,7 @@ namespace gigno {
 		pool_sizes[0].descriptorCount = MAX_FRAMES_IN_FLIGHT;
 
 		pool_sizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		pool_sizes[1].descriptorCount = MAX_FRAMES_IN_FLIGHT;
+		pool_sizes[1].descriptorCount = MAX_FRAMES_IN_FLIGHT * m_ShadowMapPass.CascadeCount;
 		
 		pool_sizes[2].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		pool_sizes[2].descriptorCount = m_ShadowMapPass.CascadeCount; //SHADOW MAP UNIFORM BUFFER.
