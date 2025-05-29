@@ -14,8 +14,8 @@ It does not use OS-specific libraries. As such, (although it has only been teste
 
 ## Getting started
 
-Once in the app, use the tilde '~' key to open the console command.
-Type 'map' for a list of map, and 'map <mapname>' to load a specific map. 
+Once in the app, use the tilde '~' key to open the console interface.
+Type '```map```' for a list of map, and '```map <mapname>```' to load a specific map. 
 Enjoy the show !
 
 ## Directly Running
