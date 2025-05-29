@@ -1,5 +1,7 @@
 ﻿# Gigno Engine
 
+## Please see the physics branch for the latest up-to-date stable release.
+
 ## Simple real-time 3d renderer / Engine powered by Vulkan.
 
 This project is a real-time renderer / Engine using the Vulkan Rendering API and glfw. 
