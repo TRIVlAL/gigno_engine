@@ -18,10 +18,10 @@
 
 namespace gigno {
 
-	CONVAR(const char *, start_map, "assets/maps/demo_04.map", "the first loaded map when the app starts.")
+	CONVAR(const char *, start_map, "demo_04", "the first loaded map when the app starts.")
 
 	Application::Application() :
-		m_CurrentMapFilepath{convar_start_map} {
+		m_CurrentMap{convar_start_map} {
 
 			ASSERT_MSG(!s_Instance, "Multiple applications created !");
 			s_Instance = this;
@@ -30,7 +30,7 @@ namespace gigno {
 			m_AudioServer.Init();
 			m_PhysicServer.Init();
 
-			m_NextMapFilepath = m_CurrentMapFilepath;
+			m_NextMap = m_CurrentMap;
 		}
 
 	Application::~Application() {
@@ -57,13 +57,12 @@ namespace gigno {
 			Profiler::Begin("Main Loop");
 			if(m_ShouldLoadMap) {
 				m_RenderingServer.WaitIdle();
-				if (!m_EntityServer.LoadFromFile(m_NextMapFilepath.c_str())) {
-					Console::LogWarning("Error when parsing map file !");
-					//Fallback to the last map.
-					m_EntityServer.LoadFromFile(m_CurrentMapFilepath.c_str());
+				if(!m_EntityServer.LoadMap(m_NextMap.c_str())) {
+					Console::LogWarning("Could not load map %s !", m_NextMap.c_str());
+				} else {
+					m_CurrentMap = m_NextMap;
 				}
 				m_ShouldLoadMap = false;
-				m_CurrentMapFilepath = m_NextMapFilepath;
 			}
 			
 
@@ -142,5 +141,5 @@ void gigno::Application::SetExit(AppExitCode_t exit) {
 void gigno::Application::LoadMap(const char *filepath)
 {
     m_ShouldLoadMap = true;
-	m_NextMapFilepath = filepath;
+	m_NextMap = std::string{filepath};
 }

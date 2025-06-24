@@ -135,6 +135,7 @@ namespace gigno {
     }
 
     void RigidBody::CleanUp() {
+
         GetApp()->GetPhysicServer()->UnsubscribeRigidBody(this);
         RenderedEntity::CleanUp();
     }

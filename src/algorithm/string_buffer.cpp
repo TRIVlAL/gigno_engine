@@ -59,6 +59,23 @@ namespace gigno {
         
     }
 
+    char *StringBuffer::PushWord(const char *word, size_t length) {
+        //could be optimized, but no time !
+        for(size_t i = 0; i < length; i++) {
+            PushChar(word[i]);
+        }
+        return EndWord();
+    }
+
+    char *StringBuffer::PushWord(const char *word) {
+        int i = 0;
+        while(word[i] != '\0') {
+            PushChar(word[i]);
+            i++;
+        }
+        return EndWord();
+    }
+
     char *StringBuffer::EndWord() {
         if(m_pCurrentChar == m_pEnd) {
             return m_pNext->EndWord();

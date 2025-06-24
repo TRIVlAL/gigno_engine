@@ -64,8 +64,8 @@ namespace gigno {
 		bool m_ShowMainUIWindow = true;
 		void DrawMainUIWindow();
 
-		std::string m_CurrentMapFilepath;
-		std::string m_NextMapFilepath;
+		std::string m_CurrentMap;
+		std::string m_NextMap;
 		bool m_ShouldLoadMap = true;
 
         const float MAX_FRAME_TIME = 1000.0f;

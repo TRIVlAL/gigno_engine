@@ -5,7 +5,7 @@
 #include "collision.h"
 #include "collider_type.h"
 #include "algorithm/geometry.h"
-
+#include <string>
 
 namespace gigno {
     struct CollisionModel_t;
@@ -48,6 +48,7 @@ namespace gigno {
                                                      // in local space. Updated by UpdateTransformedModel every PhysicThink
                                                      // if CollioderType is COLLIDER_HULL
         /*------------------------------------------*/
+
 
         float Mass{1.0f};
         glm::mat3 InertiaTensor{1.0f};

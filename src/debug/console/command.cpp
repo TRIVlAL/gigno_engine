@@ -100,7 +100,7 @@ namespace gigno {
     CONSOLE_COMMAND_HELP(status, "prints infos to the console") {
         if(Application *app = Application::Singleton()) {
             Console::LogInfo("Current map : '%s'"
-            , app->m_CurrentMapFilepath.c_str());
+            , app->m_CurrentMap.c_str());
         }
     }
 }

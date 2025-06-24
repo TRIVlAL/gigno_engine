@@ -15,8 +15,12 @@ namespace gigno {
         StringBuffer(size_t capacity);
         ~StringBuffer();
 
-        // Adds the character to the string burrently built.
+        // Adds the character to the string currently built.
         void PushChar(char c);
+        // Adds a chain of characters to the string currently built, and end the word
+        char *PushWord(const char *word, size_t length);
+        // Adds a null-trminated chain of characters to the string currently built, and end the word
+        char *PushWord(const char *word);
         // Returns the string currently building. Automatically adds null-termination.
         char *EndWord();
     private:

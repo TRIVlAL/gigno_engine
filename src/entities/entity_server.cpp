@@ -54,6 +54,20 @@ namespace gigno {
 		m_EntityArena.FreeAll();
     }
 
+	bool EntityServer::LoadMap(const char *mapName) {
+		const char  default_dir[] = "assets/maps/";
+		size_t name_len = strlen(mapName);
+
+		char path[sizeof(default_dir) + name_len + name_len]{};
+		sprintf_s(path, sizeof(default_dir) + name_len + name_len + 6, "%s%s/%s.gmap", default_dir, mapName, mapName);
+
+		if(!std::filesystem::exists(std::filesystem::path{(char *)path})) {
+			return false;
+		}
+
+		return LoadFromFile(path);
+	}
+
     bool EntityServer::LoadFromFile(const char *filepath) {
 
 		Console::LogInfo("Loading map file '%s'", filepath);
