@@ -1,4 +1,8 @@
 .vscode
+*.vscode
+*/BUILD
 BUILD
+build
+*/build
 assets/shaders/*.spv
 .history
