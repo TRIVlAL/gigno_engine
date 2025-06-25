@@ -47,19 +47,19 @@ namespace gigno {
         };
         
         struct MemoryBound_t {
-            MemoryUsage_t Usage;
-            size_t Position;
+            MemoryUsage_t Usage{};
+            size_t Position{};
         };
 
         /*
         Number of bytes avaliable in the arena.
         */
-        size_t m_Capactity;
+        size_t m_Capactity{};
 
         /*
         Pointer to the pre-allocated data.
         */
-        char *m_pData;
+        char *m_pData{};
 
         /*
         Sorted by acending position. The memory from a given position (including) up to the next one in the vector (or the end) is
@@ -70,13 +70,13 @@ namespace gigno {
             {{0 : USED}, {1024, FREE}} means that bytes 0- 1023 are used and the rest up to the end is free
             etc...
         */
-        std::vector<MemoryBound_t> m_Bounds;
+        std::vector<MemoryBound_t> m_Bounds{};
 
         /*
         If This arena runs out of space, a new arena is build and used in parallel.
         is nullptr if no new arena was necessary up to now.
         */
-        Arena *m_pNext;
+        Arena *m_pNext{};
     };
 
 }

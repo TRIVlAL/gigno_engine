@@ -1,0 +1,12 @@
+"WorldSpawn"  {
+	"CollisionsPath" : "assets/maps/test_trenchbroom/collisions/",
+	"VisualsPath" : "assets/maps/test_trenchbroom/visuals/",
+	"VisualsScale" : "0.1"
+}
+
+"DirectionalLight" {	"Intensity" : "0.4",
+	"Direction" : "0.5" "-0.7" "-0.3"
+}
+
+"GravgunController" {
+}

@@ -50,8 +50,6 @@ namespace gigno {
 		ASSERT_MSG_V(glfwInit(), EXIT_FAILED_GLFW, "GLFW Failed to init");
 
 		auto last_update_time = std::chrono::steady_clock::now();
-
-		auto start_time = std::chrono::steady_clock::now();
 		
 		while (m_CurrentStatus == CONTINUE) {
 			Profiler::Begin("Main Loop");
@@ -65,27 +63,26 @@ namespace gigno {
 				m_ShouldLoadMap = false;
 			}
 			
-
 			m_RenderingServer.PollEvents();
-			m_InputServer.UpdateInput();
 
+			m_InputServer.UpdateInput();
+			
 			if(m_InputServer.GetKeyDown(KEY_M)) {
 				m_ShowMainUIWindow = true;
 			}
 			DrawMainUIWindow();
-
+			
 			auto current_time = std::chrono::steady_clock::now();
 			std::chrono::duration<float> delta_time = current_time - last_update_time;
 			delta_time = std::chrono::duration<float>{glm::min(delta_time.count(), MAX_FRAME_TIME)};
 			delta_time = std::chrono::duration_cast<std::chrono::microseconds>(delta_time);
-
+			
 			last_update_time = current_time;
-
+			
 			m_EntityServer.Tick(delta_time.count() * 10e-1f); // For some reason, it seems that to get second we need
-															  //  to multiply by 10e-1f and not the expected 10e-6f !
-															  //  Related to issue #2
-
-			Profiler::Begin("Render Frame");
+			//  to multiply by 10e-1f and not the expected 10e-6f !
+			//  Related to issue #2
+			
 			m_RenderingServer.Render();
 
 			Profiler::End();
@@ -133,7 +130,7 @@ namespace gigno {
 
 void gigno::Application::SetExit(AppExitCode_t exit) {
 	// Error codes take priority over SUCCESS.
-	if(exit != CONTINUE && m_CurrentStatus == CONTINUE || m_CurrentStatus == SUCCESS) {
+	if(exit != CONTINUE && (m_CurrentStatus == CONTINUE || m_CurrentStatus == SUCCESS)) {
 		m_CurrentStatus = exit;
 	}
 }

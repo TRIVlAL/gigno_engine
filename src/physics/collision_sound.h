@@ -64,9 +64,9 @@ namespace gigno {
             // Returns a sound that is free to be used. Nullptr if they are all used.
             Sound_t *FreeSpace();
 
-            const char *Name;
-            CollisionSoundPower_t Power;
-            const size_t MAX_SOUND_COUNT;
+            const char *Name{};
+            CollisionSoundPower_t Power{};
+            const size_t MAX_SOUND_COUNT{};
             std::vector<Sound_t *> Sounds{MAX_SOUND_COUNT};
         };
 

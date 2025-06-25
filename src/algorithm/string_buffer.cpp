@@ -9,7 +9,7 @@ namespace gigno {
         ASSERT(m_pData != nullptr);
         m_pCurrentWord = m_pData;
         m_pCurrentChar = m_pData - 1;
-        m_pEnd = m_pData + capacity;
+        m_pEnd = m_pData + capacity - 1;
     }
 
     StringBuffer::StringBuffer(char *starting_word, size_t starting_word_len, size_t capacity, char current_to_add)
@@ -77,15 +77,22 @@ namespace gigno {
     }
 
     char *StringBuffer::EndWord() {
-        if(m_pCurrentChar == m_pEnd) {
+        if(m_pNext || m_pCurrentChar == m_pEnd) {
             return m_pNext->EndWord();
         }
 
         char *word_ret = m_pCurrentWord;
 
-        m_pCurrentChar++;
-        *m_pCurrentChar = '\0';
-        m_pCurrentWord = m_pCurrentChar + 1;
+        if(m_pCurrentChar + 1 == m_pEnd || m_pCurrentChar + 2 == m_pEnd) {
+            size_t word_len = strlen(m_pCurrentWord);
+            m_pNext = new StringBuffer{m_pCurrentWord, word_len, m_Capacity, '\0'};
+            m_pNext->EndWord();
+        } else {
+            m_pCurrentChar++;
+            *m_pCurrentChar = '\0';
+            m_pCurrentWord = m_pCurrentChar + 1;
+        }
+
 
         return word_ret;
     }

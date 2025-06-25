@@ -5,6 +5,12 @@
 
 namespace gigno {
 
+	InputServer::InputServer() {
+		for(int i = 0; i < KEY_MAX_ENUM + MOUSE_BUTTON_MAX_ENUM; i++) {
+			m_KeyStates[i] = KEY_STATE_RELEASED;
+		}
+	}
+
 	void InputServer::BindWindow(GLFWwindow *window) {
 		m_pWindow = window;
 	}
@@ -13,8 +19,10 @@ namespace gigno {
 		m_pWindow = nullptr;
 	}
 
-	void InputServer::UpdateInput() {
-		//KEYBOARD
+
+    void InputServer::UpdateInput()
+    {
+        //KEYBOARD
 		for(size_t i = 0; i < KEY_MAX_ENUM; i++) {
 			int new_state = glfwGetKey(m_pWindow, i);
 			if(new_state == GLFW_PRESS) {
@@ -64,9 +72,9 @@ namespace gigno {
 		if(GetKeyDown(REACCESS_MOUSE_KEY)) {
 			SetReaccessMouse(!m_IsMouseInReaccessMode);
 		}
-	}
+    }
 
-	bool InputServer::GetKey(Key_t key) {
+    bool InputServer::GetKey(Key_t key) {
 		return (m_KeyStates[key] >> 1) == 1;
 	}
 

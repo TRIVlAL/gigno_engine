@@ -88,7 +88,7 @@ namespace gigno {
 
         operator T() const { return m_Value; }
     private:
-        T m_Value;
+        T m_Value{};
     };
 
 }

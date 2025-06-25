@@ -112,9 +112,6 @@ namespace gigno {
     }
 
     glm::quat FromEuler(glm::vec3 euler) {
-        if(euler == glm::vec3{0.0f}) {
-            int i = 0;
-        }
         glm::quat qx = glm::angleAxis(euler.x, glm::vec3{1.0f, 0.0f, 0.0f});
         glm::quat qy = glm::angleAxis(euler.y, glm::vec3{0.0f, 1.0f, 0.0f});
         glm::quat qz = glm::angleAxis(euler.z, glm::vec3{0.0f, 0.0f, 1.0f});

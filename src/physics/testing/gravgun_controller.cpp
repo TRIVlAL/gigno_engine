@@ -37,7 +37,6 @@ namespace gigno {
             float closest_dist_sqared = FLT_MAX;
 
             RigidBody *curr = nullptr;
-            CollisionData_t col = phy->GetColliding(collider, &curr);
             while (curr)
             {
                 if (curr != this && !curr->IsStatic)
@@ -73,7 +72,6 @@ namespace gigno {
             m_pSelected->DisableGravity();
 
             if (dist_len_sqrd > TargetDistance * TargetDistance * 1.25f) {
-                glm::vec3 dist_norm = dist / glm::sqrt(dist_len_sqrd);
                 m_pSelected->AddForce(dist * FarPullPower * m_pSelected->Mass / glm::max(dist_len_sqrd, 0.00001f), dist * 0.5f); // Add a bit of torque
             }
             else {

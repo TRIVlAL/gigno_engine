@@ -32,7 +32,7 @@ namespace gigno {
 
 	class InputServer {
 	public:
-		InputServer() {};
+		InputServer();
 		~InputServer() {};
 
 		void UpdateInput();
@@ -80,11 +80,11 @@ namespace gigno {
 		// The Last Mouse Mode Set by user
 		MouseMode_t m_MouseModeWithoutReaccess = MOUSE_DEFAULT;
 
-		GLFWwindow* m_pWindow;
-		KeyState_t m_KeyStates[KEY_MAX_ENUM + MOUSE_BUTTON_MAX_ENUM];
+		GLFWwindow* m_pWindow{};
+		KeyState_t m_KeyStates[KEY_MAX_ENUM + MOUSE_BUTTON_MAX_ENUM]{};
 
-		glm::vec2 m_LastMousePos;
-		glm::vec2 m_CurrentMousePos;
+		glm::vec2 m_LastMousePos{};
+		glm::vec2 m_CurrentMousePos{};
 	};
 
 }

@@ -214,7 +214,6 @@ namespace gigno {
             //For every face in the shape
             const glm::vec3 face_normal = glm::cross(Vertices[Indices[i+1]].Point - Vertices[Indices[i]].Point, Vertices[Indices[i+2]].Point - Vertices[Indices[i]].Point);
             const glm::vec3 to_new_vert = vertex.Point - Vertices[Indices[i]].Point;
-            const glm::vec3 face_center = (Vertices[Indices[i]].Point + Vertices[Indices[i+1]].Point + Vertices[Indices[i+2]].Point)/3.0f;
 
             if(glm::dot(face_normal, to_new_vert) > 0) {
                 //This face can 'see' the new vertex.

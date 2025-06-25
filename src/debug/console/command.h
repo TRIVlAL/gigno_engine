@@ -30,10 +30,10 @@ namespace gigno {
     private:
         Command* m_pNext{};
 
-        CommandCallback_t *m_Callback;
-        CommandUpdate_t *m_Update;
-        const char *m_Name;
-        const char *m_HelpString;
+        CommandCallback_t *m_Callback{};
+        CommandUpdate_t *m_Update{};
+        const char *m_Name{};
+        const char *m_HelpString{};
     };
 }
 #endif

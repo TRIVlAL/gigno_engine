@@ -38,7 +38,7 @@ namespace gigno {
                     void *ret = &m_pData[m_Bounds[i].Position];
 
                     m_Bounds[i].Position += size;
-                    if(m_Bounds[i].Position == m_Bounds[i+1].Position) {
+                    if(i != m_Bounds.size() - 1 && m_Bounds[i].Position == m_Bounds[i+1].Position) {
                         m_Bounds.erase(m_Bounds.begin() + i, m_Bounds.begin() + i + 1);
                     }
 

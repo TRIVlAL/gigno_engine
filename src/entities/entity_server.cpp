@@ -120,8 +120,8 @@ namespace gigno {
 			}
 		}
 
-		for(int i = 0; i < loaded_from_file.size(); i++) {
-			loaded_from_file[i]->Init();
+		for(Entity *e : loaded_from_file) {
+			e->Init();
 		}
 
 		Console::LogInfo(ConsoleMessageFlags_t::MESSAGE_NO_TIME_CODE_BIT,

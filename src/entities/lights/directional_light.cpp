@@ -20,10 +20,6 @@ namespace gigno {
 
     std::pair<glm::mat4, glm::mat4> DirectionalLight::ShadowMapViewAndProjection(size_t cascadeIndex, size_t cascadeCount, const Camera *camera) const {
         
-        //Calculate frustum corners (from top-down)
-        glm::mat4 reverse_ndc = glm::inverse(camera->GetProjection() * camera->GetViewMatrix());
-
-        
         std::array<glm::vec3, 4> far_face{};
         std::array<glm::vec3, 4> near_face{};
 

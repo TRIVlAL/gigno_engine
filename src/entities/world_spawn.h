@@ -13,17 +13,15 @@ namespace gigno {
         virtual void Init() override;
         virtual void CleanUp() override;
 
-        cstr CollisionsPath{};
-        cstr VisualsPath{};
         float VisualsScale = 0.1f;
 
     private:
-        StringBuffer m_ModelPaths{1028};
+        // static so it never gets destroyed : it must live for the entire lifetime
+        //  of the app as it is then referenced by the physics server
+        inline static StringBuffer s_ModelPaths{1028};
     };
 
     BEGIN_KEY_TABLE(WorldSpawn)
-        DEFINE_KEY_VALUE(cstr, CollisionsPath)
-        DEFINE_KEY_VALUE(cstr, VisualsPath)
         DEFINE_KEY_VALUE(float, VisualsScale)
     END_KEY_TABLE
 

@@ -30,12 +30,12 @@ namespace gigno {
         ConsoleMessage_t(size_t size);
         ~ConsoleMessage_t();
 
-        ConsoleMessageType_t Type;
-        ConsoleMessageFlags_t Flags;
-        std::shared_ptr<char> Message;
-        time_t TimePoint;
+        ConsoleMessageType_t Type{};
+        ConsoleMessageFlags_t Flags{};
+        std::shared_ptr<char> Message{};
+        time_t TimePoint{};
     private:
-        const size_t Size;
+        const size_t Size{};
     };
 
     const bool CONSOLE_TO_PRINTF = true;                  // Are Console messages also forwarded to the standard console output ? (printf)

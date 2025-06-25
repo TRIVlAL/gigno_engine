@@ -90,6 +90,9 @@ namespace gigno {
                 }
                 break;
             }
+            default : {
+                ASSERT(false);
+            }
         }
     }
 

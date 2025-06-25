@@ -51,7 +51,6 @@ namespace  gigno {
 	}
 
     size_t Entity::KeyValueCount() const {
-		auto &a = KeyTableAccessor<Entity>::KeyValues;
         return KeyTableAccessor<Entity>::KeyValues.size();
     }
 

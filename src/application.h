@@ -45,6 +45,8 @@ namespace gigno {
 		AudioServer *GetAudioServer() { return &m_AudioServer; }
 		DebugServer *Debug() { return &m_DebugServer; }
 
+		std::string GetNextMap() const {return m_NextMap;};
+
 		/*
 		The app will continue until a call to SetExit, which gives the exit code.
 		*/

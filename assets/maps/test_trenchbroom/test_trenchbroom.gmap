@@ -1,12 +1,38 @@
 "WorldSpawn"  {
-	"CollisionsPath" : "assets/maps/test_trenchbroom/collisions/",
-	"VisualsPath" : "assets/maps/test_trenchbroom/visuals/",
-	"VisualsScale" : "0.1"
+	"VisualsScale" : "0.1" ,
 }
 
-"DirectionalLight" {	"Intensity" : "0.4",
-	"Direction" : "0.5" "-0.7" "-0.3"
+"GravgunController"  {
+	"Position" : "15.755099" "21.044901" "-3.400000" ,
+	"StartRotation" : "0" "180" "0" ,
 }
 
-"GravgunController" {
+"DirectionalLight"  {
+	"Intensity" : "0.5" ,
+	"Direction" : "-0.2" "-0.7" "0.2" ,
 }
+
+"PointLight"  {
+	"Position" : "6.400000" "4.000000" "-9.600000" ,
+	"Intensity" : "2" ,
+}
+
+"RigidBody"  {
+	"Position" : "-8.000000" "5.600000" "-9.600000" ,
+	"ModelPath" : "assets/models/cube.obj" ,
+	"CollisionModelPath" : "assets/models/cube.obj" ,
+	"Scale" : "0.5" ,
+	"Mass" : "200" ,
+	"ColliderType" : "COLLIDER_HULL" ,
+}
+
+"RigidBody"  {
+	"Position" : "35.200001" "15.200000" "-14.400001" ,
+	"ModelPath" : "assets/models/cube.obj" ,
+	"CollisionModelPath" : "assets/models/cube.obj" ,
+	"Scale" : "0.5" ,
+	"Mass" : "200" ,
+	"ColliderType" : "COLLIDER_HULL" ,
+}
+
+

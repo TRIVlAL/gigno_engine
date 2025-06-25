@@ -138,7 +138,6 @@ namespace gigno {
         {
             const glm::vec3 ang_vel = Target->AngularVelocity;
     
-            const float total = glm::length(ang_vel);
             const float along_axis = glm::dot(ang_vel, Axis);
 
             const glm::vec3 dir = ApplyRotation(Target->Rotation, Axis);

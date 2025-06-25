@@ -26,14 +26,14 @@ namespace gigno {
     private:
         StringBuffer(char *starting_word, size_t starrting_word_len, size_t capacity, char current_to_add);
 
-        char *m_pCurrentChar; //points to the last written character.
-        char *m_pCurrentWord;
-        char *m_pEnd;
+        char *m_pCurrentChar{}; //points to the last written character.
+        char *m_pCurrentWord{};
+        char *m_pEnd{};
 
         StringBuffer *m_pNext = nullptr;
 
-        char *m_pData;
-        size_t m_Capacity;
+        char *m_pData{};
+        size_t m_Capacity{};
     };
 
 }

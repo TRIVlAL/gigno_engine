@@ -168,7 +168,7 @@ namespace gigno {
 			}
 			curr = curr->pNextRenderedEntity;
 		}
-		Console::LogError("Tried to unsubsribe rendered entity '%s' but it was not subscribed.", entity->Name == "" ? "No name" : entity->Name);
+		Console::LogError("Tried to unsubsribe rendered entity '%s' but it was not subscribed.", strcmp(entity->Name, "") == 0 ? "No name" : entity->Name);
 	}
 
 	void RenderingServer::SubscribeLightEntity(Light *light) {
@@ -2000,7 +2000,6 @@ namespace gigno {
     }
 
     uint32_t RenderingServer::GetMemoryType(uint32_t typeBits, VkMemoryPropertyFlags properties) {
-		bool found = false;
 
 		VkPhysicalDeviceMemoryProperties mem_prop{};
 		vkGetPhysicalDeviceMemoryProperties(m_Device.GetPhysicalDevice(), &mem_prop);

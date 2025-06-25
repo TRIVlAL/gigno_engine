@@ -269,7 +269,7 @@ namespace gigno {
                 m_FileStream << "\n";
             }
 
-            if(message.Type == CONSOLE_MESSAGE_WARN || CONSOLE_MESSAGE_ERR) {
+            if(message.Type == CONSOLE_MESSAGE_WARN || message.Type == CONSOLE_MESSAGE_ERR) {
                 m_FileStream.flush();
             }
         }

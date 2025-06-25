@@ -114,15 +114,15 @@ namespace gigno {
             s_EntityUnloadMutex.lock();
 
             float delta_time = (target_dur.count() + time_overflow.count()) / 1e9;
-
+            
             entity_serv->PhysicTick(delta_time);
-
+            
             SolveConstraints(delta_time);
-
+            
             ResolveCollisions();
-
+            
             m_CollisionSoundManager.Update();
-
+            
             s_EntityUnloadMutex.unlock();
 
             Profiler::End();
@@ -240,7 +240,6 @@ namespace gigno {
         model.Indices.reserve(indices_count);
         model.Vertices.reserve(vertices_count);
 
-        size_t vertex_index = 0;
         for (tinyobj::shape_t &shape : shapes)
         {
             for (tinyobj::index_t &index : shape.mesh.indices)
