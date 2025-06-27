@@ -1,0 +1,16 @@
+Tests on bowling.gmap
+
+Time to test AABB
+
+Without octree (naive):
+1  dyn object -> 131ms
+3  dyn object -> 250ms
+7  dyn object -> 580ms
+50 dyn objcet -> 3600ms
+
+SIKE ! changing 'Collider_t GetCollider()' to Collider_t &GetCollider()'
+1  dyn object -> 50ms
+3  dyn object -> 55ms
+70 dyn object -> 150ms
+
+MEMORY IS THE MODT IMPORTANT PART OF PROGRAMMING.

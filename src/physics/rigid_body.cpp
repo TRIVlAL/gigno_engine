@@ -149,7 +149,9 @@ namespace gigno {
         m_Collider.Normal = Normal;
         if (ColliderType == COLLIDER_HULL) {
             m_Collider.Model = GetModel();
-            m_Collider.TransformedModel = TransformedModel; // TODO : Avoid Copy
+
+            m_Collider.IsTransformModelProxi = true;
+            m_Collider.TransformedModelProxi = &TransformedModel;
         }
         m_Collider.SetBoundingBox();
     }
@@ -158,7 +160,7 @@ namespace gigno {
         m_TransformedInverseInertiaTensor = IsStatic ? glm::mat3{0.0f} : RotationMatrix() * glm::inverse(InertiaTensor * Mass) * glm::transpose(RotationMatrix());
     }
 
-    Collider_t RigidBody::AsCollider() const {
+    Collider_t &RigidBody::AsCollider() {
         return m_Collider;
     }
 

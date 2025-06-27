@@ -30,12 +30,14 @@ namespace gigno {
     Collider_t::Collider_t(glm::vec3 position, glm::quat rotation, glm::vec3 scale, const CollisionModel_t *model) {
         Position = position; Rotation = rotation; Scale = scale; Model = model;
         ColliderType = COLLIDER_HULL;
-        SetTransformedModel();
+        BuildTransformedModel();
         SetBoundingBox();
     }
 
-    void Collider_t::SetTransformedModel() {
+    void Collider_t::BuildTransformedModel() {
         ASSERT(ColliderType == COLLIDER_HULL);
+
+        IsTransformModelProxi = false;
 
         TransformedModel.resize(Model->Vertices.size());
 
@@ -66,7 +68,7 @@ namespace gigno {
             case COLLIDER_HULL : {
                 AABB.Min = glm::vec3{FLT_MAX};
                 AABB.Max = glm::vec3{-FLT_MAX};
-                for(glm::vec3 vert : TransformedModel) {
+                for(glm::vec3 vert : GetTransformedModel()) {
                     const glm::vec3 world_vert = Position + vert;
 
                     if(world_vert.x < AABB.Min.x) { AABB.Min.x = world_vert.x; } 
@@ -303,7 +305,7 @@ namespace gigno {
         simple individual vertices testing.
         */
 
-        const std::vector<glm::vec3> &vert = hull.TransformedModel;
+        const std::vector<glm::vec3> &vert = hull.GetTransformedModel();
 
         if(!hull.Model) {
             return CollisionData_t{};

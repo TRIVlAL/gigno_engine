@@ -281,10 +281,12 @@ namespace gigno {
                     + glm::normalize(direction) * col.Radius;
         } 
         else if(col.ColliderType == COLLIDER_HULL) {
-            glm::vec3 best_point = col.TransformedModel[0];
+            const std::vector<glm::vec3> &transformed_model = col.GetTransformedModel();
+
+            glm::vec3 best_point = transformed_model[0];
             float max_dot = glm::dot(best_point, direction);
-            for(int i = 1; i < col.TransformedModel.size(); i++) {
-                const glm::vec3 new_point = col.TransformedModel[i];
+            for(int i = 1; i < transformed_model.size(); i++) {
+                const glm::vec3 new_point = transformed_model[i];
                 const float new_dot = glm::dot(new_point, direction);
                 if ( new_dot > max_dot) {
                     max_dot = new_dot;

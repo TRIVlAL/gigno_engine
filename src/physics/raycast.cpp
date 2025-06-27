@@ -70,7 +70,7 @@ namespace gigno {
             case(COLLIDER_PLANE):
                 return Raycast_Plane(ray, collider.Position, collider.Normal, outHit);
             case(COLLIDER_HULL):
-                return Raycast_Hull(ray, collider.Position, collider.Model, collider.TransformedModel, collider.AABB, outHit);
+                return Raycast_Hull(ray, collider.Position, collider.Model, collider.GetTransformedModel(), collider.AABB, outHit);
             default:
                 // todo : implement other collider types
                 return false;

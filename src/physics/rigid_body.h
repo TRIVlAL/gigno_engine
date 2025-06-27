@@ -28,7 +28,7 @@ namespace gigno {
         virtual void LatePhysicThink(float dt) override;
         virtual void CleanUp() override;
         
-        Collider_t AsCollider() const;
+        Collider_t &AsCollider();
         const CollisionModel_t *GetModel() const;
         glm::mat3 GetInverseInertiaTensor() const;
 

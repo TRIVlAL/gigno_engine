@@ -26,7 +26,7 @@ namespace gigno {
         Collider_t(glm::vec3 position, glm::quat rotation, glm::vec3 scale, glm::vec3 normal); //Plane
         Collider_t(glm::vec3 position, glm::quat rotation, glm::vec3 scale, const CollisionModel_t *model); //Hull
 
-        void SetTransformedModel();
+        void BuildTransformedModel();
         void SetBoundingBox();
 
         ColliderType_t ColliderType;
@@ -43,7 +43,16 @@ namespace gigno {
 
         const CollisionModel_t *Model{};  // COLLIDER_HULL
         // Vertices with Scale and Rotation applied.
-        std::vector<glm::vec3> TransformedModel{};  // COLLIDER_HULL
+
+    private:
+        //To avoid copying, we give the option to use a model that is owned by someone else.
+        bool IsTransformModelProxi{};
+        std::vector<glm::vec3> TransformedModel{};  
+        std::vector<glm::vec3> *TransformedModelProxi{};
+
+    public:
+        std::vector<glm::vec3> &GetTransformedModel() { return IsTransformModelProxi ? *TransformedModelProxi : TransformedModel; }
+        const std::vector<glm::vec3> &GetTransformedModel() const { return IsTransformModelProxi ? *TransformedModelProxi : TransformedModel; }
 
         BoundingBox_t AABB;
 
