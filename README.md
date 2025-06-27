@@ -12,6 +12,12 @@
 The engine is written in C++. 
 It does not use OS-specific libraries. As such, (although it has only been tested on Windows 10/11), it should work anywhere !
 
+## Getting started
+
+Once in the app, use the tilde '~' key to open the console interface.
+Type '```map```' for a list of map, and '```map <mapname>```' to load a specific map. 
+Enjoy the show !
+
 ## Directly Running
 
 If you just want to run the demo scene without compiling the code yourself, you may download the executable from the release section.
