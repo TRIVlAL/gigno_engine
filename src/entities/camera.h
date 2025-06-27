@@ -38,8 +38,8 @@ namespace gigno {
 		void SetLookAtPoint(glm::vec3 point);
 		void SetLookInTransformForward();
 
-		glm::mat4 GetProjection() const { return m_ProjectionMatrix; }
-		glm::mat4 GetViewMatrix() const;
+		glm::mat4 GetProjection(bool bypass_convar = false) const;
+		glm::mat4 GetViewMatrix(bool bypass_convar = false) const;
 		
 		// returns the normalized vector pointing from the camera position to the world space
 		// point at the screen position

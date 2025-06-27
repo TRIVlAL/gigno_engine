@@ -210,7 +210,19 @@ namespace gigno {
 		}
 	}
 
-	void RenderingServer::CreateModel(std::shared_ptr<giModel> &model, const ModelData_t &modelData) {
+    DirectionalLight *RenderingServer::GetShadowmappedDirectionalLight() const {
+        Light *c = m_pFirstLight;
+		while(c) {
+			DirectionalLight *dl = dynamic_cast<DirectionalLight*>(c);
+			if(dl) {
+				return dl;
+			}
+			c = c->pNextLight;
+		}
+		return nullptr;
+    }
+
+    void RenderingServer::CreateModel(std::shared_ptr<giModel> &model, const ModelData_t &modelData) {
 		model = std::make_shared<giModel>(giModel{ m_Device, modelData, m_CommandPool });
 	}
 

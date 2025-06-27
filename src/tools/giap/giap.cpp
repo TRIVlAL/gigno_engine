@@ -93,7 +93,7 @@ namespace gigno {
         void WriteMeshToObj(const Mesh_t &mesh, std::ofstream &output);
         void WriteGMAPFile(const char *mapName, const std::vector<Entity_t> &entities, std::ofstream &output);
 
-        CONVAR(float, giap_scale, 0.1f, "Compiled map will be scaled by that amount");
+        CONVAR(float, giap_scale, 0.035f, "Compiled map will be scaled by that amount");
         CONVAR(const char *, giap_map_input_directory, "../mapping/", "path in which the trenchbroom maps are stored");
         
         const char *GIAP_MAP_OUTPUT_DIRECTORIES[2] = {"../assets/maps/", "assets/maps"};

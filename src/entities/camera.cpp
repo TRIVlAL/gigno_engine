@@ -2,10 +2,14 @@
 #include "../application.h"
 #include "glm/geometric.hpp"
 #include "../algorithm/geometry.h"
+#include "../debug/console/convar.h"
+#include "lights/directional_light.h"
 
 namespace gigno {
 
 	ENTITY_DEFINITIONS(Camera, Entity);
+
+	CONVAR(int, r_shadowmap_debug_view, 0, "if not, the camerea will show the shadowmap's view (number gives what cascade)");
 
 	Camera::Camera() : Entity() {
 	}
@@ -70,9 +74,26 @@ namespace gigno {
 		LookMode = LOOK_MODE_TRANSFORM_FORWARD;
 	}
 
-	glm::mat4 Camera::GetViewMatrix() const {
-		
-		if (LookMode == LOOK_MODE_POINT) {
+    glm::mat4 Camera::GetProjection(bool bypass_convar) const {
+
+		if(!bypass_convar && (int)convar_r_shadowmap_debug_view != 0) {
+			RenderingServer *r = GetApp()->GetRenderer();
+			auto view_and_proj = r->GetShadowmappedDirectionalLight()->ShadowMapViewAndProjection((int)convar_r_shadowmap_debug_view, r->GetCascadeCount(), this);
+			return view_and_proj.second;
+		}
+
+        return m_ProjectionMatrix;
+    }
+
+    glm::mat4 Camera::GetViewMatrix(bool bypass_convar) const
+    {
+		if(!bypass_convar && (int)convar_r_shadowmap_debug_view != 0) {
+			RenderingServer *r = GetApp()->GetRenderer();
+			auto view_and_proj = r->GetShadowmappedDirectionalLight()->ShadowMapViewAndProjection((int)convar_r_shadowmap_debug_view + 1, r->GetCascadeCount(), this);
+			return view_and_proj.first;
+		}
+
+        if (LookMode == LOOK_MODE_POINT) {
 			const glm::vec3 direction = LookPoint - Position;
 			const glm::vec3 up = { 0.0f, 1.0f, 0.0f };
 			const glm::vec3 w{ glm::normalize(direction) };
@@ -97,9 +118,9 @@ namespace gigno {
 			glm::vec3 forward = ApplyRotation(Rotation, glm::vec3{1.0f, 0.0f, 0.0f});
 			return glm::lookAt(Position, Position + forward, glm::vec3{0.0f, -1.0f, 0.0f}); 
 		}
-	}
+    }
 
-	void Camera::Think(float dt) {
+    void Camera::Think(float dt) {
 		Entity::Think(dt);
 
 		// Partial rebuild of the Projection matrix to account for the change of aspect ratio

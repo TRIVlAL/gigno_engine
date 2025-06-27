@@ -15,6 +15,7 @@
 
 namespace gigno {
 	class Light;
+	class DirectionalLight;
 	class InputServer;
 
 	const size_t MAX_FRAMES_IN_FLIGHT = 2;
@@ -43,6 +44,10 @@ namespace gigno {
 		void SetCurrentCamera(const Camera *camera) { m_pCamera = camera; }
 		bool HasCamera() const { return m_pCamera != nullptr; }
 		const Camera *GetCameraHandle() const { return m_pCamera; }
+
+		DirectionalLight *GetShadowmappedDirectionalLight() const;
+
+		constexpr size_t GetCascadeCount() const { return SHADOW_MAP_CASCADE_COUNT; }
 
 		float GetAspectRatio() { return static_cast<float>(m_SwapChain.Extent.width) / static_cast<float>(m_SwapChain.Extent.height); }
 		// returns number of pixel width (x) and height (y)

@@ -1,4 +1,0 @@
-- GJK Distance and hull margin ---------- give up
-- Instancing of collision models (and rendering models)
-- nlogn solution for support function through greedy listing of neighbouring vertices
-- A method to cache the closest face in EPA.

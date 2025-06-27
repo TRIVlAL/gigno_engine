@@ -14,7 +14,5 @@ layout(binding=0) uniform UniformBufferObject {
 } ubo;
 
 void main() {
-	vec3 TEST = inColor + inNormal;
-	TEST.x += 5.0f;
 	gl_Position = ubo.projection * ubo.view * vec4(push.model * vec4(inPos.xyz, 1.0));
 }

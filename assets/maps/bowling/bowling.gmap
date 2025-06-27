@@ -1,100 +1,48 @@
-"DirectionalLight" {
-    "Direction" : "-0.4" "-1.0" "-0.1",
-    "Intensity" : "0.6"
+"WorldSpawn"  {
+	"VisualsScale" : "0.03" ,
 }
 
-"EnvironmentLight" {
-    "Intensity" : "0.2"
+"GravgunController"  {
+	"Position" : "18.600000" "2.640000" "18.660000" ,
+	"StartRotation" : "0" "180" "0" ,
 }
 
-"RigidBody" {
-    "IsStatic" : "true",
-    "ColliderType" : "COLLIDER_PLANE",
-    "Normal" : "0" "1" "0",
-    "ModelPath" : "assets/models/plane.obj",
-    "Scale" : "100" "1" "100"
+"DirectionalLight"  {
+	"Position" : "9.120000" "2.160000" "9.599999" ,
+	"Direction" : "-0.2" "-0.7" "0.5" ,
+	"Intensity" : "0.6" ,
+	"ShadowMapExtent" : "250" ,
+	"ShadowMapFar" : "400" ,
 }
 
-"RigidBody" {
-    "IsStatic" : "true",
-    "ColliderType" : "COLLIDER_HULL",
-    "CollisionModelPath" : "assets/models/45deg.obj",
-    "ModelPath" : "assets/models/45deg.obj",
-    "Scale" : "0.5" "0.5" "10",
-    "Position" : "-1" "0.5" "0"
+"EnvironmentLight"  {
+	"Position" : "9.120000" "2.160000" "8.639999" ,
+	"Intensity" : "0.2" ,
 }
 
-"RigidBody" {
-    "IsStatic" : "true",
-    "ColliderType" : "COLLIDER_HULL",
-    "CollisionModelPath" : "assets/models/45deg.obj",
-    "ModelPath" : "assets/models/45deg.obj",
-    "Scale" : "0.5" "0.5" "10",
-    "Position" : "0" "0.5" "0",
-    "StartRotation" : "0" "180" "0"
+"PointLight"  {
+	"Position" : "7.920000" "2.880000" "3.840000" ,
+	"Intensity" : "5" ,
 }
 
-"RigidBody" {
-    "IsStatic" : "true",
-    "ColliderType" : "COLLIDER_HULL",
-    "CollisionModelPath" : "assets/models/45deg.obj",
-    "ModelPath" : "assets/models/45deg.obj",
-    "Scale" : "0.5" "0.5" "10",
-    "Position" : "6" "0.5" "0"
+"PointLight"  {
+	"Position" : "7.920000" "2.880000" "-5.760000" ,
+	"Intensity" : "5" ,
 }
 
-"RigidBody" {
-    "IsStatic" : "true",
-    "ColliderType" : "COLLIDER_HULL",
-    "CollisionModelPath" : "assets/models/45deg.obj",
-    "ModelPath" : "assets/models/45deg.obj",
-    "Scale" : "0.5" "0.5" "10",
-    "Position" : "7" "0.5" "0",
-    "StartRotation" : "0" "180" "0"
+"PointLight"  {
+	"Position" : "8.400000" "2.880000" "13.679999" ,
+	"Intensity" : "5" ,
 }
 
-"RigidBody" {
-    "IsStatic" : "true",
-    "ColliderType" : "COLLIDER_HULL",
-    "CollisionModelPath" : "assets/models/cube.obj",
-    "ModelPath" : "assets/models/cube.obj",
-    "Scale" : "2.5" "0.5" "10",
-    "Position" : "3" "0.5" "0",
-    "StartRotation" : "0" "0" "0"
+"PointLight"  {
+	"Position" : "7.920000" "2.880000" "23.039999" ,
+	"Intensity" : "5" ,
 }
 
-"RigidBody" {
-    "IsStatic" : "true",
-    "ColliderType" : "COLLIDER_HULL",
-    "CollisionModelPath" : "assets/models/cube.obj",
-    "ModelPath" : "assets/models/cube.obj",
-    "Scale" : "10" "0.5" "10",
-    "Position" : "3" "0.5" "20",
-    "StartRotation" : "0" "0" "0"
-}
-
-"RigidBody" {
-    "IsStatic" : "true",
-    "ColliderType" : "COLLIDER_HULL",
-    "CollisionModelPath" : "assets/models/cube.obj",
-    "ModelPath" : "assets/models/cube.obj",
-    "Scale" : "4" "5" "10",
-    "Position" : "11.5" "5" "0",
-    "StartRotation" : "0" "0" "0"
-}
-
-"RigidBody" {
-    "IsStatic" : "true",
-    "ColliderType" : "COLLIDER_HULL",
-    "CollisionModelPath" : "assets/models/cube.obj",
-    "ModelPath" : "assets/models/cube.obj",
-    "Scale" : "4" "5" "10",
-    "Position" : "-5.5" "5" "0",
-    "StartRotation" : "0" "0" "0"
+"PointLight"  {
+	"Position" : "8.160000" "2.880000" "32.880001" ,
+	"Intensity" : "5" ,
 }
 
 
-"FPController" {
-    "Position" : "3" "3" "20",
-    "StartRotation" : "0" "180" "0"
-}
