@@ -5,7 +5,7 @@
 #include <memory>
 #include <type_traits>
 #include "../features_usage.h"
-#include "../algorithm/arena.h"
+#include "../utils/arena.h"
 
 namespace gigno {
 

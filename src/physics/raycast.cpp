@@ -1,5 +1,5 @@
 #include "raycast.h"
-#include "../algorithm/geometry.h"
+#include "../utils/geometry.h"
 #include <array>
 #include "../error_macros.h"
 #include "../debug/profiler/profiler.h"

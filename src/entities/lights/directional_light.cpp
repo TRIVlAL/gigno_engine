@@ -1,7 +1,7 @@
 #include "directional_light.h"
 #include "../../application.h"
 #include "../camera.h"
-#include "../../algorithm/geometry.h"
+#include "../../utils/geometry.h"
 
 namespace gigno {
 

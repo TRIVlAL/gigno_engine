@@ -2,7 +2,7 @@
 #define AUDIO_SERVER_H
 
 #include "../vendor/miniaudio/miniaudio.h"
-#include "../algorithm/arena.h"
+#include "../utils/arena.h"
 #include "../vendor/glm/glm/glm.hpp"
 
 namespace gigno {

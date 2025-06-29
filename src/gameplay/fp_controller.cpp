@@ -1,6 +1,6 @@
 #include "fp_controller.h"
 #include "../application.h"
-#include "../algorithm/geometry.h"
+#include "../utils/geometry.h"
 
 namespace gigno {
 

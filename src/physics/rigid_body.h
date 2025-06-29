@@ -4,7 +4,7 @@
 #include "entities/rendered_entity.h"
 #include "collision.h"
 #include "collider_type.h"
-#include "algorithm/geometry.h"
+#include "../utils/geometry.h"
 #include <string>
 
 namespace gigno {

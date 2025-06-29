@@ -4,7 +4,7 @@
 #include <thread>
 #include <mutex>
 #include <vector>
-#include "../algorithm/cstr_map.h"
+#include "../utils/cstr_map.h"
 #include "collision.h"
 #include "raycast.h"
 #include "collision_sound.h"

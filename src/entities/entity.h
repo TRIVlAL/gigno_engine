@@ -7,7 +7,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/constants.hpp"
 #include "../vendor/glm/glm/gtx/quaternion.hpp"
-#include "../algorithm/cstr_map.h"
+#include "../utils/cstr_map.h"
 #include "iostream"
 #include "keyvalue.h"
 

@@ -1,7 +1,7 @@
 #ifndef RIGID_BODY_SPAWNER
 #define RIGID_BODY_SPAWNER
 
-#include "../rigid_body.h"
+#include "../../physics/rigid_body.h"
 
 namespace gigno
 {

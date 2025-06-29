@@ -9,7 +9,7 @@
 #include "../../debug/console/console.h"
 #include "../../debug/console/convar.h"
 #include "../../vendor/glm/glm/glm.hpp"
-#include "../../algorithm/string_buffer.h"
+#include "../../utils/string_buffer.h"
 
 #define ENABLE_GIAP 1
 

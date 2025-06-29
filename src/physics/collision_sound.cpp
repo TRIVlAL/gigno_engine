@@ -3,7 +3,7 @@
 #include "../application.h"
 #include <cstring>
 #include "../error_macros.h"
-#include "../algorithm/geometry.h"
+#include "../utils/geometry.h"
 #include <random>
 
 namespace gigno {

@@ -1,20 +1,13 @@
 #include "error_macros.h"
 #include <numeric>
 #include <chrono>
-#include "entities/dome_camera.h"
-#include "entities/spinner.h"
-#include "entities/lights/directional_light.h"
-#include "entities/lights/point_light.h"
-#include "entities/lights/environment_light.h"
 #include "features_usage.h"
 #include "stringify.h"
 #include "debug/console/convar.h"
 #include "debug/profiler/profiler.h"
 #include "physics/rigid_body.h"
-#include "test_entity.h"
 #include "rendering/gui.h"
 #include "application.h"
-#include "entities/map_parser.h"
 
 namespace gigno {
 

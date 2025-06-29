@@ -1,4 +1,4 @@
-#include "rendered_entity.h"
+#include "../entities/rendered_entity.h"
 #include <chrono>
 
 namespace gigno {
@@ -23,7 +23,5 @@ namespace gigno {
     BEGIN_KEY_TABLE(Spinner)
         DEFINE_KEY_VALUE(float, Speed)
     END_KEY_TABLE
-
-    ENTITY_DEFINITIONS(Spinner, RenderedEntity)
 
 }

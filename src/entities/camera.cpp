@@ -1,7 +1,7 @@
 #include "camera.h"
 #include "../application.h"
 #include "glm/geometric.hpp"
-#include "../algorithm/geometry.h"
+#include "../utils/geometry.h"
 #include "../debug/console/convar.h"
 #include "lights/directional_light.h"
 

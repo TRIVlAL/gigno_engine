@@ -2,7 +2,7 @@
 #include "../error_macros.h"
 #include "rigid_body.h"
 #include "../debug/console/convar.h"
-#include "../algorithm/geometry.h"
+#include "../utils/geometry.h"
 #include <utility>
 #include "gjk.h"
 #include "physic_server.h"

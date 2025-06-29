@@ -1,6 +1,6 @@
 #include "raycast_test.h"
 #include "../../application.h"
-#include "../rigid_body.h"
+#include "../../physics/rigid_body.h"
 
 namespace gigno
 {

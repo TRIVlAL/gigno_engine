@@ -1,7 +1,7 @@
 #ifndef ROTATING_WALL_H
 #define ROTATING_WALL_H
 
-#include "../rigid_body.h"
+#include "../../physics/rigid_body.h"
 
 namespace gigno {
 

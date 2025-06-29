@@ -2,13 +2,13 @@
 #define KEYVALUES_H
 
 #include <cstddef>
-#include "../algorithm/cstr_map.h"
+#include "../utils/cstr_map.h"
 #include <any>
 #include <cstring>
 #include "../../debug/console/console.h"
 #include "../../stringify.h"
 #include "glm/glm.hpp"
-#include "../../algorithm/offset_of.h"
+#include "../../utils/offset_of.h"
 #include "../physics/collider_type.h"
 
 namespace gigno {

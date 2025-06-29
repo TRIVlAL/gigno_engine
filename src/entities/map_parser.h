@@ -3,7 +3,7 @@
 
 #include <fstream>
 #include <vector>
-#include "../algorithm/string_buffer.h"
+#include "../utils/string_buffer.h"
 
 namespace gigno {
 

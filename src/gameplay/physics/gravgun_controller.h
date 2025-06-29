@@ -1,7 +1,7 @@
 #ifndef GRAVGUN_CONTROLLER_H
 #define GRAVGUN_CONTROLLER_H
 
-#include "../../entities/fp_controller.h"
+#include "../fp_controller.h"
 
 namespace gigno {
 

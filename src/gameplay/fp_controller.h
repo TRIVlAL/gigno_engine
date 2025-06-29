@@ -2,7 +2,7 @@
 #define FP_CONTROLLER_H
 
 #include "../physics/rigid_body.h"
-#include "camera.h"
+#include "../entities/camera.h"
 
 namespace gigno {
 

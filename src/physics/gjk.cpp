@@ -1,6 +1,6 @@
 #include "gjk.h"
 #include "rigid_body.h"
-#include "../algorithm/geometry.h"
+#include "../utils/geometry.h"
 #include "error_macros.h"
 #include <utility>
 

@@ -1,6 +1,6 @@
 #include "audio_server.h"
 #include "../error_macros.h"
-#include "../algorithm/geometry.h"
+#include "../utils/geometry.h"
 
 #define MINIAUDIO_IMPLEMENTATION
 #include "../vendor/miniaudio/miniaudio.h"

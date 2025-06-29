@@ -4,7 +4,7 @@
 #include <string.h>
 #include "../debug/console/convar.h"
 #include "../features_usage.h"
-#include "../algorithm/geometry.h"
+#include "../utils/geometry.h"
 
 namespace  gigno {
 
