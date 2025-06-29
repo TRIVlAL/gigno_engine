@@ -1716,52 +1716,59 @@
 }
 // entity 1
 {
-"classname" "GravgunController"
-"origin" "620 -622 88"
-"angle" "180"
-}
-// entity 2
-{
 "classname" "DirectionalLight"
 "origin" "304 -320 72"
-"Direction" "-0.2 -0.7 0.5"
-"Intensity" "0.6"
+"Direction" "-0.4 -0.5 0.5"
+"Intensity" "0.4"
 "ShadowMapExtent" "250"
 "ShadowMapFar" "400"
 }
-// entity 3
+// entity 2
 {
 "classname" "EnvironmentLight"
 "origin" "304 -288 72"
-"Intensity" "0.2"
+"Intensity" "0.1"
+}
+// entity 3
+{
+"classname" "PointLight"
+"origin" "264 192 96"
+"Intensity" "2"
 }
 // entity 4
 {
 "classname" "PointLight"
-"origin" "264 -128 96"
-"Intensity" "5"
+"origin" "168 -520 96"
+"Intensity" "2"
 }
 // entity 5
 {
-"classname" "PointLight"
-"origin" "264 192 96"
-"Intensity" "5"
+"classname" "BowlingMinigame"
+"origin" "48 -448 40"
+"AlleyBeginPositionName" "alley_begin"
+"AlleyEndPositionName" "alley_end"
 }
 // entity 6
 {
-"classname" "PointLight"
-"origin" "280 -456 96"
-"Intensity" "5"
+"classname" "Target"
+"origin" "0 -448 24"
+"Name" "alley_begin"
 }
 // entity 7
 {
-"classname" "PointLight"
-"origin" "264 -768 96"
-"Intensity" "5"
+"classname" "Target"
+"origin" "-1120 -448 24"
+"Name" "alley_end"
 }
 // entity 8
 {
 "classname" "PointLight"
-"origin" "272 -1096 96"
-"Intensity" "5"
+"origin" "-520 -440 96"
+"Intensity" "2"
+}
+// entity 9
+{
+"classname" "PointLight"
+"origin" "-1016 -440 160"
+"Intensity" "2"
 }

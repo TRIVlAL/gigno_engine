@@ -1,48 +1,54 @@
 "WorldSpawn"  {
-	"VisualsScale" : "0.03" ,
-}
-
-"GravgunController"  {
-	"Position" : "18.600000" "2.640000" "18.660000" ,
-	"StartRotation" : "0" "180" "0" ,
+	"VisualsScale" : "0.035" ,
 }
 
 "DirectionalLight"  {
-	"Position" : "9.120000" "2.160000" "9.599999" ,
-	"Direction" : "-0.2" "-0.7" "0.5" ,
-	"Intensity" : "0.6" ,
+	"Position" : "10.640000" "2.520000" "11.200000" ,
+	"Direction" : "-0.4" "-0.5" "0.5" ,
+	"Intensity" : "0.4" ,
 	"ShadowMapExtent" : "250" ,
 	"ShadowMapFar" : "400" ,
 }
 
 "EnvironmentLight"  {
-	"Position" : "9.120000" "2.160000" "8.639999" ,
-	"Intensity" : "0.2" ,
+	"Position" : "10.640000" "2.520000" "10.080000" ,
+	"Intensity" : "0.1" ,
 }
 
 "PointLight"  {
-	"Position" : "7.920000" "2.880000" "3.840000" ,
-	"Intensity" : "5" ,
+	"Position" : "9.240000" "3.360000" "-6.720000" ,
+	"Intensity" : "2" ,
 }
 
 "PointLight"  {
-	"Position" : "7.920000" "2.880000" "-5.760000" ,
-	"Intensity" : "5" ,
+	"Position" : "5.880000" "3.360000" "18.200001" ,
+	"Intensity" : "2" ,
+}
+
+"BowlingMinigame"  {
+	"Position" : "1.680000" "1.400000" "15.680000" ,
+	"AlleyBeginPositionName" : "alley_begin" ,
+	"AlleyEndPositionName" : "alley_end" ,
+}
+
+"Target"  {
+	"Position" : "0.000000" "0.840000" "15.680000" ,
+	"Name" : "alley_begin" ,
+}
+
+"Target"  {
+	"Position" : "-39.200001" "0.840000" "15.680000" ,
+	"Name" : "alley_end" ,
 }
 
 "PointLight"  {
-	"Position" : "8.400000" "2.880000" "13.679999" ,
-	"Intensity" : "5" ,
+	"Position" : "-18.200001" "3.360000" "15.400000" ,
+	"Intensity" : "2" ,
 }
 
 "PointLight"  {
-	"Position" : "7.920000" "2.880000" "23.039999" ,
-	"Intensity" : "5" ,
-}
-
-"PointLight"  {
-	"Position" : "8.160000" "2.880000" "32.880001" ,
-	"Intensity" : "5" ,
+	"Position" : "-35.560001" "5.600000" "15.400000" ,
+	"Intensity" : "2" ,
 }
 
 

@@ -83,8 +83,8 @@ namespace gigno {
 
         float ret = glm::dot(-a, glm::dot(a, outNormal) < 0 ? outNormal : -outNormal);
         if(ret != ret) {
-            Console::LogWarning("DistanceToOrigin NaN with parameters : a = (%f, %f, %f), b = (%f, %f, %f), c = (%f, %f, %f), outNormal = (%f, %f, %f)", a.x, a.y, a.z,
-            b.x, b.y, b.z, c.x, c.y, c.z, outNormal.x, outNormal.y, outNormal.z);
+            //Console::LogWarning("DistanceToOrigin NaN with parameters : a = (%f, %f, %f), b = (%f, %f, %f), c = (%f, %f, %f), outNormal = (%f, %f, %f)", a.x, a.y, a.z,
+            //b.x, b.y, b.z, c.x, c.y, c.z, outNormal.x, outNormal.y, outNormal.z);
             ret = FLT_MAX;
         }
         return ret;
@@ -103,7 +103,7 @@ namespace gigno {
         float d21 = glm::dot(v2, v1);
         float denom = d00 * d11 - d01 * d01;
         if(denom == 0.0f) {
-            Console::LogWarning("Barycentric should return NaN with arguments : p = (%f, %f, %f), a = (%f, %f, %f), b = (%f, %f, %f), c = (%f, %f, %f)!");
+            //Console::LogWarning("Barycentric should return NaN with arguments : p = (%f, %f, %f), a = (%f, %f, %f), b = (%f, %f, %f), c = (%f, %f, %f)!");
             denom = 1.0f;
         }
         v = (d11 * d20 - d01 * d21) / denom;
