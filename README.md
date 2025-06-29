@@ -4,7 +4,7 @@
 
 - Real-time 3D Renderer self written powered by Vulkan. Real-time shadows using Varianced Shadowmapping technique.
 - Real-time 3D Physics engine self written using no external librariy. Supports various shapes (convex polygons, spheres, ...), as well as friction.
-- Quick and iterative engine architecture inspired by the Source Engine : Devloper console commands for easy debugging, maps loaded from file with entity serialization to quickly iterate.
+- Quick and iterative engine architecture inspired by the Source Engine : Devloper console commands for easy debugging, maps loaded from file, generated using trenchbroom from Quake's .map file format.
 
 ![screenshot](misc/physics_screenshots/gigno-1.png)
 ![screenshot](misc/physics_screenshots/gigno-2.png)
