@@ -1,0 +1,59 @@
+"WorldSpawn"  {
+	"VisualsScale" : "0.1" ,
+}
+
+"Player"  {
+	"Position" : "-18.400000" "4.000000" "13.600000" ,
+}
+
+"DirectionalLight"  {
+	"Position" : "-18.400000" "4.000000" "24.800001" ,
+	"Direction" : "-0.2" "-0.7" "-0.5" ,
+	"ShadowMapExtent" : "500" ,
+	"ShadowMapFar" : "800" ,
+	"Intensity" : "0.5" ,
+}
+
+"PointLight"  {
+	"Position" : "8.800000" "4.000000" "-0.800000" ,
+	"Intensity" : "3" ,
+}
+
+"EnvironmentLight"  {
+	"Position" : "-18.400000" "4.000000" "28.000000" ,
+	"Intensity" : "0.2" ,
+}
+
+"PointLight"  {
+	"Position" : "-37.600002" "13.600000" "-37.600002" ,
+	"Intensity" : "3" ,
+}
+
+"RigidBody"  {
+	"Position" : "40.000000" "34.400002" "48.000000" ,
+	"ModelPath" : "assets/models/cube.obj" ,
+	"CollisionModelPath" : "assets/models/cube.obj" ,
+	"Mass" : "40" ,
+	"InertiaTensor" : "0.666" "0.666" "0.666" ,
+	"ColliderType" : "COLLIDER_HULL" ,
+}
+
+"RigidBody"  {
+	"Position" : "37.600002" "53.600002" "-41.600002" ,
+	"ModelPath" : "assets/models/cube.obj" ,
+	"CollisionModelPath" : "assets/models/cube.obj" ,
+	"Mass" : "40" ,
+	"InertiaTensor" : "0.666" "0.666" "0.666" ,
+	"ColliderType" : "COLLIDER_HULL" ,
+}
+
+"RigidBody"  {
+	"Position" : "-45.600002" "4.000000" "10.400001" ,
+	"ModelPath" : "assets/models/cube.obj" ,
+	"CollisionModelPath" : "assets/models/cube.obj" ,
+	"Mass" : "40" ,
+	"InertiaTensor" : "0.666" "0.666" "0.666" ,
+	"ColliderType" : "COLLIDER_HULL" ,
+}
+
+

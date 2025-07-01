@@ -1,6 +1,7 @@
-"GravgunController" {
+"Player" {
     "Position"  : "26" "0" "-17",
-    "StartRotation" : "0" "-30" "0",
+    "Height"    : "1.5",
+    "Width"     : "0.5"
 }
 
 "DirectionalLight" {

@@ -2,7 +2,7 @@
 	"VisualsScale" : "0.1" ,
 }
 
-"GravgunController"  {
+"Player" {
 	"Position" : "15.755099" "21.044901" "-3.400000" ,
 	"StartRotation" : "0" "180" "0" ,
 }

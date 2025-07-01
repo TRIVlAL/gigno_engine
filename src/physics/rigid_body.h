@@ -67,6 +67,8 @@ namespace gigno {
         */
         float StaticFrictionMultiplier{0.3f};
 
+        glm::vec3 GravityOverride{0.0f}; // if non-zero, use this for gravity instead of 'convar_phys_gravity'
+
         float Drag = 0.4f;
         float AngularDrag = 2.8f;
 

@@ -9,6 +9,7 @@
 namespace gigno {
     struct CollisionModel_t;
     class RigidBody;
+    class Player;
     class CollisionSoundManager;
 
     struct BoundingBox_t {
@@ -18,8 +19,9 @@ namespace gigno {
 
     struct Collider_t {
         friend class RigidBody;
+        friend class Player;
     private:
-        Collider_t() = default; //Only trust RigidBody to not be dumb with the empty constructor
+        Collider_t() = default; //Only trust RigidBody and Player to not be dumb with the empty constructor
     public:
         Collider_t(glm::vec3 position, glm::quat rotation, glm::vec3 scale, float radius); //Sphere
         Collider_t(glm::vec3 position, glm::quat rotation, glm::vec3 scale, float radius, float length); //Capsule

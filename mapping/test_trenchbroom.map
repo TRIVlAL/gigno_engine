@@ -56,7 +56,7 @@
 }
 // entity 1
 {
-"classname" "GravgunController"
+"classname" "Player"
 "origin" "157.551 34 210.449"
 "angle" "180"
 }

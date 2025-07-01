@@ -27,7 +27,7 @@ namespace gigno {
     // Specifies with what kind of colliders does the ray collide.
     enum RaycastCollisionType_t {
         RAYCAST_COLLIDE_AABB,               // Collides with the AABB of every Rigidbodies in scene 
-        RAYCAST_COLLIDE_COLLIDER            // Colliders with the Collider of every Rigidbodies in scene
+        RAYCAST_COLLIDE_COLLIDER            // Collides with the Collider of every Rigidbodies in scene
     };
 
     // Specifies what kind of entity 'owns' the collider the ray hit

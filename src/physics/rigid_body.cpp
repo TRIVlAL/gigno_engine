@@ -87,7 +87,9 @@ namespace gigno {
 
         //Gravity
         if(!m_GravityDisabled) {
-            AddForce((glm::vec3)convar_phys_gravity * Mass);
+            glm::vec3 gravity = GravityOverride != glm::vec3{0.0f} ? GravityOverride : (glm::vec3)convar_phys_gravity;
+
+            AddForce(gravity * Mass);
         }
         m_GravityDisabled = false;
 
@@ -195,6 +197,8 @@ namespace gigno {
     }
 
     void RigidBody::Think(float dt) {
+
+        RenderedEntity::Think(dt);
 
         if((int)convar_phys_draw_colliders == 2 && ColliderType != COLLIDER_PLANE) {
             DoRender = false;

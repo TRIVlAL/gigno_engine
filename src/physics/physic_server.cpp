@@ -307,8 +307,8 @@ namespace gigno {
                     if(Raycast_AABB(ray, coll.AABB, &hit)) {
                         hit.EntityHit = (Entity*)curr;
                         hit.EntityHitType = RAYCAST_HIT_ENTITY_RIGIDBODY;
+                        outHits->emplace_back(hit);
                     }
-                    outHits->emplace_back(hit);
                 }
                 else if (interaction == RAYCAST_COLLIDE_COLLIDER) {
                     RaycastHit_t hit{};
@@ -316,6 +316,7 @@ namespace gigno {
                     {
                         hit.EntityHit = (Entity *)curr;
                         hit.EntityHitType = RAYCAST_HIT_ENTITY_RIGIDBODY;
+                        outHits->emplace_back(hit);
                     }
                 }
 
