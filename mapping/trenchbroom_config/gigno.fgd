@@ -1,0 +1,212 @@
+@PointClass = DirectionalLight : ""
+[
+	Direction(string) : "" : ""
+	Intensity(float) : "" : "0.000000"
+	ShadowMapExtent(float) : "" : "300.000000"
+	ShadowMapFar(float) : "" : "200.000000"
+	Name(string) : "" : ""
+	Scale(string) : "" : ""
+	StartRotation(string) : "" : ""
+]
+
+@PointClass = EnvironmentLight : ""
+[
+	Intensity(float) : "" : "0.100000"
+	Name(string) : "" : ""
+	Scale(string) : "" : ""
+	StartRotation(string) : "" : ""
+]
+
+@PointClass = Light : ""
+[
+	Name(string) : "" : ""
+	Scale(string) : "" : ""
+	StartRotation(string) : "" : ""
+]
+
+@PointClass = PointLight : ""
+[
+	Intensity(float) : "" : "1.000000"
+	Name(string) : "" : ""
+	Scale(string) : "" : ""
+	StartRotation(string) : "" : ""
+]
+
+@PointClass = RenderedEntity : ""
+[
+	ModelPath(string) : "" : "NULL"
+	Name(string) : "" : ""
+	Scale(string) : "" : ""
+	StartRotation(string) : "" : ""
+]
+
+@PointClass = RigidBody : ""
+[
+	AngularVelocity(string) : "" : ""
+	Bounciness(float) : "" : "0.500000"
+	ColliderType(string) : "" : "COLLIDER_PLANE"
+	CollisionModelPath(string) : "" : "NULL"
+	Drag(float) : "" : "0.400000"
+	Force(string) : "" : ""
+	Friction(float) : "" : "0.800000"
+	InertiaTensor(string) : "" : ""
+	IsStatic(boolean) : "" : "false"
+	Length(float) : "" : "0.000000"
+	LockRotation(boolean) : "" : "false"
+	Mass(float) : "" : "1.000000"
+	Normal(string) : "" : ""
+	Radius(float) : "" : "0.000000"
+	StaticFrictionMultiplier(float) : "" : "0.300000"
+	Torque(string) : "" : ""
+	Velocity(string) : "" : ""
+	ModelPath(string) : "" : "NULL"
+	Name(string) : "" : ""
+	Scale(string) : "" : ""
+	StartRotation(string) : "" : ""
+]
+
+@PointClass = PhysicsConstraint : ""
+[
+	Name(string) : "" : ""
+	Scale(string) : "" : ""
+	StartRotation(string) : "" : ""
+]
+
+@PointClass = HingeConstraint : ""
+[
+	Axis(string) : "" : ""
+	Point(string) : "" : ""
+	TargetName(string) : "" : ""
+	Name(string) : "" : ""
+	Scale(string) : "" : ""
+	StartRotation(string) : "" : ""
+]
+
+@PointClass = RotatingWall : ""
+[
+	AngularVelocity(string) : "" : ""
+	Bounciness(float) : "" : "0.500000"
+	ColliderType(string) : "" : "COLLIDER_PLANE"
+	CollisionModelPath(string) : "" : "NULL"
+	Drag(float) : "" : "0.400000"
+	Force(string) : "" : ""
+	Friction(float) : "" : "0.800000"
+	InertiaTensor(string) : "" : ""
+	IsStatic(boolean) : "" : "false"
+	Length(float) : "" : "0.000000"
+	LockRotation(boolean) : "" : "false"
+	Mass(float) : "" : "1.000000"
+	Normal(string) : "" : ""
+	Radius(float) : "" : "0.000000"
+	StaticFrictionMultiplier(float) : "" : "0.300000"
+	Torque(string) : "" : ""
+	Velocity(string) : "" : ""
+	ModelPath(string) : "" : "NULL"
+	Name(string) : "" : ""
+	Scale(string) : "" : ""
+	StartRotation(string) : "" : ""
+]
+
+@PointClass = Spinner : ""
+[
+	Speed(float) : "" : "2.000000"
+	ModelPath(string) : "" : "NULL"
+	Name(string) : "" : ""
+	Scale(string) : "" : ""
+	StartRotation(string) : "" : ""
+]
+
+@PointClass = Camera : ""
+[
+	Bottom(float) : "" : "0.000000"
+	CurrentFovy(float) : "" : "0.000000"
+	Far(float) : "" : "1.000000"
+	FovY(float) : "" : "50.000000"
+	Left(float) : "" : "1683358867464674038505926067734183936.000000"
+	LookMode(integer) : "" : 0
+	LookPoint(string) : "" : ""
+	Near(float) : "" : "-0.050000"
+	ProjMode(integer) : "" : 0
+	Right(float) : "" : "0.000000"
+	Top(float) : "" : "1682742789272963119016798669976371200.000000"
+	Name(string) : "" : ""
+	Scale(string) : "" : ""
+	StartRotation(string) : "" : ""
+]
+
+@PointClass = RigidBodySpawner : ""
+[
+	ExtentBegin(string) : "" : ""
+	ExtentEnd(string) : "" : ""
+	VerticalSlice(integer) : "" : 2
+	XCount(integer) : "" : 5
+	ZCount(integer) : "" : 5
+	Name(string) : "" : ""
+	Scale(string) : "" : ""
+	StartRotation(string) : "" : ""
+]
+
+@PointClass = Target : ""
+[
+	Name(string) : "" : ""
+	Scale(string) : "" : ""
+	StartRotation(string) : "" : ""
+]
+
+@PointClass = Player : ""
+[
+	Height(float) : "" : "3.000000"
+	Width(float) : "" : "1.800000"
+	Name(string) : "" : ""
+	Scale(string) : "" : ""
+	StartRotation(string) : "" : ""
+]
+
+@PointClass = RaycastTest : ""
+[
+	Visible(boolean) : "" : "true"
+	Name(string) : "" : ""
+	Scale(string) : "" : ""
+	StartRotation(string) : "" : ""
+]
+
+@PointClass = RopeConstraint : ""
+[
+	Distance(float) : "" : "0.000000"
+	Point(string) : "" : ""
+	TargetName(string) : "" : ""
+	Name(string) : "" : ""
+	Scale(string) : "" : ""
+	StartRotation(string) : "" : ""
+]
+
+@PointClass = DomeCamera : ""
+[
+	MaxLower(float) : "" : "-1.000000"
+	Speed(float) : "" : "0.000000"
+	Target(string) : "" : ""
+	Bottom(float) : "" : "0.000000"
+	CurrentFovy(float) : "" : "0.000000"
+	Far(float) : "" : "1.000000"
+	FovY(float) : "" : "50.000000"
+	Left(float) : "" : "0.000000"
+	LookMode(integer) : "" : 0
+	LookPoint(string) : "" : ""
+	Near(float) : "" : "-0.050000"
+	ProjMode(integer) : "" : 0
+	Right(float) : "" : "0.000000"
+	Top(float) : "" : "0.000000"
+	Name(string) : "" : ""
+	Scale(string) : "" : ""
+	StartRotation(string) : "" : ""
+]
+
+@PointClass = BowlingMinigame : ""
+[
+	AlleyBeginPositionName(string) : "" : "NULL"
+	AlleyEndPositionName(string) : "" : "NULL"
+	Name(string) : "" : ""
+	Scale(string) : "" : ""
+	StartRotation(string) : "" : ""
+]
+

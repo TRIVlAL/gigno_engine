@@ -14,6 +14,10 @@
 namespace gigno {
 	class Application;
 
+	namespace giap {
+		static void giap_write_fgd(const CommandToken_t &args);
+	}
+
 	/*
 		ENTITY:
 	Base class for any dynamic object in the scene, that needs to be updated regularly.
@@ -56,7 +60,7 @@ namespace gigno {
 	class Entity {
 		friend class AddNewEntityMethods;
 		friend class AddEntitySizeOf;
-
+		friend void giap::giap_write_fgd(const CommandToken_t &args);
 	public:
 		Entity(const Entity &) = delete;
 		Entity & operator=(const Entity &) = delete;
