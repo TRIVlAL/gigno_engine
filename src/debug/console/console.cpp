@@ -278,8 +278,92 @@ namespace gigno {
 
     void Console::CallCommand_Impl(const char *line) {
         #if USE_CONSOLE
-        CommandToken_t token{line};
-        if(!token.GetName()) {
+
+        CommandToken_t tokens{};
+
+        strcpy_s(tokens.Data, line);
+
+        // Tokenize the command line. 
+        bool in_quote = false;
+        bool new_word = false;
+        bool has_started_word = false;
+        bool empty = true;
+        size_t word_index = 0;
+        char *curr_word_begin = tokens.Data;
+        char *curr = tokens.Data;
+        while(curr && *curr != '\0') {
+
+            if(!has_started_word) {
+                if(*curr != ' ' && *curr != '\"') {
+                    has_started_word = true;
+                    empty = false;
+                } else {
+                    curr_word_begin++;
+                }
+            }
+
+            if(*curr == ' ' && !in_quote) {
+                new_word = true; 
+            } else if(*(curr + 1) == '\0') {
+                new_word = true;
+                curr++;
+            }
+
+            if(*curr == '\"') {
+                new_word = true;
+
+                if(in_quote) {
+                    has_started_word = true;
+                }
+
+                in_quote = !in_quote;
+            }
+
+            if(*curr == '\\') {
+                curr++;
+                if(*curr == '\0') {
+                    break;
+                }
+            }
+
+            if(new_word && has_started_word) {
+
+                if(word_index == 0) {
+                    tokens.Name = empty ? curr : curr_word_begin;
+                } else {
+                    tokens.Args[word_index - 1] = empty ? curr : curr_word_begin;
+                }
+                *curr = '\0';
+
+                curr_word_begin = curr + 1;
+
+                word_index++;
+                if(word_index >= CONSOLE_COMMAND_MAX_ARG_COUNT) {
+                    Console::LogWarning("Command call limited to %u Arguments!", CONSOLE_COMMAND_MAX_ARG_COUNT);
+                    break;
+                }
+
+                has_started_word = false;
+                empty = true;\
+            }
+
+            new_word = false;
+
+            curr++;
+        }
+
+        tokens.ArgCount = word_index - 1;
+
+        int x = 0;
+        
+        CallCommandTokenized_Impl(tokens);
+        
+        #endif
+    }
+
+    void Console::CallCommandTokenized_Impl(const CommandToken_t &tokens) {
+
+        if(*tokens.Name == '\0') {
             LogInfo_Impl("Invalid command call.");
             return;
         }
@@ -287,8 +371,8 @@ namespace gigno {
         {
             Command *current = Command::s_pCommands;
             while(current) {
-                if(token.CompareName(current->GetName())) {
-                    current->Execute(token);
+                if(strcmp(tokens.Name, current->GetName()) == 0) {
+                    current->Execute(tokens);
                     return;
                 }
                 current = current->GetNext();
@@ -297,20 +381,18 @@ namespace gigno {
         {
             BaseConvar *current = BaseConvar::s_pConvars;
             while(current) {
-                if(token.CompareName(current->GetName())) {
-                    current->Set(token);
+                if(strcmp(tokens.Name, current->GetName()) == 0) {
+                    current->Set(tokens);
                     return;
                 }
                 current = current->GetNext();
             }
         }
         
-        LogInfo_Impl("No Command/Convar '%s' found. use 'help' for the list of commands.", token.GetName());
-        #endif
+        LogInfo_Impl("No Command/Convar '%s' found. use 'help' for the list of commands.", tokens.Name);
     }
-    
 
-    #if USE_IMGUI
+#if USE_IMGUI
     void Console::DrawConsoleTab() {
         #if USE_CONSOLE
 
@@ -406,7 +488,7 @@ namespace gigno {
         ImGui::PopStyleColor();
 
         ImGui::Separator();
-        if (ImGui::InputText("Enter command", m_InputBuffer, CONSOLE_INPUT_BUFFER_SIZE, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll)) {
+        if (ImGui::InputText("Enter command", m_InputBuffer, CONSOLE_COMMAND_MAX_LENGTH, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll)) {
             LogFormat(" -> %s", CONSOLE_MESSAGE_ECHO, (ConsoleMessageFlags_t)0, m_InputBuffer);
             CallCommand_Impl(m_InputBuffer);
             m_InputBuffer[0] = '\0';

@@ -5,16 +5,16 @@
 namespace gigno {
 
     CONSOLE_COMMAND_HELP(au_volume, "Pass float. Sets the volume. Default is 1.0") {
-        if(args.GetArgC() > 0) {
-            const char *a = args.GetArg(0);
-            std::pair<int, float> result = FromString<float>(&a, 1);
-            if(result.first == FROM_STRING_SUCCESS) {
-                if(Application::Singleton()) {
-                    Application::Singleton()->GetAudioServer()->SetGlobalVolume(result.second);
-                    return;
-                }
-            }
+
+        COMMAND_REQUIRE_MIN_ARG_COUNT(1);
+
+        COMMAND_ARG_0_FLOAT(new_volume);
+
+        if(Application::Singleton()) {
+            Application::Singleton()->GetAudioServer()->SetGlobalVolume(new_volume);
+            return;
         }
+
         Console::LogInfo("au_volume failed.");
     }
 

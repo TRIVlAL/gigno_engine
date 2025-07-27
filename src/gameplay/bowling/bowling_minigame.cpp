@@ -219,12 +219,12 @@ namespace gigno {
                 }
             }
 
-            if( m_Charge == 0.0f && glm::length2(m_Ball->Velocity) <= 0.01f) {
+            if( m_Charge == 0.0f && glm::length2(m_Ball->Velocity) <= 0.02f) {
                 m_BallStoppedTimer += dt;
             }
 
             if(m_BallStoppedTimer >= 1.5f || 
-                m_Ball->Position.y < m_AlleyEnd.y) //fell down the hole at the end.
+                m_Ball->Position.y < m_AlleyEnd.y - 0.5f) //fell down the hole at the end.
             {
                 if(ArePinsStable()) {
                     m_GameState = GS_RESETTING;

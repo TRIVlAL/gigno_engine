@@ -5,7 +5,7 @@ A Console Variable (Convar) is a Global variable that can be modified AT RUNTIME
     are implemented for this type : ToString(...), FromString(...) and TypeString()
     - Each Convars must be initialized IN GLOBAL SCOPE !
 
-    - you refer by a convar by its name (given in the constructor) to set it, followed by the necessary arguments.
+    - you refer to a convar by its name (given in the constructor) to set it, followed by the necessary arguments.
         - for exemple : an int convar called 'my_test1' is set to 5 by entering into the console 'my_test1 5'
     - If the console is disabled, Convars act as simple constant variables.
     - The convar of type T has an implicit conversion to the type T.
@@ -19,8 +19,8 @@ A Console Variable (Convar) is a Global variable that can be modified AT RUNTIME
 
 #if USE_CONSOLE
 
-#include "command_token.h"
 #include "../../stringify.h"
+#include "console.h"
 
 
 namespace gigno {
@@ -67,8 +67,8 @@ namespace gigno {
             : m_Value{val}, BaseConvar(name, helpstr) {}
         
         virtual void Set(const CommandToken_t &args) override {
-            if(args.GetArgC() > 0) {
-                std::pair<int, T> result = FromString<T>(args);
+            if(args.ArgCount > 0) {
+                std::pair<int, T> result = FromString<T>((const char **)args.Args, args.ArgCount);
                 if(result.first) {
                     BaseConvar::HandleSetResult(args, result.first);
                     return;

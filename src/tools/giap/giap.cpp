@@ -101,7 +101,7 @@ namespace gigno {
         CONSOLE_COMMAND_HELP(giap_compile, "Compiles the trenchbroom map given as argument into a map usable by the engine."
                                             "If no arguments are give, lists the available trenchbroom map") {
             
-            if(args.GetArgC() < 1) {
+            if(COMMAND_ARG_COUNT == 0) {
                 if(!std::filesystem::exists((std::string)convar_giap_map_input_directory)) {
                     Console::LogWarning("GIAP : Map Input Directory '%s' does not exist !", ((std::string)convar_giap_map_input_directory).c_str());
                     return;
@@ -117,7 +117,9 @@ namespace gigno {
                 return;
             }
 
-            const char *map_name = args.GetArg(0);
+            COMMAND_REQUIRE_EQU_ARG_COUNT(1);
+
+            COMMAND_ARG_0_STR(map_name);
 
             GiapCompileImpl(map_name);
         }
@@ -130,7 +132,6 @@ namespace gigno {
 
             for (auto file : std::filesystem::directory_iterator((std::string)convar_giap_map_input_directory)) {
                 if (file.path().extension() == std::filesystem::path(".map")) {
-                    CommandToken_t("giap_compile ");
                     GiapCompileImpl(file.path().stem().string().c_str());
                 }
             }

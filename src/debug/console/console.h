@@ -45,7 +45,16 @@ namespace gigno {
     const std::filesystem::path CONSOLE_LOG_FILEPATH{"gigno_log.txt"}; // The relative path to the file where the messages are logged
                                                                     // When StartFileLogging_Impl() is called.
 
-    struct CommandToken_t;
+    const size_t CONSOLE_COMMAND_MAX_ARG_COUNT = 10;
+    const size_t CONSOLE_COMMAND_MAX_LENGTH = 255;      //The max number of character in a console command call.
+
+    struct CommandToken_t {
+        char Data[CONSOLE_COMMAND_MAX_LENGTH];
+        char *Name;
+        char *Args[CONSOLE_COMMAND_MAX_ARG_COUNT];
+        size_t ArgCount;
+    };
+
     static void cls(const CommandToken_t&); // Defined in command.cpp. Method of the cls console command to clear the console.
                                             // forward-declared here so it can be made a friend of Console.
     static void bind_update(float);         // Defined in bind_command. forward-declared here so it can be made a friend of Console.
@@ -111,6 +120,10 @@ namespace gigno {
             return Singleton()->CallCommand_Impl(line);
         }
 
+        static void CallCommandTokenized(const CommandToken_t &tokens) {
+            return Singleton()->CallCommandTokenized_Impl(tokens);
+        }
+
         static void ExecuteConfigFiles();
 
     private:
@@ -168,6 +181,7 @@ namespace gigno {
         void LogError_Impl(const char *msg);
 
         void CallCommand_Impl(const char *line);
+        void CallCommandTokenized_Impl(const CommandToken_t &tokens);
 
         void LogFormat(const char *fmt, ConsoleMessageType_t type, ConsoleMessageFlags_t flags, ...);
         void Log(const char *msg, ConsoleMessageType_t type, ConsoleMessageFlags_t flags);
@@ -191,8 +205,10 @@ namespace gigno {
         bool m_UIFileLoggingCheckbox;
         bool m_IsFirstFileOpen = true;
         
-        const static size_t CONSOLE_INPUT_BUFFER_SIZE = 256;
-        char m_InputBuffer[CONSOLE_INPUT_BUFFER_SIZE];
+        /*
+        Input field for the commands.
+        */
+        char m_InputBuffer[CONSOLE_COMMAND_MAX_LENGTH];
         
         void Clear();
         void ExecuteConfigFile(std::filesystem::directory_entry file);
@@ -205,7 +221,7 @@ namespace gigno {
     void InitializeErrorHandling();
     //Termination Handler
     void OnTerminate();
-    // SIgnal Handler
+    // Signal Handler
     void OnSignal(int signal);
 
 }

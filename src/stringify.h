@@ -16,7 +16,6 @@
 #include <cstring>
 #include <cerrno>
 #include <string>
-#include "debug/console/command_token.h"
 #include "glm/glm.hpp"
 
 namespace gigno {
@@ -150,28 +149,6 @@ namespace gigno {
     */
     template<class T>
     std::pair<int, T> FromString(const char **arguments, size_t argsCount);
-
-    /*
-    Helper function that uses converts a CommandToken_t to a 'const char**' and then calls FromString(const char **arguments, size_t argsCount).
-    */
-    template<typename T>
-    std::pair<int, T> FromString(const CommandToken_t &args) {
-        uint32_t argc = args.GetArgC();
-
-        char* a[argc];
-        for(int i = 0; i < argc; i++) {
-            a[i] = new char[strlen(args.GetArg(i)) + 1];
-            strcpy(a[i], args.GetArg(i));
-        }
-
-        auto result = FromString<T>((const char **)a, (size_t)argc);
-
-        for(int i = 0; i < argc; i++) {
-            delete[] a[i];
-        }
-
-        return result;
-    }
 
     template<> inline
     std::pair<int, int> FromString<int>(const char **arguments, size_t argsCount) {

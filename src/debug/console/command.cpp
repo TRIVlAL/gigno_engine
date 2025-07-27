@@ -25,17 +25,25 @@ namespace gigno {
         m_Update(dt);
     }
 
-    //DEFINITIONS OF DEFAULT CONSOLE COMMANDS.
+    //DEFINITIONS OF BASIC CONSOLE COMMANDS.
 
     CONSOLE_COMMAND_HELP(echo, "Usage : echo [words, ...].\nRepeats every arguments separated by a space.") {
+
         ConsoleMessageFlags_t flags = MESSAGE_NO_NEW_LINE_BIT;
-        for(int i = 0; i < args.GetArgC(); i++) {
-            Console::LogInfo (flags, "%s", args.GetArg(i));
+
+        for(int i = 0; i < COMMAND_ARG_COUNT; i++) {
+
+            COMMAND_ARG_I_STR(i, argument);
+
+            Console::LogInfo (flags, "%s", argument);
+
             flags = (ConsoleMessageFlags_t)(MESSAGE_NO_NEW_LINE_BIT | MESSAGE_NO_TIME_CODE_BIT);
-            if(i == args.GetArgC() - 2) {
+            if(i == COMMAND_ARG_COUNT - 1) {
                 flags = MESSAGE_NO_TIME_CODE_BIT;
             }
+
         }
+
     }
 
     CONSOLE_COMMAND_HELP(cls, "Usage : clears the console from every messages.") {
@@ -45,9 +53,11 @@ namespace gigno {
     }
 
     CONSOLE_COMMAND_HELP(help, "Usage : 'help' [command] to get help on a specific command or 'help' to get a list of all console commands.") {
+
         Command *comm_current = Command::s_pCommands;
         BaseConvar *convar_current = BaseConvar::s_pConvars;
-        if(args.GetArgC() == 0) {
+
+        if(COMMAND_ARG_COUNT == 0) {
             Console::LogInfo ("Usage : 'help' [command] to get help on a specific command. List of all console commands :"); 
             if(comm_current) {
                 Console::LogInfo (MESSAGE_NO_TIME_CODE_BIT, "Commands :");
@@ -63,38 +73,48 @@ namespace gigno {
                 Console::LogInfo (MESSAGE_NO_TIME_CODE_BIT, "  - %s", convar_current->GetName());
                 convar_current = convar_current->GetNext();
             }
-        } else {
-            while(comm_current) {
-                if(strcmp(comm_current->GetName(), args.GetArg(0)) == 0) {
-                    const char * help_str;
-                    if(*comm_current->GetHelpString() == '\0') {
-                        help_str = "- no help specified -";
-                    } else {
-                        help_str = comm_current->GetHelpString();
-                    }
-                    Console::LogInfo ("Command '%s' : %s", comm_current->GetName(), help_str);
-                    return;
+
+            return;
+        }
+        
+        COMMAND_REQUIRE_EQU_ARG_COUNT(1);
+
+        COMMAND_ARG_0_STR(comm_name);
+
+        while(comm_current) {
+            if(strcmp(comm_current->GetName(), comm_name) == 0) {
+                const char * help_str;
+                if(*comm_current->GetHelpString() == '\0') {
+                    help_str = "- no help specified -";
+                } else {
+                    help_str = comm_current->GetHelpString();
                 }
-                comm_current = comm_current->GetNext();
+                Console::LogInfo ("Command '%s' : %s", comm_name, help_str);
+                return;
             }
-            while(convar_current) {
-                if(strcmp(convar_current->GetName(), args.GetArg(0)) == 0) {
-                    char valuestr[convar_current->ValToString(nullptr)];
-                    convar_current->ValToString(valuestr);
-                    Console::LogInfo ("Convar (%s) '%s' = '%s' : %s", convar_current->TypeToString(), convar_current->GetName(), valuestr, convar_current->GetHelpString());
-                    return;
-                }
-                convar_current = convar_current->GetNext();
+
+            comm_current = comm_current->GetNext();
+
+        }
+        while(convar_current) {
+            if(strcmp(convar_current->GetName(), comm_name) == 0) {
+                char valuestr[convar_current->ValToString(nullptr)];
+                convar_current->ValToString(valuestr);
+                Console::LogInfo ("Convar (%s) '%s' = '%s' : %s", convar_current->TypeToString(), convar_current->GetName(), valuestr, convar_current->GetHelpString());
+                return;
             }
-            Console::LogInfo ("Command '%s' does not exist.", args.GetArg(0));
+            convar_current = convar_current->GetNext();
         }
 
+        Console::LogInfo ("Command '%s' does not exist.", comm_name);
     }
 
     CONSOLE_COMMAND_HELP(exit, "closes the app") {
+
         if(Application *app = Application::Singleton()) {
             app->SetExit(EXIT_SIMPLE);
         }
+
     }
 
     CONSOLE_COMMAND_HELP(status, "prints infos to the console") {
