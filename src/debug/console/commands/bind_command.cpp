@@ -8,7 +8,16 @@ namespace gigno {
 
     #if USE_CONSOLE
 
-    std::vector<std::pair<Key_t, CommandToken_t>> s_BoundCommands{};
+    // We can't store a CommandToken_t because the pointers are invalidated at any memory movement.
+    // ReusableCommandToken_t don't have this problem because they store indices instead of addresses.
+    struct ReusableCommandToken_t {
+        char Data[CONSOLE_COMMAND_MAX_LENGTH];
+        size_t NameIndex;
+        size_t ArgsIndex[CONSOLE_COMMAND_MAX_ARG_COUNT];
+        size_t ArgCount;
+    };
+
+    std::vector<std::pair<Key_t, ReusableCommandToken_t>> s_BoundCommands{};
 
     CONSOLE_COMMAND_HELP_UPDATE(bind, "Usage : 'bind [KEY] [command] [?arg1] [?arg2] ...'"
                         "from now-on until program termination, the command will be called with these arguments every time the KEY is pressed") {
@@ -23,21 +32,21 @@ namespace gigno {
             size += strlen(args.Args[i]) + 1;
         }
 
-        CommandToken_t new_tokens{};
-        strcpy_s(new_tokens.Data, args.Data);
+        ReusableCommandToken_t new_tokens{};
+        memcpy(new_tokens.Data, args.Data, CONSOLE_COMMAND_MAX_LENGTH);
 
-        size_t indx = (args.Args[2] - args.Data);
-        new_tokens.Name = new_tokens.Data + indx;
+        size_t indx = (args.Args[1] - args.Data);
+        new_tokens.NameIndex = indx;
 
-        for(size_t i = 2; i < CONSOLE_COMMAND_MAX_ARG_COUNT; i++) {
+        for(size_t i = 2; i < args.ArgCount; i++) {
 
             size_t indx = (args.Args[i] - args.Data);
-            new_tokens.Args[i - 2] = new_tokens.Data + indx;
+            new_tokens.ArgsIndex[i - 2] = indx;
         }
 
         new_tokens.ArgCount = args.ArgCount - 2;
 
-        s_BoundCommands.emplace_back(std::pair<Key_t, CommandToken_t>{key, new_tokens});
+        s_BoundCommands.emplace_back(std::pair<Key_t, ReusableCommandToken_t>{key, new_tokens});
 
 
         Console::LogInfo("Command call successfully bound");
@@ -46,9 +55,20 @@ namespace gigno {
     void bind_update(float dt) {
         InputServer *input = Application::Singleton()->GetInputServer();
 
-        for(std::pair<Key_t, CommandToken_t>& bound : s_BoundCommands) {
+        for(std::pair<Key_t, ReusableCommandToken_t>& bound : s_BoundCommands) {
+
+            //Convert reusable token to actual token
+            CommandToken_t actual_token{};
+            actual_token.ArgCount = bound.second.ArgCount;
+            actual_token.Name = bound.second.Data + bound.second.NameIndex;
+            for(int i = 0; i < actual_token.ArgCount; i++) {
+                actual_token.Args[i] = bound.second.Data + bound.second.ArgsIndex[i];
+            }
+
+            // ! ReusableCommandToken must (and does) outlive actual_token !
+
             if(input->GetKeyDown(bound.first)) {
-                Console::Singleton()->CallCommandTokenized(bound.second);
+                Console::Singleton()->CallCommandTokenized(actual_token);
             }
         }
     }
