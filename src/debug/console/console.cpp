@@ -7,6 +7,8 @@
 #include "convar.h"
 #include "../../rendering/gui.h"
 
+#include "../../utils/my_cstr.h"
+
 #include <exception>
 #include <csignal>
 
@@ -35,7 +37,7 @@ namespace gigno {
             LogInfo_Impl("Failed to initialize file logging.");
         }
 
-        InitializeErrorHandling(); 
+        InitializeErrorHandling();
     }
 
     Console::~Console() {
@@ -238,7 +240,63 @@ namespace gigno {
             CallCommand(current_line.c_str());
         }
     }
-    #endif
+
+    void Console::InitializeAutocomplete() {
+
+        m_AutoCompleteInitialized = true;
+
+        size_t count{};
+
+        {
+            Command *curr = Command::s_pCommands;
+            while(curr) { count++; curr = curr->GetNext(); }
+        }
+        {
+            BaseConvar *curr = BaseConvar::s_pConvars;
+            while(curr) { count++; curr = curr->GetNext(); }
+        }
+
+        m_OrderedAutocompleteResult.resize(count);
+
+        size_t i = 0;
+
+        {
+            Command *curr = Command::s_pCommands;
+            while(curr) { m_OrderedAutocompleteResult[i] = curr->GetName(); i++; curr = curr->GetNext(); }
+        }
+        {
+            BaseConvar *curr = BaseConvar::s_pConvars;
+            while(curr) { m_OrderedAutocompleteResult[i] = curr->GetName(); i++; curr = curr->GetNext(); }
+        }
+    }
+
+    int Console::InputEditCallback(ImGuiInputTextCallbackData *data) {
+        s_Instance.UpdateAutocomplete(data->Buf); return 0;
+        return 0;
+    }
+
+    void Console::UpdateAutocomplete(char *input) {
+
+        if(!m_AutoCompleteInitialized) {
+            InitializeAutocomplete();
+        }
+
+        std::sort(m_OrderedAutocompleteResult.begin(), m_OrderedAutocompleteResult.end(), 
+                [input](const char *a, const char *b) {
+                    int ar = str_cmp_partial(input, a); 
+                    int br = str_cmp_partial(input, b); 
+                    return ar == br ? strcmp(a, b) < 0 : ar > br;});
+
+        m_AutocompleteResultCount = 0;
+
+        if(!str_cmp_partial(input, m_OrderedAutocompleteResult[0]) && !m_AutocompleteResultCount) {
+            m_AutocompleteResultCount = 0;
+        } else {
+            m_AutocompleteResultCount = m_OrderedAutocompleteResult.size();
+        }
+    }
+
+#endif
 
     bool Console::StopFileLogging_Impl() {
         #if USE_CONSOLE
@@ -344,7 +402,7 @@ namespace gigno {
                 }
 
                 has_started_word = false;
-                empty = true;\
+                empty = true;
             }
 
             new_word = false;
@@ -363,7 +421,7 @@ namespace gigno {
 
     void Console::CallCommandTokenized_Impl(const CommandToken_t &tokens) {
 
-        if(*tokens.Name == '\0') {
+        if(!tokens.Name || *tokens.Name == '\0') {
             LogInfo_Impl("Invalid command call.");
             return;
         }
@@ -487,15 +545,71 @@ namespace gigno {
         ImGui::EndChild();
         ImGui::PopStyleColor();
 
+        
+
         ImGui::Separator();
-        if (ImGui::InputText("Enter command", m_InputBuffer, CONSOLE_COMMAND_MAX_LENGTH, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll)) {
+        if (ImGui::InputText("Enter command", m_InputBuffer, CONSOLE_COMMAND_MAX_LENGTH, 
+            ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll | ImGuiInputTextFlags_CallbackEdit, Console::InputEditCallback)) 
+        {
             LogFormat(" -> %s", CONSOLE_MESSAGE_ECHO, (ConsoleMessageFlags_t)0, m_InputBuffer);
             CallCommand_Impl(m_InputBuffer);
             m_InputBuffer[0] = '\0';
             ImGui::SetKeyboardFocusHere(-1);
         }
+
+        if((ImGui::IsItemFocused() && m_AutocompleteResultCount > 0) || m_AutocompleteFocusIndex) {
+
+            //autocomplete popup
+
+            if(Application::Singleton()->GetInputServer()->GetKeyDown(KEY_DOWN) && m_AutocompleteFocusIndex < m_AutocompleteResultCount) {
+                m_AutocompleteFocusIndex++;
+            }
+            if(Application::Singleton()->GetInputServer()->GetKeyDown(KEY_UP) && m_AutocompleteFocusIndex != 0) {
+                m_AutocompleteFocusIndex--;
+            }
+
+            if(!m_AutocompleteFocusIndex) {
+                ImGui::SetKeyboardFocusHere(-1);
+            }
+
+            ImGui::SetNextWindowPos(ImVec2{ImGui::GetItemRectMin().x, ImGui::GetItemRectMax().y + 10});
+            ImGui::SetNextWindowSize(ImVec2{ImGui::GetItemRectSize().x, 200});
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{6, 6});
+            if(ImGui::Begin("##autocomplete", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing)) {
+                for(size_t i = 0; i < m_AutocompleteResultCount; i++) {
+
+                    if(!m_AutocompleteFocusIndex && i == 0) {
+                        ImGui::SetScrollHereY();
+                    }
+
+                    ImGui::Selectable(m_OrderedAutocompleteResult[i], i == m_AutocompleteFocusIndex - 1);
+
+                    if(i == m_AutocompleteFocusIndex - 1) {
+                        ImGui::SetKeyboardFocusHere(-1);
+
+                        if(Application::Singleton()->GetInputServer()->GetKeyDown(KEY_ESCAPE)) {
+                            m_AutocompleteFocusIndex = 0;
+                        }
+
+                        if(Application::Singleton()->GetInputServer()->GetKeyDown(KEY_ENTER)) {
+                            strcpy_s(m_InputBuffer, m_OrderedAutocompleteResult[i]);
+                            m_AutocompleteFocusIndex = 0;
+                        }
+                    }
+                }
+            }
+
+            ImGui::End();
+
+            ImGui::PopStyleVar();
+
+        }
+
+        ImGui::ShowDemoWindow();
+
         if(Application::Singleton()->GetInputServer()->GetKeyUp(KEY_GRAVE_ACCENT)) {
             ImGui::SetKeyboardFocusHere(-1);
+            m_AutocompleteFocusIndex = 0;
         }
         #endif
     }

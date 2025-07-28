@@ -37,6 +37,20 @@ namespace gigno {
         }
     }
 
+    /*
+    return the number of contiguous equal characters in the strings from the start
+    */
+    int str_cmp_partial(const char *a, const char *b) {
+
+        int res = 0;
+        int i = 0;
+        while(a[i] != '\0' && b[i] != '\0' && a[i] == b[i]) {
+            i++;
+        }
+
+        return i;
+    }
+
 }
 
 #endif

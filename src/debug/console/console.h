@@ -11,7 +11,11 @@
 #include <filesystem>
 #include <mutex>
 
+struct ImGuiInputTextCallbackData;
+
 namespace gigno {
+
+
     enum ConsoleMessageType_t {
         CONSOLE_MESSAGE_INFO = 0,
         CONSOLE_MESSAGE_WARN = 1,
@@ -212,6 +216,15 @@ namespace gigno {
         
         void Clear();
         void ExecuteConfigFile(std::filesystem::directory_entry file);
+
+        bool m_AutoCompleteInitialized = false;
+        void InitializeAutocomplete();                      //to be called after every convar/commands have been registered
+        void UpdateAutocomplete(char *input);                          //sorts the OrderedAutoocompleteResult depending on the input.
+        static int InputEditCallback(ImGuiInputTextCallbackData* data);
+
+        size_t m_AutocompleteResultCount = 0;               // number of autocomplete result
+        std::vector<const char *> m_OrderedAutocompleteResult;    // vector containing every command/convar names, by order of autocomplete validity.
+        size_t m_AutocompleteFocusIndex = 0;                //0 means not in focus. 1 means 1st choice, etc...
         #endif
     };
 
