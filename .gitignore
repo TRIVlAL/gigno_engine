@@ -7,3 +7,4 @@ build
 assets/shaders/*.spv
 .history
 mapping/autosave/
+misc/

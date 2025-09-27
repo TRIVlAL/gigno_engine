@@ -605,8 +605,6 @@ namespace gigno {
 
         }
 
-        ImGui::ShowDemoWindow();
-
         if(Application::Singleton()->GetInputServer()->GetKeyUp(KEY_GRAVE_ACCENT)) {
             ImGui::SetKeyboardFocusHere(-1);
             m_AutocompleteFocusIndex = 0;

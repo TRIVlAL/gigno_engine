@@ -196,8 +196,6 @@ namespace gigno {
                 bullet->Init();
             }
             case WEAPON_GUN: {
-                Console::LogInfo("Fired gun !");
-
                 Ray_t ray{};
                 ray.Direction = m_Mov.LookDir;
                 ray.Point = m_Camera->Position;
@@ -208,8 +206,6 @@ namespace gigno {
 
                     RigidBody *target = (RigidBody*)(hit.EntityHit);
                     target->AddImpulse(ray.Direction * 600.0f, ray.Point - target->Position);
-
-                    Console::LogInfo("HIT !");
                 }
 
                 break;
