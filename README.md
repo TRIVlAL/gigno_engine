@@ -9,6 +9,12 @@
 ![screenshot](misc/physics_screenshots/gigno-1.png)
 ![screenshot](misc/physics_screenshots/gigno-2.png)
 
+YouTube Demo Video here : http://www.youtube.com/watch?v=HJEwh1lG5hI
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=HJEwh1lG5hI
+" target="_blank"><img src="http://img.youtube.com/vi/HJEwh1lG5hI/0.jpg" 
+alt="Demo Video" width="240" height="180" border="10" /></a>
+
 The engine is written in C++. 
 It does not use OS-specific libraries. As such, (although it has only been tested on Windows 10/11), it should work anywhere !
 
@@ -104,3 +110,4 @@ This Engine uses the following low-level open-source, mostly MIT-Licensed librar
   - minaudio for audio
 
 See more information, including their license, in the [third_party_credits.md](src/vendor/third_party_credits.md) in the src/vendor directory.
+
